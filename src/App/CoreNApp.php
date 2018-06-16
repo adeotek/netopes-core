@@ -174,7 +174,7 @@ class CoreNApp extends \PAF\App {
 		}//if($shell)
 		self::$gui_loaded = $ajax;
 		$this->url->data = $ajax ? (is_array($this->GetPageParam('get_params')) ? $this->GetPageParam('get_params') : []) : $this->url->data;
-		$this->SetPageParam('get_params',$this->url_data);
+		$this->SetPageParam('get_params',$this->url->data);
 		$this->url->special_params = array('language','urlid','namespace');
 		if($ajax!==TRUE) {
 			$curl = $this->url->GetCurrentUrl();
