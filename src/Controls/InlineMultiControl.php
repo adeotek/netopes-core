@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * Inline multi-control control
 	 *

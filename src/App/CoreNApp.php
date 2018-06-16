@@ -11,8 +11,10 @@
  * @version    2.1.0.0
  * @filesource
  */
-use NETopes\Core\Classes\Data\DataProvider;
-use NETopes\Core\Classes\App\Module;
+namespace NETopes\Core\App;
+use PAF\AppConfig;
+use NETopes\Core\Data\DataProvider;
+use PAF\AppSession;
 /**
   * ClassName description
   *
@@ -43,19 +45,19 @@ class CoreNApp extends \PAF\App {
 	 * @var    string Account API security key (auto-loaded on LoadAppOptions() method)
 	 * @access private
 	 */
-	private $napp_access_key = NULL;
+	private $app_access_key = NULL;
 	/**
 	 * @var    array An array of global variables
 	 * @access public
 	 */
-	public $globals = array();
+	public $globals = [];
 	/**
-	 * @var    type ...
+	 * @var    string Current namespace
 	 * @access public
 	 */
 	public $current_namespace = '';
 	/**
-	 * @var    type ...
+	 * @var    string Current section folder
 	 * @access public
 	 */
 	public $current_section_folder = '';
@@ -70,17 +72,17 @@ class CoreNApp extends \PAF\App {
 	 */
 	public $login_namespace = NULL;
 	/**
-	 * @var    type ...
+	 * @var    bool With sections
 	 * @access public
 	 */
 	public $with_sections = TRUE;
 	/**
-	 * @var    type ...
+	 * @var    string Start page
 	 * @access public
 	 */
 	public $start_page = '';
 	/**
-	 * @var    type ...
+	 * @var    string Logged in start page
 	 * @access public
 	 */
 	public $loggedin_start_page = '';
@@ -91,17 +93,17 @@ class CoreNApp extends \PAF\App {
 	 */
 	public $default_db_connection = '';
 	/**
-	 * @var    type ...
+	 * @var    bool Login status
 	 * @access public
 	 */
 	public $login_status = NULL;
 	/**
-	 * @var    type ...
+	 * @var    int User status
 	 * @access public
 	 */
 	public $user_status = 0;
 	/**
-	 * @var    type ...
+	 * @var    bool Application database stored option load state
 	 * @access public
 	 */
 	public $app_options_loaded = FALSE;
@@ -109,7 +111,7 @@ class CoreNApp extends \PAF\App {
 	 * @var    array Customizations options array
 	 * @access public
 	 */
-	public $customizations = array();
+	public $customizations = [];
 	/**
 	 * description
 	 *
@@ -119,30 +121,31 @@ class CoreNApp extends \PAF\App {
 	 * @param null  $do_not_keep_alive
 	 * @param bool  $shell
 	 * @access protected
+	 * @throws \ReflectionException
 	 */
-	protected function __construct($ajax = FALSE,$params = array(),$with_session = FALSE,$do_not_keep_alive = NULL,$shell = FALSE) {
+	protected function __construct($ajax = FALSE,$params = [],$with_session = FALSE,$do_not_keep_alive = NULL,$shell = FALSE) {
 		if(!is_array($params)) { $params = array(); }
 		parent::__construct($ajax,$params,$with_session,$do_not_keep_alive,$shell);
 		$this->app_options_loaded = FALSE;
 		$this->current_namespace = (array_key_exists('namespace',$params) && $params['namespace']) ? $params['namespace'] : '';
 		global $_DOMAINS_CONFIG;
 		if(!isset($_DOMAINS_CONFIG['domains']) || !is_array($_DOMAINS_CONFIG['domains'])) { die('Invalid domain registry settings!'); }
-		$keydomain = $shell ? '_default' : (array_key_exists($this->app_domain,$_DOMAINS_CONFIG['domains']) ? $this->app_domain : (array_key_exists('_default',$_DOMAINS_CONFIG['domains']) ? '_default' : ''));
+		$keydomain = $shell ? '_default' : (array_key_exists($this->url->GetAppDomain(),$_DOMAINS_CONFIG['domains']) ? $this->url->GetAppDomain() : (array_key_exists('_default',$_DOMAINS_CONFIG['domains']) ? '_default' : ''));
 		if(!$keydomain || !isset($_DOMAINS_CONFIG['domains'][$keydomain]) || !$_DOMAINS_CONFIG['domains'][$keydomain]) { die('Wrong domain registry settings!'); }
 		if(!$this->current_namespace) { $this->current_namespace = array_key_exists('namespace',$_GET) ? $_GET['namespace'] : $_DOMAINS_CONFIG['domains'][$keydomain]; }
 		if(!isset($_DOMAINS_CONFIG['namespaces'][$this->current_namespace])) { die('Invalid namespace!'); }
-		if(!is_array($this->globals)) { $this->globals = array(); }
+		if(!is_array($this->globals)) { $this->globals = []; }
 		$this->globals['domain_config'] = $_DOMAINS_CONFIG['namespaces'][$this->current_namespace];
 		$this->default_db_connection = $this->globals['domain_config']['db_connection'];
-		$this->url_virtual_path = isset($this->globals['domain_config']['link_alias']) ? $this->globals['domain_config']['link_alias'] : '';
+		$this->url->url_virtual_path = isset($this->globals['domain_config']['link_alias']) ? $this->globals['domain_config']['link_alias'] : '';
 		$default_views_dir = get_array_param($this->globals['domain_config'],'default_views_dir','','is_string');
-		if(strlen($default_views_dir)) { self::$x_app_default_views_dir = $default_views_dir; }
+		if(strlen($default_views_dir)) { AppConfig::app_default_views_dir($default_views_dir); }
 		$views_extension = get_array_param($this->globals['domain_config'],'views_extension','','is_string');
-		if(strlen($views_extension)) { self::$x_app_views_extension = $views_extension; }
+		if(strlen($views_extension)) { AppConfig::app_views_extension($views_extension); }
 		$app_theme = get_array_param($this->globals['domain_config'],'app_theme',NULL,'is_string');
-		if(isset($app_theme)) { self::$x_app_theme = $app_theme; }
+		if(isset($app_theme)) { AppConfig::app_theme($app_theme); }
 		$app_theme_type = get_array_param($this->globals['domain_config'],'app_theme_type',NULL,'is_string');
-		if(isset($app_theme_type)) { self::$x_app_theme_type = $app_theme_type; }
+		if(isset($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
 		$this->requires_login = $this->globals['domain_config']['requires_login'];
 		$this->login_namespace = isset($this->globals['domain_config']['login_namespace']) ? $this->globals['domain_config']['login_namespace'] : NULL;
 		$this->with_sections = $this->globals['domain_config']['with_sections'];
@@ -153,21 +156,24 @@ class CoreNApp extends \PAF\App {
 			return;
 		}//if($shell)
 		self::$gui_loaded = $ajax;
-		$this->url_data = $ajax ? (is_array($this->GetPageParam('get_params')) ? $this->GetPageParam('get_params') : array()) : $this->url_data;
+		$this->url->data = $ajax ? (is_array($this->GetPageParam('get_params')) ? $this->GetPageParam('get_params') : []) : $this->url->data;
 		$this->SetPageParam('get_params',$this->url_data);
-		$this->special_url_params = array('language','urlid','namespace');
+		$this->url->special_params = array('language','urlid','namespace');
 		if($ajax!==TRUE) {
-			$curl = $this->app_web_protocol.$this->app_domain.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
+			$curl = $this->url->GetCurrentUrl();
 			if($this->GetPageParam('current_url')!=$curl) { $this->SetPageParam('old_url',$this->GetPageParam('current_url')); }
 			$this->SetPageParam('current_url',$curl);
 		}//if($ajax!==TRUE)
-		if($with_session && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) {
-			self::$debug = FALSE;
-		}//if($with_session && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1)
+		if($with_session && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::debug(FALSE); }
 	}//END protected function __construct
 	/**
 	 * Commit the namespace temporary session into the session
 	 *
+	 * @param null $clear
+	 * @param bool $preserve_output_buffer
+	 * @param bool $show_errors
+	 * @param null $namespace
+	 * @param null $phash
 	 * @return void
 	 * @access public
 	 */
@@ -189,18 +195,20 @@ class CoreNApp extends \PAF\App {
 	 * Gets a parameter from the temporary session
 	 *
 	 * @param  string $key The name of the parameter
-	 * @param  string $phash The page hash (default FALSE, global context)
+	 * @param bool    $phash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return mixed  Returns the parameter value or NULL
 	 * @access public
 	 */
 	public function GetParam($key,$phash = FALSE,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
 		$lphash = isset($phash) ? $phash : $this->phash;
-		$lkey = self::ConvertToSessionCase($key);
-		if(!is_array(self::$data) || !array_key_exists($lnamespace,self::$data) || !is_array(self::$data[$lnamespace]) || ($lphash && (!array_key_exists($lphash,self::$data[$lnamespace]) || !is_array(self::$data[$lnamespace][$lphash])))) { return NULL; }
-		if($lphash) { return array_key_exists($lkey,self::$data[$lnamespace][$lphash]) ? self::$data[$lnamespace][$lphash][$lkey] : NULL; }
-		return array_key_exists($lkey,self::$data[$lnamespace]) ? self::$data[$lnamespace][$lkey] : NULL;
+		$data = AppSession::GetData();
+		if(!is_array($data) || !array_key_exists($lnamespace,$data) || !is_array($data[$lnamespace]) || ($lphash && (!array_key_exists($lphash,$data[$lnamespace]) || !is_array($data[$lnamespace][$lphash])))) { return NULL; }
+		$lkey = AppSession::ConvertToSessionCase($key);
+		if($lphash) { return array_key_exists($lkey,$data[$lnamespace][$lphash]) ? $data[$lnamespace][$lphash][$lkey] : NULL; }
+		return array_key_exists($lkey,$data[$lnamespace]) ? $data[$lnamespace][$lkey] : NULL;
 	}//END public function GetParam
 	/**
 	 * Gets a parameter from the temporary session
@@ -208,6 +216,7 @@ class CoreNApp extends \PAF\App {
 	 * @param  string $key The name of the parameter
 	 * @param  string $phash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return mixed  Returns the parameter value or NULL
 	 * @access public
 	 */
@@ -219,21 +228,24 @@ class CoreNApp extends \PAF\App {
 	 *
 	 * @param  string $key The name of the parameter
 	 * @param  mixed  $val The value of the parameter
-	 * @param  string $phash The page hash (default FALSE, global context)
+	 * @param bool    $phash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return void
 	 * @access public
 	 */
 	public function SetParam($key,$val,$phash = FALSE,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
 		$lphash = isset($phash) ? $phash : $this->phash;
-		$lkey = self::ConvertToSessionCase($key);
-		if(!is_array(self::$data)) { self::$data = array(); }
+		$data = AppSession::GetData();
+		if(!is_array($data)) { $data = []; }
+		$lkey = AppSession::ConvertToSessionCase($key);
 		if($lphash) {
-			self::$data[$lnamespace][$lphash][$lkey] = $val;
+			$data[$lnamespace][$lphash][$lkey] = $val;
 		} else {
-			self::$data[$lnamespace][$lkey] = $val;
+			$data[$lnamespace][$lkey] = $val;
 		}//if($lphash)
+		AppSession::SetData($data);
 	}//END public function SetParam
 	/**
 	 * Sets a parameter to the temporary session
@@ -242,30 +254,34 @@ class CoreNApp extends \PAF\App {
 	 * @param  mixed  $val The value of the parameter
 	 * @param  string $phash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return void
 	 * @access public
 	 */
 	public function SetPageParam($key,$val,$phash = NULL,$namespace = NULL) {
-		return $this->SetParam($key,$val,$phash,$namespace);
+		$this->SetParam($key,$val,$phash,$namespace);
 	}//END public function SetPageParam
 	/**
 	 * Delete a parameter from the temporary session
 	 *
 	 * @param  string $key The name of the parameter
-	 * @param  string $phash The page hash (default FALSE, global context)
+	 * @param bool    $phash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return void
 	 * @access public
 	 */
 	public function UnsetParam($key,$phash = FALSE,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
 		$lphash = isset($phash) ? $phash : $this->phash;
-		$lkey = self::ConvertToSessionCase($key);
+		$data = AppSession::GetData();
+		$lkey = AppSession::ConvertToSessionCase($key);
 		if($lphash) {
-			unset(self::$data[$lnamespace][$lphash][$lkey]);
+			unset($data[$lnamespace][$lphash][$lkey]);
 		} else {
-			unset(self::$data[$lnamespace][$lkey]);
+			unset($data[$lnamespace][$lkey]);
 		}//if($lphash)
+		AppSession::SetData($data);
 	}//END public function UnsetParam
 	/**
 	 * Delete a parameter from the temporary session
@@ -273,53 +289,64 @@ class CoreNApp extends \PAF\App {
 	 * @param  string $key The name of the parameter
 	 * @param  string $phash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
+	 * @param null    $namespace
 	 * @return void
 	 * @access public
 	 */
 	public function UnsetPageParam($key,$phash = NULL,$namespace = NULL) {
-		return $this->UnsetParam($key,$phash,$namespace);
+		$this->UnsetParam($key,$phash,$namespace);
 	}//END public function UnsetPageParam
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param      $uid
+	 * @param null $namespace
+	 * @return mixed
 	 * @access public
 	 */
 	public function GetSessionAcceptedRequest($uid,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
-		if(!isset(self::$data[$lnamespace]['xURLRequests'][$uid])) { return NULL; }
-		return self::$data[$lnamespace]['xURLRequests'][$uid];
+		$data = AppSession::GetData();
+		if(!isset($data[$lnamespace]['xURLRequests'][$uid])) { return NULL; }
+		return $data[$lnamespace]['xURLRequests'][$uid];
 	}//END public function GetSessionAcceptedRequest
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param      $uid
+	 * @param null $namespace
+	 * @return string
 	 * @access public
 	 */
 	public function SetSessionAcceptedRequest($uid,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
-		if($uid===TRUE) { $uid = NApp::GetNewUID(NULL,'md5'); }
-		self::$data[$lnamespace]['xURLRequests'][$uid] = TRUE;
+		if($uid===TRUE) { $uid = AppSession::GetNewUID(NULL,'md5'); }
+		$data = AppSession::GetData();
+		$data[$lnamespace]['xURLRequests'][$uid] = TRUE;
+		AppSession::SetData($data);
 		return $uid;
 	}//END public function SetSessionAcceptedRequest
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param      $uid
+	 * @param null $namespace
 	 * @return void
 	 * @access public
 	 */
 	public function UnsetSessionAcceptedRequest($uid,$namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
-		unset(self::$data[$lnamespace]['xURLRequests'][$uid]);
+		$data = AppSession::GetData();
+		unset($data[$lnamespace]['xURLRequests'][$uid]);
+		AppSession::SetData($data);
 	}//END public function UnsetSessionAcceptedRequest
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param      $uid
+	 * @param bool $reset
+	 * @param null $namespace
+	 * @return bool
 	 * @access public
 	 */
 	public function CheckSessionAcceptedRequest($uid,$reset = FALSE,$namespace = NULL) {
@@ -330,8 +357,10 @@ class CoreNApp extends \PAF\App {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param      $key
+	 * @param null $def_value
+	 * @param null $validation
+	 * @return mixed
 	 * @access public
 	 */
 	public function GetGlobalVar($key,$def_value = NULL,$validation = NULL) {
@@ -340,8 +369,9 @@ class CoreNApp extends \PAF\App {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param $key
+	 * @param $value
+	 * @return bool
 	 * @access public
 	 */
 	public function SetGlobalVar($key,$value) {
@@ -375,7 +405,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetDynamicJs() {
-		$scripts = NApp::_GetGlobalVar('dynamic_js_scripts',[],'is_array');
+		$scripts = self::GetGlobalVar('dynamic_js_scripts',[],'is_array');
 		if(!count($scripts)) { return NULL; }
 		$html_data = '';
 		$data = '';
@@ -400,11 +430,11 @@ class CoreNApp extends \PAF\App {
 	public function ProcessRequestParams() {
 		if(!is_array($this->globals)) { $this->globals = []; }
 		if(!array_key_exists('req_params',$this->globals) || !is_array($this->globals['req_params'])) { $this->globals['req_params'] = []; }
-		$uripage = $this->GetUrlParamElement('page');
-		$uripag = $this->GetUrlParamElement('pag');
+		$uripage = $this->url->GetParamElement('page');
+		$uripag = $this->url->GetParamElement('pag');
 		$this->globals['req_params']['id_page'] = is_numeric($uripage) ? $uripage : NULL;
 		$this->globals['req_params']['pagination'] = is_numeric($uripag) ? $uripag : NULL;
-		$urlid = strtolower(trim($this->GetUrlParamElement('urlid'),'/'));
+		$urlid = strtolower(trim($this->url->GetParamElement('urlid'),'/'));
 		if(strpos($urlid,'/')===FALSE) {
 			$this->globals['req_params']['category'] = NULL;
 			$this->globals['req_params']['subcategories'] = NULL;
@@ -418,8 +448,8 @@ class CoreNApp extends \PAF\App {
 			$this->globals['req_params']['subcategories'] = $e_scat;
 			$this->globals['req_params']['page'] = $e_page;
 		}//if(strpos($urlid,'/')===FALSE)
-		$this->globals['req_params']['module'] = $this->GetUrlParam('module');
-		$this->globals['req_params']['action'] = $this->GetUrlParam('a');
+		$this->globals['req_params']['module'] = $this->url->GetParam('module');
+		$this->globals['req_params']['action'] = $this->url->GetParam('a');
 	}//END public function ProcessRequestParams
 	/**
 	 * description
@@ -427,7 +457,7 @@ class CoreNApp extends \PAF\App {
 	 * @param      $key
 	 * @param null $def_value
 	 * @param null $validation
-	 * @return void
+	 * @return mixed
 	 * @access public
 	 */
 	public function GetRequestParamValue($key,$def_value = NULL,$validation = NULL) {
@@ -437,7 +467,7 @@ class CoreNApp extends \PAF\App {
 	/**
 	 * Get current language ID
 	 *
-	 * @return void Returns current language ID
+	 * @return int|null Returns current language ID
 	 * @access public
 	 */
 	public function GetLanguageId() {
@@ -477,23 +507,23 @@ class CoreNApp extends \PAF\App {
 	public function GetVersion($type = NULL) {
 		switch($type) {
 		  	case 'array':
-				$ver_arr = explode('.',self::$x_app_version);
+				$ver_arr = explode('.',AppConfig::app_version());
 				return array('major'=>$ver_arr[0],'minor'=>$ver_arr[1],'build'=>$ver_arr[2]);
 				break;
 			case 'major':
-				$ver_arr = explode('.',self::$x_app_version);
+				$ver_arr = explode('.',AppConfig::app_version());
 				return intval($ver_arr[0]);
 				break;
 			case 'minor':
-				$ver_arr = explode('.',self::$x_app_version);
+				$ver_arr = explode('.',AppConfig::app_version());
 				return intval($ver_arr[1]);
 				break;
 			case 'buid':
-				$ver_arr = explode('.',self::$x_app_version);
+				$ver_arr = explode('.',AppConfig::app_version());
 				return intval($ver_arr[2]);
 				break;
 		  	default:
-				return self::$x_app_version;
+				return AppConfig::app_version();
 				break;
 		}//END switch
 	}//END public function GetVersion
@@ -512,35 +542,34 @@ class CoreNApp extends \PAF\App {
 	public function GetFrameworkVersion($type = NULL) {
 		switch($type) {
 		    case 'array':
-				$ver_arr = explode('.',self::$x_framework_version);
+				$ver_arr = explode('.',AppConfig::framework_version());
 				return array('major'=>$ver_arr[0],'minor'=>$ver_arr[1],'build'=>$ver_arr[2]);
 				break;
 			case 'major':
-				$ver_arr = explode('.',self::$x_framework_version);
+				$ver_arr = explode('.',AppConfig::framework_version());
 				return intval($ver_arr[0]);
 				break;
 			case 'minor':
-				$ver_arr = explode('.',self::$x_framework_version);
+				$ver_arr = explode('.',AppConfig::framework_version());
 				return intval($ver_arr[1]);
 				break;
 			case 'buid':
-				$ver_arr = explode('.',self::$x_framework_version);
+				$ver_arr = explode('.',AppConfig::framework_version());
 				return intval($ver_arr[2]);
 				break;
 		    default:
-				return self::$x_framework_version;
+				return AppConfig::framework_version();
 				break;
 		}//END switch
 	}//END public function GetFrameworkVersion
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @return string
 	 * @access public
 	 */
 	public function GetAppDomain() {
-		return $this->app_domain;
+		return $this->url->GetAppDomain();
 	}//END public function GetAppDomain
 	/**
 	 * Gets the website name
@@ -549,7 +578,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetWebsiteName() {
-		return self::$x_website_name;
+		return AppConfig::website_name();
 	}//END public function GetWebsiteName
 	/**
 	 * Gets the application name
@@ -558,7 +587,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetAppName() {
-		return self::$x_app_name;
+		return AppConfig::app_name();
 	}//END public function GetAppName
 	/**
 	 * Gets the application copyright
@@ -567,7 +596,8 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetAppCopyright() {
-		return (self::$x_app_copyright ? self::$x_app_copyright : '&copy; ').date('Y');
+		$copyright = AppConfig::app_copyright();
+		return ($copyright ? $copyright : '&copy; ').date('Y');
 	}//END public function GetAppCopyright
 	/**
 	 * Gets first page title
@@ -576,7 +606,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetFirstPageTitle() {
-		return self::$x_first_page_title;
+		return AppConfig::app_first_page_title();
 	}//END public function GetFirstPageTitle
 	/**
 	 * Gets author name
@@ -585,7 +615,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetAuthorName() {
-		return self::$x_author_name;
+		return AppConfig::app_author_name();
 	}//END public function GetAuthorName
 	/**
 	 * Gets provider name
@@ -594,7 +624,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetProviderName() {
-		return self::$x_provider_name;
+		return AppConfig::app_provider_name();
 	}//END public function GetProviderName
 	/**
 	 * Gets provider url
@@ -603,7 +633,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetProviderUrl() {
-		return self::$x_provider_url;
+		return AppConfig::app_provider_url();
 	}//END public function GetProviderUrl
 	/**
 	 * Gets multi-language flag
@@ -614,9 +644,9 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function IsMultiLanguage($namespace = NULL) {
-		if(!is_array(self::$x_multi_language)) { return self::$x_multi_language; }
+		if(!is_array(AppConfig::app_multi_language())) { return AppConfig::app_multi_language(); }
 		$namespace = $namespace ? $namespace : $this->current_namespace;
-		return get_array_param(self::$x_multi_language,$namespace,TRUE,'bool');
+		return get_array_param(AppConfig::app_multi_language(),$namespace,TRUE,'bool');
 	}//END public function IsMultiLanguage
 	/**
 	 * Get database cache state
@@ -625,7 +655,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function CacheDbCall() {
-		return (self::$x_db_cache && $this->current_namespace=='web');
+		return (AppConfig::app_db_cache() && $this->current_namespace=='web');
 	}//END public static function CacheDbCall
 	/**
 	 * Gets the login timeout in minutes
@@ -635,13 +665,12 @@ class CoreNApp extends \PAF\App {
 	 */
 	public function GetLoginTimeout() {
 		$cookie_hash = $this->GetCookieHash();
-		if(array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash]) && $_COOKIE[$cookie_hash]==$this->GetParam('user_hash')) { return intval(self::$cookie_login_lifetime / 24 / 60); }
-		return intval(self::$session_timeout / 60);
+		if(array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash]) && $_COOKIE[$cookie_hash]==$this->GetParam('user_hash')) { return intval(AppConfig::cookie_login_lifetime() / 24 / 60); }
+		return intval(AppConfig::session_timeout() / 60);
 	}//END public function GetLoginTimeout
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
 	 * @access public
 	 */
@@ -649,27 +678,29 @@ class CoreNApp extends \PAF\App {
 		return $this->current_namespace;
 	}//END public function GetCurrentTemplate
 	/**
-	 * description
+	 * Get application non-public repository path
 	 *
-	 * @return void
+	 * @return string
 	 * @access public
 	 */
 	public function GetRepositoryPath() {
-		if(is_string(self::$x_repository_path) && strlen(self::$x_repository_path) && file_exists(self::$x_repository_path)) {
-			return rtrim(self::$x_repository_path,'/\\').'/';
-		}//if(is_string(self::$x_repository_path) && strlen(self::$x_repository_path) && file_exists(self::$x_repository_path))
+		$repository_path = AppConfig::repository_path();
+		if(is_string($repository_path) && strlen($repository_path) && file_exists($repository_path)) {
+			return rtrim($repository_path,'/\\').'/';
+		}//if(is_string($repository_path) && strlen($repository_path) && file_exists($repository_path))
 		return $this->app_path.'/repository/';
 	}//END public function GetRepositoryPath
 	/**
-	 * description
+	 * Get application cache path
 	 *
-	 * @return void
+	 * @return string
 	 * @access public
 	 */
 	public function GetCachePath() {
-		if(is_string(self::$x_cache_path) && strlen(self::$x_cache_path) && file_exists(self::$x_cache_path)) {
-			return rtrim(self::$x_cache_path,'/\\').'/';
-		}//if(is_string(self::$x_cache_path) && strlen(self::$x_cache_path) && file_exists(self::$x_cache_path))
+		$cache_path = AppConfig::app_cache_path();
+		if(is_string($cache_path) && strlen($cache_path) && file_exists($cache_path)) {
+			return rtrim($cache_path,'/\\').'/';
+		}//if(is_string($cache_path) && strlen($cache_path) && file_exists($cache_path))
 		if(!file_exists($this->app_path.'/.cache')) {
 			mkdir($this->app_path.'/.cache',755);
 		}//if(!file_exists($this->app_path.'/.cache'))
@@ -682,7 +713,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetApiKey() {
-		return self::$api_key;
+		return AppConfig::app_api_key();
 	}//END public function GetApiKey
     /**
 	 * Gets the API security key separator (key used for authentication)
@@ -691,16 +722,16 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetApiSeparator() {
-		return self::$api_separator;
+		return AppConfig::app_api_separator();
 	}//END public function GetApiSeparator
 	/**
 	 * Gets the account API security key (auto loaded on LoadAppOptions() method)
 	 *
-	 * @return void Returns account API security key
+	 * @return string Returns account API security key
 	 * @access public
 	 */
 	public function GetMyAccessKey() {
-		return $this->napp_access_key;
+		return $this->app_access_key;
 	}//END public function GetMyAccessKey
 	/**
 	 * Gets the previous visited URL
@@ -717,11 +748,13 @@ class CoreNApp extends \PAF\App {
 	/**
 	 * Gets the application base link with or without language path
 	 *
+	 * @param null    $uri
 	 * @param  string $namespace Namespace for generating app_web_link or NULL for current namespace
-	 * @param  bool $base If set to TRUE will return only base link (app_web_link property) else will return base link + language path
+	 * @param  bool   $base If set to TRUE will return only base link (app_web_link property) else will return base link + language path
+	 * @param null    $langcode
 	 * @return string The link of the application (with or without language path)
-	 * @access public
 	 * @throws \PAF\AppException
+	 * @access public
 	 */
 	public function GetAppWebLink($uri = NULL,$namespace = NULL,$base = FALSE,$langcode = NULL) {
 		$namespace = $namespace ? $namespace : $this->current_namespace;
@@ -734,11 +767,11 @@ class CoreNApp extends \PAF\App {
 			$ns_link_alias = get_array_param($this->globals,'domain_config','','is_string','link_alias');
 		}//if($namespace!=$this->current_namespace)
 		$llangcode = $langcode===FALSE ? '' : (is_string($langcode) && strlen($langcode) ? $langcode : $this->GetLanguageCode());
-		$lang = ($this->IsMultiLanguage($namespace) && !NApp::$x_url_without_language && strlen($llangcode)) ? strtolower($llangcode) : '';
-		if(self::$x_mod_rewrite) {
+		$lang = ($this->IsMultiLanguage($namespace) && !AppConfig::url_without_language() && strlen($llangcode)) ? strtolower($llangcode) : '';
+		if(AppConfig::app_mod_rewrite()) {
 			if($base) { return $this->app_web_link.'/'.($ns_link_alias ? $ns_link_alias.'/' : ''); }
 			return $this->app_web_link.'/'.($ns_link_alias ? $ns_link_alias.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen($uri) ? '?'.$uri : '');
-		}//if(self::$x_mod_rewrite)
+		}//if(AppConfig::app_mod_rewrite())
 		$url = $this->app_web_link.'/';
 		if(strlen($ns_link_alias)) { $url .= '?namespace='.$ns_link_alias; }
 		if($base) { return $url; }
@@ -777,40 +810,47 @@ class CoreNApp extends \PAF\App {
 		$requests = NULL;
 		if(!$errors) {
 			/* Start session and set ID to the expected paf session */
-			list($php,$session_id,$request_id) = explode(\PAF\AjaxRequest::$aapp_req_sep,$request);
+			list($php,$session_id,$request_id) = explode(\PAF\AjaxRequest::$app_req_sep,$request);
 			/* Validate this request */
 			$spath = array(
 				$this->current_namespace,
-				self::ConvertToSessionCase(self::$aapp_session_key,\PAF\AjaxRequest::$aapp_session_keys_case),
-				self::ConvertToSessionCase('PAF_AREQUEST',\PAF\AjaxRequest::$aapp_session_keys_case),
+				AppSession::ConvertToSessionCase(self::$aapp_session_key,\PAF\AjaxRequest::$session_keys_case),
+				AppSession::ConvertToSessionCase('PAF_AREQUEST',\PAF\AjaxRequest::$session_keys_case),
 			);
-			$requests = $this->GetGlobalParam(self::ConvertToSessionCase('AREQUESTS',\PAF\AjaxRequest::$aapp_session_keys_case),FALSE,$spath,FALSE);
-			if(GibberishAES::dec(rawurldecode($session_id),self::$session_key)!=session_id() || !is_array($requests)) {
+			$requests = $this->GetGlobalParam(AppSession::ConvertToSessionCase('AREQUESTS',\PAF\AjaxRequest::$session_keys_case),FALSE,$spath,FALSE);
+			if(\GibberishAES::dec(rawurldecode($session_id),AppConfig::app_session_key())!=session_id() || !is_array($requests)) {
 				$errors .= 'Invalid Request!';
-			} elseif(!in_array(self::ConvertToSessionCase($request_id,\PAF\AjaxRequest::$aapp_session_keys_case),array_keys($requests))) {
+			} elseif(!in_array(AppSession::ConvertToSessionCase($request_id,\PAF\AjaxRequest::$session_keys_case),array_keys($requests))) {
 				$errors .= 'Invalid Request Data!';
-			}//if(GibberishAES::dec(rawurldecode($session_id),self::$session_key)!=session_id() || !is_array($requests))
+			}//if(GibberishAES::dec(rawurldecode($session_id),AppConfig::app_session_key())!=session_id() || !is_array($requests))
 		}//if(!$errors)
 		if(!$errors) {
 			/* Get function name and process file */
-			$REQ = $requests[self::ConvertToSessionCase($request_id,\PAF\AjaxRequest::$aapp_session_keys_case)];
-			$method = $REQ[self::ConvertToSessionCase('METHOD',\PAF\AjaxRequest::$aapp_session_keys_case)];
-			$lkey = self::ConvertToSessionCase('CLASS_FILE',\PAF\AjaxRequest::$aapp_session_keys_case);
-			$class_file = (array_key_exists($lkey,$REQ) && $REQ[$lkey]) ? $REQ[$lkey] : (self::$aapp_class_file ? self::$aapp_class_file : $this->app_path.self::$aapp_class_file_path.'/'.self::$aapp_class_file_name);
-			$lkey = self::ConvertToSessionCase('CLASS',\PAF\AjaxRequest::$aapp_session_keys_case);
-			$class = (array_key_exists($lkey,$REQ) && $REQ[$lkey]) ? $REQ[$lkey] : self::$aapp_class_name;
+			$REQ = $requests[AppSession::ConvertToSessionCase($request_id,\PAF\AjaxRequest::$session_keys_case)];
+			$method = $REQ[AppSession::ConvertToSessionCase('METHOD',\PAF\AjaxRequest::$session_keys_case)];
+			$lkey = AppSession::ConvertToSessionCase('CLASS',\PAF\AjaxRequest::$session_keys_case);
+			$class = (array_key_exists($lkey,$REQ) && $REQ[$lkey]) ? $REQ[$lkey] : AppConfig::ajax_class_name();
 			/* Load the class extension containing the user functions */
-			try {
-				require_once($class_file);
-			} catch(Exception $e) {
-				$errors = 'Class file: '.$class_file.' not found ('.$e->getMessage().') !';
-			}//try
+			$lkey = AppSession::ConvertToSessionCase('CLASS_FILE',\PAF\AjaxRequest::$session_keys_case);
+			if(array_key_exists($lkey,$REQ) && isset($REQ[$lkey])) {
+				$class_file = $REQ[$lkey];
+			} else {
+				$app_class_file = AppConfig::ajax_class_file();
+				$class_file = $app_class_file ? $this->app_path.$app_class_file : '';
+			}//if(array_key_exists($lkey,$REQ) && isset($REQ[$lkey]))
+			if(strlen($class_file)) {
+				if(file_exists($class_file)) {
+					require_once($class_file);
+				} else {
+					$errors = 'Class file ['.$class_file.'] not found!';
+				}//if(file_exists($class_file))
+			}//if(strlen($class_file))
 			if(!$errors) {
 				/* Execute the requested function */
 				$this->arequest = new $class($this,$subsession);
 				$this->arequest->SetPostParams($post_params);
-				$errors = $this->arequest->ExecuteRequest($method,$php);
-				$this->SessionCommit(NULL,TRUE);
+				$this->arequest->ExecuteRequest($method,$php);
+				$this->NamespaceSessionCommit(NULL,TRUE);
 				if($this->arequest->HasActions()) { echo $this->arequest->Send(); }
 				$content = $this->GetOutputBufferContent();
 			} else {
@@ -819,7 +859,7 @@ class CoreNApp extends \PAF\App {
 			echo $content;
 			//$this->ClearOutputBuffer(TRUE);
 		} else {
-			self::Log2File(array('type'=>'error','message'=>$errors,'no'=>-1,'file'=>__FILE__,'line'=>__LINE__),$this->app_path.self::$logs_path.'/'.self::$errors_log_file);
+			self::Log2File(['type'=>'error','message'=>$errors,'no'=>-1,'file'=>__FILE__,'line'=>__LINE__],$this->app_path.AppConfig::logs_path().'/'.AppConfig::errors_log_file());
 			$this->RedirectOnError();
 		}//if(!$errors)
 	}//END public function ExecuteARequest
@@ -873,7 +913,7 @@ class CoreNApp extends \PAF\App {
 	 */
 	protected function RedirectOnError() {
 		if($this->ajax) {
-			echo \PAF\AjaxRequest::$aapp_act_sep.'window.location.href = "'.$this->GetAppWebLink().'";';
+			echo \PAF\AjaxRequest::$app_act_sep.'window.location.href = "'.$this->GetAppWebLink().'";';
 		} else {
 			header('Location:'.$this->GetAppWebLink());
 			exit();
@@ -887,27 +927,27 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function InitializeKCFinder($params = NULL) {
-		if(!$this->with_session) { return; }
+		if(!AppSession::GetState()) { return; }
 		$type = get_array_param($params,'type','','is_string');
 		switch(strtolower($type)) {
 			case 'public':
-				$this->SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadURL',$this->app_web_link.'/repository/public','__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadDir',$this->app_public_path.'/repository/public','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',$this->app_web_link.'/repository/public','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',$this->app_public_path.'/repository/public','__KCFINDER',NULL,FALSE);
 				break;
 			case 'app':
-				$this->SetGlobalParam('disabled',($this->login_status && $this->GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadURL',$this->app_web_link.'/repository/app','__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadDir',$this->app_public_path.'/repository/app','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('disabled',($this->login_status && $this->GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',$this->app_web_link.'/repository/app','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',$this->app_public_path.'/repository/app','__KCFINDER',NULL,FALSE);
 				break;
 			case 'cms':
 			default:
 				$section_folder = get_array_param($params,'section_folder',$this->GetParam('section_folder'),'is_string');
 				$zone_code = get_array_param($params,'zone_code',$this->GetParam('zone_code'),'is_string');
 				// TODO: fix multi instance
-				$this->SetGlobalParam('disabled',($this->login_status && $this->GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadURL',$this->app_web_link.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
-				$this->SetGlobalParam('uploadDir',$this->app_public_path.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('disabled',($this->login_status && $this->GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',$this->app_web_link.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',$this->app_public_path.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
 				break;
 		}//END switch
 		$this->SessionCommit(FALSE,TRUE,TRUE,NULL,'__KCFINDER',FALSE);
@@ -916,29 +956,34 @@ class CoreNApp extends \PAF\App {
 	 * Gets the login cookie hash
 	 *
 	 * @param  string $namespace The namespace for the cookie or NULL for current namespace
+	 * @param null    $salt
 	 * @return string The name (hash) of the login cookie
 	 * @access public
 	 */
 	public function GetCookieHash($namespace = NULL,$salt = NULL) {
 		$lnamespace = $namespace ? $namespace : $this->current_namespace;
 		$lsalt = strlen($salt) ? $salt : 'loggedin';
-		return self::GetNewUID(self::$session_key.$this->app_domain.$this->url_folder.$lnamespace.$lsalt,'sha256',TRUE);
+		return AppSession::GetNewUID(AppConfig::app_session_key().$this->app_domain.$this->url_folder.$lnamespace.$lsalt,'sha256',TRUE);
 	}//END public function GetCookieHash
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
-	 * @return void
+	 * @param      $name
+	 * @param null $namespace
+	 * @param bool $set_if_missing
+	 * @param null $valability
+	 * @return string|null
 	 * @access public
 	 */
 	public function GetHashFromCookie($name,$namespace = NULL,$set_if_missing = TRUE,$valability = NULL) {
 		$c_hash = $this->GetCookieHash($namespace,$name);
+		$c_cookie_hash = NULL;
 		if(array_key_exists($c_hash,$_COOKIE) && strlen($_COOKIE[$c_hash])) {
-			$c_cookie_hash = GibberishAES::dec($_COOKIE[$c_hash],self::$session_key);
+			$c_cookie_hash = \GibberishAES::dec($_COOKIE[$c_hash],AppConfig::app_session_key());
 		} elseif($set_if_missing===TRUE || $set_if_missing===1 || $set_if_missing==='1') {
-			$c_cookie_hash = self::GetNewUID();
+			$c_cookie_hash = AppSession::GetNewUID();
 			$lvalability = (is_numeric($valability) && $valability>0 ? $valability : 180)*24*3600;
-			$_COOKIE[$c_hash] = GibberishAES::enc($c_cookie_hash,self::$session_key);
+			$_COOKIE[$c_hash] = \GibberishAES::enc($c_cookie_hash,AppConfig::app_session_key());
 			setcookie($c_hash,$_COOKIE[$c_hash],time()+$lvalability,'/',$this->app_domain);
 		}//if(array_key_exists($sc_hash,$_COOKIE) && strlen($_COOKIE[$sc_hash]))
 		return $c_cookie_hash;
@@ -947,23 +992,23 @@ class CoreNApp extends \PAF\App {
 	 * Set the login cookie
 	 *
 	 * @param  string $uhash The user hash
-	 * @param  integer $valability The cookie lifetime or NULL for default
+	 * @param  integer $validity The cookie lifetime or NULL for default
 	 * @param  string $cookie_hash The name (hash) of the login cookie
 	 * @param  string $namespace The namespace for the cookie or NULL for current namespace
 	 * @return bool True on success or false
 	 * @access public
 	 */
-	public function SetLoginCookie($uhash,$valability = NULL,$cookie_hash = NULL,$namespace = NULL) {
+	public function SetLoginCookie($uhash,$validity = NULL,$cookie_hash = NULL,$namespace = NULL) {
 		if(!is_string($uhash)) { return FALSE; }
-		$lvalability = is_numeric($valability) && $valability>0 ? $valability : self::$cookie_login_lifetime*24*3600;
+		$lvalidity = is_numeric($validity) && $validity>0 ? $validity : AppConfig::cookie_login_lifetime()*24*3600;
 		$lcookie_hash = $cookie_hash ? $cookie_hash : $this->GetCookieHash($namespace);
 		if(!$uhash) {
 			unset($_COOKIE[$cookie_hash]);
-			setcookie($lcookie_hash,'',time()+$lvalability,'/',$this->app_domain);
+			setcookie($lcookie_hash,'',time()+$lvalidity,'/',$this->url->GetAppDomain());
 			return TRUE;
 		}//if(!$uhash)
-		$_COOKIE[$cookie_hash] = GibberishAES::enc($uhash,self::$session_key);
-		setcookie($lcookie_hash,$_COOKIE[$cookie_hash],time()+$lvalability,'/',$this->app_domain);
+		$_COOKIE[$cookie_hash] = \GibberishAES::enc($uhash,AppConfig::app_session_key());
+		setcookie($lcookie_hash,$_COOKIE[$cookie_hash],time()+$lvalidity,'/',$this->url->GetAppDomain());
 		return TRUE;
 	}//END public function SetLoginCookie
 	/**
@@ -979,20 +1024,20 @@ class CoreNApp extends \PAF\App {
 		if($this->app_options_loaded) { return; }
 		$cookie_hash = $this->GetCookieHash();
 		$auto_login = 1;
-		$user_hash = $this->GetUrlParam('uhash');
+		$user_hash = $this->url->GetParam('uhash');
 		if(!strlen($user_hash) && array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash])) {
-			$user_hash = GibberishAES::dec($_COOKIE[$cookie_hash],self::$session_key);
+			$user_hash = \GibberishAES::dec($_COOKIE[$cookie_hash],AppConfig::app_session_key());
 		}//if(!strlen($user_hash) && array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash]))
 		if(!strlen($user_hash)) {
 			$auto_login = 0;
 			$user_hash = $this->GetParam('user_hash');
 		}//if(!strlen($user_hash))
-		$idsection = $this->GetUrlParam('section');
-		$idzone = $this->GetUrlParam('zone');
-		$langcode = $this->GetUrlParam('language');
+		$idsection = $this->url->GetParam('section');
+		$idzone = $this->url->GetParam('zone');
+		$langcode = $this->url->GetParam('language');
 		if($this->ajax || !is_string($langcode) || !strlen($langcode)) { $langcode = $this->GetLanguageCode(); }
 		$dataSet = DataProvider::Get('System\System','GetAppSettings',[
-			'for_domain'=>$this->app_domain,
+			'for_domain'=>$this->url->GetAppDomain(),
 			'for_namespace'=>$this->current_namespace,
 			'for_lang_code'=>$langcode,
 			'for_user_hash'=>$user_hash,
@@ -1026,7 +1071,7 @@ class CoreNApp extends \PAF\App {
 		$this->SetParam('account_type',$appdata->getProperty('account_type'));
 		$this->SetParam('account_name',$appdata->getProperty('account_name'));
 		$this->SetParam('access_key',$appdata->getProperty('access_key'));
-		$this->napp_access_key = $appdata->getProperty('access_key');
+		$this->app_access_key = $appdata->getProperty('access_key');
 		$this->SetParam('account_timezone',$appdata->getProperty('account_timezone'));
 		$this->SetParam('id_entity',$appdata->getProperty('id_entity'));
 		$this->SetParam('id_location',$appdata->getProperty('id_location'));
@@ -1054,22 +1099,22 @@ class CoreNApp extends \PAF\App {
 		$this->SetParam('sadmin',$appdata->getProperty('sadmin'));
 		$app_theme = get_array_param($appdata,'app_theme',NULL,'is_string');
 		if(strlen($app_theme)) {
-			self::$x_app_theme = $app_theme=='_default' ? NULL : $app_theme;
+			AppConfig::app_theme($app_theme=='_default' ? NULL : $app_theme);
 			$themes = DataProvider::GetKeyValueArray('_Custom\Offline','GetAppThemes',['raw'=>1],['keyfield'=>'value']);
-			self::$x_app_theme_type = get_array_param($themes,$app_theme,NULL,'is_string','type');
+			AppConfig::app_theme_type(get_array_param($themes,$app_theme,NULL,'is_string','type'));
 		} else {
 			$app_theme_type = get_array_param($appdata,'theme_type','','is_string');
-			if(strlen($app_theme_type)) { self::$x_app_theme_type = $app_theme_type; }
+			if(strlen($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
 		}//if(strlen($app_theme))
 		$this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
 		$this->SetPageParam('id_lang',$appdata->getProperty('id_language'));
 		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
-		$this->SetUrlParam('language',$appdata->getProperty('lang_code'));
+		$this->url->SetParam('language',$appdata->getProperty('lang_code'));
 		$this->InitializeKCFinder();
 		try {
 			require_once($this->app_path._AAPP_CONFIG_PATH.'/Customizations.inc');
 			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : array();
-		} catch(Exception $e) {
+		} catch(\Exception $e) {
 			$this->Write2LogFile($e->getMessage(),'error');
 		}//END try
 		/*
@@ -1084,8 +1129,8 @@ class CoreNApp extends \PAF\App {
 		//Load user rights
 		if($this->login_status) {
 			$ur_ts = $this->GetParam('user_rights_revoked_ts');
-			$dt_ur_ts = strlen($ur_ts) ? new DateTime($ur_ts) : new DateTime('1900-01-01 01:00:00');
-			if($dt_ur_ts->add(new DateInterval('PT30M'))<(new DateTime('now'))) {
+			$dt_ur_ts = strlen($ur_ts) ? new \DateTime($ur_ts) : new \DateTime('1900-01-01 01:00:00');
+			if($dt_ur_ts->add(new \DateInterval('PT30M'))<(new \DateTime('now'))) {
 				$rightsrevoked = DataProvider::GetArray('System\Users','GetUserRightsRevoked',array('user_id'=>$this->GetParam('id_user')),array('results_keys_case'=>CASE_LOWER));
 				$this->SetParam('user_rights_revoked',Module::ConvertRightsRevokedArray($rightsrevoked));
 				$this->SetParam('user_rights_revoked_ts',date('Y-m-d H:i:s'));
@@ -1127,28 +1172,26 @@ class CoreNApp extends \PAF\App {
         $lnamespace = (strlen($login_namespace) ? $login_namespace : (strlen($this->login_namespace) ? $this->login_namespace : $this->current_namespace));
 		switch($lnamespace) {
 			case 'web':
-				$userdata = DataProvider::Get('Cms\Users','GetLogin',array(
+				$userdata = DataProvider::Get('Cms\Users','GetLogin',[
 					'section_id'=>($this->GetParam('id_section') ? $this->GetParam('id_section') : 'null'),
 					'zone_id'=>($this->GetParam('id_zone') ? $this->GetParam('id_zone') : 'null'),
 					'for_username'=>$username,
 					'allow_null_company'=>intval($allow_null_company),
 					'web_session'=>$this->GetHashFromCookie('websession'),
-				));
+				]);
 				break;
 			default:
-				$userdata = DataProvider::Get('System\Users','GetLogin',array(
-					'for_username'=>$username,
-				));
+				$userdata = DataProvider::Get('System\Users','GetLogin',['for_username'=>$username]);
 		}//END switch
-		if(!is_object($userdata)) { return Translate('msg_unknown_error'); }
+		if(!is_object($userdata)) { return \Translate::Get('msg_unknown_error'); }
 		$login_msg = $userdata->getProperty('login_msg','','is_string');
-		if(!strlen($login_msg)) { return Translate('msg_unknown_error'); }
-		if($login_msg!='1') { return Translate('msg_'.$login_msg); }
+		if(!strlen($login_msg)) { return \Translate::Get('msg_unknown_error'); }
+		if($login_msg!='1') { return \Translate::Get('msg_'.$login_msg); }
 		$this->login_status = password_verify($password,$userdata->getProperty('password_hash'));
-		if(!$this->login_status) { return Translate('msg_invalid_password'); }
+		if(!$this->login_status) { return \Translate::Get('msg_invalid_password'); }
 		$this->SetParam('login_tries',NULL);
 		$this->user_status = $userdata->getProperty('active',0,'is_integer');
-		if($this->user_status<>1 && $this->user_status<>2) { return Translate('msg_inactive_user'); }
+		if($this->user_status<>1 && $this->user_status<>2) { return \Translate::Get('msg_inactive_user'); }
 		$this->SetParam('id_user',$userdata->getProperty('id',NULL,'is_integer'));
 		$this->SetParam('confirmed_user',$userdata->getProperty('confirmed',NULL,'is_integer'));
 		$this->SetParam('user_hash',$userdata->getProperty('hash',NULL,'is_string'));
@@ -1173,7 +1216,7 @@ class CoreNApp extends \PAF\App {
 		if($userdata->getProperty('id_language_def',0,'is_integer')>0 && strlen($userdata->getProperty('lang_code','','is_string'))) {
 			$this->SetPageParam('id_lang',$userdata->getProperty('id_language_def'));
 			$this->SetPageParam('lang_code',$userdata->getProperty('lang_code'));
-			$this->SetUrlParam('language',$userdata->getProperty('lang_code'));
+			$this->url->SetParam('language',$userdata->getProperty('lang_code'));
 		}//if($userdata->getProperty('id_language_def',0,'is_integer')>0 && strlen($userdata->getProperty('lang_code','','is_string')))
 		if($remember && strlen($userdata->getProperty('hash','','is_string'))) {
 			$this->SetLoginCookie($userdata['hash']);
@@ -1213,6 +1256,7 @@ class CoreNApp extends \PAF\App {
 	 * Evaluates the validity of the API request security key
 	 *
 	 * @param  string $access_key The client API security key used for authentication
+	 * @param null    $type
 	 * @return bool Returns the validity of the key (TRUE for a valid key or FALSE otherwise)
 	 * @access public
 	 */
@@ -1220,7 +1264,7 @@ class CoreNApp extends \PAF\App {
 		switch(strtolower($type)) {
 			case '_tst': return TRUE;
 			case 'internalapi':
-				$request_key_arr = explode($this->GetApiSeparator(),GibberishAES::dec(rawurldecode($access_key),$this->GetMyAccessKey()));
+				$request_key_arr = explode($this->GetApiSeparator(),\GibberishAES::dec(rawurldecode($access_key),$this->GetMyAccessKey()));
 				if(!is_array($request_key_arr) || !array_key_exists(1,$request_key_arr) || !is_numeric($request_key_arr[1]) || time()>($request_key_arr[1]+300)) {
 					return FALSE;
 				}//if(!is_array($request_key_arr) || !array_key_exists(1,$request_key_arr) || !is_numeric($request_key_arr[1]) || time()>($request_key_arr[1]+300))
@@ -1266,7 +1310,8 @@ class CoreNApp extends \PAF\App {
 		if($this->current_namespace=='web') {
 			$relative_path .= (is_string($theme_dir) && strlen($theme_dir) ? '/themes/'.$theme_dir : '').'/';
 		} else {
-			$relative_path .= '/themes/'.(is_string($theme_dir) && strlen($theme_dir) ? $theme_dir : (is_string(self::$x_app_theme) && strlen(self::$x_app_theme) ? self::$x_app_theme : 'default')).'/';
+			$app_theme = AppConfig::app_theme();
+			$relative_path .= '/themes/'.(is_string($theme_dir) && strlen($theme_dir) ? $theme_dir : (is_string($app_theme) && strlen($app_theme) ? $app_theme : 'default')).'/';
 		}//if($this->current_namespace=='web')
 		return $relative_path;
 	}//END public function GetSectionPath

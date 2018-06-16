@@ -5,14 +5,14 @@
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
  *
- * @package    NETopes\Core\Classes\Data
+ * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 use ArrayIterator;
 use Closure;
 use function array_filter;
@@ -38,7 +38,7 @@ use function uasort;
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
  *
- * @package  NETopes\Core\Classes\Data
+ * @package  NETopes\Core\Data
  * @access   public
  */
 class DataSet implements Collection {

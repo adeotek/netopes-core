@@ -5,17 +5,17 @@
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for passing variable number of parameters
  *
- * @package    NETopes\Core\Classes\App
+ * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
+namespace NETopes\Core\App;
 use ArrayIterator;
 use Closure;
-use NETopes\Core\Classes\Data\Collection;
+use NETopes\Core\Data\Collection;
 use PAF\AppException;
 /**
  * Params class
@@ -23,7 +23,7 @@ use PAF\AppException;
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for passing variable number of parameters
  *
- * @package  NETopes\Core\Classes\App
+ * @package  NETopes\Core\App
  * @access   public
  */
 class Params implements Collection {

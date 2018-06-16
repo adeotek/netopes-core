@@ -11,7 +11,7 @@
  * @version    2.2.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
     use NApp;
 	/**
 	 * BasicForm control class
@@ -183,10 +183,10 @@
 				}//END switch
 				$act_class = get_array_param($action,'type','Button','is_notempty_string');
 				if(!is_string($act_class) || !strlen($act_class)) { continue; }
-				$act_class = '\NETopes\Core\Classes\Controls\\'.$act_class;
+				$act_class = '\NETopes\Core\Controls\\'.$act_class;
 				if(!class_exists($act_class)) { continue; }
 				$act_instance = new $act_class($act_params);
-				if(!\NETopes\Core\Classes\App\Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
+				if(!\NETopes\Core\App\Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
 				if(get_array_param($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }
 				$result .= $act_instance->Show();
 			}//END foreach
@@ -276,7 +276,7 @@
 					$cstyle = strlen($c_width)>0 ? ' style="width: '.$c_width.(strpos($c_width,'%')===FALSE ? 'px' : '').';"' : '';
 					$c_span = get_array_param($col,'colspan',1,'is_numeric');
 					$cspan = $c_span>1 ? ' colspan="'.($c_span+($c_span-1)).'"' : '';
-					$c_type = $c_type ? '\NETopes\Core\Classes\Controls\\'.$c_type : $c_type;
+					$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 					if(!$c_type || !class_exists($c_type)) {
 						\NApp::_Elog('Control class ['.$c_type.'] not found!');
 						$result .= "\t\t".'<td'.$cspan.$cstyle.'>&nbsp;</td>'."\n";
@@ -287,7 +287,7 @@
 					if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
 					if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 					$control = new $c_type($ctrl_params);
-					if(property_exists($c_type,'tabindex')&& !\NETopes\Core\Classes\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
+					if(property_exists($c_type,'tabindex')&& !\NETopes\Core\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
 					if(get_array_param($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 					$result .= $control->Show();
 					$result .= "\t\t".'</td>'."\n";
@@ -391,7 +391,7 @@
 						$c_class = get_array_param($col,'class','form-group','is_notempty_string');
 						if($hidden) { $c_class .= ' hidden'; }
 					}//if($this->colsno>1)
-					$c_type = $c_type ? '\NETopes\Core\Classes\Controls\\'.$c_type : $c_type;
+					$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 					if(!$c_type || !class_exists($c_type)) {
 						\NApp::_Elog('Control class ['.$c_type.'] not found!');
 						$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
@@ -424,7 +424,7 @@
 					$ctrl_params['labelposition'] = $c_label_pos;
 
 					$control = new $c_type($ctrl_params);
-					if(property_exists($c_type,'tabindex')&& !\NETopes\Core\Classes\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
+					if(property_exists($c_type,'tabindex')&& !\NETopes\Core\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
 					if(get_array_param($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 					if($this->colsno>1) {
 						$ctrl_params['container'] = FALSE;

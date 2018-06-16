@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
     use NApp;
 
     /**
@@ -49,7 +49,7 @@
 			$cpage = (is_numeric($this->currentpage) && $this->currentpage<>0) ? $this->currentpage : 1;
 			$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
 			$result = '<div class="pagination-container"'.$lstyle.'>'."\n";
-			$result .= "\t".'<span class="pag-label">'.Translate('label_page').'</span>'."\n";
+			$result .= "\t".'<span class="pag-label">'.\Translate::Get('label_page').'</span>'."\n";
 			if($pages_no>1) {
 				switch($this->theme_type) {
 					case 'bootstrap3':
@@ -70,9 +70,9 @@
 							$result .= "\t\t".'<option value="'.$i.'"'.$lselected.'>'.number_format($i,0).'</option>'."\n";
 						}//END for
 						$lselected = $cpage<0 ? ' selected="selected"' : '';
-						$result .= "\t\t".'<option class="special" value="-1"'.$lselected.'>'.Translate('label_all').'</option>'."\n";
+						$result .= "\t\t".'<option class="special" value="-1"'.$lselected.'>'.\Translate::Get('label_all').'</option>'."\n";
 						$result .= "\t".'</select>'."\n";
-						$result .= "\t".'<span class="pag-part-label">'.Translate('label_of').'</span>'."\n";
+						$result .= "\t".'<span class="pag-part-label">'.\Translate::Get('label_of').'</span>'."\n";
 						$result .= "\t".'<span class="pag-no">'.$pages_no.'</span>'."\n";
 						if($cpage==$pages_no || $cpage<0) {
 							$result .= "\t".'<div class="btn btn-default btn-xxs ionly"><i class="fa fa-angle-right"></i></div>'."\n";
@@ -102,9 +102,9 @@
 							$result .= "\t\t".'<option value="'.$i.'"'.$lselected.'>'.number_format($i,0).'</option>'."\n";
 						}//END for
 						$lselected = $cpage<0 ? ' selected="selected"' : '';
-						$result .= "\t\t".'<option class="special" value="-1"'.$lselected.'>'.Translate('label_all').'</option>'."\n";
+						$result .= "\t\t".'<option class="special" value="-1"'.$lselected.'>'.\Translate::Get('label_all').'</option>'."\n";
 						$result .= "\t".'</select>'."\n";
-						$result .= "\t".'<span class="pag-part-label">'.Translate('label_of').'</span>'."\n";
+						$result .= "\t".'<span class="pag-part-label">'.\Translate::Get('label_of').'</span>'."\n";
 						$result .= "\t".'<span class="pag-no">'.$pages_no.'</span>'."\n";
 						if($cpage==$pages_no || $cpage<0) {
 							$result .= "\t".'<span class="pag-btn"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-angle-right fa-inverse fa-stack-1x"></i></span></span>'."\n";
@@ -119,10 +119,10 @@
 				}//END switch
 			} else {
 				$result .= "\t".'<span class="cpag">1</span>'."\n";
-				$result .= "\t".'<span class="pag-part-label">'.Translate('label_of').'</span>'."\n";
+				$result .= "\t".'<span class="pag-part-label">'.\Translate::Get('label_of').'</span>'."\n";
 				$result .= "\t".'<span class="pag-no">'.$pages_no.'</span>'."\n";
 			}//if($pages_no>1)
-			$result .= "\t".'<span class="rec-label">'.Translate('label_records').'</span><span class="rec-no">'.number_format($this->totalrows,0).'</span>'."\n";
+			$result .= "\t".'<span class="rec-label">'.\Translate::Get('label_records').'</span><span class="rec-no">'.number_format($this->totalrows,0).'</span>'."\n";
 			$result .= '<div class="clearfix"></div>'."\n";
 			$result .= '</div>'."\n";
 			return $result;

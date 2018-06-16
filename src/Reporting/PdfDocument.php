@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Reporting;
+namespace NETopes\Core\Reporting;
  	/**
 	 * General purpose PDF
 	 */
@@ -307,7 +307,7 @@ class PdfDocument {
 				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
 				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-					$this->footer_params['mask'] = Translate('dlabel_page',$this->langcode).' {{page}} '.Translate('dlabel_from',$this->langcode).' {{pages_no}}';
+					$this->footer_params['mask'] = \Translate::Get('dlabel_page',$this->langcode).' {{page}} '.\Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
 				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
 				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
@@ -327,7 +327,7 @@ class PdfDocument {
 				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
 				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-					$this->footer_params['mask'] = Translate('dlabel_page',$this->langcode).' {{page}} '.Translate('dlabel_from',$this->langcode).' {{pages_no}}';
+					$this->footer_params['mask'] = \Translate::Get('dlabel_page',$this->langcode).' {{page}} '.\Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
 				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
 				$id_location = get_array_param($document,'id_location',NULL,'is_integer');

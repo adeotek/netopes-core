@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * GroupCheckBox class
 	 *
@@ -98,7 +98,7 @@
 					$result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tagid.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
 				}//END foreach
 			} else {
-				$result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate('label_no_elements')."</span></li>\n";
+				$result .= "\t\t<li><span class=\"clsGCKBBlank\">".\Translate::Get('label_no_elements')."</span></li>\n";
 			}//if(is_array($this->items) && count($this->items))
 			$result .= "\t".'</ul>'."\n";
 			$result .= '</div>'."\n";

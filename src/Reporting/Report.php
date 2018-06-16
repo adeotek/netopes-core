@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Reporting;
+namespace NETopes\Core\Reporting;
 use GibberishAES;
 use NApp;
 /**
@@ -253,11 +253,11 @@ class Report extends ExcelExport {
 			}//if($this->report_name)
 			$ee_button = '';
 			if($this->excel_export) {
-				$ee_button .= "\t\t".'<span style="float: right; width: 300px; margin-right: 50px;"><div  class="round_button right" onclick="'.NApp::arequest()->Prepare("AjaxRequest('$this->export_module','$this->export_method','fsource'|'$this->cached_file'~'fname'|'$this->export_file_name'~'dhash'|'$this->dhash')->excelexport_errors").'">'.Translate('download_label',$this->langcode).'</div></span>'."\n";
+				$ee_button .= "\t\t".'<span style="float: right; width: 300px; margin-right: 50px;"><div  class="round_button right" onclick="'.NApp::arequest()->Prepare("AjaxRequest('$this->export_module','$this->export_method','fsource'|'$this->cached_file'~'fname'|'$this->export_file_name'~'dhash'|'$this->dhash')->excelexport_errors").'">'.\Translate::Get('download_label',$this->langcode).'</div></span>'."\n";
 			}//if($this->excel_export)
             if($this->display_records_no) {
             	$this->result .= "\t".'<div style="height: 20px; margin-bottom: 10px;">'."\n";
-				$this->result .= "\t\t".'<span style="float: left; width: 300px; margin-left: 50px;"><strong>'.$this->records_no.'</strong> '.Translate('results_label',$this->langcode).'</span>'."\n";
+				$this->result .= "\t\t".'<span style="float: left; width: 300px; margin-left: 50px;"><strong>'.$this->records_no.'</strong> '.\Translate::Get('results_label',$this->langcode).'</span>'."\n";
 				$this->result .= $ee_button;
 				$this->result .= "\t".'</div>'."\n";
 			} elseif(strlen($ee_button)) {
@@ -334,19 +334,19 @@ class Report extends ExcelExport {
 	}//END protected function PercentFormat2
 
 	protected function DateFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE,$this->date_separator,$this->time_separator);
 	}//END protected function DateFormat
 
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE,$this->date_separator,$this->time_separator);
 	}//END protected function DateTimeFormat
 
 	protected function NoTimezoneDateFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
 	}//END protected function DateFormat
 
 	protected function NoTimezoneDateTimeFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
 	}//END protected function DateTimeFormat
 }//class Report extends ExcelExport
 ?>

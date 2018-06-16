@@ -11,8 +11,8 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
-use NETopes\Core\Classes\Data\DataProvider;
+namespace NETopes\Core\App;
+use NETopes\Core\Data\DataProvider;
 use NApp;
 /**
  * ContentView is the web view base class

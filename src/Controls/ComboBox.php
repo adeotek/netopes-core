@@ -11,7 +11,7 @@
  * @version    2.2.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * ComboBox control
 	 *
@@ -70,7 +70,7 @@
 							}//if(is_array($dv))
 						}//foreach ($this->displayfield as $dk=>$dv)
 					}else{
-						$ldisplayfield = $this->withtranslate===TRUE ? Translate($this->translate_prefix.$v[$this->displayfield]) : $v[$this->displayfield];
+						$ldisplayfield = $this->withtranslate===TRUE ? \Translate::Get($this->translate_prefix.$v[$this->displayfield]) : $v[$this->displayfield];
 					}//if(is_array($v[$this->displayfield]))
 					$o_data = '';
 					if(is_array($this->option_data)) {

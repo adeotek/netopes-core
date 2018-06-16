@@ -11,9 +11,9 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
-	use NETopes\Core\Classes\App\ModuleProvider;
-    use NETopes\Core\Classes\Data\DataProvider;
+    namespace NETopes\Core\Controls;
+	use NETopes\Core\App\ModuleProvider;
+    use NETopes\Core\Data\DataProvider;
 	/**
 	 * Control iterator control
 	 *

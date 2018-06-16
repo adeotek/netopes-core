@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * Grid combo box control class
 	 *
@@ -207,7 +207,7 @@
 						'actions'=>array(
 							array(
 								'type'=>'CheckBox',
-								'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-{{'.$this->valfield.'}}','tooltip'=>Translate('button_select'),'class'=>$this->baseclass.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tagid}','{{{$this->valfield}}}','{{{$this->displayfield}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->valfield}}}=='{$selectedvalue}' ? 1 : 0);")),
+								'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-{{'.$this->valfield.'}}','tooltip'=>\Translate::Get('button_select'),'class'=>$this->baseclass.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tagid}','{{{$this->valfield}}}','{{{$this->displayfield}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->valfield}}}=='{$selectedvalue}' ? 1 : 0);")),
 							),
 						),
 					),

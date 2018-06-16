@@ -11,8 +11,8 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
-    use NETopes\Core\Classes\Data\DataProvider;
+    namespace NETopes\Core\Controls;
+    use NETopes\Core\Data\DataProvider;
 	use NApp;
 	/**
 	 * ClassName description
@@ -114,7 +114,7 @@
 				case 'control':
 					$tcontent = get_array_param($tab,'content',array(),'is_array');
 					$c_type = get_array_param($tcontent,'control_type',NULL,'is_notempty_string');
-					$c_type = $c_type ? '\NETopes\Core\Classes\Controls\\'.$c_type : $c_type;
+					$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 					if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type)) {
 						\NApp::_Elog('Control class ['.$c_type.'] not found!');
 						continue;

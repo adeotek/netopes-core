@@ -1,5 +1,5 @@
 <?php
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 use Closure;
 use Traversable;
 use Countable;

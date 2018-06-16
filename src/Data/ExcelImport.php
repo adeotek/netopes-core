@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 // use PhpOffice\PhpSpreadsheet\Spreadsheet;
 // use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 /**
@@ -199,7 +199,7 @@ class ExcelImport {
 		}//if($format_value_func && method_exists($this,$format_value_func))
 	    $format = get_array_param($field,'format',get_array_param($field,'type','','is_string'),'is_string');
 		$validation = get_array_param($field,'validation','isset','is_notempty_string');
-		return \NETopes\Core\Classes\App\Validator::ValidateParam($value,NULL,$validation,$format);
+		return \NETopes\Core\App\Validator::ValidateParam($value,NULL,$validation,$format);
 	}//END protected function FormatValue
 	/**
 	 * description

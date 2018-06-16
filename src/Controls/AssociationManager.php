@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
     use NApp;
 	/**
 	 * AssociationManager control class
@@ -200,9 +200,9 @@
 		 */
 		protected function GetAssociatedItemsActions() {
 			$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-			$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>'btn btn-info btn-xxs','value'=>Translate('button_select_all')]);
+			$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>'btn btn-info btn-xxs','value'=>\Translate::Get('button_select_all')]);
 			$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-			$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>'btn btn-default btn-xxs','value'=>Translate('button_deselect_all')]);
+			$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>'btn btn-default btn-xxs','value'=>\Translate::Get('button_deselect_all')]);
 			$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 			$result .= $this->GetDeAssignItemsAction();
 			$result .= "\t\t\t".'</div>'."\n";
@@ -281,7 +281,7 @@
 			$items_no = is_array($data) ? count($data) : 0;
 			$result = "\t\t\t\t".'<div class="subFormSummary">'."\n";
 			$result .= "\t\t\t\t\t".'<span class="count">'.$items_no.'</span>'."\n";
-			$result .= "\t\t\t\t\t".'<label>&nbsp;'.Translate('label_items').'</label>'."\n";
+			$result .= "\t\t\t\t\t".'<label>&nbsp;'.\Translate::Get('label_items').'</label>'."\n";
 			$result .= "\t\t\t\t".'</div>'."\n";
 			return $result;
 		}//END protected function GetAssociatedItemsSummary
@@ -308,7 +308,7 @@
 				foreach($items as $v) { $result .= $this->GetAssociatedItem($v); }
 				$this->SetAssociatedItemsJs();
 			} else {
-				$result .= "\t\t".'<li class="bold ErrorMsg">'.Translate('label_empty_list').'</li>'."\n";
+				$result .= "\t\t".'<li class="bold ErrorMsg">'.\Translate::Get('label_empty_list').'</li>'."\n";
 			}//if(is_array($items) && count($items))
 			$result .= "\t\t\t\t".'</ul>'."\n";
 			$result .= "\t\t\t".'</div>'."\n";
@@ -322,9 +322,9 @@
 		 */
 		protected function GetAssignableItemsActions() {
 			$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-			$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>'btn btn-info btn-xxs','value'=>Translate('button_select_all')]);
+			$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>'btn btn-info btn-xxs','value'=>\Translate::Get('button_select_all')]);
 			$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-			$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>'btn btn-default btn-xxs','value'=>Translate('button_deselect_all')]);
+			$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>'btn btn-default btn-xxs','value'=>\Translate::Get('button_deselect_all')]);
 			$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 			$result .= $this->GetAssignItemsAction();
 			$result .= "\t\t\t".'</div>'."\n";
@@ -388,7 +388,7 @@
 			$items_no = is_array($data) ? count($data) : 0;
 			$result = "\t\t\t\t".'<div class="subFormSummary">'."\n";
 			$result .= "\t\t\t\t\t".'<span class="count">'.$items_no.'</span>'."\n";
-			$result .= "\t\t\t\t\t".'<label>&nbsp;'.Translate('label_items').'</label>'."\n";
+			$result .= "\t\t\t\t\t".'<label>&nbsp;'.\Translate::Get('label_items').'</label>'."\n";
 			$result .= "\t\t\t\t".'</div>'."\n";
 			return $result;
 		}//END protected function GetAssignableItemsSummary
@@ -415,7 +415,7 @@
 				foreach($items as $v) { $result .= $this->GetAssignableItem($v); }
 				$result .= $this->SetAssignableItemsJs();
 			} else {
-				$result .= "\t\t\t\t".'<li class="bold ErrorMsg">'.Translate('label_empty_list').'</li>'."\n";
+				$result .= "\t\t\t\t".'<li class="bold ErrorMsg">'.\Translate::Get('label_empty_list').'</li>'."\n";
 			}//if(is_array($items) && count($items))
 			$result .= "\t\t\t\t".'</ul>'."\n";
 			$result .= "\t\t\t".'</div>'."\n";
@@ -470,7 +470,7 @@
 			if(is_array($items) && count($items)) {
 				foreach($items as $v) { $result .= $this->GetLiveVersionItem($v); }
 			} else {
-				$result .= "\t\t\t\t\t".'<li class="bold ErrorMsg">'.Translate('label_empty_list').'</li>'."\n";
+				$result .= "\t\t\t\t\t".'<li class="bold ErrorMsg">'.\Translate::Get('label_empty_list').'</li>'."\n";
 			}//if(is_array($items) && count($items))
 			$result .= "\t\t\t\t".'</ul>'."\n";
 			$result .= "\t\t\t".'</div>'."\n";

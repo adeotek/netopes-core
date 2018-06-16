@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * KVList class
 	 *
@@ -66,7 +66,7 @@
 					$result .= "\t\t<li><label class=\"KVLILabel\">{$k}</label><input type=\"text\" class=\"KVLIValue{$lpclass}\" name=\"{$this->tagname}{$pkey}[{$k}]\" placeholder=\"[value]\" value=\"{$v}\"><button class=\"KVLIDelBtn\"><i class=\"fa fa-minus-circle\"></i></button></li>\n";
 				}//END foreach
 			} else {
-				$result .= "\t\t<li><span class=\"KVLBlank\">".Translate('label_empty')."</span></li>\n";
+				$result .= "\t\t<li><span class=\"KVLBlank\">".\Translate::Get('label_empty')."</span></li>\n";
 			}//if(is_array($lvalues) && count($lvalues))
 			$result .= "\t".'</ul>'."\n";
 			$result .= '</div>'."\n";
@@ -79,7 +79,7 @@
 			if(is_array($this->lang_items) && count($this->lang_items)) {
 				$ds_field = get_array_param($lang,'ds_field','value','is_notempty_string');
 				$result = '<div id="'.$this->tagid.'" class="clsAccordion clsControlContainer">'."\n";
-				$result .= "\t".'<h3>'.(strlen($label) ? $label.' - ' : '').Translate('label_general').'</h3>'."\n";
+				$result .= "\t".'<h3>'.(strlen($label) ? $label.' - ' : '').\Translate::Get('label_general').'</h3>'."\n";
 				$result .= "\t".'<div>'."\n";
 				$result .= $this->SetControlInstance(TRUE);
 				$result .= "\t".'</div>'."\n";

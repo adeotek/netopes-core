@@ -4,29 +4,52 @@
  *
  * Contains ErrorHandler class and its initialization
  *
- * @package    NETopes\Core
+ * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.0.1
  * @filesource
  */
-use PAF\AppConfig;
-
-	ErrorHandler::$errorlog_file = AppConfig::$errors_log_file;
-	ErrorHandler::$errorlog_path = _AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.AppConfig::$logs_path.'/';
-	set_error_handler(array('ErrorHandler','ErrorHandlerFunction'));
-	set_exception_handler(array('ErrorHandler','ExceptionHandlerFunction'));
-	register_shutdown_function(array('ErrorHandler','ShutDownHandlerFunction'));
 /**
  * Errors handler class
  *
- * Treats all errors and displays them if necesary
+ * Treats all errors and displays them if necessary
  *
  * @package  NETopes\Base
  * @access   public
  */
-class ErrorHandler {
+class ErrorHandler implements NETopes\Core\App\IErrorHandler {
+	/**
+	 * @var    string Error log file path
+	 * @access public
+	 * @static
+	 */
+	protected static $errorlog_path = NULL;
+	/**
+	 * @var    string Error log file name
+	 * @access public
+	 * @static
+	 */
+	protected static $errorlog_file = NULL;
+	/**
+	 * @var    bool Flag for marking shutdown handler
+	 * @access protected
+	 * @static
+	 */
+	protected static $shutdown = FALSE;
+	/**
+	 * @var    array Non fatal errors stack
+	 * @access protected
+	 * @static
+	 */
+	protected static $errors_stack = NULL;
+	/**
+	 * @var    bool Flag for backtrace activation/inactivation
+	 * @access protected
+	 * @static
+	 */
+	protected static $backtrace = FALSE;
 	/**
 	 * @var    bool Silent mode on/off
 	 * If on all warnings/notices/uncaught exceptions are dropped
@@ -47,41 +70,29 @@ class ErrorHandler {
 	 */
 	public static $rethrow_notices = FALSE;
 	/**
-	 * @var    string Error log file path
-	 * @access public
-	 * @static
-	 */
-	public static $errorlog_path = '';
-	/**
-	 * @var    string Error log file name
-	 * @access public
-	 * @static
-	 */
-	public static $errorlog_file = '';
-	/**
 	 * @var    string Javascript show error function name
 	 * @access public
 	 * @static
 	 */
 	public static $js_show_error = 'ShowErrorDialog';
 	/**
-	 * @var    bool Flag for marking shutdown hendler
-	 * @access protected
-	 * @static
+	 * Sets error log file name
+	 *
+	 * @param string $errorLogFile
+	 * @return void
 	 */
-	protected static $shutdown = FALSE;
+	public static function SetErrorLogFile(string $errorLogFile) {
+		self::$errorlog_file = $errorLogFile;
+	}//END public static function SetErrorLogFile
 	/**
-	 * @var    array Non fatal errors stack
-	 * @access protected
-	 * @static
+	 * Sets error log file path
+	 *
+	 * @param string $errorLogPath
+	 * @return void
 	 */
-	protected static $errors_stack = NULL;
-	/**
-	 * @var    bool Flag for backtrace activation/inactivation
-	 * @access protected
-	 * @static
-	 */
-	protected static $backtrace = FALSE;
+	public static function SetErrorLogPath(string $errorLogPath) {
+		self::$errorlog_path = $errorLogPath;
+	}//END public static function SetErrorLogPath
 	/**
 	 * Gets error reporting mode
 	 *
@@ -106,6 +117,7 @@ class ErrorHandler {
 	/**
 	 * Gets previous errors stack
 	 *
+	 * @param bool $clear
 	 * @return array Returns Errors stack array
 	 * @access public
 	 * @static
@@ -135,19 +147,19 @@ class ErrorHandler {
 		}//if(class_exists('NApp') && NApp::GetDebuggerState())
 	}//END public static function AddError
 	/**
-	 * Function called through set_error_handler() on error
+	 * Method called through set_error_handler() on error
 	 *
-	 * @param  int $errno Error code
-	 * @param  string $errstr Error location (file)
-	 * @param null    $errfile
-	 * @param  int $errline Error location (line)
-	 * @param  array $errcontext Error context
+	 * @param  int         $errno Error code
+	 * @param  string      $errstr Error location (file)
+	 * @param  string|null $errfile
+	 * @param  int|null    $errline Error location (line)
+	 * @param  array       $errcontext Error context
 	 * @return void
 	 * @throws \PAF\AppException
 	 * @access public
 	 * @static
 	 */
-	public static function ErrorHandlerFunction($errno = -1,$errstr = 'Unknown error',$errfile = NULL,$errline = NULL,$errcontext = []) {
+	public static function ErrorHandlerFunction(int $errno = -1,string $errstr = 'Unknown error',?string $errfile = NULL,?int $errline = NULL,array $errcontext = []) {
 		$errfile = str_replace(_AAPP_ROOT_PATH,'',$errfile);
 		switch($errno) {
 			case E_NOTICE:
@@ -196,7 +208,7 @@ class ErrorHandler {
 		}//END switch
 	}//END public static function ErrorHandlerFunction
 	/**
-	 * Function called through set_exception_handler() on exception thrown
+	 * Method called through set_exception_handler() on exception thrown
 	 *
 	 * @param  object $exception The thrown exception
 	 * @return void
@@ -224,7 +236,7 @@ class ErrorHandler {
 		}//if(self::IsSilent())
 	}//END public static function ExceptionHandlerFunction
 	/**
-	 * Function called through register_shutdown_function() on shutdown
+	 * Method called through register_shutdown_function() on shutdown
 	 *
 	 * @param  bool $output Flag to allow or restrict output
 	 * @return void
@@ -232,7 +244,7 @@ class ErrorHandler {
 	 * @static
 	 * @throws \PAF\AppException
 	 */
-	public static function ShutDownHandlerFunction($output = TRUE) {
+	public static function ShutDownHandlerFunction(bool $output = TRUE) {
 		if(!$output) { return; }
 		// $error_types = array('E_ERROR'=>1,'E_PARSE'=>4,'E_CORE_ERROR'=>16,'E_CORE_WARNING'=>32,'E_COMPILE_ERROR'=>64,'E_COMPILE_WARNING'=>128,'E_STRICT'=>2048);
 		$e = error_get_last();
@@ -264,12 +276,12 @@ class ErrorHandler {
 			$errstr = (array_key_exists('errstr',$err) && $err['errstr']) ? $err['errstr'] : 'Unknown error';
 			if(strpos($errstr,' deadlock ')!==FALSE) { //FirebirdSQL specific error
 				$errno = $errno ? $errno : 0;
-				$errstr = '<span>'.(function_exists('Translate') ? Translate('server_busy_message') : 'Server busy !').'</span>';
+				$errstr = '<span>'.(method_exists('\Translate','Get') ? Translate::Get('server_busy_message') : 'Server busy !').'</span>';
 			} elseif((strpos($errstr,'ibase_fetch_assoc()')!==FALSE || strpos($errstr,'ibase_query()')!==FALSE) && strpos($errstr,'EXP_')!==FALSE) { //FirebirdSQL specific error
 				$errno = substr($errstr,strpos($errstr,'EXP_'),8);
-				$errstr = function_exists('Translate') ? Translate($errno) : $errstr;
+				$errstr = method_exists('\Translate','Get') ? Translate::Get($errno) : $errstr;
 			} elseif($errno==8001 && strpos($errstr,'[SQLSTATE] => 08001')!==FALSE) { //SQL Server specific error
-				$errstr = '<span>'.(function_exists('Translate') ? Translate('msg_db_connection_error') : 'Database connection error!').'</span>';
+				$errstr = '<span>'.(method_exists('\Translate','Get') ? Translate::Get('msg_db_connection_error') : 'Database connection error!').'</span>';
 			} else {
 				$errno = $errno ? $errno : -1;
 				$errfile = (array_key_exists('errfile',$err) && $err['errfile']) ? $err['errfile'] : NULL;
@@ -285,11 +297,11 @@ class ErrorHandler {
 			$errstr .= ($errstr ? '<br><br>' : '');
 			$cerrstr = (array_key_exists('errstr',$err) && $err['errstr']) ? $err['errstr'] : 'Unknown error';
 			if(strpos($cerrstr,' deadlock ')!==FALSE) {
-				$errstr .= '<span>'.(function_exists('Translate') ? Translate('server_busy_message') : 'Server busy !').'</span><br>';
+				$errstr .= '<span>'.(method_exists('\Translate','Get') ? Translate::Get('server_busy_message') : 'Server busy !').'</span><br>';
 			} elseif((strpos($cerrstr,'ibase_fetch_assoc()')!==FALSE || strpos($cerrstr,'ibase_query()')!==FALSE) && strpos($cerrstr,'EXP_')!==FALSE) {
 				$errno = substr($cerrstr,strpos($cerrstr,'EXP_'),8);
 				$errstr .= $errno ? 'Code: '.$errno.'<br>' : '';
-				$errstr .= (function_exists('Translate') ? Translate($errno) : $cerrstr).'<br>';
+				$errstr .= (method_exists('\Translate','Get') ? Translate::Get($errno) : $cerrstr).'<br>';
 			} else {
 				$errstr .= 'Code: '.((array_key_exists('errno',$err) && $err['errno']) ? $err['errno'] : '-1').'<br>';
 				$errstr .= $cerrstr.'<br>';
@@ -321,11 +333,11 @@ class ErrorHandler {
 			$error_str = ($errstr ? $errstr : 'Unknown error!').'<br>';
 		} else {
 			if(strpos($errstr,' deadlock ')!==FALSE) {
-				$error_str = '<span>'.(function_exists('Translate') ? Translate('server_busy_message') : 'Server busy !').'</span><br>';
+				$error_str = '<span>'.(method_exists('\Translate','Get') ? Translate::Get('server_busy_message') : 'Server busy !').'</span><br>';
 			} elseif((strpos($errstr,'ibase_fetch_assoc()')!==FALSE || strpos($errstr,'ibase_query()')!==FALSE) && strpos($errstr,'EXP_')!==FALSE) {
 				$errno = substr($errstr,strpos($errstr,'EXP_'),8);
 				$error_str = $errno ? 'Code: '.$errno.'<br>' : '';
-				$error_str .= (function_exists('Translate') ? Translate($errno) : $errstr).'<br>';
+				$error_str .= (method_exists('\Translate','Get') ? Translate::Get($errno) : $errstr).'<br>';
 			} else {
 				if($errno==-1) {
 					$error_str = ($errstr ? $errstr : 'Unknown error!');

@@ -9,7 +9,7 @@
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
+namespace NETopes\Core\App;
 use PAF\AppException;
 /**
  * Modules controller (provider) class

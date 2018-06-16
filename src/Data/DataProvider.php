@@ -11,7 +11,7 @@
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 use PAF\AppException;
 use NApp;
 /**
@@ -104,7 +104,7 @@ class DataProvider {
 			if($dbmode=='Doctrine') {
 				$entity = '\DataEntities\\'.$ds_class;
 				if(class_exists($entity)) {
-					if(!$entity::$isCustomDS) { $ds_full_name = '\NETopes\Core\Classes\Data\DoctrineDataSource'; }
+					if(!$entity::$isCustomDS) { $ds_full_name = '\NETopes\Core\Data\DoctrineDataSource'; }
 				}//if(class_exists($entity))
 			} else {
 				$entity = NULL;
@@ -199,7 +199,7 @@ class DataProvider {
 	 * @throws \PAF\AppException
 	 */
 	public static function Get($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
-		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Classes\Data\VirtualEntity','is_notempty_string');
+		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
 		return DataSource::ConvertResultsToDataSet($result,$entity);
@@ -220,7 +220,7 @@ class DataProvider {
 	 * @throws \PAF\AppException
 	 */
 	public static function GetKeyValue($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
-		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Classes\Data\VirtualEntity','is_notempty_string');
+		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetKeyValueArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
 		return DataSource::ConvertResultsToDataSet($result,$entity);

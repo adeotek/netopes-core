@@ -11,10 +11,10 @@
  * @version    2.2.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
     use NApp;
-    use NETopes\Core\Classes\App\Module;
-    use NETopes\Core\Classes\Data\DataProvider;
+    use NETopes\Core\App\Module;
+    use NETopes\Core\Data\DataProvider;
     use PAF\AppException;
     use GibberishAES;
 	/**
@@ -449,7 +449,7 @@
 			}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 			if(strlen(trim($lonclick))) {
 				if(strlen($this->confirm_text)) {
-					$lactions['onclick'] = ($this->data_onclick===TRUE ? 'data-' : '').'onclick="var cCB=function(){'.trim($lonclick).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate('title_confirm').'\',ok:\''.Translate('button_ok').'\',cancel:\''.Translate('button_cancel').'\'});"';
+					$lactions['onclick'] = ($this->data_onclick===TRUE ? 'data-' : '').'onclick="var cCB=function(){'.trim($lonclick).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
 				} else {
 					$lactions['onclick'] = ($this->data_onclick===TRUE ? 'data-' : '').'onclick="'.trim($lonclick).'"';
 				}//if(strlen($this->confirm_text))
@@ -472,7 +472,7 @@
 			}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 			if(strlen(trim($lonchange))) {
 				if(strlen($this->confirm_text)) {
-					$lactions['onchange'] = ($this->data_onclick===TRUE ? 'data-' : '').'onchange="var cCB=function(){'.trim($lonchange).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate('title_confirm').'\',ok:\''.Translate('button_ok').'\',cancel:\''.Translate('button_cancel').'\'});"';
+					$lactions['onchange'] = ($this->data_onclick===TRUE ? 'data-' : '').'onchange="var cCB=function(){'.trim($lonchange).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
 				} else {
 					$lactions['onchange'] = ($this->data_onclick===TRUE ? 'data-' : '').'onchange="'.trim($lonchange).'"';
 				}//if(strlen($this->confirm_text))
@@ -495,7 +495,7 @@
 			}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 			if(strlen(trim($lonkeypress))) {
 				if(strlen($this->confirm_text)) {
-					$lactions['onkeypress'] = ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="var cCB=function(){'.trim($lonkeypress).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate('title_confirm').'\',ok:\''.Translate('button_ok').'\',cancel:\''.Translate('button_cancel').'\'});"';
+					$lactions['onkeypress'] = ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="var cCB=function(){'.trim($lonkeypress).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
 				} else {
 					$lactions['onkeypress'] = ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="'.trim($lonkeypress).'"';
 				}//if(strlen($this->confirm_text))
@@ -635,7 +635,7 @@
 		 */
 		protected function SetContainer($tag) {
 			$tag .= $this->ProcessCustomActions();
-			$container_class = 'NETopes\Core\Classes\Controls\Container'.ucfirst($this->theme_type);
+			$container_class = 'NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
 			$ctrl_container = new $container_class($this);
 			$result = $ctrl_container->GetHtml($tag);
 			return $result;

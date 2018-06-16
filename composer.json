@@ -13,11 +13,18 @@
 		{
 			"type":"git",
 			"url": "https://ben@git.hinter.ro:7990/scm/nop/phpajaxframework.git"
+		},
+		{
+		  	"type": "git",
+		  	"url": "https://github.com/adeotek/gibberish-aes-php.git"
 		}
 	],
     "require": {
         "php": ">=7.1",
-        "adeotek/paf": "~2.1.1"
+        "adeotek/paf": "2.1.2-alpha2",
+        "tecnickcom/tcpdf": "6.2.*",
+		"phpoffice/phpspreadsheet": "1.2.*",
+		"swiftmailer/swiftmailer": "6.0.*"
     },
     "minimum-stability": "dev",
     "autoload": {

@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * ClassName description
 	 *
@@ -37,7 +37,7 @@
 			$cpage = (is_numeric($this->currentpage) && $this->currentpage>0) ? $this->currentpage : -1;
 			$result = '';
 			$result .= "\t".'<div class="paginationcontainer">'."\n";
-			$result .= "\t\t".'<div class="totalrows"><strong>'.$this->totalrows.'</strong> '.Translate('results_label').'</div>'."\n";
+			$result .= "\t\t".'<div class="totalrows"><strong>'.$this->totalrows.'</strong> '.\Translate::Get('results_label').'</div>'."\n";
 			$result .= "\t\t".'<div class="pagination">Pag.';
 			$this->hreflink = strpos($this->hreflink,'?')===FALSE ? $this->hreflink.'?' : $this->hreflink.'&';
 	        if($cpage>0) {
@@ -89,14 +89,14 @@
 				}//if($cpage==$totalnrofpages)
 			}//if($cpage>0)
 			$result .= "\t\t".'</div>'."\n";
-			$result .= "\t\t".'<div class="jump_to">'.Translate('jump_to_label').' ';
+			$result .= "\t\t".'<div class="jump_to">'.\Translate::Get('jump_to_label').' ';
 			$result .= "\t\t\t".'<select onchange="window.location.href = \''.$this->hreflink.'pag=\'+this.value;">'."\n";
 			for($i=1; $i<=$totalnrofpages; $i++){
 				$selected = $i==$cpage ? 'selected="selected"' : '';
 				$result .= "\t\t".'<option '.$selected.' value="'.$i.'">'.$i.'</option>'."\n";
 			}//for($i=1; $i<=$totalnrofpages; $i++)
 			$allselected = $cpage==-1 ? 'selected="selected"' : '';
-			$result .= "\t\t\t\t".'<option '.$allselected.' value="-1">'.Translate('cboall').'</option>'."\n";
+			$result .= "\t\t\t\t".'<option '.$allselected.' value="-1">'.\Translate::Get('cboall').'</option>'."\n";
 			$result .= "\t\t\t".'</select>'."\n";
 			$result .= "\t\t".'</div>'."\n";
 			$result .= "\t".'</div>'."\n";

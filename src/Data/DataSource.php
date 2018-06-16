@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 use NApp;
 /**
  * DataSource is the base class for all data sources
@@ -54,7 +54,7 @@ class DataSource {
 	private function __construct($type,$connection = NULL,$entityName = NULL) {
 		$this->type = $type;
 		if($this->type=='_Custom') { return; }
-		$class_name = 'NETopes\Core\Classes\Data\\'.$type.'Adapter';
+		$class_name = 'NETopes\Core\Data\\'.$type.'Adapter';
 		$this->adapter = $class_name::GetInstance($type,$connection);
 		$this->entityName = $entityName;
 	}//END private function __construct

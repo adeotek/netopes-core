@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
+namespace NETopes\Core\App;
 use GibberishAES;
 use PAF\AppException;
 use NApp;

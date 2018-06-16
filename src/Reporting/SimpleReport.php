@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Reporting;
+namespace NETopes\Core\Reporting;
 /**
  * ClassName description
  *
@@ -172,19 +172,19 @@ class SimpleReport {
 	}//END protected function number_format2
 
 	protected function DateFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),TRUE,$this->date_separator,$this->time_separator);
 	}//END protected function DateFormat
 
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),FALSE,$this->date_separator,$this->time_separator);
 	}//END protected function DateTimeFormat
 
 	protected function NoTimezoneDateFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
 	}//END protected function DateFormat
 
 	protected function NoTimezoneDateTimeFormat($value){
-    	return \NETopes\Core\Classes\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
 	}//END protected function DateTimeFormat
 
 	public function Show() {

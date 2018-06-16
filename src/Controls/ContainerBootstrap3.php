@@ -4,20 +4,20 @@
  *
  * Control container implementation
  *
- * @package    NETopes\Core\Classes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * Control container class file
 	 *
 	 * Control container implementation for Bootstrap3
 	 *
-	 * @package  NETopes\Core\Classes\Controls
+	 * @package  NETopes\Core\Controls
 	 * @access   public
 	 */
 	class ContainerBootstrap3 implements IControlContainer {

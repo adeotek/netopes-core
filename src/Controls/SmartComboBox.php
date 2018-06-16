@@ -11,8 +11,8 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
-    use NETopes\Core\Classes\Data\DataProvider;
+    namespace NETopes\Core\Controls;
+    use NETopes\Core\Data\DataProvider;
     use NApp;
     use PAF\AppException;
     /**
@@ -63,7 +63,7 @@
 				}//foreach ($this->displayfield as $dk=>$dv)
 			} else {
 				$ltext = get_array_param($item,$this->displayfield,'N/A','is_string');
-				$ldisplayvalue = $this->withtranslate===TRUE ? Translate($this->translate_prefix.$ltext) : $ltext;
+				$ldisplayvalue = $this->withtranslate===TRUE ? \Translate::Get($this->translate_prefix.$ltext) : $ltext;
 			}//if(is_array($this->displayfield))
 			return html_entity_decode($ldisplayvalue);
 		}//END protected function GetDisplayFieldValue

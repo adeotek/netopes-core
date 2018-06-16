@@ -11,8 +11,8 @@
  * @version    2.1.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
-use NETopes\Core\Classes\App\Validator;
+namespace NETopes\Core\Data;
+use NETopes\Core\App\Validator;
 use PAF\AppException;
 /**
  * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database

@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * ClassName description
 	 *
@@ -51,7 +51,7 @@
 			}//if(is_numeric($this->width) && $this->width>0)
 			$result .= "\t".'<div class="paginationcontainer'.$c_class.'"'.$c_width.'>'."\n";
 			if($withcount==1) {
-				$result .= "\t\t".'<div class="itemscount span-cent15"><strong>'.$this->totalrows.'</strong> '.Translate('results_label').'</div>'."\n";
+				$result .= "\t\t".'<div class="itemscount span-cent15"><strong>'.$this->totalrows.'</strong> '.\Translate::Get('results_label').'</div>'."\n";
 				$result .= "\t\t".'<div class="span-cent70 pagination">Pag.';
 				if($p_current>0) {
 					if ($p_current>1) {
@@ -139,9 +139,9 @@
 					$result .= "\t\t".'<option '.$selected.' value="'.$i.'">'.$i.'</option>'."\n";
 				}//END for
 				$allselected = $p_current==-1 ? 'selected="selected"' : '';
-				$result .= "\t\t\t\t".'<option '.$allselected.' value="-1">'.Translate('cboall').'</option>'."\n";
+				$result .= "\t\t\t\t".'<option '.$allselected.' value="-1">'.\Translate::Get('cboall').'</option>'."\n";
 				$result .= "\t\t\t".'</select>'."\n";
-				$result .= "\t\t".'<span class="right">'.Translate('jump_to_label').'&nbsp;</span>';
+				$result .= "\t\t".'<span class="right">'.\Translate::Get('jump_to_label').'&nbsp;</span>';
 				$result .= "\t\t".'</div>'."\n";
 			} else {
 				$result .= "\t\t".'<div class="span-cent15">&nbsp;</div>'."\n";

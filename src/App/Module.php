@@ -9,7 +9,7 @@
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
+namespace NETopes\Core\App;
 use GibberishAES;
 use NApp;
 use PAF\AppException;
@@ -286,7 +286,7 @@ class Module {
 			foreach($params as $k=>$v) {
 				switch($k) {
 					case 'qsearch':
-						$lxparam[$k] = $v==Translate('qsearch_label') ? '' : $v;
+						$lxparam[$k] = $v==\Translate::Get('qsearch_label') ? '' : $v;
 						break;
 				  	default:
 						$lxparam[$k] = $v;

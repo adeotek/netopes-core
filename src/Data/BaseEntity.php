@@ -4,21 +4,21 @@
  *
  * Base for all entities implementations
  *
- * @package    NETopes\Core\Classes\App
+ * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
-namespace NETopes\Core\Classes\Data;
+namespace NETopes\Core\Data;
 use PAF\AppException;
 /**
  * BaseEntity class
  *
  * Base for all entities implementations
  *
- * @package  NETopes\Core\Classes\App
+ * @package  NETopes\Core\App
  * @access   public
  */
 abstract class BaseEntity {

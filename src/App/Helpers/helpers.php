@@ -8,15 +8,16 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.0.1
  * @filesource
  */
- 	/**
-	  * description
-	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
-	  */
+	/**
+	 * description
+	 *
+	 * @param $parents
+	 * @param $searched
+	 * @return void
+	 */
 	function multidim_array_search($parents,$searched) {
 		if (empty($searched) || empty($parents)) {
 			return false;

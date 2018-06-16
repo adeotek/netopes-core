@@ -11,7 +11,7 @@
  * @version    2.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * ClassName description
 	 *
@@ -27,7 +27,7 @@
 			$this->autoselect = TRUE;
 			parent::__construct($params);
 			if(strlen($this->numberformat) && is_numeric($this->placeholder)) {
-				$this->placeholder = \NETopes\Core\Classes\App\Validator::FormatNumberValue($this->placeholder,$this->numberformat);
+				$this->placeholder = \NETopes\Core\App\Validator::FormatNumberValue($this->placeholder,$this->numberformat);
 			}//if(strlen($this->numberformat) && is_numeric($this->placeholder))
 			//Number format settings (decimals_no|decimal_separator|group_separator|sufix)
 			if($this->numberformat!==FALSE && !strlen($this->numberformat)) {

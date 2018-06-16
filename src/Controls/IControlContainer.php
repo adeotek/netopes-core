@@ -4,20 +4,20 @@
  *
  * Interface for controls containers
  *
- * @package    NETopes\Core\Classes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
-    namespace NETopes\Core\Classes\Controls;
+    namespace NETopes\Core\Controls;
 	/**
 	 * Control container interface
 	 *
 	 * Interface for controls containers
 	 *
-	 * @package  NETopes\Core\Classes\Controls
+	 * @package  NETopes\Core\Controls
 	 */
 	interface IControlContainer {
 		function __construct($control);

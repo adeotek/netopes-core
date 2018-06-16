@@ -11,7 +11,7 @@
  * @version    2.1.0.1
  * @filesource
  */
-namespace NETopes\Core\Classes\App;
+namespace NETopes\Core\App;
 use NApp;
 /**
  * Validator description
@@ -483,22 +483,22 @@ class Validator {
 		if(!is_numeric($value) || !strlen($langcode)) { return NULL; }
 		$decimals = intval((round($value,2) * 100) % 100);
 		$value = intval($value);
-		if($value==0 && $decimals==0) { return Translate('label_zero',$langcode).(strlen($currency) ? ' '.$currency : ''); }
+		if($value==0 && $decimals==0) { return \Translate::Get('label_zero',$langcode).(strlen($currency) ? ' '.$currency : ''); }
 		$result = '';
 		if($use_intl && class_exists('NumberFormatter')) {
 			$nw = new NumberFormatter($langcode,NumberFormatter::SPELLOUT);
 			if(abs($value)>0) {
-				if($value<0) { $result .= Translate('label_minus').' '; }
+				if($value<0) { $result .= \Translate::Get('label_minus').' '; }
 				$result .= $nw->format(abs($value)).(strlen($currency) ? ' '.$currency : '');
 			}//if(abs($value)>0)
-			if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(Translate('label_and',$langcode)).' ' : '').$nw->format($decimals).(strlen($subcurrency) ? ' '.$subcurrency : ''); }
+			if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(\Translate::Get('label_and',$langcode)).' ' : '').$nw->format($decimals).(strlen($subcurrency) ? ' '.$subcurrency : ''); }
 			return $result;
 		}//if($use_intl && class_exists('NumberFormatter'))
 		if(abs($value)>0) {
-			if($value<0) { $result .= Translate('label_minus').' '; }
+			if($value<0) { $result .= \Translate::Get('label_minus').' '; }
 			$result .= convert_number_to_words(abs($value),$langcode).(strlen($currency) ? ' '.$currency : '');
 		}//if(abs($value)>0)
-		if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(Translate('label_and',$langcode)).' ' : '').convert_number_to_words($decimals,$langcode).(strlen($subcurrency) ? ' '.$subcurrency : ''); }
+		if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(\Translate::Get('label_and',$langcode)).' ' : '').convert_number_to_words($decimals,$langcode).(strlen($subcurrency) ? ' '.$subcurrency : ''); }
 		return $result;
 	}//END public static function ConvertNumberToWord
 	/**
