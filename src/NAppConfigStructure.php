@@ -25,7 +25,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'website_name'=>['type'=>'readonly','default'=>'','validation'=>'is_string'],
 		// Application name
 		'app_name'=>['type'=>'readonly','default'=>'','validation'=>'is_string'],
-		// NETopes Core version
+		// Application version
 		'app_version'=>['type'=>'readonly','default'=>'1.0.0','validation'=>'is_string'],
 		// NETopes Core version
 		'framework_version'=>['type'=>'readonly','default'=>'2.2.0.1','validation'=>'is_string'],
@@ -37,7 +37,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_author_name'=>['type'=>'readonly','default'=>'','validation'=>'is_string'],
 		//  Provider name
 		'app_provider_name'=>['type'=>'readonly','default'=>'Style Mag Universal SRL','validation'=>'is_string'],
-		// Provider url
+		// Provider URL
 		'app_provider_url'=>['type'=>'readonly','default'=>'http://www.adeotek.com','validation'=>'is_string'],
 		// Enable multi-account support
 		'app_multi_account'=>['type'=>'readonly','default'=>FALSE,'validation'=>'bool'],
@@ -45,7 +45,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_with_documents'=>['type'=>'readonly','default'=>TRUE,'validation'=>'bool'],
 		// Enable documents location filter on/off
 		'app_filter_by_location'=>['type'=>'readonly','default'=>FALSE,'validation'=>'bool'],
-		// Multi-language flag
+		// Multi-language support
 		'app_multi_language'=>['type'=>'readonly','default'=>TRUE,'validation'=>'isset'],
 		// Flag for using or not the language code in the application urls
 		'url_without_language'=>['type'=>'readonly','default'=>FALSE,'validation'=>'bool'],
@@ -71,7 +71,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
  		// Modules themed views path
 		//   If NULL/empty modules sub-directory with theme name will be used,
 		//   else the relative to application path given will be used
-		'x_app_theme_modules_views_path'=>['type'=>'public','default'=>NULL,'validation'=>'is_string'],
+		'app_theme_modules_views_path'=>['type'=>'public','default'=>NULL,'validation'=>'is_string'],
 		// Main sidebar (menu) default state (opened/closed)
 		'left_sidebar_state'=>['type'=>'public','default'=>TRUE,'validation'=>'bool'],
   		// Right sidebar (notifications) default state (opened/closed)
@@ -92,8 +92,11 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'api_cron_jobs_log_file'=>['type'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
 	//END START NETopes specific configuration
 	//START Basic configuration
+		// Error handler class NULL/empty for default NETopes implementation
+		//   (must implement NETopes\Core\App\IErrorHandler interface)
+		'error_handler_class'=>['type'=>'readonly','default'=>NULL,'validation'=>'is_string'],
 		// Request max duration in seconds
-		'request_time_limit'=>['type'=>'readonly','default'=>1800,'validation'=>'is_not0integer'],
+		'request_time_limit'=>['type'=>'readonly','default'=>1800,'validation'=>'is_not0_integer'],
   		// Use output buffering via ob_start/ob_flush
 		'bufferd_output'=>['type'=>'readonly','default'=>TRUE,'validation'=>'bool'],
   		// Use internal cache system
@@ -111,11 +114,13 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
   		// Cookie login on/off
 		'cookie_login'=>['type'=>'readonly','default'=>TRUE,'validation'=>'bool'],
   		// Validity of login cookie from last action (in days)
-		'cookie_login_lifetime'=>['type'=>'readonly','default'=>15,'validation'=>'is_not0integer'],
+		'cookie_login_lifetime'=>['type'=>'readonly','default'=>15,'validation'=>'is_not0_integer'],
 	//END START Basic configuration
 	//START PAF configuration overwrites
 		// Session name (NULL for default)
 		'session_name'=>['type'=>'readonly','default'=>'NETOPESPID','validation'=>'is_notempty_string'],
+		// PAF implementing class name
+		'ajax_class_name'=>'NETopes\Core\App\AjaxRequest',
 	//END PAF configuration overwrites
 	];
 ?>

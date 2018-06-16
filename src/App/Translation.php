@@ -15,6 +15,7 @@ namespace NETopes\Core\App;
 use NETopes\Core\Data\DataProvider;
 use NApp;
 use PAF\AppConfig;
+use PAF\AppException;
 
 /**
  * Class Translation
@@ -36,7 +37,6 @@ class Translation {
 	 * @param string $langcode
 	 * @param bool   $loop
 	 * @return array|null
-	 * @throws \PAF\AppException
 	 */
 	function GetTranslationCacheFile($langcode,$loop = TRUE) {
 		if(!$langcode) { return NULL; }
@@ -54,14 +54,19 @@ class Translation {
 		$lpath = NApp::app_public_path().'/templates/'.NApp::current_namespace().NApp::current_section_folder().'/resources/';
 		if(NApp::_GetParam('translation_cache_is_dirty')==1 && file_exists($lpath.$lfile)) { unlink($lpath.$lfile); }
 		if(!file_exists($lpath.$lfile)) {
-			$items = DataProvider::GetArray('System\Translations','GetTranslationsResources',[
+			$tarray = NULL;
+			try {
+				$items = DataProvider::GetArray('System\Translations','GetTranslationsResources',[
 					'section_id'=>$id_section,
 					'zone_id'=>$id_zone,
 					'for_label'=>$cnamespace,
 					'lang_code'=>$langcode,
 					'reset_dirty'=>NApp::_GetParam('translation_cache_is_dirty'),
 				]);
-			$tarray = convert_db_array_to_tree($items,array('module','method','name','value'),FALSE);
+				$tarray = convert_db_array_to_tree($items,array('module','method','name','value'),FALSE);
+			} catch(AppException $e) {
+				$tarray = NULL;
+			}//END try
 			if(!is_array($tarray) || count($tarray)==0) { return NULL; }
 			$fcontent = '<?php function GET_'.strtoupper($langcode).'_STRINGS() {'."\n";
 			$fcontent .= 'return '.var_export($tarray,TRUE);
@@ -85,7 +90,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function Get($key,$langcode = NULL,$echo = FALSE) {
@@ -141,7 +145,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetLabel(string $key,$langcode = NULL,$echo = FALSE) {
@@ -155,7 +158,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetButton(string $key,$langcode = NULL,$echo = FALSE) {
@@ -169,7 +171,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetTitle(string $key,$langcode = NULL,$echo = FALSE) {
@@ -183,7 +184,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetMessage(string $key,$langcode = NULL,$echo = FALSE) {
@@ -197,7 +197,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetError(string $key,$langcode = NULL,$echo = FALSE) {
@@ -211,7 +210,6 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
-	 * @throws \PAF\AppException
 	 * @static
 	 */
 	public static function GetUrlId(string $key,$langcode = NULL,$echo = FALSE) {
