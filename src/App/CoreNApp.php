@@ -1225,7 +1225,7 @@ class CoreNApp extends \PAF\App {
 			$this->url->SetParam('language',$userdata->getProperty('lang_code'));
 		}//if($userdata->getProperty('id_language_def',0,'is_integer')>0 && strlen($userdata->getProperty('lang_code','','is_string')))
 		if($remember && strlen($userdata->getProperty('hash','','is_string'))) {
-			$this->SetLoginCookie($userdata['hash']);
+			$this->SetLoginCookie($userdata->getProperty('hash','','is_string'));
 		} else {
 			$this->SetLoginCookie('',-4200);
 		}//if($remember && strlen($userdata->getProperty('hash','','is_string')))
