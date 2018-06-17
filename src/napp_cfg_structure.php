@@ -92,6 +92,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'api_cron_jobs_log_file'=>['type'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
 	//END START NETopes specific configuration
 	//START Basic configuration
+		// Use custom modules and data sources autoloader
+		'use_custom_autoloader'=>['type'=>'readonly','default'=>FALSE,'validation'=>'bool'],
 		// Error handler class NULL/empty for default NETopes implementation
 		//   (must implement NETopes\Core\App\IErrorHandler interface)
 		'error_handler_class'=>['type'=>'readonly','default'=>NULL,'validation'=>'is_string'],

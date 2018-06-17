@@ -1,6 +1,6 @@
 <?php
 	if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request!'); }
-	require_once(__DIR__.'/NAppConfigStructure.php');
+	require_once(__DIR__.'/napp_cfg_structure.php');
 	if(isset($_CUSTOM_CONFIG_STRUCTURE) && is_array($_CUSTOM_CONFIG_STRUCTURE)) {
 		$_CUSTOM_CONFIG_STRUCTURE = array_merge($_CUSTOM_CONFIG_STRUCTURE,(isset($_NAPP_CONFIG_STRUCTURE) && is_array($_NAPP_CONFIG_STRUCTURE) ? $_NAPP_CONFIG_STRUCTURE : []));
 	} else {
@@ -25,5 +25,9 @@
 		register_shutdown_function(['ErrorHandler','ShutDownHandlerFunction']);
 	}//if(strlen($custom_error_handler) && class_exists($custom_error_handler) && array_key_exists('NETopes\Core\App\IErrorHandler',class_implements($custom_error_handler)))
 	// END START ErrorHandler Setup
-	require_once(__DIR__.'/autoload_napp.php');
+	if(\PAF\AppConfig::use_custom_autoloader()) {
+		require_once(__DIR__.'/napp_autoload.php');
+		spl_autoload_register('_napp_autoload');
+    }//if(\PAF\AppConfig::use_custom_autoloader())
+
 ?>

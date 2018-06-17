@@ -6,14 +6,9 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.0.1
  * @filesource
  */
-    // Register custom NETopes auto-loaders
-    if(!defined('_AAPP_REGISTER_AUTOLOADER') || _AAPP_REGISTER_AUTOLOADER!==FALSE) {
-		spl_autoload_register('_napp_autoload',TRUE,TRUE);
-	}//if(!defined('_AAPP_REGISTER_AUTOLOADER') || _AAPP_REGISTER_AUTOLOADER!==FALSE)
-	//END Register custom NETopes auto-loaders
 	/**
 	 * NETopes autoloader function
 	 *
@@ -32,6 +27,7 @@
 		switch(strtoupper($s_ns)) {
 			case 'MODULES':
 			case 'DATASOURCES':
+			case 'DATAENTITIES':
 				if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR,$a_class).'.php')) {
 					require_once(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR,$a_class).'.php');
 					return TRUE;
