@@ -136,9 +136,9 @@
 		 */
 		public function __construct($params = NULL) {
 			$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
-			$this->theme_type = NApp::$x_app_theme_type;
-			$this->controls_size = NApp::$x_app_theme_def_controls_size;
-			$this->actions_size = NApp::$x_app_theme_def_actions_size;
+			$this->theme_type = AppConfig::app_theme_type();
+			$this->controls_size = AppConfig::app_theme_def_controls_size();
+			$this->actions_size = AppConfig::app_theme_def_actions_size();
 			if(is_array($params) && count($params)) {
 				foreach($params as $k=>$v) {
 					if(property_exists($this,$k)) { $this->$k = $v; }

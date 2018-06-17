@@ -331,7 +331,7 @@
 			$this->chash = NApp::GetNewUID();
 			$this->baseclass = 'cls'.get_class_basename($this);
 			$this->currentpage = 1;
-			$this->theme_type = NApp::$x_app_theme_type;
+			$this->theme_type = AppConfig::app_theme_type();
 			if(is_array($params) && count($params)) {
 				foreach($params as $k=>$v) {
 					if(property_exists($this,$k)) { $this->$k = $v; }

@@ -112,23 +112,11 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public $customizations = [];
-
 	/**
-	 * Classic
-	 *
+	 * @var    bool Debug mode
 	 * @access public
-	 * @static
-	 * @throws \Exception
 	 */
-	public static function InitializeApp(array $appConfig,array $customConfigStructure = []) {
-		require_once(__DIR__.'/Helpers/NAppConfigStructure.php');
-		if(!isset($_NAPP_CONFIG_STRUCTURE) || !is_array($_NAPP_CONFIG_STRUCTURE)) { die('Invalid NETopes config structure!'); }
-		$customConfigStructure = array_merge($_NAPP_CONFIG_STRUCTURE,$customConfigStructure);
-		AppConfig::LoadConfig($appConfig,$customConfigStructure);
-		require_once(__DIR__.'/Helpers/helpers.php');
-		require_once(__DIR__.'/Helpers/autoload_napp.php');
-
-	}//END public static function InitializeApp
+	public $debug = FALSE;
 	/**
 	 * description
 	 *
@@ -182,6 +170,7 @@ class CoreNApp extends \PAF\App {
 			$this->SetPageParam('current_url',$curl);
 		}//if($ajax!==TRUE)
 		if($with_session && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::debug(FALSE); }
+		$this->debug = AppConfig::debug();
 	}//END protected function __construct
 	/**
 	 * Commit the namespace temporary session into the session

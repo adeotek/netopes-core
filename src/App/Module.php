@@ -12,6 +12,7 @@
 namespace NETopes\Core\App;
 use GibberishAES;
 use NApp;
+use PAF\AppConfig;
 use PAF\AppException;
 /**
  * Module class
@@ -168,7 +169,7 @@ class Module {
 	 * @param string $method
 	 * @param string $key
 	 * @param mixed $def_value
-	 * @return void
+	 * @return mixed
 	 * @access public
 	 * @static
 	 */
@@ -370,16 +371,19 @@ class Module {
 	 * @access public
 	 */
 	private function ViewFileProvider($name,$sub_dir = NULL,$theme_dir = NULL) {
-		$fname = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.NApp::$x_app_views_extension;
+		$fname = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.AppConfig::app_views_extension();
 		// Get theme directory and theme views base directory
-		$defdir = (is_string(NApp::$x_app_default_views_dir) ? (strlen(trim(NApp::$x_app_default_views_dir,'/')) ? '/'.trim(NApp::$x_app_default_views_dir,'/') : '') : '/_default');
-		$themedir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string(NApp::$x_app_theme) && strlen(NApp::$x_app_theme) ? NApp::$x_app_theme : NULL);
+		$app_theme = AppConfig::app_theme();
+		$views_def_dir = AppConfig::app_default_views_dir();
+		$theme_modules_views_path = AppConfig::app_theme_modules_views_path();
+		$defdir = (is_string($views_def_dir) ? (strlen(trim($views_def_dir,'/')) ? '/'.trim($views_def_dir,'/') : '') : '/_default');
+		$themedir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($app_theme) && strlen($app_theme) ? $app_theme : NULL);
 		$basedir = NULL;
 		if(isset($themedir)) {
-			if(is_string(NApp::$x_app_theme_modules_views_path) && strlen(NApp::$x_app_theme_modules_views_path)) {
-				if(!file_exists(NApp::app_path().'/'.trim(NApp::$x_app_theme_modules_views_path,'/\\'))) { throw new AppException('Invalid views theme path!'); }
-				$basedir = NApp::app_path().'/'.trim(NApp::$x_app_theme_modules_views_path,'/\\').DIRECTORY_SEPARATOR;
-			}//if(is_string(NApp::$x_app_theme_modules_views_path) && strlen(NApp::$x_app_theme_modules_views_path))
+			if(is_string($theme_modules_views_path) && strlen($theme_modules_views_path)) {
+				if(!file_exists(NApp::app_path().'/'.trim($theme_modules_views_path,'/\\'))) { throw new AppException('Invalid views theme path!'); }
+				$basedir = NApp::app_path().'/'.trim($theme_modules_views_path,'/\\').DIRECTORY_SEPARATOR;
+			}//if(is_string($theme_modules_views_path) && strlen($theme_modules_views_path))
 		}//if(isset($themedir))
 		// NApp::_Dlog($fname,'$fname');
 		// NApp::_Dlog($theme_dir,'$theme_dir');
@@ -425,7 +429,7 @@ class Module {
 				if(file_exists($p_full_path.$defdir.$fname)) { return $p_full_path.$defdir.$fname; }
 			}//END foreach
 		}//if($parents)
-		throw new \PAF\AppException('View file ['.$fname.'] not found!');
+		throw new AppException('View file ['.$fname.'] not found!');
 	}//private function ViewFileProvider
 	/**
 	 * Gets the view full file name (including absolute path)
@@ -452,7 +456,7 @@ class Module {
 	 * @param mixed $def_value
 	 * @param string $method
 	 * @param string $module
-	 * @return void
+	 * @return mixed
 	 * @access public
 	 */
 	public function GetCustomisationsData($key = NULL,$def_value = NULL,$method = NULL,$module = NULL) {
@@ -498,8 +502,8 @@ class Module {
 	}//END protected function GetDebugData
 
 	public function GetCallDebugData($params = NULL) {
-		$clear = $params->safeGetValue('clear',FALSE,'bool');
-		$method = $params->safeGetValue('method',NULL);
+		$clear = $params->safeGet('clear',FALSE,'bool');
+		$method = $params->safeGet('method',NULL,'is_string');
 		$result = NULL;
 		if(is_null($method)) {
 			$result = $this->debug_data;

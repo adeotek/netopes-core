@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use PAF\AppConfig;
 use NApp;
 /**
  * DataSource is the base class for all data sources
@@ -403,7 +404,7 @@ class DataSource {
 		$lkey = is_string($tag) && strlen($tag) ? $tag.':'.$key : $key;
 		$result = FALSE;
 		$handled = FALSE;
-		if(NApp::$x_cache_redis && class_exists('Redis',FALSE)) {
+		if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
 			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
 			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
@@ -436,7 +437,7 @@ class DataSource {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
 			}//if(strlen($rdb_server) && $rdb_port>0)
-		}//if(NApp::$x_cache_redis && class_exists('Redis',FALSE))
+		}//if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
 			if(!file_exists(NApp::_GetCachePath().'dataadapters/'.$fname)) { return FALSE; }
@@ -471,7 +472,7 @@ class DataSource {
 			$lkey = $key;
 		}//if(is_string($tag) && strlen($tag))
 		$handled = FALSE;
-		if(NApp::$x_cache_redis && class_exists('Redis',FALSE)) {
+		if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
 			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
 			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
@@ -511,7 +512,7 @@ class DataSource {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
 			}//if(strlen($rdb_server) && $rdb_port>0)
-		}//if(NApp::$x_cache_redis && class_exists('Redis',FALSE))
+		}//if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
 			if(is_null($data)) {
@@ -544,7 +545,7 @@ class DataSource {
 		// NApp::_Dlog(['tag'=>$tag,'key'=>$key],'UnsetCacheData');
 		if(!is_string($tag) || !strlen($tag)) { return FALSE; }
 		$handled = FALSE;
-		if(NApp::$x_cache_redis && class_exists('Redis',FALSE)) {
+		if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
 			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
 			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
@@ -583,7 +584,7 @@ class DataSource {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
 			}//if(strlen($rdb_server) && $rdb_port>0)
-		}//if(NApp::$x_cache_redis && class_exists('Redis',FALSE))
+		}//if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE))
 		if(!$handled) {
 			if(file_exists(NApp::_GetCachePath().'dataadapters/')) {
 				$filter = $key.']['.(strlen($tag) ? $tag : '*').'.cache';
@@ -605,7 +606,7 @@ class DataSource {
 	 */
 	public static function ClearAllCache() {
 		$result = NULL;
-		if(NApp::$x_cache_redis && class_exists('Redis',FALSE)) {
+		if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
 			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
 			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
@@ -638,7 +639,7 @@ class DataSource {
 					$result = FALSE;
 				}//END try
 			}//if(strlen($rdb_server) && $rdb_port>0)
-		}//if(NApp::$x_cache_redis && class_exists('Redis',FALSE))
+		}//if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE))
 		try {
 			if(file_exists(NApp::_GetCachePath().'dataadapters')) {
 				array_map('unlink', glob(NApp::_GetCachePath().'dataadapters/*.cache'));

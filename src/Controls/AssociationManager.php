@@ -166,7 +166,7 @@
 			$this->chash = NApp::GetNewUID(get_class_basename($this));
 			$this->uid = NApp::GetNewUID(get_class_basename($this),'md5');
 			$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
-			$this->layout_type = NApp::$x_app_theme_type;
+			$this->layout_type = AppConfig::app_theme_type();
 			if(is_array($params) && count($params)) {
 				if(!is_array($this->pdata)) { $this->pdata = array(); }
 				foreach($params as $k=>$v) {

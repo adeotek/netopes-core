@@ -14,6 +14,8 @@
 namespace NETopes\Core\App;
 use NETopes\Core\Data\DataProvider;
 use NApp;
+use PAF\AppConfig;
+
 /**
  * ContentView is the web view base class
  *
@@ -122,7 +124,7 @@ abstract class ContentView {
 				break;
 			case 1:
 			default: // internal url
-				if(get_array_param($data,'isflink',0,'is_numeric')==1 && NApp::$x_mod_rewrite) {
+				if(get_array_param($data,'isflink',0,'is_numeric')==1 && AppConfig::app_mod_rewrite()) {
 					$result .= (strlen($data['tr_url_id_prefix']) ? $data['tr_url_id_prefix'].'/' : '').(strlen($data['tr_url_id']) ? $data['tr_url_id'].'/' : '');
 				} else {
 					$has_params = FALSE;
@@ -135,7 +137,7 @@ abstract class ContentView {
 						$has_params = TRUE;
 					}//if(strlen(get_array_param($data,'action','','is_string')))
 					$result .= get_array_param($data,'id',NULL,'is_not0_numeric') ? ($has_params ? '&' : '?').'page='.$data['id'] : '';
-				}//if(get_array_param($data,'isflink',0,'is_numeric')==1 && NApp::$x_mod_rewrite)
+				}//if(get_array_param($data,'isflink',0,'is_numeric')==1 && AppConfig::app_mod_rewrite())
 				break;
 		}//END switch
 		$urlparams = trim(get_array_param($data,'params','','is_string'),'?&');

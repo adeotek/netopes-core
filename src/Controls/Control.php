@@ -134,7 +134,7 @@
 			// $this->size = 'xxs';
 			$this->tabindex = NULL;
 			$this->baseclass = 'cls'.get_class_basename($this);
-			$this->theme_type = NApp::$x_app_theme_type;
+			$this->theme_type = AppConfig::app_theme_type();
 			if(is_array($params) && count($params)) {
 				foreach($params as $k=>$v) { $this->$k = $v; }
 			}//if(is_array($params) && count($params))
