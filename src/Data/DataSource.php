@@ -187,9 +187,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : $procedure;
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(NApp::$db_debug) {
+				if(AppConfig::db_debug()) {
 					NApp::_Dlog('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
-				}//if(NApp::$db_debug)
+				}//if(AppConfig::db_debug())
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
@@ -271,9 +271,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : \PAF\AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(NApp::$db_debug) {
+				if(AppConfig::db_debug()) {
 					NApp::_Dlog('Cache loaded data for query: '.$query,'GetCountAndData');
-				}//if(NApp::$db_debug)
+				}//if(AppConfig::db_debug())
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
@@ -334,9 +334,9 @@ class DataSource {
 			$result = self::GetCacheData($key,$ltag);
 			// NApp::_Dlog($result,$procedure.':'.$key);
 			if($result!==FALSE) {
-				if(NApp::$db_debug) {
+				if(AppConfig::db_debug()) {
 					NApp::_Dlog('Cache loaded data for procedure: '.$procedure,'GetProcedureData');
-				}//if(NApp::$db_debug)
+				}//if(AppConfig::db_debug())
 				return $result;
 			}//if($result!==FALSE)
 			$result = $this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
@@ -377,9 +377,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : \PAF\AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(NApp::$db_debug) {
+				if(AppConfig::db_debug()) {
 					NApp::_Dlog('Cache loaded data for query: '.$query,'GetQueryData');
-				}//if(NApp::$db_debug)
+				}//if(AppConfig::db_debug())
 				return $result;
 			}//if($result!==FALSE)
 			$result = $this->adapter->ExecuteQuery($query,$params,$extra_params);
@@ -497,9 +497,9 @@ class DataSource {
 							$result = $redis->set($lkey,@serialize($data));
 							// NApp::_Dlog($key,'Cache set');
 						}//if(is_null($data))
-						if(NApp::$db_debug) {
+						if(AppConfig::db_debug()) {
 							NApp::_Dlog('Cache data stored to REDIS for: '.$lkey,'SetCacheData');
-						}//if(NApp::$db_debug)
+						}//if(AppConfig::db_debug())
 						$handled = TRUE;
 					} catch(Exception $e) {
 						$result = NULL;
@@ -526,9 +526,9 @@ class DataSource {
 				}//if(!file_exists(NApp::_GetCachePath().'dataadapters'))
 				$result = file_put_contents(NApp::_GetCachePath().'dataadapters/'.$fname,serialize($data));
 			}//if(is_null($data))
-			if(NApp::$db_debug) {
+			if(AppConfig::db_debug()) {
 				NApp::_Dlog('Cache data stored to FILES for: '.$lkey,'SetCacheData');
-			}//if(NApp::$db_debug)
+			}//if(AppConfig::db_debug())
 		}//if(!$handled)
 		return ($result!==0 && $result!==FALSE);
 	}//public static function SetCacheData
@@ -570,9 +570,9 @@ class DataSource {
 							$result = $redis->delete($redis->keys($tag.':*'));
 						}//if(strlen($key))
 						$handled = TRUE;
-						if(NApp::$db_debug) {
+						if(AppConfig::db_debug()) {
 							NApp::_Dlog('Cache data deleted ['.print_r($result,1).'] for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-						}//if(NApp::$db_debug)
+						}//if(AppConfig::db_debug())
 					} catch(Exception $e) {
 						$result = NULL;
 					}//END try
@@ -590,9 +590,9 @@ class DataSource {
 				$filter = $key.']['.(strlen($tag) ? $tag : '*').'.cache';
 				array_map('unlink',glob(NApp::_GetCachePath().'dataadapters/'.$filter));
 			}//if(file_exists(NApp::_GetCachePath().'dataadapters/'.$fname))
-			if(NApp::$db_debug) {
+			if(AppConfig::db_debug()) {
 				NApp::_Dlog('Cache data deleted for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-			}//if(NApp::$db_debug)
+			}//if(AppConfig::db_debug())
 			$result = TRUE;
 		}//if(!$handled)
 		return ($result!==0 && $result!==FALSE);

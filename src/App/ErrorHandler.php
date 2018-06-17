@@ -351,7 +351,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 			$error_str .= self::$backtrace ? '<br>Backtrace: '.print_r(debug_backtrace(),TRUE).'<br>' : '';
 		}//if(!$errno && !$errfile && !$errline)
 		if(strlen(self::$js_show_error) && class_exists('NApp') && is_object(NApp::GetCurrentInstance()) && NApp::$gui_loaded) {
-			$error_str = GibberishAES::enc($error_str,'HTML');
+			$error_str = \GibberishAES::enc($error_str,'HTML');
 			if(NApp::ajax()) {
 				if(is_object(NApp::arequest()) && !self::$shutdown) {
 					NApp::arequest()->ExecuteJs(self::$js_show_error."('{$error_str}',true);");

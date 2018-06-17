@@ -124,7 +124,7 @@ class ApiDataProvider {
 		$result = array();
 		foreach($targets as $target) {
 			$taccesskey = array_key_exists('access_key',$target) ? $target['access_key'] : '';
-			$pparams = $pparams ? GibberishAES::enc(serialize($pparams),$taccesskey) : NULL;
+			$pparams = $pparams ? \GibberishAES::enc(serialize($pparams),$taccesskey) : NULL;
 			$lparams = array(
 					'domain'=>(array_key_exists('website',$target) ? $target['website'] : ''),
 					'post_params'=>array(

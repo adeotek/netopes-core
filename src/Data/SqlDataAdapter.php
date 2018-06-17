@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use PAF\AppConfig;
 use NApp;
 /**
  * DbAdapter is the base abstract class for all database adapters
@@ -32,8 +33,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	protected function __construct($connection) {
-		$this->debug = NApp::$db_debug;
-		$this->debug2file = NApp::$db_debug2file;
+		$this->debug = AppConfig::db_debug();
+		$this->debug2file = AppConfig::db_debug2file();
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \PAF\AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];

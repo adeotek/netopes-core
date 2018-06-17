@@ -37,8 +37,10 @@ class Translation {
 	 * @param string $langcode
 	 * @param bool   $loop
 	 * @return array|null
+	 * @access protected
+	 * @static
 	 */
-	function GetTranslationCacheFile($langcode,$loop = TRUE) {
+	protected static function GetTranslationCacheFile($langcode,$loop = TRUE) {
 		if(!$langcode) { return NULL; }
 		if(NApp::current_namespace()=='web') {
 			$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : 0;
@@ -82,7 +84,7 @@ class Translation {
 		if(!is_array(self::$_LANGUAGES_STRINGS)) { self::$_LANGUAGES_STRINGS = []; }
 		self::$_LANGUAGES_STRINGS[$langcode] = call_user_func('GET_'.strtoupper($langcode).'_STRINGS');
 		return self::$_LANGUAGES_STRINGS[$langcode];
-	}//END function GetTranslationCacheFile
+	}//END protected static function GetTranslationCacheFile
 	/**
 	 * Get resource translation value
 	 *
@@ -90,6 +92,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function Get($key,$langcode = NULL,$echo = FALSE) {
@@ -145,6 +148,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetLabel(string $key,$langcode = NULL,$echo = FALSE) {
@@ -158,6 +162,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetButton(string $key,$langcode = NULL,$echo = FALSE) {
@@ -171,6 +176,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetTitle(string $key,$langcode = NULL,$echo = FALSE) {
@@ -184,6 +190,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetMessage(string $key,$langcode = NULL,$echo = FALSE) {
@@ -197,6 +204,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetError(string $key,$langcode = NULL,$echo = FALSE) {
@@ -210,6 +218,7 @@ class Translation {
 	 * @param null $langcode
 	 * @param bool $echo
 	 * @return string|null Translated value
+	 * @access public
 	 * @static
 	 */
 	public static function GetUrlId(string $key,$langcode = NULL,$echo = FALSE) {
