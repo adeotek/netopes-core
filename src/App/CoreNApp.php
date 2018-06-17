@@ -969,7 +969,7 @@ class CoreNApp extends \PAF\App {
 	public function GetCookieHash($namespace = NULL,$salt = NULL) {
 		$lnamespace = $namespace ? $namespace : $this->current_namespace;
 		$lsalt = strlen($salt) ? $salt : 'loggedin';
-		return AppSession::GetNewUID(AppConfig::app_session_key().$this->app_domain.$this->url_folder.$lnamespace.$lsalt,'sha256',TRUE);
+		return AppSession::GetNewUID(AppConfig::app_session_key().$this->url->GetAppDomain().$this->url->GetUrlFolder().$lnamespace.$lsalt,'sha256',TRUE);
 	}//END public function GetCookieHash
 	/**
 	 * description
@@ -977,20 +977,20 @@ class CoreNApp extends \PAF\App {
 	 * @param      $name
 	 * @param null $namespace
 	 * @param bool $set_if_missing
-	 * @param null $valability
+	 * @param null $validity
 	 * @return string|null
 	 * @access public
 	 */
-	public function GetHashFromCookie($name,$namespace = NULL,$set_if_missing = TRUE,$valability = NULL) {
+	public function GetHashFromCookie($name,$namespace = NULL,$set_if_missing = TRUE,$validity = NULL) {
 		$c_hash = $this->GetCookieHash($namespace,$name);
 		$c_cookie_hash = NULL;
 		if(array_key_exists($c_hash,$_COOKIE) && strlen($_COOKIE[$c_hash])) {
 			$c_cookie_hash = \GibberishAES::dec($_COOKIE[$c_hash],AppConfig::app_session_key());
 		} elseif($set_if_missing===TRUE || $set_if_missing===1 || $set_if_missing==='1') {
 			$c_cookie_hash = AppSession::GetNewUID();
-			$lvalability = (is_numeric($valability) && $valability>0 ? $valability : 180)*24*3600;
+			$lvalability = (is_numeric($validity) && $validity>0 ? $validity : 180)*24*3600;
 			$_COOKIE[$c_hash] = \GibberishAES::enc($c_cookie_hash,AppConfig::app_session_key());
-			setcookie($c_hash,$_COOKIE[$c_hash],time()+$lvalability,'/',$this->app_domain);
+			setcookie($c_hash,$_COOKIE[$c_hash],time()+$lvalability,'/',$this->url->GetAppDomain());
 		}//if(array_key_exists($sc_hash,$_COOKIE) && strlen($_COOKIE[$sc_hash]))
 		return $c_cookie_hash;
 	}//END public function GetHashFromCookie
