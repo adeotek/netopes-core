@@ -150,7 +150,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 */
 	public function FirebirdSqlBeginTran(&$name,$log = FALSE,$overwrite = TRUE,$tran_params = NULL) {
 		if(!is_string($name) || !strlen($name)) {
-			$name = NApp::GetNewUID(chr(rand(48,57)).chr(rand(48,57)));
+			$name = \PAF\AppSession::GetNewUID(chr(rand(48,57)).chr(rand(48,57)));
 		} else {
 			if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]) && !$overwrite){ return NULL; }
 		}//if(!is_string($name) || !strlen($name))

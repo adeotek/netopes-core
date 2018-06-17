@@ -71,7 +71,7 @@ class DataSource {
 	 */
 	public static function GetInstance($type,$connection = NULL,$existing_only = FALSE,$entityName = NULL) {
 		$name = get_called_class();
-		$ikey = NApp::GetNewUID($type.'|'.$name.'|'.$entityName.'|'.serialize($connection),'sha1',TRUE);
+		$ikey = \PAF\AppSession::GetNewUID($type.'|'.$name.'|'.$entityName.'|'.serialize($connection),'sha1',TRUE);
 		if(!array_key_exists($ikey,self::$DataSourcesInstances) || is_null(self::$DataSourcesInstances[$ikey])) {
 			if($existing_only) { return NULL; }
 			self::$DataSourcesInstances[$ikey] = new $name($type,$connection,$entityName);
@@ -183,7 +183,7 @@ class DataSource {
 			$params_salt = $procedure;
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
 			$params_salt .= serialize(!is_array($extra_params) ? [] : $extra_params);
-			$key = NApp::GetNewUID($params_salt,'sha1',TRUE);
+			$key = \PAF\AppSession::GetNewUID($params_salt,'sha1',TRUE);
 			$ltag = is_string($tag) && strlen($tag) ? $tag : $procedure;
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
@@ -264,11 +264,11 @@ class DataSource {
 	 */
 	public function GetQueryCountAndData($query,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL) {
 		if($cache && NApp::_CacheDbCall()) {
-			$params_salt = NApp::GetNewUID($query,'md5',TRUE);
+			$params_salt = \PAF\AppSession::GetNewUID($query,'md5',TRUE);
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
 			$params_salt .= serialize(!is_array($extra_params) ? [] : $extra_params);
-			$key = NApp::GetNewUID($params_salt,'sha1',TRUE);
-			$ltag = is_string($tag) && strlen($tag) ? $tag : NApp::GetNewUID($query,'sha1',TRUE);
+			$key = \PAF\AppSession::GetNewUID($params_salt,'sha1',TRUE);
+			$ltag = is_string($tag) && strlen($tag) ? $tag : \PAF\AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
 				if(NApp::$db_debug) {
@@ -329,7 +329,7 @@ class DataSource {
 			$params_salt = $procedure;
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
 			$params_salt .= serialize(!is_array($extra_params) ? [] : $extra_params);
-			$key = NApp::GetNewUID($params_salt,'sha1',TRUE);
+			$key = \PAF\AppSession::GetNewUID($params_salt,'sha1',TRUE);
 			$ltag = is_string($tag) && strlen($tag) ? $tag : $procedure;
 			$result = self::GetCacheData($key,$ltag);
 			// NApp::_Dlog($result,$procedure.':'.$key);
@@ -370,11 +370,11 @@ class DataSource {
 	 */
 	public function GetQueryData($query,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL) {
 		if($cache && NApp::_CacheDbCall()) {
-			$params_salt = NApp::GetNewUID($query,'md5',TRUE);
+			$params_salt = \PAF\AppSession::GetNewUID($query,'md5',TRUE);
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
 			$params_salt .= serialize(!is_array($extra_params) ? [] : $extra_params);
-			$key = NApp::GetNewUID($params_salt,'sha1',TRUE);
-			$ltag = is_string($tag) && strlen($tag) ? $tag : NApp::GetNewUID($query,'sha1',TRUE);
+			$key = \PAF\AppSession::GetNewUID($params_salt,'sha1',TRUE);
+			$ltag = is_string($tag) && strlen($tag) ? $tag : \PAF\AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
 				if(NApp::$db_debug) {

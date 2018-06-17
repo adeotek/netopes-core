@@ -111,7 +111,7 @@ abstract class DataAdapter {
 	public static function GetInstance($type,$connection,$existing_only = FALSE) {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !$type) { return NULL; }
 		$dbclass = get_called_class();
-		$dbiname = NApp::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
+		$dbiname = \PAF\AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
 		if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection)) {
 			if($existing_only) { return NULL; }
 			self::$DatabaseAdapterInstances[$dbiname] = new $dbclass($connection);

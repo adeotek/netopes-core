@@ -108,7 +108,7 @@
 					} else {
 						foreach($s_values as $sv=>$st) { array_unshift($litems,[$this->valfield=>$sv,'_text_'=>$st]); }
 					}//if(!count($s_values))
-					$tagauid = NApp::GetNewUID($this->tagid,'md5');
+					$tagauid = \PAF\AppSession::GetNewUID($this->tagid,'md5');
 					NApp::_SetSessionAcceptedRequest($tagauid);
 					$cns = NApp::current_namespace();
 					$ac_module = get_array_param($this->data_source,'ds_class','','is_string');

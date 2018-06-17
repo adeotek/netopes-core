@@ -29,7 +29,7 @@
 			parent::__construct($params);
 			if(!$this->postable) { $this->postable_elements = FALSE; }
 			else { $this->postable = FALSE; }
-			if(!strlen($this->tagid)) { $this->tagid = NApp::GetNewUID('KVList'); }
+			if(!strlen($this->tagid)) { $this->tagid = \PAF\AppSession::GetNewUID('KVList'); }
 			if(!strlen($this->tagname)) { $this->tagname = strlen($this->tagid) ? $this->tagid : ''; }
 		}//END public function __construct
 

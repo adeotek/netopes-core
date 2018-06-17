@@ -62,7 +62,7 @@
 							$lonclick = $this->AreqRun('{{page}}',($cpage-1));
 							$result .= "\t".'<div class="btn btn-info btn-xxs ionly" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
 						}//if($cpage==1 || $cpage<0)
-						$psid = NApp::GetNewUID(NULL,'md5');
+						$psid = \PAF\AppSession::GetNewUID(NULL,'md5');
 						$lonclick = $this->AreqRun('{{page}}',$psid.':value');
 						$result .= "\t".'<select id="'.$psid.'" onchange="'.$lonclick.'">'."\n";
 						for($i=1; $i<=$pages_no; $i++) {
@@ -94,7 +94,7 @@
 							$lonclick = $this->AreqRun('{{page}}',($cpage-1));
 							$result .= "\t".'<span class="pag-btn active" onclick="'.$lonclick.'"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-angle-left fa-inverse fa-stack-1x"></i></span></span>'."\n";
 						}//if($cpage==1 || $cpage<0)
-						$psid = NApp::GetNewUID(NULL,'md5');
+						$psid = \PAF\AppSession::GetNewUID(NULL,'md5');
 						$lonclick = $this->AreqRun('{{page}}',$psid.':value');
 						$result .= "\t".'<select id="'.$psid.'" onchange="'.$lonclick.'">'."\n";
 						for($i=1; $i<=$pages_no; $i++) {

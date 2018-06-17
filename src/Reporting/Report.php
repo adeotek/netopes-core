@@ -100,8 +100,8 @@ class Report extends ExcelExport {
 		$phash = get_array_param($params,'phash',NULL,'is_notempty_string');
 		$this->excel_export = (strlen($this->export_module) && strlen($this->export_method) && strlen($phash)) ? get_array_param($params,'excel_export',$this->excel_export,'bool') : false;
 		if($this->excel_export) {
-			$this->dhash = NApp::GetNewUID(get_class_basename($this),'sha1');
-			$this->cached_file = 'cache_'.NApp::GetNewUID(get_class_basename($this).$phash,'sha1',TRUE);
+			$this->dhash = \PAF\AppSession::GetNewUID(get_class_basename($this),'sha1');
+			$this->cached_file = 'cache_'.\PAF\AppSession::GetNewUID(get_class_basename($this).$phash,'sha1',TRUE);
 			$def_fname = str_replace(' ','_',trim($this->report_name)).'_'.date('d.m.Y-H.i').'.xlsx';
 			$this->export_file_name = GibberishAES::enc(get_array_param($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
 			$this->excel_export = $this->CreateCacheExcelFile($params);

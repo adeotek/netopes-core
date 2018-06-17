@@ -55,7 +55,7 @@
 		 */
 		public function __construct($params = NULL) {
 			parent::__construct($params);
-			if(!strlen($this->tagid)) { $this->tagid = NApp::GetNewUID('GroupCheckBox','md5'); }
+			if(!strlen($this->tagid)) { $this->tagid = \PAF\AppSession::GetNewUID('GroupCheckBox','md5'); }
 		}//END public function __construct
 
 		protected function GetItems() {

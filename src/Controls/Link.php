@@ -58,7 +58,7 @@
 			$epass = is_string($this->encrypted) && strlen($this->encrypted) ? $this->encrypted : 'eUrlHash';
 			$url_params = '';
 			if(is_array($this->session_params) && count($this->session_params)) {
-				$shash = rawurlencode(NApp::GetNewUID($this->tagid.serialize($this->session_params),'sha1',TRUE));
+				$shash = rawurlencode(\PAF\AppSession::GetNewUID($this->tagid.serialize($this->session_params),'sha1',TRUE));
 				$namespace = get_array_param($this->url_params,'namespace','','is_string');
 				NApp::_SetParam($shash,$this->session_params,FALSE,$namespace);
 				$url_params = 'shash='.$shash;

@@ -328,7 +328,7 @@
 		 * @access public
 		 */
 		public function __construct($params = NULL) {
-			$this->chash = NApp::GetNewUID();
+			$this->chash = \PAF\AppSession::GetNewUID();
 			$this->baseclass = 'cls'.get_class_basename($this);
 			$this->currentpage = 1;
 			$this->theme_type = AppConfig::app_theme_type();
@@ -1290,7 +1290,7 @@
 						}//if($is_iterator)
 						if(isset($c_params['tagid'])) {
 						$key_value = $row->getProperty(get_array_param($v,'db_key','id','is_notempty_string'),NULL,'isset');
-							$key_value = strlen($key_value) ? $key_value : NApp::GetNewUID();
+							$key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
 							$c_params['tagid'] .= '_'.$key_value;
 						}//if(isset($c_params['tagid']))
 						$p_pafreq = get_array_param($v,$params_prefix.'control_pafreq',NULL,'is_array');

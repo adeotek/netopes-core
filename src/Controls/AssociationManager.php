@@ -163,8 +163,8 @@
 		 * @access public
 		 */
 		public function __construct($params = NULL) {
-			$this->chash = NApp::GetNewUID(get_class_basename($this));
-			$this->uid = NApp::GetNewUID(get_class_basename($this),'md5');
+			$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
+			$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
 			$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
 			$this->layout_type = AppConfig::app_theme_type();
 			if(is_array($params) && count($params)) {

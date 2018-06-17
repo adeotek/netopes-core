@@ -122,8 +122,8 @@
 		 * @access public
 		 */
 		public function __construct($params = NULL) {
-			$this->chash = NApp::GetNewUID(get_class_basename($this));
-			$this->uid = NApp::GetNewUID(get_class_basename($this),'md5');
+			$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
+			$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
 			$this->required = FALSE;
 			$this->labelposition = 'left';
 			$this->labelwidth = 0;
@@ -138,7 +138,7 @@
 			if(is_array($params) && count($params)) {
 				foreach($params as $k=>$v) { $this->$k = $v; }
 			}//if(is_array($params) && count($params))
-			$this->tagid = $this->tagid=='__auto' ? NApp::GetNewUID() : $this->tagid;
+			$this->tagid = $this->tagid=='__auto' ? \PAF\AppSession::GetNewUID() : $this->tagid;
 			if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
 			switch($this->theme_type) {
 				case 'bootstrap2':

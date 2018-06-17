@@ -40,7 +40,7 @@ class FileUploader extends Control {
 	}//END public function __construct
 
 	protected function SetControl() {
-		$this->tagid = $this->tagid=='__auto' ? NApp::GetNewUID() : $this->tagid;
+		$this->tagid = $this->tagid=='__auto' ? \PAF\AppSession::GetNewUID() : $this->tagid;
 		switch(strtolower($this->filter)) {
 			case 'images':
 				$utype = 1;
