@@ -28,7 +28,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		// Application version
 		'app_version'=>['type'=>'readonly','default'=>'1.0.0','validation'=>'is_string'],
 		// NETopes Core version
-		'framework_version'=>['type'=>'readonly','default'=>'2.2.0.1','validation'=>'is_string'],
+		'framework_version'=>['type'=>'readonly','default'=>'2.2.0','validation'=>'is_string'],
 		// Application copyright text (NULL/empty = auto-generated)
 		'app_copyright'=>['type'=>'readonly','default'=>NULL,'validation'=>'is_string'],
 		// First page title
@@ -122,7 +122,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		// Session name (NULL for default)
 		'session_name'=>['type'=>'readonly','default'=>'NETOPESPID','validation'=>'is_notempty_string'],
 		// PAF implementing class name
-		'ajax_class_name'=>'NETopes\Core\App\AjaxRequest',
+		'ajax_class_name'=>['type'=>'readonly','default'=>'NETopes\Core\App\AjaxRequest','validation'=>'is_string'],
 	//END PAF configuration overwrites
 	];
 ?>

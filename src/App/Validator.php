@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use PAF\AppConfig;
 use NApp;
 /**
  * Validator description
@@ -51,11 +52,11 @@ class Validator {
 	public static function ConvertDateTimeToObject(?string $date,?string $format = NULL,?string $timezone = NULL): ?\DateTime {
 		if(!strlen($date) || $date=='null') { return NULL; }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
-		$timezone = strlen($timezone) ? $timezone : NApp::$server_timezone;
+		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if(!strlen($format)) { $format = 'Y-m-d H:i:s'; }
 		$dt = \DateTime::createFromFormat($format,$date,new \DateTimeZone($timezone));
 		if(!$dt) { return NULL; }
-		$dt->setTimezone(new \DateTimeZone(NApp::$server_timezone));
+		$dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone()));
 		return $dt;
 	}//END public static function ConvertDateTimeToObject
 	/**
@@ -74,7 +75,7 @@ class Validator {
 	public static function ConvertDateTimeToDbFormat($date,$timezone = NULL,$daypart = NULL,$dateonly = FALSE,$dbnull = FALSE) {
 		if(!is_string($date) || !strlen($date) || $date=='null') { return ($dbnull ? 'null' : NULL); }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
-		$timezone = strlen($timezone) ? $timezone : NApp::$server_timezone;
+		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if($daypart===0) {
 			if(strpos($date,' ')!==FALSE) { $date = substr($date,0,strpos($date,' ')); }
 			$date .= ' 00:00:00.000';
@@ -83,7 +84,7 @@ class Validator {
 			$date .= ' 23:59:59.999';
 		}//if($daypart===0)
 		$dt = new \DateTime($date,new \DateTimeZone($timezone));
-		$dt->setTimezone(new \DateTimeZone(NApp::$server_timezone));
+		$dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone()));
 		//if($daypart===0) { $dt->add(new DateInterval('P1D')); }
 		//elseif($daypart===1) { $dt->add(new DateInterval('P1D')); }
 		return $dt->format(($dateonly ? 'Y-m-d' : 'Y-m-d H:i:s'));
@@ -103,7 +104,7 @@ class Validator {
 	public static function ConvertDateTimeToDotNetFormat($date,$timezone = NULL,$daypart = NULL,$dateonly = FALSE) {
 		if(!strlen($date) || $date=='null'){ return 'null'; }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
-		$timezone = strlen($timezone) ? $timezone : NApp::$server_timezone;
+		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if($daypart===0) {
 			if(strpos($date,' ')!==FALSE) { $date = substr($date,0,strpos($date,' ')); }
 			$date .= ' 00:00:00.000';
@@ -112,7 +113,7 @@ class Validator {
 			$date .= ' 23:59:59.999';
 		}//if($daypart===0)
 		$dt = new \DateTime($date,new \DateTimeZone($timezone));
-		$dt->setTimezone(new \DateTimeZone(NApp::$server_timezone));
+		$dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone()));
 		//if($daypart===0) { $dt->add(new DateInterval('P1D')); }
 		//elseif($daypart===1) { $dt->add(new DateInterval('P1D')); }
 		return str_replace(' ','T',$dt->format(($dateonly ? 'Y-m-d' : 'Y-m-d H:i:s')));
@@ -138,7 +139,7 @@ class Validator {
 		} elseif(!is_string($date) || !strlen($date)) {
 			return NULL;
 		} else {
-			$dt = new \DateTime($date,new \DateTimeZone(NApp::$server_timezone));
+			$dt = new \DateTime($date,new \DateTimeZone(AppConfig::server_timezone()));
 		}//if(is_object($date))
 		if(strlen($timezone)>0) { $dt->setTimezone(new \DateTimeZone($timezone)); }
 		if(!strlen($format)) {

@@ -122,15 +122,14 @@ class CoreNApp extends \PAF\App {
 	 *
 	 * @param bool  $ajax
 	 * @param array $params
-	 * @param bool  $with_session
 	 * @param null  $do_not_keep_alive
 	 * @param bool  $shell
 	 * @access protected
 	 * @throws \ReflectionException
 	 */
-	protected function __construct($ajax = FALSE,$params = [],$with_session = FALSE,$do_not_keep_alive = NULL,$shell = FALSE) {
-		if(!is_array($params)) { $params = array(); }
-		parent::__construct($ajax,$params,$with_session,$do_not_keep_alive,$shell);
+	protected function __construct($ajax = FALSE,$params = [],$do_not_keep_alive = NULL,$shell = FALSE) {
+		if(!is_array($params)) { $params = []; }
+		parent::__construct($ajax,$params,$do_not_keep_alive,$shell);
 		$this->app_options_loaded = FALSE;
 		$this->current_namespace = (array_key_exists('namespace',$params) && $params['namespace']) ? $params['namespace'] : '';
 		global $_DOMAINS_CONFIG;
@@ -169,7 +168,7 @@ class CoreNApp extends \PAF\App {
 			if($this->GetPageParam('current_url')!=$curl) { $this->SetPageParam('old_url',$this->GetPageParam('current_url')); }
 			$this->SetPageParam('current_url',$curl);
 		}//if($ajax!==TRUE)
-		if($with_session && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::debug(FALSE); }
+		if(AppSession::WithSession() && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::debug(FALSE); }
 		$this->debug = AppConfig::debug();
 	}//END protected function __construct
 	/**
@@ -820,7 +819,7 @@ class CoreNApp extends \PAF\App {
 			/* Validate this request */
 			$spath = array(
 				$this->current_namespace,
-				AppSession::ConvertToSessionCase(self::$aapp_session_key,\PAF\AjaxRequest::$session_keys_case),
+				AppSession::ConvertToSessionCase(AppConfig::app_session_key(),\PAF\AjaxRequest::$session_keys_case),
 				AppSession::ConvertToSessionCase('PAF_AREQUEST',\PAF\AjaxRequest::$session_keys_case),
 			);
 			$requests = $this->GetGlobalParam(AppSession::ConvertToSessionCase('AREQUESTS',\PAF\AjaxRequest::$session_keys_case),FALSE,$spath,FALSE);
@@ -933,7 +932,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function InitializeKCFinder($params = NULL) {
-		if(!AppSession::GetState()) { return; }
+		if(!AppSession::WithSession()) { return; }
 		$type = get_array_param($params,'type','','is_string');
 		switch(strtolower($type)) {
 			case 'public':
@@ -1042,7 +1041,7 @@ class CoreNApp extends \PAF\App {
 		$idzone = $this->url->GetParam('zone');
 		$langcode = $this->url->GetParam('language');
 		if($this->ajax || !is_string($langcode) || !strlen($langcode)) { $langcode = $this->GetLanguageCode(); }
-		$dataSet = DataProvider::Get('System\System','GetAppSettings',[
+		$appdata = DataProvider::Get('System\System','GetAppSettings',[
 			'for_domain'=>$this->url->GetAppDomain(),
 			'for_namespace'=>$this->current_namespace,
 			'for_lang_code'=>$langcode,
@@ -1055,8 +1054,7 @@ class CoreNApp extends \PAF\App {
 			'auto_login'=>$auto_login,
 			'for_user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1'),
 		],['mode'=>'native']);
-		if(!is_object($dataSet) || !$dataSet->count()) { die('Invalid application settings!'); }
-		$appdata = $dataSet->first();
+		if(!is_object($appdata)) { die('Invalid application settings!'); }
 		$login_msg = $appdata->safeGetLoginMsg('','is_string');
 		if(!is_object($appdata) || !$appdata->safeGetIdAccount(0,'is_integer')  || !$appdata->safeGetIdSection(0,'is_integer') || !$appdata->safeGetIdZone(0,'is_integer') || !$appdata->safeGetIdLanguage(0,'is_integer') || $login_msg=='incorect_namespace') { die('Wrong domain or application settings !!!'); }
 		$this->user_status = $appdata->safeGetState(-1,'is_integer');

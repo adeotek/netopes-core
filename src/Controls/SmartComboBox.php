@@ -14,6 +14,7 @@
     namespace NETopes\Core\Controls;
     use NETopes\Core\Data\DataProvider;
     use NApp;
+    use PAF\AppConfig;
     use PAF\AppException;
     /**
 	 * ComboBox control
@@ -131,7 +132,7 @@
 							$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp} }; }";
 						}//if(is_array($ac_js_params) && count($ac_js_params))
 						$js_script .= "\t\t\tajax: {
-							url: xAppWebLink+'/".NApp::$aapp_target."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
+							url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 							dataType: 'json',
 							delay: 0,
 							cache: false,

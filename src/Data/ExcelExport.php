@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use PAF\AppConfig;
 // use PhpOffice\PhpSpreadsheet\IOFactory;
 // use PhpOffice\PhpSpreadsheet\Spreadsheet;
 // use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -345,12 +346,12 @@ class ExcelExport {
 			$v_dtype = is_numeric($col_value) ? 'numeric' : 'string';
 			$data_type = get_array_param($column,'data_type',$v_dtype,'is_notempty_string');
 			if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
-				if($dt_value = unixts2excel($col_value,NApp::$server_timezone,$this->timezone)) {
+				if($dt_value = unixts2excel($col_value,AppConfig::server_timezone(),$this->timezone)) {
 					$col_value = $dt_value;
 					$data_type = 'datetime';
 				} else {
 					$data_type = 'string';
-				}//if($dt_value = unixts2excel($col_value,NApp::$server_timezone,$this->timezone))
+				}//if($dt_value = unixts2excel($col_value,AppConfig::server_timezone(),$this->timezone))
 			} elseif($data_type=='numeric' && $v_dtype=='string') {
 				$data_type = 'string';
 			}//if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj')
