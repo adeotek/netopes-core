@@ -21,7 +21,7 @@
 	],
     "require": {
         "php": ">=7.1",
-        "adeotek/paf": "~2.1.2-rc.1",
+        "adeotek/paf": "2.1.2-rc.1",
         "tecnickcom/tcpdf": "6.2.*",
 		"phpoffice/phpspreadsheet": "1.2.*",
 		"swiftmailer/swiftmailer": "6.0.*"
