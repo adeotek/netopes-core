@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
 use NApp;
 use PAF\AppConfig;
@@ -65,7 +66,7 @@ abstract class ContentView {
 	 * @return mixed
 	 * @throws \PAF\AppException
 	 */
-	protected function ShowContent($name,$type = 'article',$params = array()) {
+	protected function ShowContent($name,$type = 'article',$params = []) {
 		if(!strlen($name)) { return FALSE; }
 		switch(strtolower($type)) {
 			case 'widget':

@@ -417,12 +417,13 @@ class Module {
 			// Get view from parent classes hierarchy
 		if($parents) {
 			foreach($parents as $parent) {
+				// NApp::_Dlog($parent,'$parent');
 				$p_path = get_array_param($parent,'path','','is_string');
 				$p_full_path = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$p_path;
 				// Get from parent theme dir
 				if($themedir && !$basedir) {
-					// NApp::_Dlog($m_full_path.'/'.$themedir.$fname,'Check[T.P]');
-					if(file_exists($m_full_path.'/'.$themedir.$fname)) { return $m_full_path.'/'.$themedir.$fname; }
+					// NApp::_Dlog($p_full_path.'/'.$themedir.$fname,'Check[T.P]');
+					if(file_exists($p_full_path.'/'.$themedir.$fname)) { return $p_full_path.'/'.$themedir.$fname; }
 					}//if($themedir && !$basedir)
 				// Get view from current parent class path
 				// NApp::_Dlog($p_full_path.$defdir.$fname,'Check[D.P]');

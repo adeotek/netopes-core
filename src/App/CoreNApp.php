@@ -369,7 +369,9 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetGlobalVar($key,$def_value = NULL,$validation = NULL) {
-		return get_array_param($this->globals,$key,$def_value,$validation);
+		if(is_object($this->globals)) { return $this->globals->safeGet($key,$def_value,$validation); }
+		if(is_array($this->globals)) { return get_array_param($this->globals,$key,$def_value,$validation); }
+		return NULL;
 	}//END public function GetGlobalVar
 	/**
 	 * description
@@ -381,7 +383,11 @@ class CoreNApp extends \PAF\App {
 	 */
 	public function SetGlobalVar($key,$value) {
 		if(!is_numeric($key) && (!is_string($key) || !strlen($key))) { return FALSE; }
-		if(!is_array($this->globals)) { $this->globals = array(); }
+		if(is_object($this->globals)) {
+			$this->globals->set($key,$value);
+			return;
+		}//if(is_object($this->globals))
+		if(!is_array($this->globals)) { $this->globals = []; }
 		$this->globals[$key] = $value;
 		return TRUE;
 	}//END public function SetGlobalVar
@@ -784,6 +790,17 @@ class CoreNApp extends \PAF\App {
 		if(strlen($uri)) { $url .= (strpos($url,'?')===FALSE ? '?' : '&').$uri; }
 		return $url;
 	}//END public function GetAppWebLink
+	/**
+	 * Create new application URL
+	 *
+	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param int         $url_format
+	 * @return string
+	 * @access public
+	 */
+	public function GetNewUrl($params = NULL,$url_format = URL_FORMAT_FRIENDLY) {
+		return $this->url->GetNewUrl($params,$url_format);
+	}//public function GetNewUrl
 	/**
 	 * Gets the session state befor current request (TRUE for existing session or FALSE for newly initialized)
 	 *

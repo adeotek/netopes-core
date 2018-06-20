@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use PAF\AppConfig;
 use PAF\AppException;
 /**
  * Modules controller (provider) class
