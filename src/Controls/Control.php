@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
@@ -308,6 +308,9 @@ abstract class Control {
 							if(strlen($this->size)) { $lclass .= ' btn-'.$this->size; }
 							break;
 						case 'KVList':
+							break;
+						case 'CheckBox':
+							if(strlen($this->size)) { $lclass .= ' checkbox-'.$this->size; }
 							break;
 						case 'SmartComboBox':
 							if($this->theme_type!='bootstrap2') { $lclass .= ' form-control'; }

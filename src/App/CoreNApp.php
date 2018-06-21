@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -1117,6 +1117,7 @@ class CoreNApp extends \PAF\App {
 		$this->SetParam('username',$appdata->getProperty('username'));
 		$this->SetParam('user_full_name',$appdata->getProperty('surname').' '.$appdata->getProperty('name'));
 		$this->SetParam('user_phone',$appdata->getProperty('phone'));
+		$this->SetParam('confirmed_user',$appdata->getProperty('confirmed'));
 		$this->SetParam('sadmin',$appdata->getProperty('sadmin'));
 		$app_theme = get_array_param($appdata,'app_theme',NULL,'is_string');
 		if(strlen($app_theme)) {

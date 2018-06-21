@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -36,7 +36,7 @@
 			$lcontent = '';
 			if(is_array($this->items) && count($this->items)) {
 				foreach($this->items as $c_name=>$c_params) {
-					if(!is_string($c_name) || !count($c_name) || !class_exists($c_name)) { continue; }
+					if(!is_string($c_name) || !strlen($c_name) || !class_exists($c_name)) { continue; }
 					if(isset($c_params['conditions']) && is_array($c_params['conditions']) && !$this->CheckConditions($c_params['conditions'])) { continue; }
 					$ctrl = new $c_name($c_params);
 					$lcontent .= $ctrl->Show();

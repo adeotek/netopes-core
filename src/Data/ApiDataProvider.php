@@ -6,7 +6,7 @@
  *
  * @package    NETopes\API
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource

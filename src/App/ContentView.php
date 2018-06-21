@@ -6,7 +6,7 @@
  *
  * @package    NETopes\CMS
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -283,7 +283,7 @@ if(typeof(ga)!='undefined') {
 ";
 					} else {
 						$data .= "
-if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Product click'); }
+if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Purchase'); }
 ";
 					}//if(strlen($pageview))
 				}//if($ajax)
@@ -338,6 +338,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Remove from ca
 				}//if($ajax)
 				break;
 			case 'checkout':
+			case 'checkout_option':
 				$step = get_array_param($params,'step',0,'is_numeric');
 				if($step<=0) { return NULL; }
 				$step_title = get_array_param($params,'step_title','','is_string');

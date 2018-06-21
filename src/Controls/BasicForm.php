@@ -6,12 +6,13 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\App\Validator;
 use PAF\AppConfig;
 use NApp;
 /**
@@ -158,7 +159,7 @@ class BasicForm {
 	protected function GetActions($tabindex = 0) {
 		$result = '';
 		foreach($this->actions as $action) {
-			$act_params = get_array_param($action,'params',array(),'is_array');
+			$act_params = get_array_param($action,'params',[],'is_array');
 			if(!count($act_params)) { continue; }
 			$a_class = get_array_param($act_params,'class','','is_string');
 			switch($this->theme_type) {
@@ -187,7 +188,7 @@ class BasicForm {
 			$act_class = '\NETopes\Core\Controls\\'.$act_class;
 			if(!class_exists($act_class)) { continue; }
 			$act_instance = new $act_class($act_params);
-			if(!\NETopes\Core\App\Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
+			if(!Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
 			if(get_array_param($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }
 			$result .= $act_instance->Show();
 		}//END foreach

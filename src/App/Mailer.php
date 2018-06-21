@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.2.0.1
  * @filesource
@@ -141,7 +141,7 @@ class Mailer {
 				'ato'=>$ato,
 				'acc'=>$acc,
 				'abcc'=>$abcc,
-			],1),\NApp::app_path().'/.logs/emails_debug.log');
+			],1),\NApp::app_path().NApp::$logs_path.'/emails_debug.log');
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
 		} catch(\Exception $e) {
@@ -154,7 +154,7 @@ class Mailer {
 				'ato'=>$ato,
 				'acc'=>$acc,
 				'abcc'=>$abcc,
-			],1),\NApp::app_path().'/.logs/emails_debug.log');
+			],1),\NApp::app_path().NApp::$logs_path.'/emails_debug.log');
 			if($result) { return $result; }
 			throw new \PAF\AppException($e->getMessage(),E_ERROR,0);
 		}//try

@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2017 Hinter Universal SRL
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
  * @version    2.1.0.3
  * @filesource
@@ -2328,7 +2328,7 @@ class TableView {
 				return;
 			}//if(!file_exists($cachefile))
 			$export_data = unserialize(file_get_contents($cachefile));
-			 // NApp::Log2File(print_r($export_data,TRUE),NApp::app_path().'/applogs/test.log');
+			 // NApp::Log2File(print_r($export_data,TRUE),NApp::app_path().NApp::$logs_path.'/test.log');
 			// NApp::_Dlog(NApp::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
 			if(!is_array($export_data) || !count($export_data)) { return; }
 			$excel = new ExcelExport($export_data);
