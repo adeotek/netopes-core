@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use PAF\AppConfig;
 use NApp;
 use GibberishAES;
 /**
