@@ -37,6 +37,12 @@ class CoreNApp extends \PAF\App {
 	 */
 	public static $silent_errors = FALSE;
 	/**
+	 * @var    bool Debug mode
+	 * @access public
+	 * @static
+	 */
+	public static $debug = FALSE;
+	/**
 	 * @var    bool If set TRUE, name-space session will be cleared at commit
 	 * @access private
 	 */
@@ -113,11 +119,6 @@ class CoreNApp extends \PAF\App {
 	 */
 	public $customizations = [];
 	/**
-	 * @var    bool Debug mode
-	 * @access public
-	 */
-	public $debug = FALSE;
-	/**
 	 * description
 	 *
 	 * @param bool  $ajax
@@ -169,7 +170,7 @@ class CoreNApp extends \PAF\App {
 			$this->SetPageParam('current_url',$curl);
 		}//if($ajax!==TRUE)
 		if(AppSession::WithSession() && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::debug(FALSE); }
-		$this->debug = AppConfig::debug();
+		self::$debug = AppConfig::debug();
 	}//END protected function __construct
 	/**
 	 * Commit the namespace temporary session into the session
