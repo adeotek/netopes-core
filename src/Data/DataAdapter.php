@@ -13,6 +13,7 @@
  */
 namespace NETopes\Core\Data;
 use NApp;
+use PAF\AppConfig;
 use PAF\AppException;
 /**
  * DbAdapter is the base abstract class for all database adapters
