@@ -44,14 +44,14 @@ class CoreNApp extends \PAF\App {
 	public static $debug = FALSE;
 	/**
 	 * @var    bool If set TRUE, name-space session will be cleared at commit
-	 * @access private
+	 * @access protected
 	 */
-	private $clear_namespace_session = FALSE;
+	protected $clear_namespace_session = FALSE;
 	/**
 	 * @var    string Account API security key (auto-loaded on LoadAppOptions() method)
-	 * @access private
+	 * @access protected
 	 */
-	private $app_access_key = NULL;
+	protected $app_access_key = NULL;
 	/**
 	 * @var    array An array of global variables
 	 * @access public
