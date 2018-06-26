@@ -30,11 +30,11 @@ class DataProvider {
 	 */
 	private static $connections_arrays = NULL;
 	/**
-	 * @var    object Entity manager instance
+	 * @var    array Entity managers instances array
 	 * @access private
 	 * @static
 	 */
-	private static $entity_manager = NULL;
+	private static $entity_managers = [];
 	/**
 	 * @var    string Data source class prefix
 	 * @access private
@@ -310,12 +310,13 @@ class DataProvider {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
 		}//END try
 	}//END public static function CloseTransaction
+
 	/**
 	 * @param null $connection
+	 * @param null $platform
 	 * @return \Doctrine\ORM\EntityManager|null|object
 	 */
-	public static function GetEntityManager($connection = NULL) {
-		if(isset(self::$entity_manager) && is_object(self::$entity_manager)) { return self::$entity_manager; }
+	public static function GetEntityManager($connection = NULL,&$platform = NULL) {
 		if((is_array($connection) && count($connection))) {
 			$conn = $connection;
 		} elseif(is_string($connection) && strlen($connection)) {
@@ -324,18 +325,11 @@ class DataProvider {
 			$conn = self::GetConnectionArray(NApp::default_db_connection());
 		}//if((is_array($connection) && count($connection)))
 		if(!is_array($conn) || !count($conn)) { throw new AppException('Invalid database connection!',E_ERROR,1); }
-		if(!array_key_exists('pdo_driver',$conn) || !strlen($conn['pdo_driver'])) { throw new AppException('No database driver specified!',E_ERROR,1); }
-		// database configuration parameters
-		$dbConn = [
-		    'driver'=>$conn['driver'],
-		    'host'=>$conn['db_server'],
-		    'dbname'=>$conn['db_name'],
-		    'user'=>$conn['db_user'],
-		    'password'=>$conn['db_password'],
-		];
-		require_once(NApp::app_path().'/Core/Functions/DoctrineInit.php');
-		self::$entity_manager = getDoctrineEntityManger(NApp::app_path().'/DataModels',$dbConn,FALSE);
-		return self::$entity_manager;
+		$emKey = serialize($conn);
+		if(is_array(self::$entity_managers) && isset(self::$entity_managers[$emKey]) && is_object(self::$entity_managers[$emKey])) { return self::$entity_managers[$emKey]; }
+		if(!is_array(self::$entity_managers)) { self::$entity_managers = []; }
+		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::app_path(),$conn,$platform);
+		return self::$entity_managers[$emKey];
 	}//END public static function GetEntityManager
 }//class DataProvider
 ?>

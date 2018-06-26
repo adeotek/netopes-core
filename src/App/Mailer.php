@@ -13,6 +13,8 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\Data\DataProvider;
+use PAF\AppConfig;
+use NApp;
 /**
  * Class Mailer
  *
@@ -21,6 +23,12 @@ use NETopes\Core\Data\DataProvider;
  * @package NETopes\Core\App
  */
 class Mailer {
+	/**
+	 * @var bool Debug email sending
+	 * @access public
+	 * @static
+	 */
+	public static $debug = FALSE;
 	/**
 	 * Send email
 	 *
@@ -40,8 +48,8 @@ class Mailer {
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
 		if(!is_array($settings) || !count($settings)) {
-			$id_section = get_array_param($params,'id_section',\NApp::_GetParam('id_section'),'is_numeric');
-			$id_zone = get_array_param($params,'id_zone',\NApp::_GetParam('id_zone'),'is_numeric');
+			$id_section = get_array_param($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
+			$id_zone = get_array_param($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
 			$items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
 				'section_id'=>(is_numeric($id_section) ? $id_section : 'null'),
 				'zone_id'=>(is_numeric($id_zone) ? $id_zone : 'null'),
@@ -125,36 +133,32 @@ class Mailer {
 				$atachname = substr($attachments,strrpos($attachments,'/')+1);
 				$message->attach(\Swift_Attachment::fromPath($attachments)->setFilename($atachname));
 			}//if(is_array($attachments) && count($attachments))
-			// NApp::_Dlog(array(
-			// 	'replyto'=>$replyto,
-			// 	'afrom'=>$afrom,
-			// 	'ato'=>$ato,
-			// 	'acc'=>$acc,
-			// 	'abcc'=>$abcc,
-			// ),'recipients');
 			$result = $mailer->send($message);
-			// NApp::_Dlog($result,'$result');
-			\NApp::Log2File('SendSMTPEmail result: '.print_r($result,1).'  >>  '.print_r([
-				// 'replyto'=>$replyto,
-				'afrom'=>$afrom,
-				'subject'=>$subject,
-				'ato'=>$ato,
-				'acc'=>$acc,
-				'abcc'=>$abcc,
-			],1),\NApp::app_path().NApp::$logs_path.'/emails_debug.log');
+			if(self::$debug) {
+				NApp::Log2File('SendSMTPEmail result: '.print_r($result,1).'  >>  '.print_r([
+					// 'replyto'=>$replyto,
+					'afrom'=>$afrom,
+					'subject'=>$subject,
+					'ato'=>$ato,
+					'acc'=>$acc,
+					'abcc'=>$abcc,
+				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+			}//if(self::$debug)
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
 		} catch(\Exception $e) {
+			NApp::_Elog($e->getMessage(),'$mailer->send::Exception');
 			$result = strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
-			// NApp::_Dlog($e->getMessage(),'$mailer->send::Exception');
-			\NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
-				// 'replyto'=>$replyto,
-				'afrom'=>$afrom,
-				'subject'=>$subject,
-				'ato'=>$ato,
-				'acc'=>$acc,
-				'abcc'=>$abcc,
-			],1),\NApp::app_path().NApp::$logs_path.'/emails_debug.log');
+			if(self::$debug) {
+				NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
+					// 'replyto'=>$replyto,
+					'afrom'=>$afrom,
+					'subject'=>$subject,
+					'ato'=>$ato,
+					'acc'=>$acc,
+					'abcc'=>$abcc,
+				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+			}//if(self::$debug)
 			if($result) { return $result; }
 			throw new \PAF\AppException($e->getMessage(),E_ERROR,0);
 		}//try
