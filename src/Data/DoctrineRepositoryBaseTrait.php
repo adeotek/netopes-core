@@ -1,5 +1,6 @@
 <?php
 namespace NETopes\Core\Data;
+use PAF\AppConfig;
 use NApp;
 /**
  * Trait DoctrineRepositoryBaseTrait
