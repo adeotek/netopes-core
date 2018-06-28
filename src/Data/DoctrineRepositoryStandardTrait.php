@@ -121,6 +121,7 @@ trait DoctrineRepositoryStandardTrait {
 			$stime = microtime(TRUE);
 			$data = $qb->getQuery()->getResult();
 			$this->DbDebug($qb->getQuery(),'findFiltered',$stime);
+			if(get_array_param($params,'collection',FALSE,'bool')) { return $data; }
 			return ['data'=>$data,'count'=>$tcount];
 		} catch(\Doctrine\ORM\Query\QueryException $qe) {
 			// NApp::_Dlog($qe->getTrace());
