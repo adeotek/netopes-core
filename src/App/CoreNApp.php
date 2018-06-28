@@ -1276,50 +1276,6 @@ class CoreNApp extends \PAF\App {
 		$this->NamespaceSessionCommit(TRUE,NULL,NULL,$lnamespace);
 	}//END function Logout
 	/**
-	 * Evaluates the validity of the API request security key
-	 *
-	 * @param  string $access_key The client API security key used for authentication
-	 * @param null    $type
-	 * @return bool Returns the validity of the key (TRUE for a valid key or FALSE otherwise)
-	 * @access public
-	 */
-	public function CheckApiClient($access_key,$type = NULL) {
-		switch(strtolower($type)) {
-			case '_tst': return TRUE;
-			case 'internalapi':
-				$request_key_arr = explode($this->GetApiSeparator(),\GibberishAES::dec(rawurldecode($access_key),$this->GetMyAccessKey()));
-				if(!is_array($request_key_arr) || !array_key_exists(1,$request_key_arr) || !is_numeric($request_key_arr[1]) || time()>($request_key_arr[1]+300)) {
-					return FALSE;
-				}//if(!is_array($request_key_arr) || !array_key_exists(1,$request_key_arr) || !is_numeric($request_key_arr[1]) || time()>($request_key_arr[1]+300))
-				$request_key = $request_key_arr[0];
-				// $apiclient = DataProvider::GetArray('API\Api','CheckApiKey',array('for_access_key'=>$request_key));
-				$apiclient = NULL;
-				$atype = get_array_param($apiclient,'atype',NULL,'is_integer');
-				if($atype<=0) { return FALSE; }
-				$this->SetParam('api_client_type',$atype);
-				switch($atype) {
-					case 1:
-						$this->SetParam('api_client_timezone',get_array_param($apiclient,'timezone',NULL,'is_string'));
-						$this->SetParam('api_client_key',get_array_param($apiclient,'access_key',NULL,'is_string'));
-						break;
-					default:
-						return FALSE;
-				}//END switch
-				return TRUE;
-			case 'api':
-			case 'restws':
-			case 'soapws':
-			default:
-				if(!strlen($access_key)) { return FALSE; }
-				$apiclient = NULL;
-				// $apiclient = DataProvider::GetArray('API\Api','CheckApiKey',array('for_access_key'=>$access_key));
-				$atype = get_array_param($apiclient,'atype',NULL,'is_integer');
-				if($atype<=0) { return FALSE; }
-				$this->SetGlobalVar('api_client',$apiclient);
-				return TRUE;
-		}//END switch
-	}//END public function CheckApiClient
-	/**
 	 * Get current namespace section relative path (with theme)
 	 *
 	 * @param  string $theme_dir Optional theme directory
