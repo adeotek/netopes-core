@@ -4,32 +4,42 @@
  *
  * Wrapper for exporting data to excel
  *
- * @package    NETopes\Reporting
+ * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.0.1
  * @filesource
  */
 namespace NETopes\Core\Data;
+use PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PAF\AppConfig;
-// use PhpOffice\PhpSpreadsheet\IOFactory;
-// use PhpOffice\PhpSpreadsheet\Spreadsheet;
-// use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PAF\AppException;
+use NApp;
+
 /**
  * Excel export class
  *
  * Wrapper for exporting data to excel
  *
- * @package  NETopes\Reporting
+ * @package  NETopes\Core\Data
  * @access   public
  */
 class ExcelExport {
 	/**
-	 * @var    object PHPExcel object
+	 * @var    array PHP Spreadsheet accepted file types
 	 * @access protected
 	 */
-	protected $php_excel = NULL;
+	protected $file_types = array('xlsx'=>'Xlsx','xls'=>'Xls','ods'=>'Ods','csv'=>'Csv'/*,'xml'=>'Xml','html'=>'Html','htm'=>'Html'*/);
+	/**
+	 * @var    \PhpOffice\PhpSpreadsheet\Spreadsheet PhpSpreadsheet object
+	 * @access protected
+	 */
+	protected $obj = NULL;
 	/**
 	 * @var    string Decimal separator
 	 * @access protected
@@ -103,7 +113,7 @@ class ExcelExport {
 	 * @var    array An array containing all instance formats
 	 * @access protected
 	 */
-	protected $formats = array();
+	protected $formats = [];
 	/**
 	 * @var    string Default column format
 	 * @access protected
@@ -113,7 +123,7 @@ class ExcelExport {
 	 * @var    array An array containing table totals
 	 * @access protected
 	 */
-	protected $total_row = array();
+	protected $total_row = [];
 	/**
 	 * @var    array An array containing extra params or extra data
 	 * @access protected
@@ -129,16 +139,18 @@ class ExcelExport {
 	 *
 	 * @param  array $params An array of params (required)
 	 * - 'version'(string): version of the excel data to be output
-	 * ('Excel2007'/'Excel5'/...)
+	 * ('xlsx'/'xls'/'csv'/'ods'/'html')
 	 * - 'output'(bool): if set TRUE the constructor will output the data
 	 * - 'save_path'(string): absolute path where the output excel
 	 * file will be saved (if NULL or empty, output will be
 	 * sent to the browser for download)
-	 * @throws \PAF\AppException|\PHPExcel_Exception
+	 * @throws \PAF\AppException
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
 	 * @access public
 	 */
-	public function __construct($params) {
-		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('ExcelExport: Invalid parameters !',E_ERROR,1); }
+	public function __construct(array $params) {
+		if(!count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new AppException('ExcelExport: Invalid parameters !',E_ERROR,1); }
 		$this->pre_processed_data = get_array_param($params,'pre_processed_data',FALSE,'bool');
 
 		$this->decimal_separator = get_array_param($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
@@ -148,36 +160,33 @@ class ExcelExport {
 		$this->langcode = get_array_param($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
 		$this->timezone = get_array_param($params,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
 
-		$excel_version = get_array_param($params,'version','Excel2007','is_notempty_string');
+		$file_type = get_array_param($params,'version','xlsx','is_notempty_string');
+		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('ExcelExport: Invalid output file type!',E_ERROR,1); }
 		$output = get_array_param($params,'output',FALSE,'bool');
 		$save_path = get_array_param($params,'save_path',NULL,'is_notempty_string');
 		$file_name = get_array_param($params,'file_name',NULL,'is_notempty_string');
 
-		require_once(NApp::app_path().'/lib/phpexcel/PHPExcel.php');
-		require_once(NApp::app_path().'/lib/phpexcel/PHPExcel/Cell/AdvancedValueBinder.php');
-		require_once(NApp::app_path().'/lib/phpexcel/PHPExcel/IOFactory.php');
-		//$PHPExcelCached = PHPExcel_Settings::setCacheStorageMethod(PHPExcel_CachedObjectStorageFactory::cache_to_memcached,array('memcacheServer'=>'localhost','memcachePort'=>11211,'cacheTime'=>600));
-		// NApp::_DLog((int)$PHPExcelCached,'$PHPExcelCached');
-		PHPExcel_Cell::setValueBinder(new PHPExcel_Cell_AdvancedValueBinder());
-		$this->php_excel = new PHPExcel();
-		$this->php_excel->getDefaultStyle()->getFont()->setName('Calibri');
-		$this->php_excel->getDefaultStyle()->getFont()->setSize(10);
+		Cell::setValueBinder(new AdvancedValueBinder());
+		$this->obj = new Spreadsheet();
+		$this->obj->getParent()->getDefaultStyle()->getFont()->setName('Calibri');
+		$this->obj->getParent()->getDefaultStyle()->getFont()->setSize(10);
 		$sheet_index = -1;
 		$sheet_name = '';
+		$active_sheet = NULL;
 
 		foreach($params['layouts'] as $layout) {
 			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) {
-				$this->php_excel = NULL;
-				throw new \PAF\AppException('ExcelExport: Invalid sheet parameters !',E_ERROR,1);
+				$this->obj = NULL;
+				throw new AppException('ExcelExport: Invalid sheet parameters !',E_ERROR,1);
 			}//if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout))
 			$c_sheet_name = get_array_param($layout,'sheet_name','','is_string');
 			if($sheet_index<0 || $c_sheet_name!=$sheet_name) {
 				$sheet_index++;
 				$row_no = 1;
-				$this->total_row = array();
-				if($sheet_index>0 || $this->php_excel->getSheetCount()==0) { $this->php_excel->createSheet(); }
-				$this->php_excel->setActiveSheetIndex($sheet_index);
-            	$active_sheet = $this->php_excel->getActiveSheet();
+				$this->total_row = [];
+				if($sheet_index>0 || $this->obj->getSheetCount()==0) { $this->obj->createSheet(); }
+				$this->obj->setActiveSheetIndex($sheet_index);
+            	$active_sheet = $this->obj->getActiveSheet();
 				$sheet_name = strlen($c_sheet_name) ? $c_sheet_name : 'sheet'.($sheet_index+1);
 				$active_sheet->setTitle($sheet_name);
 			}//if($sheet_index<0 || $c_sheet_name!=$sheet_name)
@@ -190,8 +199,8 @@ class ExcelExport {
 			}//if(array_key_exists('default_height',$layout))
 			if(array_key_exists('with_borders',$layout) && $layout['with_borders']) {
 				$this->with_borders = TRUE;
-				$this->default_formats['border_std'] =  array('borders'=>array('allborders'=>array('style'=>PHPExcel_Style_Border::BORDER_THIN,'color'=>array('rgb'=>'000000'))));
-				$this->default_formats['border_out'] = array('borders'=>array('outline'=>array('style'=>PHPExcel_Style_Border::BORDER_MEDIUM,'color'=>array('rgb'=>'000000'))));
+				$this->default_formats['border_std'] =  array('borders'=>array('allborders'=>array('style'=>\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,'color'=>array('rgb'=>'000000'))));
+				$this->default_formats['border_out'] = array('borders'=>array('outline'=>array('style'=>\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM,'color'=>array('rgb'=>'000000'))));
 			}//if(array_key_exists('with_borders',$layout) && $layout['with_borders'])
 			$this->SetFormats(array_key_exists('formats',$layout) ? $layout['formats'] : NULL);
 			$this->default_format = (array_key_exists('default_format',$layout) && $layout['default_format']) ? $layout['default_format'] : 'standard';
@@ -229,7 +238,7 @@ class ExcelExport {
 				if(!is_array($data_row) || !count($data_row)) { continue; }
 				$col_no = 0;
 				$row_no++;
-				$row_format = (array_key_exists('format_row_func',$layout) && $layout['format_row_func']) ? $this->$layout['format_row_func']($data_row) : array();
+				$row_format = (array_key_exists('format_row_func',$layout) && $layout['format_row_func']) ? $this->$layout['format_row_func']($data_row) : [];
 				foreach($layout['columns'] as $column) {
 					$col_no++;
 					$col_format_name = get_array_param($column,'format',NULL,'is_notempty_string');
@@ -238,10 +247,10 @@ class ExcelExport {
 					} else {
 						$col_format_name = get_array_param($column,'eformat','standard','is_notempty_string');
 					}//if($col_format_name)
-					$col_def_format = get_array_param($this->formats,$col_format_name,array(),'is_array');
+					$col_def_format = get_array_param($this->formats,$col_format_name,[],'is_array');
 
-					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : array();
-					$col_format = array_merge((is_array($col_def_format) ? $col_def_format : array()),(is_array($row_format) ? $row_format : array()),(is_array($col_custom_format) ? $col_custom_format : array()));
+					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
+					$col_format = array_merge((is_array($col_def_format) ? $col_def_format : []),(is_array($row_format) ? $row_format : []),(is_array($col_custom_format) ? $col_custom_format : []));
 					$this->ApplyStyleArray($active_sheet,$this->IndexToColumn($col_no).$row_no,$col_format);
 					$this->SetCellValue($active_sheet,$row_no,$col_no,$column,$data_row);
 				}//END foreach
@@ -277,20 +286,27 @@ class ExcelExport {
 			}//if(count($this->total_row)>0)
 			if(!array_key_exists('freeze_pane',$layout) || $layout['freeze_pane']) { $active_sheet->freezePane('A2'); }
 		}//END foreach
-		$this->php_excel->setActiveSheetIndex(0);
+		$this->obj->setActiveSheetIndex(0);
 		if(\ErrorHandler::HasErrors()) { \ErrorHandler::ShowErrors(); return; }
 		//NApp::_DLog((memory_get_peak_usage(true)/1024/1024).' MB','Peak memory usage');
 		// throw new Exception('Done at:'.date('Y-m-d H:i:s').' >> '.(memory_get_peak_usage(true)/1024/1024).' MB', 1);
 		// die('<br>DONE!!!');
-		if($output) { $this->OutputData($file_name,$save_path,$excel_version); }
+		if($output) { $this->OutputData($file_name,$save_path,$file_type); }
 	}//END public function __construct
 	/**
 	 * Set table cell value
 	 *
-	 * @return void
+	 * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
+	 * @param                                               $row
+	 * @param                                               $col
+	 * @param                                               $column
+	 * @param                                               $data
+	 * @param bool                                          $return
+	 * @return mixed
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @access protected
 	 */
-	protected function SetCellValue(&$sheet,$row,$col,$column,$data,$return = FALSE) {
+	protected function SetCellValue(Worksheet &$sheet,$row,$col,$column,$data,$return = FALSE) {
 		if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {
 			$col_value = $this->$column['format_value_func']($data,$column);
 		} elseif(array_key_exists('format_formula_func',$column) && $column['format_formula_func']) {
@@ -368,7 +384,7 @@ class ExcelExport {
 	 * @return array Returns current formats array
 	 * @access protected
 	 */
-	protected function SetFormats($formats = array()) {
+	protected function SetFormats(array $formats = []): array {
 		if(!is_array($formats) || !count($formats)) {
 			$this->formats = $this->default_formats;
 		} else {
@@ -382,7 +398,7 @@ class ExcelExport {
 	 * @return string Returns column name in excel format
 	 * @access protected
 	 */
-	protected function IndexToColumn($index) {
+	protected function IndexToColumn(int $index): string {
 		if(!is_int($index)) { return NULL; }
 		if($index<=26) { return chr($index+64); }
 		$div = intval($index/26);
@@ -395,112 +411,113 @@ class ExcelExport {
 		return $result;
 	}//END protected function IndexToColumn
 	/**
-	 * Convert data type to PHPExcel format
+	 * Convert data type to \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 *
 	 * @param  string $type Data type
-	 * @return int Returns data type in PHPExcel format
+	 * @return int Returns data type in \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 * @access protected
 	 */
-	protected function GetDataType($type) {
+	protected function GetDataType(string $type) {
 		switch($type) {
 			case 'numeric':
 			case 'date':
 			case 'datetime':
-				return PHPExcel_Cell_DataType::TYPE_NUMERIC;
+				return \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC;
 			case 'boolean':
-				return PHPExcel_Cell_DataType::TYPE_BOOL;
+				return \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_BOOL;
 			case 'string':
 			default:
-				return PHPExcel_Cell_DataType::TYPE_STRING;
+				return \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING;
 		}//switch($type)
 	}//END protected function GetDataType
 	/**
-	 * Convert border style string to PHPExcel format
+	 * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 *
 	 * @param  string $type Border style name
-	 * @return int Returns border style in PHPExcel format
+	 * @return int Returns border style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 * @access protected
 	 */
-	protected function GetBorderStyle($type) {
+	protected function GetBorderStyle(string $type) {
 		switch($type) {
 			case 'dashdot':
-				return PHPExcel_Style_Border::BORDER_DASHDOT;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHDOT;
 			case 'dashdotdot':
-				return PHPExcel_Style_Border::BORDER_DASHDOTDOT;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHDOTDOT;
 			case 'dashed':
-				return PHPExcel_Style_Border::BORDER_DASHED;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHED;
 			case 'dotted':
-				return PHPExcel_Style_Border::BORDER_DOTTED;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DOTTED;
 			case 'double':
-				return PHPExcel_Style_Border::BORDER_DOUBLE;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DOUBLE;
 			case 'hair':
-				return PHPExcel_Style_Border::BORDER_HAIR;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_HAIR;
 			case 'medium':
-				return PHPExcel_Style_Border::BORDER_MEDIUM;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM;
 			case 'mediumdashdot':
-				return PHPExcel_Style_Border::BORDER_MEDIUMDASHDOT;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUMDASHDOT;
 			case 'mediumdashdotdot':
-				return PHPExcel_Style_Border::BORDER_MEDIUMDASHDOTDOT;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUMDASHDOTDOT;
 			case 'mediumdasher':
-				return PHPExcel_Style_Border::BORDER_MEDIUMDASHED;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUMDASHED;
 			case 'bordernone':
-				return PHPExcel_Style_Border::BORDER_NONE;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE;
 			case 'slantdashdot':
-				return PHPExcel_Style_Border::BORDER_SLANTDASHDOT;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_SLANTDASHDOT;
 			case 'borderthick':
-				return PHPExcel_Style_Border::BORDER_THICK;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK;
 			case 'borderthin':
-				return PHPExcel_Style_Border::BORDER_THIN;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN;
 			default:
-				return PHPExcel_Style_Border::BORDER_NONE;
+				return \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE;
 		}//switch($type)
 	}//END protected function GetBorderStyle
 	/**
-	 * Convert border style string to PHPExcel format
+	 * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 *
 	 * @param  string $type Alignment style name
-	 * @return int Returns alignment style in PHPExcel format
+	 * @return int Returns alignment style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
 	 * @access protected
 	 */
-	protected function GetAlignmentStyle($type) {
+	protected function GetAlignmentStyle(string $type) {
 		switch($type) {
 			case 'h_center':
-				return PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER;
 			case 'h_venter_continuous':
-				return PHPExcel_Style_Alignment::HORIZONTAL_CENTER_CONTINUOUS;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER_CONTINUOUS;
 			case 'h_general':
-				return PHPExcel_Style_Alignment::HORIZONTAL_GENERAL;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_GENERAL;
 			case 'h_justify':
-				return PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_JUSTIFY;
 			case 'h_left':
-				return PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT;
 			case 'h_right':
-				return PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT;
 			case 'v_bottom':
-				return PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM;
 			case 'v_center':
-				return PHPExcel_Style_Alignment::VERTICAL_CENTER;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER;
 			case 'v_justify':
-				return PHPExcel_Style_Alignment::VERTICAL_JUSTIFY;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_JUSTIFY;
 			case 'v_top':
-				return PHPExcel_Style_Alignment::VERTICAL_TOP;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP;
 			default:
-				return PHPExcel_Style_Alignment::HORIZONTAL_GENERAL;
+				return \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_GENERAL;
 		}//switch($type)
 	}//END protected function GetAlignmentStyle
 	/**
 	 * Apply style array to a range of cells
 	 *
-	 * @param  object $sheet Target sheet instance
-	 * @param  string $range Target cells range in excel format
-	 * @param  array  $style Style array to be applied
+	 * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet Target sheet instance
+	 * @param  string                                       $range Target cells range in excel format
+	 * @param  string|array                                 $style Style array to be applied
 	 * @return bool Returns TRUE on success or FALSE otherwise
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @access protected
 	 */
-	protected function ApplyStyleArray(&$sheet,$range,$style) {
+	protected function ApplyStyleArray(Worksheet &$sheet,string $range,$style) {
 		if(!is_object($sheet) || !$range || !$style) { return FALSE; }
 		$style_arr = is_array($style) ? $style : $this->formats[$style];
-		$fstyle = array();
+		$fstyle = [];
 		$nformat = '';
 		$fill = '';
 		foreach($style_arr as $key=>$val) {
@@ -553,41 +570,36 @@ class ExcelExport {
 		}//END foreach
 		if($fstyle) { $sheet->getStyle($range)->applyFromArray($fstyle); }
 		if($nformat) { $sheet->getStyle($range)->getNumberFormat()->setFormatCode($nformat); }
-		if($fill) { $sheet->getStyle($range)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB($fill); }
+		if($fill) { $sheet->getStyle($range)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB($fill); }
 	    return TRUE;
 	}//protected function ApplyStyleArray
 	/**
 	 * Outputs excel data to a file on disk or for download
 	 *
-	 * @param  string $file_name Target file name
-	 * @param  string $path Target file path
-	 * @param  string $excel_version Target excel version
+	 * @param  string     $file_name Target file name
+	 * @param  string     $path Target file path
+	 * @param null|string $file_type
 	 * @return bool Returns TRUE on success or FALSE otherwise
+	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @access public
 	 */
-	public function OutputData($file_name,$path = NULL,$excel_version = NULL) {
-		if(!is_object($this->php_excel)) { return FALSE; }
-		$file = strlen($file_name) ? $file_name : date('YmdHis');
-		switch($excel_version) {
-			case 'Excel5':
-				$version = 'Excel5';
-				$header_content_type = 'Content-Type: application/vnd.ms-excel';
-				$file .= '.xls';
-				break;
-			default:
-				$version = 'Excel2007';
-				$header_content_type = 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-				$file .= '.xlsx';
-				break;
-		}//switch($excel_version)
-		$this->php_excel->setActiveSheetIndex(0);
-		$writer = PHPExcel_IOFactory::createWriter($this->php_excel,$version);
+	public function OutputData(string $file_name,?string $path = NULL,?string $file_type = NULL): bool {
+		if(!is_object($this->obj)) { return FALSE; }
+		if(!strlen($file_type)) {
+			$file_type = 'xlsx';
+		} else {
+			$file_type = strtolower($file_type);
+		}//if(!strlen($file_type))
+		$file = (strlen($file_name) ? $file_name : date('YmdHis')).'.'.$file_type;
+		$this->obj->setActiveSheetIndex(0);
+		$writer = IOFactory::createWriter($this->obj,$this->file_types[$file_type]);
         if($path) {
         	$writer->save($path.$file);
 			return TRUE;
 		}//if($path)
     	header('Content-Description: File Transfer');
-		header($header_content_type);
+		header($this->getContentTypeHeader($file_type));
 		header('Content-Disposition: attachment; filename='.$file);
 		header('Content-Transfer-Encoding: binary');
 		header('Expires: 0');
@@ -597,21 +609,39 @@ class ExcelExport {
         return TRUE;
 	}//END public function OutputData
 	/**
+	 * Get header content type value
+	 * @param string $file_type
+	 * @return string
+	 * @access protected
+	 */
+	protected function getContentTypeHeader(string $file_type): string {
+		switch(strtolower($file_type)) {
+			case 'xls':
+				return 'Content-Type: application/vnd.ms-excel';
+			case 'ods':
+				return 'Content-Type: application/vnd.oasis.opendocument.spreadsheet';
+			case 'csv':
+				return 'Content-Type: text/html; charset=UTF-8';
+			default:
+				return 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+		}//END switch
+	}//END protected function getContentTypeHeader
+	/**
 	 * Convert datetime value to excel format
 	 *
 	 * @param  array  $data Data row array
 	 * @param  array $column Column configuration array
-	 * @return numeric Returns timestamp in excel format
+	 * @return float Returns timestamp in excel format
 	 * @access protected
 	 */
-	protected function FormatDateTimeValue($data,$column) {
+	protected function FormatDateTimeValue(array $data,array $column): ?float {
 		if(!isset($data[$column['db_field']])) { return NULL; }
 		if(is_object($data[$column['db_field']])) {
 			$dt = $data[$column['db_field']];
 			$value = 25569 + $dt->getTimestamp() / 86400;
 			return $value;
 		} elseif(is_string($data[$column['db_field']]) && !strlen($data[$column['db_field']])) {
-			$dt = new DateTime($data[$column['db_field']]);
+			$dt = new \DateTime($data[$column['db_field']]);
 			$value = 25569 + $dt->getTimestamp() / 86400;
 			return $value;
 		}//if(is_object($data[$column['db_field']]))
