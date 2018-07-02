@@ -2275,12 +2275,11 @@ class TableView {
 		if($phash){ $this->phash = $phash; }
 		$this->export_only = TRUE;
 		$items = $this->GetData();
-		// NApp::_Dlog($items['count'],'items::count');
-		if(!isset($items['data'])) { throw new \PAF\AppException(\Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
+		if(!is_object($items) || !count($items)) { throw new \PAF\AppException(\Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$tmp_export_data = $this->export_data;
 		$this->export_data = array('columns'=>[],'data'=>[]);
 		$tmpparams = [];
-		$this->IterateData($items['data'],$tmpparams);
+		$this->IterateData($items,$tmpparams);
 		if(!$this->export_data) { throw new \PAF\AppException(\Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$this->export_data['with_borders'] = TRUE;
 		$this->export_data['freeze_pane'] = TRUE;
