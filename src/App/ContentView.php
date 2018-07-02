@@ -226,12 +226,12 @@ abstract class ContentView {
 	 * @access public
 	 * @static
 	 */
-	public static function SetGAData($type,$params = array(),$output_only = FALSE,$ajax = FALSE) {
+	public static function SetGAData($type,$params = [],$output_only = FALSE,$ajax = FALSE) {
 		if(!NApp::_GetPageParam('ga_ecommerce')){ return NULL; }
 		$data = '';
 		switch($type) {
 			case 'addProduct':
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(!count($items)) { return NULL; }
 				$data = "if(typeof(ga)!='undefined') { ";
 				foreach($items as $v) {
@@ -255,7 +255,7 @@ ga('ec:addProduct', {
 			case 'purchase':
 				$doc_ref = get_array_param($params,'document','','is_string','document_ref');
 				if(!strlen($doc_ref)) { return NULL; }
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(count($items)) { $data .= self::SetGAData('addProduct',array('items'=>$items),TRUE); }
 				$tvalue = get_array_param($params,'document',0,'is_numeric','tvalue');
 				$payment_fee = get_array_param($params,'document',0,'is_numeric','final_payment_fee');
@@ -289,7 +289,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Purchase'); }
 				}//if($ajax)
 				break;
 			case 'click':
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(!count($items)) { return NULL; }
 				$data .= self::SetGAData('addProduct',array('items'=>$items),TRUE);
 				$list = get_array_param($params,'list','','is_string');
@@ -303,7 +303,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Product click'
 				}//if($ajax)
 				break;
 			case 'detail':
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(!count($items)) { return NULL; }
 				$data .= self::SetGAData('addProduct',array('items'=>$items),TRUE);
 				$list = get_array_param($params,'list','','is_string');
@@ -312,7 +312,7 @@ if(typeof(ga)!='undefined') { ga('ec:setAction', 'detail', {".(strlen($list) ? "
 ";
 				break;
 			case 'add':
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(!count($items)) { return NULL; }
 				$data .= self::SetGAData('addProduct',array('items'=>$items),TRUE);
 				$data .= "
@@ -325,7 +325,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'UX', 'click', 'Add to cart');
 				}//if($ajax)
 				break;
 			case 'remove':
-				$items = get_array_param($params,'items',array(),'is_array');
+				$items = get_array_param($params,'items',[],'is_array');
 				if(!count($items)) { return NULL; }
 				$data .= self::SetGAData('addProduct',array('items'=>$items),TRUE);
 				$data .= "
@@ -378,7 +378,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'Checkout', 'Option', '{$step_
 		// NApp::_Dlog($data,$type.'>>$data');
 		if(!strlen($data)) { return NULL; }
 		if($output_only) { return $data; }
-		$dynamic_js_scripts = NApp::_GetGlobalVar('dynamic_js_scripts',array(),'is_array');
+		$dynamic_js_scripts = NApp::_GetGlobalVar('dynamic_js_scripts',[],'is_array');
 		$dynamic_js_scripts[] = $data;
 		NApp::_SetGlobalVar('dynamic_js_scripts',$dynamic_js_scripts);
 	}//END public static function SetGAData
@@ -405,7 +405,7 @@ if(typeof(ga)!='undefined') { ga('send', 'event', 'Checkout', 'Option', '{$step_
 	 * @static
 	 */
 	public static function GetDynamicScripts() {
-		$scripts = NApp::_GetGlobalVar('dynamic_js_scripts',array(),'is_array');
+		$scripts = NApp::_GetGlobalVar('dynamic_js_scripts',[],'is_array');
 		$send_ga_pageview = NApp::_GetGlobalVar('send_ga_pageview',FALSE,'bool');
 		if(!count($scripts) && !$send_ga_pageview) { return NULL; }
 		$html_data = '';

@@ -73,7 +73,7 @@ class PdfDocument {
 	 * @var    array An array containing all instance formats
 	 * @access protected
 	 */
-	protected $formats = array();
+	protected $formats = [];
 	/**
 	 * @var    string Decimal separator
 	 * @access protected
@@ -153,7 +153,7 @@ class PdfDocument {
 	 * @var    array Class dynamic properties array
 	 * @access private
 	 */
-	private $pdata = array();
+	private $pdata = [];
 	/**
 	 * Class dynamic getter method
 	 *
@@ -173,7 +173,7 @@ class PdfDocument {
 	 * @access public
 	 */
 	public function __set($name,$value) {
-		if(!is_array($this->pdata)) { $this->pdata = array(); }
+		if(!is_array($this->pdata)) { $this->pdata = []; }
 		$this->pdata[$name] = $value;
 	}//END public function __set
 	/**
@@ -538,7 +538,7 @@ class PdfDocument {
 	 * @access public
 	 */
 	public function Show($params = NULL) {
-		if(!is_array($params)) { $params = array(); }
+		if(!is_array($params)) { $params = []; }
 		$params['output_type'] = 'I';
 		$this->Output($params);
 	}//END public function Show
@@ -556,11 +556,11 @@ class PdfDocument {
 		foreach($params['layouts'] as $layout) {
 			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new \PAF\AppException('Invalid object parameters !',E_USER_ERROR,0,basename(__FILE__),__LINE__); }
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
-			$borders = $this->with_borders ? $this->border_settings : array();
+			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
 			$default_width = get_array_param($layout,'default_width',20,'is_not0_numeric');
-			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : array())) : $this->formats['standard'];
-			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : array())) : $this->formats['header'];
+			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : [])) : $this->formats['standard'];
+			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : [])) : $this->formats['header'];
 			$this->pdf->custom_header = TRUE;
 			$this->pdf->custom_header_params = array('type'=>'table','columns'=>$layout['columns'],'format'=>$header_format,'default_width'=>$default_width,'border'=>$borders);
 			if($first || get_array_param($layout,'new_page',FALSE,'bool')) {
@@ -578,8 +578,8 @@ class PdfDocument {
 				foreach($layout['columns'] as $column) {
 					$col_no++;
 					if($set_totals && array_key_exists('total_row',$column) && $column['total_row']) { $this->total_row[$col_no] = 0; }
-					$col_def_format = array_key_exists('format',$column) ? (is_array($column['format']) ? $column['format'] : (array_key_exists($column['format'],$this->formats) ? $this->formats[$column['format']] : array())) : array();
-					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : array();
+					$col_def_format = array_key_exists('format',$column) ? (is_array($column['format']) ? $column['format'] : (array_key_exists($column['format'],$this->formats) ? $this->formats[$column['format']] : [])) : [];
+					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
 					$cformat = array_merge($default_format,$col_def_format,$col_custom_format);
 					$fr = $this->pdf->SetFormat($cformat);
 					$w = get_array_param($column,'width',$default_width,'is_not0_numeric');
@@ -599,7 +599,7 @@ class PdfDocument {
 	 * @return void
 	 * @access protected
 	 */
-	protected function SetFormats($formats = array()) {
+	protected function SetFormats($formats = []) {
 		if(!is_array($formats) || !count($formats)) {
 			$this->formats = $this->default_formats;
 		} else {

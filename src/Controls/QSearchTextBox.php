@@ -28,7 +28,7 @@
 		}//END public function __construct
 
 		protected function SetControl() {
-			$baseact = array();
+			$baseact = [];
 			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
 			$lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
 			$this->ProcessActions();

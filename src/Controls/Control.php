@@ -112,7 +112,7 @@ abstract class Control {
 	 * @access public
 	 */
 	public function __set($name,$value) {
-		if(!is_array($this->pdata)) { $this->pdata = array(); }
+		if(!is_array($this->pdata)) { $this->pdata = []; }
 		$this->pdata[$name] = $value;
 	}//END public function __set
 	/**
@@ -212,7 +212,7 @@ abstract class Control {
 	 */
 	protected function ProcessActions() {
 		if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
-			$this->ctrl_actions = array();
+			$this->ctrl_actions = [];
 			foreach($this->actions as $av) {
 				$c_a_params = get_array_param($av,'params',NULL,'is_notempty_array');
 				if(!$c_a_params) { continue; }
@@ -599,7 +599,7 @@ abstract class Control {
 		$result = '';
 		foreach($this->custom_actions as $ca) {
 			if(!is_array($ca) || !count($ca)) { continue; }
-			$ca_params = get_array_param($ca,'params',array(),'is_array');
+			$ca_params = get_array_param($ca,'params',[],'is_array');
 			$ca_params['theme_type'] = $this->theme_type;
 			$ca_params['size'] = $this->size;
 			$ca_type = get_array_param($ca,'type','DivButton','is_notempty_string');
@@ -745,7 +745,7 @@ abstract class Control {
 	 * @access public
 	 * @static
 	 */
-	 public static function GetUrlHash($params = array(),$encrypt = TRUE,$hash_separator = '|',$epass = 'eUrlHash') {
+	 public static function GetUrlHash($params = [],$encrypt = TRUE,$hash_separator = '|',$epass = 'eUrlHash') {
 		if(!is_array($params) || !count($params)) { return NULL; }
 		$result = '';
 		foreach($params as $v) { $result .= (strlen($result) ? $hash_separator : '').$v; }
@@ -770,7 +770,7 @@ abstract class Control {
 			} else {
 			$result = $params;
 			}//if(is_string($params_prefix) && strlen($params_prefix))
-			$rv_arr = array();
+			$rv_arr = [];
 			preg_match_all('/{{[^}]*}}/i',$result,$rv_arr);
 			if(is_array($rv_arr[0])) {
 				foreach($rv_arr[0] as $pfr) {
@@ -781,7 +781,7 @@ abstract class Control {
 			return $result;
 		}//if(is_string($params))
 		if(!is_array($params) || !count($params)) { return $params; }
-		$result = array();
+		$result = [];
 		foreach(array_keys($params) as $pk) {
 			if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1'))) {
 				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$row,TRUE,$params_prefix);

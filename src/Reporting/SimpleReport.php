@@ -27,13 +27,13 @@ class SimpleReport {
 	protected $time_separator = NULL;
 	protected $result = '';
 	protected $baseclass = 'listing lineslisting span-cent';
-	public function __construct(&$layout = array(),&$data = array(),&$class) {
+	public function __construct(&$layout = [],&$data = [],&$class) {
 		$this->decimal_separator = NApp::_GetParam('decimal_separator');
 		$this->group_separator = NApp::_GetParam('group_separator');
 		$this->date_separator = NApp::_GetParam('date_separator');
 		$this->time_separator = NApp::_GetParam('time_separator');
 		foreach($layout as $layout_item) {
-			$formats = array();
+			$formats = [];
 			foreach($layout_item['formats'] as $fkey=>$format) {
 				$style = '';
 				foreach($format as $frm=>$value) {

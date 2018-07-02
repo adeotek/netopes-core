@@ -27,7 +27,7 @@
 		 * @var    array Control dynamic properties array
 		 * @access protected
 		 */
-		protected $pdata = array();
+		protected $pdata = [];
 		/**
 		 * @var    string Control instance hash
 		 * @access protected
@@ -152,7 +152,7 @@
 		 * @access public
 		 */
 		public function __set($name,$value) {
-			if(!is_array($this->pdata)) { $this->pdata = array(); }
+			if(!is_array($this->pdata)) { $this->pdata = []; }
 			$this->pdata[$name] = $value;
 		}//END public function __set
 		/**
@@ -168,7 +168,7 @@
 			$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
 			$this->layout_type = AppConfig::app_theme_type();
 			if(is_array($params) && count($params)) {
-				if(!is_array($this->pdata)) { $this->pdata = array(); }
+				if(!is_array($this->pdata)) { $this->pdata = []; }
 				foreach($params as $k=>$v) {
 					if(property_exists($this,$k)) { $this->$k = $v; }
 					else { $this->pdata[$k] = $v; }
@@ -403,7 +403,7 @@
 				$items = $this->LoadAssignableItems();
 			} catch(\PAF\AppException $e) {
 				NApp::_Elog($e->getMessage());
-				$items = array();
+				$items = [];
 			}//END try
 			$result = "\t\t\t".'<div class="clsBlock clsAssignableItems">'."\n";
 			$result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->assignable_box_title.'</span>'."\n";
@@ -458,7 +458,7 @@
 				$items = $this->LoadLiveVersionItems();
 			} catch(\PAF\AppException $e) {
 				NApp::_Elog($e->getMessage());
-				$items = array();
+				$items = [];
 			}//END try
 			if($items===FALSE) { return NULL; }
 			$result = "\t\t\t".'<div class="clsBlock clsLiveVersionItems">'."\n";

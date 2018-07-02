@@ -88,12 +88,12 @@ class BasicForm {
 	 * @var    array fields descriptor array
 	 * @access public
 	 */
-	public $content = array();
+	public $content = [];
 	/**
 	 * @var    array form actions descriptor array
 	 * @access public
 	 */
-	public $actions = array();
+	public $actions = [];
 	/**
 	 * @var    string Tags IDs sufix
 	 * @access public
@@ -285,7 +285,7 @@ class BasicForm {
 					continue;
 				}//if(!$c_type || !class_exists($c_type))
 				$result .= "\t\t".'<td'.$cspan.$cstyle.'>'."\n";
-				$ctrl_params = get_array_param($col,'control_params',array(),'is_array');
+				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
 				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 				$control = new $c_type($ctrl_params);
@@ -399,7 +399,7 @@ class BasicForm {
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 					continue;
 				}//if(!$c_type || !class_exists($c_type))
-				$ctrl_params = get_array_param($col,'control_params',array(),'is_array');
+				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
 				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }

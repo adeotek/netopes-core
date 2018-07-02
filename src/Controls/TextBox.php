@@ -40,7 +40,7 @@
 					$fclass = '';
 					break;
 			}//switch (strtolower($this->uc_first))
-			$baseact = array();
+			$baseact = [];
 			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
 			$lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
 			$ltype = $this->password ? 'password' : 'text';

@@ -140,7 +140,7 @@
 	  */
 	function arr_change_key_case($input,$recursive = FALSE,$case = CASE_LOWER) {
 		if(!is_array($input)) { return $input; }
-		$result = array();
+		$result = [];
 		foreach ($input as $k=>$v) {
 			switch ($case) {
 				case CASE_LOWER:
@@ -172,7 +172,7 @@
 	  */
 	function arr_change_value_case($input,$recursive = FALSE,$case = CASE_LOWER) {
 		if(is_array($input)) {
-			$result = array();
+			$result = [];
 			foreach ($input as $k=>$v) {
 				switch ($case) {
 					case CASE_LOWER:
@@ -245,7 +245,7 @@
 		} else {
 			$keystr = '[]';
 		}//if(count($lstructure)>0)
-		$result = array();
+		$result = [];
 		foreach($array as $row) { eval('$result'.$keystr.' = $row["'.$valkey.'"];'); }
 		return $result;
 	}//END function convert_db_array_to_tree
@@ -259,7 +259,7 @@
 		if(!is_array($array)) { if($return) { return $array; } else { return; } }
 		$keys = array_keys($array);
 		shuffle($keys);
-		$random = array();
+		$random = [];
 		foreach($keys as $key) { $random[$key] = $array[$key]; }
 		if($return) { return $random; }
 		$array = $random;
@@ -292,7 +292,7 @@
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
 	 */
-	function curl_call($params = array(),&$info = NULL) {
+	function curl_call($params = [],&$info = NULL) {
 		if(!is_array($params) || !count($params)) { return FALSE; }
 		if(!isset($params['url']) || !strlen($params['url'])) { return FALSE; }
 		if(isset($params['user_agent']) && strlen($params['user_agent'])) {

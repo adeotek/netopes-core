@@ -42,7 +42,7 @@ class Report extends ExcelExport {
 	 * @var    array Report formats array
 	 * @access protected
 	 */
-	protected $r_formats = array();
+	protected $r_formats = [];
 	/**
 	 * @var    bool Flag for turning excel export on/off
 	 * @access public
@@ -91,8 +91,8 @@ class Report extends ExcelExport {
 	 * @return void
 	 * @access public
 	 */
-	//public function __construct(&$layout = array(),&$data = array(),&$class) {
-	public function __construct(&$params = array()) {
+	//public function __construct(&$layout = [],&$data = [],&$class) {
+	public function __construct(&$params = []) {
 		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
 		$this->report_name = get_array_param($params,'report_name',NULL,'is_notempty_string');
 		$this->export_module = get_array_param($params,'export_module',$this->export_module,'is_string');
@@ -113,8 +113,8 @@ class Report extends ExcelExport {
 		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::_GetLanguageCode();
 		$this->result = '';
 		foreach($params['layouts'] as $layout) {
-			$this->r_formats = array();
-			foreach(get_array_param($layout,'css_formats',array(),'is_array') as $fkey=>$format) {
+			$this->r_formats = [];
+			foreach(get_array_param($layout,'css_formats',[],'is_array') as $fkey=>$format) {
 				$style = '';
 				foreach($format as $frm=>$value) {
 					if($frm=='font')
@@ -135,7 +135,7 @@ class Report extends ExcelExport {
 			$header = "\t\t".'<thead>'."\n";
 			$header .= "\t\t\t".'<tr>'."\n";
             $colnr = 0;
-			$total_row = array();
+			$total_row = [];
 			foreach($layout['columns'] as $column) {
 				if(get_array_param($column,'hidden',false,'bool')) { $colnr++; continue; }
 				$tip = get_array_param($column,'htip','','is_string');

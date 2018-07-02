@@ -73,12 +73,12 @@ class PdfReport {
 	 * @var    array An array containing all instance formats
 	 * @access protected
 	 */
-	protected $formats = array();
+	protected $formats = [];
 	/**
 	 * @var    array An array containing table totals
 	 * @access protected
 	 */
-	protected $total_row = array();
+	protected $total_row = [];
 	/**
 	 * @var    string The result string
 	 * @access protected
@@ -96,7 +96,7 @@ class PdfReport {
 	 * @return void
 	 * @access public
 	 */
-	public function __construct(&$params = array()) {
+	public function __construct(&$params = []) {
 		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
 		//reset($params);
 		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
@@ -122,11 +122,11 @@ class PdfReport {
 		foreach($params['layouts'] as $layout) {
 			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
-			$borders = $this->with_borders ? $this->border_settings : array();
+			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
 			$default_width = get_array_param($layout,'default_width',20,'is_not0_numeric');
-			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : array())) : $this->formats['standard'];
-			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : array())) : $this->formats['header'];
+			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : [])) : $this->formats['standard'];
+			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : [])) : $this->formats['header'];
 			$this->pdf->custom_header = TRUE;
 			$this->pdf->custom_header_params = array('type'=>'table','columns'=>$layout['columns'],'format'=>$header_format,'default_width'=>$default_width,'border'=>$borders);
 			if($first || get_array_param($layout,'new_page',FALSE,'bool')) {
@@ -144,8 +144,8 @@ class PdfReport {
 				foreach($layout['columns'] as $column) {
 					$col_no++;
 					if($set_totals && array_key_exists('total_row',$column) && $column['total_row']) { $this->total_row[$col_no] = 0; }
-					$col_def_format = array_key_exists('format',$column) ? (is_array($column['format']) ? $column['format'] : (array_key_exists($column['format'],$this->formats) ? $this->formats[$column['format']] : array())) : array();
-					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : array();
+					$col_def_format = array_key_exists('format',$column) ? (is_array($column['format']) ? $column['format'] : (array_key_exists($column['format'],$this->formats) ? $this->formats[$column['format']] : [])) : [];
+					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
 					$cformat = array_merge($default_format,$col_def_format,$col_custom_format);
 					$fr = $this->pdf->SetFormat($cformat);
 					$w = get_array_param($column,'width',$default_width,'is_not0_numeric');
@@ -165,7 +165,7 @@ class PdfReport {
 	 * @return void
 	 * @access protected
 	 */
-	protected function SetFormats($formats = array()) {
+	protected function SetFormats($formats = []) {
 		if(!is_array($formats) || !count($formats)) {
 			$this->formats = $this->default_formats;
 		} else {

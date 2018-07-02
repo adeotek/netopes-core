@@ -25,7 +25,7 @@
 		 * @var    array Controls parameters array
 		 * @access public
 		 */
-		public $items = array();
+		public $items = [];
 
 		public function __construct($params = NULL){
 			$this->postable = FALSE;

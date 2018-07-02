@@ -53,7 +53,7 @@ class PdfCreator extends TCPDF {
 	 * @return void
 	 * @access public
 	 */
-	public function SetFormat($format = array()) {
+	public function SetFormat($format = []) {
 		$f = $c = $dc = $bgc = FALSE;
 		$font = get_array_param($format,'font',NULL,'is_notempty_string');
 		$font_size = get_array_param($format,'font_size',NULL,'is_not0_numeric');
@@ -87,7 +87,7 @@ class PdfCreator extends TCPDF {
 	 * @return void
 	 * @access public
 	 */
-	public function GetAlign($format = array(),$mode = 'h') {
+	public function GetAlign($format = [],$mode = 'h') {
 		$align = '';
 		switch(strtolower($mode)) {
 			case 'v':
@@ -133,7 +133,7 @@ class PdfCreator extends TCPDF {
 	 * @return void
 	 * @access public
 	 */
-    public function GetHtmlFormatString($format = array()) {
+    public function GetHtmlFormatString($format = []) {
         $style = '';
 		if(!is_array($format) || !count($format)) { return $style; }
 		foreach($format as $frm=>$value) {
@@ -210,11 +210,11 @@ class PdfCreator extends TCPDF {
 			case 'table':
 				$columns = get_array_param($params,'columns',NULL,'is_notempty_array');
 				if(!$columns) { return; }
-				$format = get_array_param($params,'format',array(),'is_array');
+				$format = get_array_param($params,'format',[],'is_array');
 				$col_no = 0;
 				foreach($columns as $column) {
 					$col_no++;
-					$cformat = array_merge($format,get_array_param($column,'header_format',array(),'is_array'));
+					$cformat = array_merge($format,get_array_param($column,'header_format',[],'is_array'));
 					$fr = $this->SetFormat($cformat);
 					$border = get_array_param($params,'border',0,'is_notempty_array');
 					$w = get_array_param($column,'width',get_array_param($params,'default_width',20,'is_not0_numeric'),'is_not0_numeric');
@@ -332,12 +332,12 @@ class PdfCreator extends TCPDF {
 		//header text box
 		if($fill) {
 			//left
-			$this->Circle($x+$width-2, $y+2, 2, 0, 90, 'F', array(), array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
-			$this->Polygon(array($x+0.3,$y+1.8,$x+0.15,$y+2,$x+2,$y+2,$x+2,$y+0.15,$x+1.8,$y+0.3), 'DF', array(), array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
+			$this->Circle($x+$width-2, $y+2, 2, 0, 90, 'F', [], array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
+			$this->Polygon(array($x+0.3,$y+1.8,$x+0.15,$y+2,$x+2,$y+2,$x+2,$y+0.15,$x+1.8,$y+0.3), 'DF', [], array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
 			$this->MultiCell(2, 1.9, '', 0, 'C', $fill, 0, $x, $y+2.04);
 			//right
-			$this->Circle($x+2, $y+2, 2, 90, 180, 'F', array(), array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
-			$this->Polygon(array($x+$width-0.3,$y+1.8,$x+$width-0.15,$y+2,$x+$width-2,$y+2,$x+$width-2,$y+0.15,$x+$width-1.8,$y+0.3), 'DF', array(), array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
+			$this->Circle($x+2, $y+2, 2, 90, 180, 'F', [], array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
+			$this->Polygon(array($x+$width-0.3,$y+1.8,$x+$width-0.15,$y+2,$x+$width-2,$y+2,$x+$width-2,$y+0.15,$x+$width-1.8,$y+0.3), 'DF', [], array($fillcolor[0],$fillcolor[1],$fillcolor[2]));
 			$this->MultiCell(2, 1.9, '', 0, 'C', $fill, 0, $x+$width-2, $y+2.04);
 		}//if($fill)
 		if(is_array($text)) {

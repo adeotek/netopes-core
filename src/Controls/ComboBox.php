@@ -61,7 +61,7 @@
 						$ldisplayfield = '';
 						foreach($this->displayfield as $dk=>$dv) {
 							if(is_array($dv)) {
-								$ov_items = get_array_param($dv,'items',array(),'is_notempty_array');
+								$ov_items = get_array_param($dv,'items',[],'is_notempty_array');
 								$ov_value = get_array_param($dv,'value','','is_string');
 								$ov_mask = get_array_param($dv,'mask','','is_string');
 								$ldisplayfield .= strlen($ov_mask)>0 ? str_replace('~',get_array_param($ov_items[$v[$dk]],$ov_value,$v[$dk],'isset'),$ov_mask) : get_array_param($ov_items[$v[$dk]],$ov_value,$v[$dk],'isset');

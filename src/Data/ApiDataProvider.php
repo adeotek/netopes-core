@@ -121,7 +121,7 @@ class ApiDataProvider {
 			echo '<strong>Targets:</strong><br/>';
 			var_dump($targets); echo '<br/><br/>';
 		}//if(NApp::$debug)*/
-		$result = array();
+		$result = [];
 		foreach($targets as $target) {
 			$taccesskey = array_key_exists('access_key',$target) ? $target['access_key'] : '';
 			$pparams = $pparams ? \GibberishAES::enc(serialize($pparams),$taccesskey) : NULL;

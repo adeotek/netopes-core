@@ -88,7 +88,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @return mixed Returns the result of the executed method
 	 * @access public
 	 */
-	public function ExecuteConnectionMethod($method,$params = array()) {
+	public function ExecuteConnectionMethod($method,$params = []) {
 		return call_user_func_array(array($this->connection,$method),(is_array($params) ? $params : []));
 	}//END public function ExecuteConnectionMethod
 	/**
@@ -177,7 +177,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function ExecuteQuery($query,$params = array(),&$extra_params = array()) {
+	public function ExecuteQuery($query,$params = [],&$extra_params = []) {
 		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
 		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
 		$tran_name = get_array_param($extra_params,'transaction',NULL,'is_notempty_string');
@@ -186,7 +186,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$lastrow = get_array_param($extra_params,'lastrow',NULL,'is_not0_numeric');
 		$sort = get_array_param($extra_params,'sort',NULL,'is_notempty_array');
 		$filters = get_array_param($extra_params,'filters',NULL,'is_notempty_array');
-		$out_params = get_array_param($extra_params,'out_params',array(),'is_array');
+		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
 		$log = get_array_param($extra_params,'log',FALSE,'bool');
 		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
 		$results_keys_case = get_array_param($extra_params,'results_keys_case',NULL,'is_numeric');
@@ -212,7 +212,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function ExecuteProcedure($procedure,$params = array(),&$extra_params = array()) {
+	public function ExecuteProcedure($procedure,$params = [],&$extra_params = []) {
 		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
 		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
 		$tran_name = get_array_param($extra_params,'transaction',NULL,'is_notempty_string');
@@ -221,14 +221,14 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$lastrow = get_array_param($extra_params,'lastrow',NULL,'is_not0_numeric');
 		$sort = get_array_param($extra_params,'sort',NULL,'is_notempty_array');
 		$filters = get_array_param($extra_params,'filters',NULL,'is_notempty_array');
-		$out_params = get_array_param($extra_params,'out_params',array(),'is_array');
+		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
 		$log = get_array_param($extra_params,'log',FALSE,'bool');
 		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
 		$results_keys_case = get_array_param($extra_params,'results_keys_case',NULL,'is_numeric');
 		$custom_tran_params = get_array_param($extra_params,'custom_tran_params',NULL,'isset');
 		$result = $this::$method($procedure,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
 		if($out_params) {
-			if(!is_array($extra_params)) { $extra_params = array(); }
+			if(!is_array($extra_params)) { $extra_params = []; }
 			$extra_params['out_params'] = $out_params;
 		}//if($out_params)
 		return $result;
@@ -246,7 +246,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @return mixed Returns database method result
 	 * @access public
 	 */
-	public function ExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array()) {
+	public function ExecuteMethod($method,$property = NULL,$params = [],$extra_params = []) {
 		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
 		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
 		$log = get_array_param($extra_params,'log',FALSE,'bool');
@@ -302,7 +302,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		return FALSE;
 	}//END public function PdoCommitTran
 
-	public function PdoExecuteQuery($query,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$log = FALSE) {
+	public function PdoExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$log = FALSE) {
 		$time = microtime(TRUE);
 		$trans = FALSE;
 		$method = $this->dbtype.'PrepareQuery';
@@ -332,7 +332,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		return arr_change_key_case($final_result,TRUE);
 	}//END public function PdoExecuteQuery
 
-	public function PdoExecuteProcedure($procedure,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE) {
+	public function PdoExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE) {
 		$time = microtime(TRUE);
 		$trans = FALSE;
 		$method = $this->dbtype.'PrepareProcedureStatement';

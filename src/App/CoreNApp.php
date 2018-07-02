@@ -820,7 +820,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function ExecuteARequest($post_params = array(),$subsession = NULL) {
+	public function ExecuteARequest($post_params = [],$subsession = NULL) {
 		$errors = '';
 		$request = array_key_exists('req',$_POST) ? $_POST['req'] : NULL;
 		if(!$request) { $errors .= 'Empty Request!'; }
@@ -1136,7 +1136,7 @@ class CoreNApp extends \PAF\App {
 		$this->InitializeKCFinder();
 		try {
 			require_once($this->app_path._AAPP_CONFIG_PATH.'/Customizations.inc');
-			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : array();
+			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : [];
 		} catch(\Exception $e) {
 			$this->Write2LogFile($e->getMessage(),'error');
 		}//END try

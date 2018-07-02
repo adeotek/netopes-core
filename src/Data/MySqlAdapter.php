@@ -27,7 +27,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @return bool  Returns TRUE on success or FALSE otherwise
 	 * @access public
 	 */
-	public function MySqlSetGlobalVariables($params = array()) {
+	public function MySqlSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
 		return FALSE;
 	}//END public function MySqlSetGlobalVariables
@@ -99,7 +99,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @return void
 	 * @access public
 	 */
-	public function MySqlPrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	public function MySqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',$this->MySqlEscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
@@ -187,7 +187,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \AException
 	 */
-	public function MySqlExecuteQuery($query,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function MySqlExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$this->MySqlPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		/*
@@ -251,7 +251,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @return string Returns processed command string
 	 * @access protected
 	 */
-	protected function MySqlPrepareProcedureStatement($procedure,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	protected function MySqlPrepareProcedureStatement($procedure,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		if(is_array($params)) {
 			if(count($params)>0) {
 				$parameters_in = '';
@@ -295,7 +295,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \AException
 	 */
-	public function MySqlExecuteProcedure($procedure,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function MySqlExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$query = $this->MySqlPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		/*
@@ -396,7 +396,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \AException
 	 */
-	public function MySqlExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function MySqlExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for MySQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
 	}//END public function MySqlExecuteMethod
 	/**
@@ -410,7 +410,7 @@ class MySqlAdapter extends SqlDataAdapter {
 	public function MySqlEscapeString($param) {
 		$result = NULL;
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach ($param as $k=>$v) { $result[$k] = $this->connection->escape_string($v); }
 		} else { $result = $this->connection->escape_string($param); }
 		return $result;

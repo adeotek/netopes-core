@@ -475,8 +475,8 @@ class Module {
 	 * @static
 	 */
 	public static function ConvertRightsRevokedArray($array) {
-		if(!is_array($array) || !count($array)) { return array(); }
-		$result = array();
+		if(!is_array($array) || !count($array)) { return []; }
+		$result = [];
 		foreach($array as $line) {
 			if(!strlen($line['module']) || !strlen($line['method'])) { continue; }
 			$result[$line['module']][$line['method']] = $line;
@@ -486,8 +486,8 @@ class Module {
 
 	protected function SetDebugData($data,$label = NULL,$reset = FALSE,$method = NULL) {
 		$current_method = $method ? $method : call_back_trace();
-		if($reset || !is_array($this->debug_data)) { $this->debug_data = array(); }
-		if(!isset($this->debug_data[$current_method]) || !is_array($this->debug_data[$current_method])) { $this->debug_data[$current_method] = array(); }
+		if($reset || !is_array($this->debug_data)) { $this->debug_data = []; }
+		if(!isset($this->debug_data[$current_method]) || !is_array($this->debug_data[$current_method])) { $this->debug_data[$current_method] = []; }
 		if(is_string($label) && strlen($label)) {
 			$this->debug_data[$current_method][$label] = $data;
 		} else {

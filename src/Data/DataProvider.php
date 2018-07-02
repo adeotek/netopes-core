@@ -235,7 +235,7 @@ class DataProvider {
 	 * @access public
 	 * @static
 	 */
-	public static function SetGlobalVariables($params = array(),$connection = array()) {
+	public static function SetGlobalVariables($params = [],$connection = []) {
 		try {
 			$datasource = self::GetDataSource('System\System',$connection);
 			return $datasource->adapter->SetGlobalVariables($params);
@@ -253,7 +253,7 @@ class DataProvider {
 	 * @access public
 	 * @static
 	 */
-	public static function CloseConnection($da_name,$connection = array()) {
+	public static function CloseConnection($da_name,$connection = []) {
 		$result = FALSE;
 		try {
 			$datasource = self::GetDataSource($da_name,$connection,NULL,TRUE);
@@ -277,7 +277,7 @@ class DataProvider {
 	 * @access public
 	 * @static
 	 */
-	public static function StartTransaction($da_name,&$transaction = NULL,$connection = array(),$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
+	public static function StartTransaction($da_name,&$transaction = NULL,$connection = [],$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		try {
 			$datasource = self::GetDataSource($da_name,$connection);
 			return $datasource->data_source->BeginTran($transaction,$log,$overwrite,$custom_tran_params);
@@ -298,7 +298,7 @@ class DataProvider {
 	 * @access public
 	 * @static
 	 */
-	public static function CloseTransaction($da_name,$transaction = NULL,$error = FALSE,$connection = array(),$log = FALSE) {
+	public static function CloseTransaction($da_name,$transaction = NULL,$error = FALSE,$connection = [],$log = FALSE) {
 		try {
 			$datasource = self::GetDataSource($da_name,$connection);
 			if($error===TRUE || $error===1){

@@ -52,7 +52,7 @@
 			if(is_array($this->displayfield)) {
 				foreach($this->displayfield as $dk=>$dv) {
 					if(is_array($dv)) {
-						$ov_items = get_array_param($dv,'items',array(),'is_notempty_array');
+						$ov_items = get_array_param($dv,'items',[],'is_notempty_array');
 						$ov_value = get_array_param($dv,'value','','is_string');
 						$ov_mask = get_array_param($dv,'mask','','is_string');
 						$ltext = get_array_param($item,$dk,'N/A','is_string');
@@ -123,7 +123,7 @@
 							foreach($ac_params_arr as $acpk=>$acpv) { $ac_params .= '&'.$acpk.'='.rawurlencode($acpv); }
 						}//if(is_array($ac_params_arr) && count($ac_params_arr))
 						$rpp = get_array_param($this->data_source,'rows_limit',20,'is_not0_numeric');
-						$ac_js_params = get_array_param($this->data_source,'ds_js_params',array(),'is_array');
+						$ac_js_params = get_array_param($this->data_source,'ds_js_params',[],'is_array');
 						if(is_array($ac_js_params) && count($ac_js_params)) {
 							$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp}";
 							foreach($ac_js_params as $acpk=>$acpv) { $ac_data_func .= ', '.$acpk.': '.$acpv; }
@@ -146,12 +146,12 @@
 					break;
 				case 'database':
 					if($this->allow_clear && strlen($this->cbo_placeholder)) { array_unshift($litems,[''=>'']); }
-					$dbvalues = array();
+					$dbvalues = [];
 					$ds_name = get_array_param($this->data_source,'ds_class','','is_string');
 					$ds_method = get_array_param($this->data_source,'ds_method','','is_string');
 					if(strlen($ds_name) && strlen($ds_method)) {
-						$ds_params = get_array_param($this->data_source,'ds_params',array(),'is_array');
-						$da_eparams = get_array_param($this->data_source,'ds_extra_params',array(),'is_array');
+						$ds_params = get_array_param($this->data_source,'ds_params',[],'is_array');
+						$da_eparams = get_array_param($this->data_source,'ds_extra_params',[],'is_array');
 						$data = DataProvider::GetArray($ds_name,$ds_method,$ds_params,$da_eparams);
 						if(is_array($data)) {
 							$dbvalues = array_key_exists('data',$data) ? $data['data'] : $data;

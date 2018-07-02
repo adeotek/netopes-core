@@ -57,7 +57,7 @@ class Mailer {
 				'for_active'=>1,
 				'for_implicit'=>1,
 			));
-			$settings = get_array_param($items,0,array(),'is_array');
+			$settings = get_array_param($items,0,[],'is_array');
 		}//if(!is_array($settings) || !count($settings))
 		$sendmail = get_array_param($settings,'sendmail',0,'is_numeric');
 		if($sendmail!=1) {
