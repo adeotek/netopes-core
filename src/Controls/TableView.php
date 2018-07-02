@@ -17,6 +17,7 @@ use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSet;
+use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
 use PAF\AppException;
 use NApp;
@@ -561,7 +562,7 @@ class TableView {
 		$this->totals = [];
 		if(!strlen($this->data_source) || !strlen($this->ds_method)) {
 			$result = is_object($this->data) ? $this->data : new DataSet($this->data);
-			$result->total_count = count($this->data);
+			$result->total_count = $result->count();
 			return $result;
 		}//if(!strlen($this->data_source) || !strlen($this->ds_method))
 		$daparams = $daeparams = [];
@@ -1396,7 +1397,7 @@ class TableView {
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
-					$this->export_data['data'][$row->__rowno][$name] = $c_value;
+					$this->export_data['data'][$row->__rowid][$name] = $c_value;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case '__rowno':
@@ -1409,7 +1410,7 @@ class TableView {
 				$c_value = $result = isset($row->__rowno) ? $row->__rowno : NULL;
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
 					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
-					$this->export_data['data'][$row->__rowno][$name] = $c_value;
+					$this->export_data['data'][$row->__rowid][$name] = $c_value;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'multi-value':
@@ -1441,7 +1442,7 @@ class TableView {
 				}//if(is_array($v['db_field']) && count($v['db_field']))
 				$result = $m_value;
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$this->export_data['data'][$row->__rowno][$name] = $result;
+					$this->export_data['data'][$row->__rowid][$name] = $result;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'indexof':
@@ -1467,7 +1468,7 @@ class TableView {
 				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = ($c_value ? $c_value : NULL);
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$this->export_data['data'][$row->__rowno][$name] = $result;
+					$this->export_data['data'][$row->__rowid][$name] = $result;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'custom_function':
@@ -1492,7 +1493,7 @@ class TableView {
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
-					$this->export_data['data'][$row->__rowno][$name] = $c_value;
+					$this->export_data['data'][$row->__rowid][$name] = $c_value;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'translate':
@@ -1510,7 +1511,7 @@ class TableView {
 				$c_value = \Translate::Get(get_array_param($v,'prefix','','is_string').$c_value.get_array_param($v,'sufix','','is_string'));
 				$result = $c_value;
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$this->export_data['data'][$row->__rowno][$name] = $result;
+					$this->export_data['data'][$row->__rowid][$name] = $result;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'checkbox':
@@ -1541,7 +1542,7 @@ class TableView {
 					}//if(get_array_param($v,'checkbox_eval_as_bool',FALSE,'bool'))
 				}//if(is_array($cb_classes) && count($cb_classes))
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$this->export_data['data'][$row->__rowno][$name] = $cb_val;
+					$this->export_data['data'][$row->__rowid][$name] = $cb_val;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			case 'filter-only':
@@ -1558,13 +1559,13 @@ class TableView {
 							$c_value = strlen($c_value) ? $c_value : NULL;
 						}//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
 					}//if(is_null($v['db_field']))
-					$this->export_data['data'][$row->__rowno][$name] = $c_value;
+					$this->export_data['data'][$row->__rowid][$name] = $c_value;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 			default:
 				$result = NULL;
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$this->export_data['data'][$row->__rowno][$name] = $result;
+					$this->export_data['data'][$row->__rowid][$name] = $result;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
 		}//END switch
@@ -2316,10 +2317,10 @@ class TableView {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public static function ExportData($params = NULL) {
-		$chash = $params->safeGet('chash',NULL,'is_notempty_string');
+	public static function ExportData(array $params = []) {
+		$chash = get_array_param($params,'chash',NULL,'is_notempty_string');
 		if(!$chash) { return; }
-		$export_all = $params->safeGet('exportall',FALSE,'bool');
+		$export_all = get_array_param($params,'exportall',FALSE,'bool');
 		//NApp::StartTimeTrack('TableViewExportData');
 		$cachefile = NApp::_GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
 		try {
