@@ -4,22 +4,26 @@
  *
  * Class used for reading data from excel files
  *
- * @package    NETopes\DataImport
+ * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.0.1
  * @filesource
  */
 namespace NETopes\Core\Data;
-// use PhpOffice\PhpSpreadsheet\Spreadsheet;
-// use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use NETopes\Core\App\Validator;
+use PAF\AppException;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Row;
+use NApp;
+
 /**
  * ExcelImport class
  *
  * Class used for reading data from excel files
  *
- * @package  NETopes\DataImport
+ * @package  NETopes\Core\Data
  * @access   public
  */
 class ExcelImport {
@@ -34,22 +38,22 @@ class ExcelImport {
 	 */
     protected $gsep = NULL;
 	/**
-	 * @var    array PHPExcel accepted file types
+	 * @var    array PHP Spreadsheet accepted file types
 	 * @access protected
 	 */
-	protected $file_types = array('xlsx'=>'Excel2007','xls'=>'Excel5','odc'=>'OOCalc','csv'=>'CSV');
+	protected $file_types = array('xlsx'=>'Xlsx','xls'=>'Xls','ods'=>'Ods','csv'=>'Csv','xml'=>'Xml'/*,'html'=>'Html','htm'=>'Html'*/);
 	/**
 	 * @var    array List of fields to be read
 	 * @access protected
 	 */
 	protected $fields = NULL;
 	/**
-	 * @var    object PHPExcel object instance
+	 * @var    \PhpOffice\PhpSpreadsheet\Spreadsheet PhpSpreadsheet object instance
 	 * @access protected
 	 */
-    protected $excel = NULL;
+    protected $spreadsheet = NULL;
 	/**
-	 * @var    object PHPExcel sheet object instance
+	 * @var    \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet PhpSpreadsheet sheet object instance
 	 * @access protected
 	 */
 	protected $sheet = NULL;
@@ -62,7 +66,7 @@ class ExcelImport {
 	 * @var    string Data adapter name
 	 * @access public
 	 */
-	public $da_name = NULL;
+	public $ds_name = NULL;
 	/**
 	 * @var    string Data adapter method
 	 * @access public
@@ -81,60 +85,63 @@ class ExcelImport {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param array $fields
+	 * @param array $params Parameters object (instance of [Params])
 	 * @return void
+	 * @throws \PAF\AppException
 	 * @access public
 	 */
-    public function __construct($fields,$params = array()) {
-		if(!is_array($fields) || !count($fields)) { throw new Exception('Invalid ExcelImport fields list!',E_ERROR,1); }
+    public function __construct(array $fields,array $params = []) {
+		if(!count($fields)) { throw new AppException('Invalid ExcelImport fields list!',E_ERROR,1); }
 		$this->fields = $fields;
         $this->dsep = get_array_param($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
 		$this->gsep = get_array_param($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
-		$this->da_name = get_array_param($params,'da_name','','is_notempty_string');
+		$this->ds_name = get_array_param($params,'ds_name','','is_notempty_string');
 		$this->ds_method = get_array_param($params,'ds_method','','is_notempty_string');
-		$this->ds_params = get_array_param($params,'ds_params',array(),'is_array');
-		$this->send_to_db = strlen($this->da_name) && strlen($this->ds_method) && DataProvider::MethodExists($this->da_name,$this->ds_method);
+		$this->ds_params = get_array_param($params,'ds_params',[],'is_array');
+		$this->send_to_db = strlen($this->ds_name) && strlen($this->ds_method) && DataProvider::MethodExists($this->ds_name,$this->ds_method);
 		ini_set('max_execution_time',7200);
 		ini_set('max_input_time',-1);
 	}//END public function __construct
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param string      $file
+	 * @param array       $params Parameters object (instance of [Params])
+	 * @param null|string $file_type
 	 * @return void
+	 * @throws \PAF\AppException
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
 	 * @access public
 	 */
-	public function ProcessFile($file,$params = array(),$file_type = NULL) {
-		if(!$file || !file_exists($file)) { throw new Exception('Invalid input file!',E_ERROR,1); }
-		$file_type = get_array_param($params,'file_type','','is_notempty_string');
-		if(!strlen($file_type)) {
-			if(strpos($file,'.')!==FALSE) {
-				$fext = substr($file,strpos($file,'.')+1);
-				$file_type = array_key_exists($fext,$this->file_types) ? $this->file_types : 'Excel2007';
-			} else {
-				$file_type = 'Excel2007';
-			}//if(strpos($file,'.')!==FALSE)
+	public function ProcessFile(string $file,array $params = [],?string $file_type = NULL): void {
+		if(!$file || !file_exists($file)) { throw new AppException('Invalid input file!',E_ERROR,1); }
+		if(strlen($file_type)) {
+			$file_type = strtolower($file_type);
 		} else {
-			$file_type = array_key_exists($file_type,$this->file_types) ? $this->file_types[$file_type] : (in_array($file_type,$this->file_types,TRUE) ? $file_type : 'Excel2007');
+			$file_type = strtolower(get_array_param($params,'file_type','','is_string'));
+		}//if(strlen($file_type))
+		if(!strlen($file_type) && strpos($file,'.')!==FALSE) {
+			$file_type = strtolower(substr($file,strpos($file,'.')+1));
 		}//if(!strlen($file_type))
+		if(!strlen($file_type)) { throw new AppException('Invalid input file type!',E_ERROR,1); }
+		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('Unsupported file type!',E_ERROR,1); }
 		$sheet_index = get_array_param($params,'sheet_index',0,'is_not0_numeric');
 		$header_row = get_array_param($params,'header_row',1,'is_not0_numeric');
 		$start_row = get_array_param($params,'start_row',2,'is_not0_numeric');
 		$max_rows = get_array_param($params,'max_rows',-1,'is_numeric');
-		require_once(NApp::app_path().'/lib/phpexcel/PHPExcel.php');
-		$this->excel = PHPExcel_IOFactory::load($file);
-        $this->excel->setActiveSheetIndex($sheet_index);
-        $this->sheet = $this->excel->getActiveSheet();
-		//// NEW VERSION
-		// $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
-		// $this->excel = $reader->load($file);
+		// $this->spreadsheet = IOFactory::load($file);
+		$reader = IOFactory::createReader($this->file_types[$file_type]);
+		$this->spreadsheet = $reader->load($file);
+        $this->spreadsheet->setActiveSheetIndex($sheet_index);
+        $this->sheet = $this->spreadsheet->getActiveSheet();
 		// Read header row and associate fields to columns
 		$hrow = $this->sheet->getRowIterator($header_row)->current();
 		foreach($hrow->getCellIterator() as $cell) {
 			$colname = strtolower(trim($cell->getValue()));
 			if(!array_key_exists($colname,$this->fields)) { continue; }
 			$this->fields[$colname]['column'] = $cell->getColumn();
-			// $this->fields[$colname]['eindex'] = PHPExcel_Cell::columnIndexFromString($cell->getColumn());
 		}//END foreach
 		// Read data line by line
 		foreach($this->fields as $k=>$v) {
@@ -143,10 +150,10 @@ class ExcelImport {
 				$this->fields[$k]['column'] = NULL;
 				continue;
 			}//if(get_array_param($v,'optional',FALSE,'bool'))
-			throw new \PAF\AppException("Invalid data: missing column [{$k}]!",E_USER_ERROR,1);
+			throw new AppException("Invalid data: missing column [{$k}]!",E_USER_ERROR,1);
 		}//END foreach
 		$rowno = 0;
-		if(!is_array($this->data)) { $this->data = array(); }
+		if(!is_array($this->data)) { $this->data = []; }
 		if($max_rows>0) {
 			$end_row = $start_row + $max_rows - 1;
 			foreach($this->sheet->getRowIterator($start_row,$end_row) as $row) { $this->ReadLine($row,$rowno); }
@@ -157,14 +164,16 @@ class ExcelImport {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param $row
+	 * @param $rowno
 	 * @return void
 	 * @access protected
 	 */
-    protected function ReadLine(&$row,&$rowno) {
+    protected function ReadLine(Row &$row,int &$rowno): void {
     	$rdata = array('_has_error'=>0,'_error'=>'','_rowno'=>$row->getRowIndex());
 		$rowno++;
 		try {
+			$k = 0;
 			$eno = 0;
 			foreach($this->fields as $k=>$v) {
 	    		$val = $v['column'] ? $this->sheet->getCell($v['column'].$rdata['_rowno'])->getValue() : NULL;
@@ -179,7 +188,7 @@ class ExcelImport {
 			}//END foreach
 			if(count($this->fields)==$eno) { return; }
 			$this->ProcessDataRow($rdata);
-		} catch(Exception $e) {
+		} catch(\Exception $e) {
 			$rdata['_has_error'] = 1;
 			$rdata['_error'] .= " Exception: ".$e->getMessage()." at column [{$k}], row [{$rdata['_rowno']}]!";
 		}//END try
@@ -188,28 +197,29 @@ class ExcelImport {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param mixed $value
+	 * @param array $field
+	 * @return mixed
 	 * @access protected
 	 */
-    protected function FormatValue($value,$field) {
+    protected function FormatValue($value,array $field) {
 		$format_value_func = get_array_param($field,'format_value_func',NULL,'is_notempty_string');
 		if($format_value_func && method_exists($this,$format_value_func)) {
 			return $this->$format_value_func($value,$field);
 		}//if($format_value_func && method_exists($this,$format_value_func))
 	    $format = get_array_param($field,'format',get_array_param($field,'type','','is_string'),'is_string');
 		$validation = get_array_param($field,'validation','isset','is_notempty_string');
-		return \NETopes\Core\App\Validator::ValidateParam($value,NULL,$validation,$format);
+		return Validator::ValidateParam($value,NULL,$validation,$format);
 	}//END protected function FormatValue
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param array $row
+	 * @return bool
 	 * @access protected
 	 */
-    protected function ProcessDataRow(&$row) {
-    	if(!$this->send_to_db || !is_array($row) || !count($row) || !isset($row['_has_error']) || $row['_has_error']==1) { return FALSE; }
+    protected function ProcessDataRow(array &$row): bool {
+    	if(!$this->send_to_db || !count($row) || !isset($row['_has_error']) || $row['_has_error']==1) { return FALSE; }
 		try {
 			$lparams = $this->ds_params;
 			foreach($this->fields as $k=>$v) {
@@ -217,14 +227,14 @@ class ExcelImport {
 				if(!strlen($da_param) || !array_key_exists($da_param,$lparams)) { continue; }
 				$lparams[$da_param] = get_array_param($row,$k,'null','isset');
 			}//END foreach
-			$result = DataProvider::GetArray($this->da_name,$this->ds_method,$lparams);
+			$result = DataProvider::GetArray($this->ds_name,$this->ds_method,$lparams);
 			if(get_array_param($result,0,0,'is_numeric','inserted_id')==0) {
 				$row['_has_error'] = 1;
 				$row['_error'] = 'unknown_item';
 				return FALSE;
 			}//if(get_array_param($result,0,0,'is_numeric','inserted_id')==0)
 			return TRUE;
-		} catch(\PAF\AppException $e) {
+		} catch(AppException $e) {
 			$row['_has_error'] = 1;
 			$row['_error'] = $e->getMessage();
 			NApp::_Elog($e->getMessage(),'row['.$row['_rowno'].']');
