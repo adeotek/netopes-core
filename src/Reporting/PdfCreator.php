@@ -12,11 +12,13 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
- 	/*
-	 * TCPDF config initialization
-	 */
-	define('K_TCPDF_EXTERNAL_CONFIG',TRUE);
-	require_once(NApp::app_path()._AAPP_CONFIG_PATH.'/TcpdfConfig.php');
+use TCPDF;
+use NApp;
+/*
+ * TCPDF config initialization
+ */
+define('K_TCPDF_EXTERNAL_CONFIG',TRUE);
+require_once(NApp::app_path()._AAPP_CONFIG_PATH.'/TcpdfConfig.php');
 /**
  * PdfCreator class
  *

@@ -118,7 +118,6 @@ class Validator {
 		//elseif($daypart===1) { $dt->add(new DateInterval('P1D')); }
 		return str_replace(' ','T',$dt->format(($dateonly ? 'Y-m-d' : 'Y-m-d H:i:s')));
 	}//END public static function ConvertDateTimeToDotNetFormat
-
 	/**
 	 * description
 	 *

@@ -12,26 +12,30 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
- 	/**
-	 * General purpose PDF
-	 */
- 	define('X_GENERAL_TYPE_PDF',0);
-	/**
-	 * General purpose PDF generated from HTML
-	 */
-	define('X_HTML_TYPE_PDF',1);
-	/**
-	 * Master-detail stocks document (e.g. invoice)
-	 */
-	define('X_STOCK_DOC_TYPE_PDF',2);
-	/**
-	 * Payment documents (e.g. receipt)
-	 */
-	define('X_PAY_DOC_TYPE_PDF',3);
-	/**
-	 * Reports
-	 */
-	define('X_REPORT_TYPE_PDF',4);
+use PAF\AppException;
+use NETopes\Core\Data\DataProvider;
+use NApp;
+use Translate;
+/**
+ * General purpose PDF
+ */
+define('X_GENERAL_TYPE_PDF',0);
+/**
+ * General purpose PDF generated from HTML
+ */
+define('X_HTML_TYPE_PDF',1);
+/**
+ * Master-detail stocks document (e.g. invoice)
+ */
+define('X_STOCK_DOC_TYPE_PDF',2);
+/**
+ * Payment documents (e.g. receipt)
+ */
+define('X_PAY_DOC_TYPE_PDF',3);
+/**
+ * Reports
+ */
+define('X_REPORT_TYPE_PDF',4);
 /**
  * PdfDocumentBase class
  *
@@ -240,7 +244,7 @@ class PdfDocument {
 				$this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 				break;
 			default:
-				throw new \PAF\AppException('Invalid PDF type!',E_ERROR,1,basename(__FILE__));
+				throw new AppException('Invalid PDF type!',E_ERROR,1,basename(__FILE__));
 				break;
 		}//END switch
 	}//END protected function _Init
@@ -299,46 +303,46 @@ class PdfDocument {
 		switch($this->type) {
 			case X_STOCK_DOC_TYPE_PDF:
 				$docid = get_array_param($this->params,'key',NULL,'is_integer');
-				if(!$docid) { throw new \PAF\AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
-				$document = DataProvider::GetArray('DocumentsDataSource','GetItemData',['for_id'=>$docid]);
-				if(!$document) { throw new \PAF\AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
+				if(!$docid) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
+				$document = DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docid]);
+				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
 				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
 				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
 				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
 				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-					$this->footer_params['mask'] = \Translate::Get('dlabel_page',$this->langcode).' {{page}} '.\Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
+					$this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
 				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
 				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
-				if(!$id_entity || !$id_location) { throw new \PAF\AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
+				if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
 				$lines = DataProvider::GetArray('Tran\Documents','GetItemLines',array('document_id'=>$docid,'taxes_as_lines'=>1,'discount_as_lines'=>1));
-				if(!$lines) { throw new \PAF\AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__)); }
+				if(!$lines) { throw new AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__)); }
 				$this->document_data = is_array($document) && count($document) ? $document : NULL;
 				$this->details_data = is_array($lines) && count($lines) ? $lines : NULL;
 				break;
 			case X_PAY_DOC_TYPE_PDF:
 				$docid = get_array_param($this->params,'key',NULL,'is_integer');
-				if(!$docid) { throw new \PAF\AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
+				if(!$docid) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
 				$document = DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docid]);
-				if(!$document) { throw new \PAF\AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
+				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
 				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
 				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
 				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
 				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-					$this->footer_params['mask'] = \Translate::Get('dlabel_page',$this->langcode).' {{page}} '.\Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
+					$this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
 				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
 				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
-				if(!$id_entity || !$id_location) { throw new \PAF\AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
+				if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
 				$this->document_data = is_array($document) && count($document) ? $document : NULL;
 				break;
 			case X_REPORT_TYPE_PDF:
 			case X_HTML_TYPE_PDF:
 			case X_GENERAL_TYPE_PDF:
 			default:
-				throw new \PAF\AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
+				throw new AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
 				break;
 		}//END switch
 	}//END protected function LoadData
@@ -470,7 +474,7 @@ class PdfDocument {
 				break;
 			case X_REPORT_TYPE_PDF:
 			default:
-				throw new \PAF\AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
+				throw new AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
 				break;
 		}//END switch
 	}//END protected function SetContent
@@ -501,7 +505,7 @@ class PdfDocument {
 				$this->SetFooter();
 				break;
 			default:
-				throw new \PAF\AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
+				throw new AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
 				break;
 		}//END switch
 	}//END protected function WriteData
@@ -554,7 +558,7 @@ class PdfDocument {
         $cline = 0;
 		$first = TRUE;
 		foreach($params['layouts'] as $layout) {
-			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new \PAF\AppException('Invalid object parameters !',E_USER_ERROR,0,basename(__FILE__),__LINE__); }
+			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new AppException('Invalid object parameters !',E_USER_ERROR,0,basename(__FILE__),__LINE__); }
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
 			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
