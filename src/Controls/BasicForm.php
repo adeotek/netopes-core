@@ -393,12 +393,16 @@ class BasicForm {
 					$c_class = get_array_param($col,'class','form-group','is_notempty_string');
 					if($hidden) { $c_class .= ' hidden'; }
 				}//if($this->colsno>1)
-				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
-				if(!$c_type || !class_exists($c_type)) {
-					\NApp::_Elog('Control class ['.$c_type.'] not found!');
+				if(strlen($c_type)) {
+					$c_type = '\NETopes\Core\Controls\\'.$c_type;
+					if(!class_exists($c_type)) {
+					NApp::_Elog('Control class ['.$c_type.'] not found!');
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 					continue;
-				}//if(!$c_type || !class_exists($c_type))
+					}//if(!class_exists($c_type))
+				} else {
+					continue;
+				}//if(strlen($c_type))
 				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }

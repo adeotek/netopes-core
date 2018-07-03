@@ -99,7 +99,7 @@
 			$s_values = [];
 			if(is_array($this->selectedvalue)) {
 				$s_values = $this->selectedvalue;
-			} elseif(is_string($this->selectedvalue) && strlen($this->selectedvalue) && $this->selectedvalue!=='null') {
+			} elseif(is_scalar($this->selectedvalue) && strlen($this->selectedvalue) && $this->selectedvalue!=='null') {
 				$s_values = [$this->selectedvalue=>$this->selectedtext];
 			}//if(is_array($this->selectedvalue))
 			switch($this->load_type) {

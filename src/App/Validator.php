@@ -118,14 +118,17 @@ class Validator {
 		//elseif($daypart===1) { $dt->add(new DateInterval('P1D')); }
 		return str_replace(' ','T',$dt->format(($dateonly ? 'Y-m-d' : 'Y-m-d H:i:s')));
 	}//END public static function ConvertDateTimeToDotNetFormat
+
 	/**
 	 * description
 	 *
 	 * @param  string $date Datetime to be converted
 	 * @param  string $timezone User's timezone
-	 * @param  bool $dateonly If set TRUE eliminates the time from value
+	 * @param  bool   $dateonly If set TRUE eliminates the time from value
 	 * @param  string $date_separator The date separator
 	 * @param  string $time_separator The time separator
+	 * @param bool    $timeonly
+	 * @param null    $format
 	 * @return string Returns the datetime in the application format
 	 * @access public
 	 * @static
@@ -136,6 +139,9 @@ class Validator {
 		$time_separator = is_string($time_separator) ? $time_separator : NApp::_GetParam('time_separator');
 		if(is_object($date)) {
 			$dt = $date;
+		} elseif(is_numeric($date) && $date>0) {
+			$dt = new \DateTime('now',new \DateTimeZone(AppConfig::server_timezone()));
+			$dt->setTimestamp($date);
 		} elseif(!is_string($date) || !strlen($date)) {
 			return NULL;
 		} else {
@@ -152,8 +158,9 @@ class Validator {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param $value
+	 * @param $format
+	 * @return mixed
 	 * @access public
 	 * @static
 	 */

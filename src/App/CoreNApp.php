@@ -498,9 +498,7 @@ class CoreNApp extends \PAF\App {
 	 */
 	public function GetLanguageCode() {
 		$result = $this->GetPageParam('lang_code');
-		if(!is_string($result) || !strlen($result)) {
-			$result = $this->GetParam('lang_code');
-		}//if(!is_string($result) || !strlen($result))
+		if(!is_string($result) || !strlen($result)) { $result = $this->GetParam('lang_code'); }
 		// $this->Dlog($result,'GetLanguageCode');
 		return $result;
 	}//END public function GetLanguageCode

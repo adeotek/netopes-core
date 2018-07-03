@@ -178,11 +178,12 @@ abstract class ContentView {
 		return $result;
 	}//END public static function GetFormatedCustomUrl
 	/**
-	  * description
-	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
-	  */
+	 * description
+	 *
+	 * @param      $data
+	 * @param null $base
+	 * @return void
+	 */
 	public function FormatCustomUrl(&$data,$base = NULL) {
 		return self::GetFormatedCustomUrl($data,$base);
 	}//END public function FormatCustomUrl

@@ -165,39 +165,25 @@
 		return $result;
 	}//END function arr_change_key_case
 	/**
-	  * description
-	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
-	  */
-	function arr_change_value_case($input,$recursive = FALSE,$case = CASE_LOWER) {
-		if(is_array($input)) {
-			$result = [];
-			foreach ($input as $k=>$v) {
-				switch ($case) {
-					case CASE_LOWER:
-						if(is_array($v) && $recursive===TRUE) {
-							$result[$k] = arr_change_key_case($v,TRUE,CASE_LOWER);
-						}else{
-							$result[$k] = is_string($v) ? strtolower($v) : $v;
-						}//if(is_array($v))
-						break;
-					case CASE_UPPER:
-						if(is_array($v) && $recursive===TRUE) {
-							$result[$k] = arr_change_key_case($v,TRUE,CASE_UPPER);
-						}else{
-							$result[$k] = is_string($v) ? strtolower($v) : $v;
-						}//if(is_array($v))
-						break;
-					default:
-						$result[$k] = $v;
-						break;
-				}//switch ($case)
-			}//foreach ($input as $k=>$v)
-			return $result;
-		}else{
-			return $input;
-		}//if(is_array($input))
+	 * description
+	 *
+	 * @param array|null $input
+	 * @param bool       $recursive
+	 * @param int        $case
+	 * @return array|null
+	 */
+	function arr_change_value_case(?array $input,bool $recursive = FALSE,int $case = CASE_LOWER): ?array {
+		if(is_null($input)) { return NULL; }
+		if(!in_array($case,[CASE_LOWER,CASE_UPPER])) { return $input; }
+		$result = [];
+		foreach ($input as $k=>$v) {
+			if(is_array($v) && $recursive===TRUE) {
+				$result[$k] = arr_change_value_case($v,TRUE,CASE_LOWER);
+			} else {
+				$result[$k] = is_string($v) ? ($case==CASE_UPPER ? strtoupper($v) : strtolower($v)) : $v;
+			}//if(is_array($v))
+		}//foreach ($input as $k=>$v)
+		return $result;
 	}//END function arr_change_value_case
 	/**
 	  * description
