@@ -152,11 +152,11 @@ class DataProvider {
 		try {
 			$datasource = self::GetDataSource($ds_name,$connection,$mode);
 			if($debug===TRUE) {
-				$org_debug = $datasource->data_source->debug;
-				$datasource->data_source->debug = TRUE;
+				$org_debug = $datasource->adapter->debug;
+				$datasource->adapter->debug = TRUE;
 			}//if($debug===TRUE)
 			$result = $datasource->$ds_method($params,$extra_params);
-			if($debug===TRUE) { $datasource->data_source->debug = $org_debug; }
+			if($debug===TRUE) { $datasource->adapter->debug = $org_debug; }
 			$out_params = get_array_param($extra_params,'out_params',[],'is_array');
 			return $result;
 		} catch(\Exception $e) {
@@ -257,7 +257,7 @@ class DataProvider {
 		$result = FALSE;
 		try {
 			$datasource = self::GetDataSource($da_name,$connection,NULL,TRUE);
-			if(is_object($datasource)) { $result = $datasource->data_source->CloseConnection(); }
+			if(is_object($datasource)) { $result = $datasource->adapter->CloseConnection(); }
 		} catch (\Exception $e) {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
 		}//END try
@@ -280,7 +280,7 @@ class DataProvider {
 	public static function StartTransaction($da_name,&$transaction = NULL,$connection = [],$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		try {
 			$datasource = self::GetDataSource($da_name,$connection);
-			return $datasource->data_source->BeginTran($transaction,$log,$overwrite,$custom_tran_params);
+			return $datasource->adapter->BeginTran($transaction,$log,$overwrite,$custom_tran_params);
 		} catch (\Exception $e) {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
 		}//END try
@@ -302,9 +302,9 @@ class DataProvider {
 		try {
 			$datasource = self::GetDataSource($da_name,$connection);
 			if($error===TRUE || $error===1){
-				return $datasource->data_source->RollbackTran($transaction,$log);
+				return $datasource->adapter->RollbackTran($transaction,$log);
 			} else {
-				return $datasource->data_source->CommitTran($transaction,$log);
+				return $datasource->adapter->CommitTran($transaction,$log);
 			}//if($error===TRUE || $error===1)
 		} catch (\Exception $e) {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
