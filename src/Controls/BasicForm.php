@@ -374,12 +374,15 @@ class BasicForm {
 				$lgs = round(12/$this->colsno,0,PHP_ROUND_HALF_DOWN);
 				$result .= "\t".'<div class="row'.($hidden ? ' hidden' : '').'">'."\n";
 			}//if($this->colsno>1)
+			$ci = 0;
 			foreach($row as $col) {
 				$c_type = get_array_param($col,'control_type',NULL,'is_notempty_string');
+				$csi = 0;
 				if($this->colsno>1) {
 					$c_span = get_array_param($col,'colspan',1,'is_numeric');
 					if($c_span==$this->colsno) {
 						$c_class = get_array_param($col,'class','col-md-12','is_notempty_string');
+						$csi = $this->colsno;
 					} else {
 						$c_cols = get_array_param($col,'cols',0,'is_integer');
 						if($c_cols>0 && $c_cols<=12) {
@@ -388,6 +391,7 @@ class BasicForm {
 							$c_gs = $c_span>1 ? $lgs*$c_span : $lgs;
 						}//if($c_cols>0 && $c_cols<=12)
 						$c_class = get_array_param($col,'class','col-md-'.$c_gs,    'is_notempty_string');
+						$csi += $c_span;
 					}//if($c_span==$this->colsno)
 				} else {
 					$c_class = get_array_param($col,'class','form-group','is_notempty_string');
@@ -398,11 +402,13 @@ class BasicForm {
 					if(!class_exists($c_type)) {
 					NApp::_Elog('Control class ['.$c_type.'] not found!');
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
+						$ci += $csi;
 					continue;
 					}//if(!class_exists($c_type))
 				} else {
 					continue;
 				}//if(strlen($c_type))
+				$ci += $csi;
 				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
@@ -444,7 +450,10 @@ class BasicForm {
 					$result .= $control->Show();
 				}//if($this->colsno>1)
 			}//END foreach
-			if($this->colsno>1) { $result .= "\t".'</div>'."\n"; }
+			if($this->colsno>1) {
+				if($ci<$this->colsno) { for($i=0;$i<($this->colsno-$ci);$i++) { $result .= "\t".'<div class="col-md-'.$lgs.'"></div>'."\n"; } }
+				$result .= "\t".'</div>'."\n";
+			}//if($this->colsno>1)
 		}//END foreach
 		if(is_string($this->response_target) && strlen($this->response_target)) {
 			$result .= "\t".'<div class="row">'."\n";
