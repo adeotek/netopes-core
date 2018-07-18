@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -498,9 +498,7 @@ class CoreNApp extends \PAF\App {
 	 */
 	public function GetLanguageCode() {
 		$result = $this->GetPageParam('lang_code');
-		if(!is_string($result) || !strlen($result)) {
-			$result = $this->GetParam('lang_code');
-		}//if(!is_string($result) || !strlen($result))
+		if(!is_string($result) || !strlen($result)) { $result = $this->GetParam('lang_code'); }
 		// $this->Dlog($result,'GetLanguageCode');
 		return $result;
 	}//END public function GetLanguageCode
@@ -820,7 +818,7 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function ExecuteARequest($post_params = array(),$subsession = NULL) {
+	public function ExecuteARequest($post_params = [],$subsession = NULL) {
 		$errors = '';
 		$request = array_key_exists('req',$_POST) ? $_POST['req'] : NULL;
 		if(!$request) { $errors .= 'Empty Request!'; }
@@ -1136,7 +1134,7 @@ class CoreNApp extends \PAF\App {
 		$this->InitializeKCFinder();
 		try {
 			require_once($this->app_path._AAPP_CONFIG_PATH.'/Customizations.inc');
-			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : array();
+			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : [];
 		} catch(\Exception $e) {
 			$this->Write2LogFile($e->getMessage(),'error');
 		}//END try

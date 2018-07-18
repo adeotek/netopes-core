@@ -114,7 +114,7 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @return void
 	 * @access public
 	 */
-	public function MongoDbPrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	public function MongoDbPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		// TODO: to be implemented
 		return FALSE;
 	}//public function MongoDbPrepareQuery
@@ -135,7 +135,7 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function MongoDbExecuteQuery($query,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
+	public function MongoDbExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
 		$time = microtime(TRUE);
 		//$this->MongoDbPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		if(strlen($tran_name)>0) {
@@ -205,7 +205,7 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @return string Returns processed command string
 	 * @access protected
 	 */
-	protected function MongoDbPrepareProcedureStatement($procedure,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	protected function MongoDbPrepareProcedureStatement($procedure,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		// TODO: to be implemented
 		return FALSE;
 	}//END protected function MongoDbPrepareProcedureStatement
@@ -227,7 +227,7 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function MongoDbExecuteProcedure($procedure,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
+	public function MongoDbExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
 		$time = microtime(TRUE);
 		//$query = $this->MongoDbPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		if(strlen($tran_name)>0) {
@@ -242,7 +242,7 @@ class MongoDbDbAdapter extends DataAdapter {
 		}//if(strlen($tran_name)>0)
 		$final_result = NULL;
 		try {
-			$scope = array();
+			$scope = [];
 			$result = $this->connection->execute(new MongoCode($query,$scope),$params);
 		} catch(MongoException $e) {
 			$this->MongoDbRollbackTran($transaction);
@@ -294,12 +294,12 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @return void   return description
 	 * @access public
 	 */
-	public function MongoDbExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function MongoDbExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		$dbg_method = (strlen($property) ? $property.'->' : '').$method;
 		$time = microtime(TRUE);
 		$m_obj = strlen($property) ? $this->connection->$property : $this->connection;
 		if(!strlen($method) || !method_exists($m_obj,$method)) { return FALSE; }
-		$params = is_array($params) ? $params : array();
+		$params = is_array($params) ? $params : [];
 		try {
 			$result = call_user_func_array(array($m_obj,$method),$params);
 		} catch(MongoException $e) {
@@ -343,7 +343,7 @@ class MongoDbDbAdapter extends DataAdapter {
 		$result = NULL;
 		// TODO: Dummy function !!! Change if necessary
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach ($param as $k=>$v) { $result[$k] = $v; }
 		} else { $result = $param; }
 		return $result;

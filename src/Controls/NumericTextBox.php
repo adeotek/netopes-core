@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -53,7 +53,7 @@
 					$lvalue = number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
 				}//if($this->numberformat!==FALSE && strlen($this->numberformat))
 			}//if($this->allownull && (is_null($this->value) || !is_numeric($this->value)))
-			$baseact = array();
+			$baseact = [];
 			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
 			$ldata = '';
 			if($this->numberformat!==FALSE && strlen($this->numberformat)) { $ldata .= ' data-format="'.$this->numberformat.'"'; }

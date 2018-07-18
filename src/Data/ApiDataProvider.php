@@ -6,7 +6,7 @@
  *
  * @package    NETopes\API
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -121,7 +121,7 @@ class ApiDataProvider {
 			echo '<strong>Targets:</strong><br/>';
 			var_dump($targets); echo '<br/><br/>';
 		}//if(NApp::$debug)*/
-		$result = array();
+		$result = [];
 		foreach($targets as $target) {
 			$taccesskey = array_key_exists('access_key',$target) ? $target['access_key'] : '';
 			$pparams = $pparams ? \GibberishAES::enc(serialize($pparams),$taccesskey) : NULL;

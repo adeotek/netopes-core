@@ -91,7 +91,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		if($this->debug) {
 						$spid = NULL;
 						if(is_resource($result)) {
-							$spid = array();
+							$spid = [];
 							if(sqlsrv_rows_affected($result)>0) {
 								while(!is_null($next_result = sqlsrv_next_result($result))) {
 									if($next_result && sqlsrv_rows_affected($result)) {
@@ -193,7 +193,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		$lname = strlen($name) ? $name : $this->default_tran;
 		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
 			if(!strlen($name)) {
-				$this->transactions = array();
+				$this->transactions = [];
 				if(sqlsrv_rollback($this->connection)===FALSE) { throw new  AppException("FAILED TO ROLLBACK TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
 			} else {
 				unset($this->transactions[$lname]);
@@ -217,7 +217,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		$lname = strlen($name) ? $name : $this->default_tran;
 		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
 			if(!strlen($name)) {
-				$this->transactions = array();
+				$this->transactions = [];
 				if(sqlsrv_commit($this->connection)===FALSE) { throw new  AppException("FAILED TO COMMIT TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
 			} else {
 				unset($this->transactions[$lname]);
@@ -246,7 +246,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @return void
 	 * @access public
 	 */
-	public function SqlSrvPrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
+	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)){
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',self::SqlSrvEscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
@@ -385,11 +385,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function SqlSrvExecuteQuery($query,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function SqlSrvExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$raw_query = NULL;
 		$this->SqlSrvPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query);
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
 		if(strlen($tran_name)) {
@@ -418,7 +418,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 					sqlsrv_fetch($result);
 					$final_result = sqlsrv_get_field($result,0);
 				} else {
-					$final_result = array();
+					$final_result = [];
 					if(sqlsrv_rows_affected($result)>0) {
 						while(!is_null($next_result = sqlsrv_next_result($result))) {
 							if($next_result && sqlsrv_rows_affected($result)) {
@@ -458,11 +458,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @return string|resource Returns processed command string or the statement resource
 	 * @access protected
 	 */
-	protected function SqlSrvPrepareProcedureStatement($procedure,$params = array(),&$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$sql_params = NULL,$transaction = NULL) {
+	protected function SqlSrvPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$sql_params = NULL,$transaction = NULL) {
 		$parameters = '';
 		// With output parameters
 		if(is_array($out_params) && count($out_params)) {
-			if(!is_array($sql_params)) { $sql_params = array(); }
+			if(!is_array($sql_params)) { $sql_params = []; }
 			if(is_array($params) && count($params)) {
 				foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
 					$parameters .= '?,';
@@ -640,9 +640,9 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @throws \PAF\AppException
 	 * @access public
 	 */
-	public function SqlSrvExecuteProcedure($procedure,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function SqlSrvExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$sql_params = NULL;
 		$raw_query = NULL;
 		$query = $this->SqlSrvPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$sql_params);
@@ -670,11 +670,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//if($result===FALSE)
 		try {
 			if(is_resource($result)){
-				$final_result = array();
+				$final_result = [];
 				$next_result = TRUE;
 				while($next_result===FALSE || !is_null($next_result)) {
 					if($next_result && sqlsrv_rows_affected($result)) {
-						$tmp_result = array();
+						$tmp_result = [];
 						while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $tmp_result[] = $data; }
 						$final_result[] = $tmp_result;
 					}//if($next_result && sqlsrv_rows_affected($result))
@@ -707,7 +707,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @throws \PAF\AppException
 	 * @access public
 	 */
-	public function SqlSrvExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function SqlSrvExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new  AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for SqlSrvSQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
 	}//END public function SqlSrvExecuteMethod
 	/**
@@ -722,7 +722,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	public static function SqlSrvEscapeString($param) {
 		$result = NULL;
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach($param as $k=>$v) {
 				$result[$k] = $v;
 		        if(isset($result[$k]) && !is_numeric($result[$k])) {

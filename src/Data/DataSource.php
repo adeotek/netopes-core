@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -91,7 +91,7 @@ class DataSource {
 	 * @access public
 	 * @static
 	 */
-	public static function ConvertResultsToKeyValue($results = array(),$keyfield = '') {
+	public static function ConvertResultsToKeyValue($results = [],$keyfield = '') {
 		if(!is_array($results) || !count($results)) { return $results; }
 		$temp_results = [];
 		$key = strlen($keyfield) ? $keyfield : 'id';
@@ -178,7 +178,7 @@ class DataSource {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function GetCountAndData($procedure,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL,$sp_count = FALSE) {
+	public function GetCountAndData($procedure,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL,$sp_count = FALSE) {
 		if($cache && NApp::_CacheDbCall()) {
 			$params_salt = $procedure;
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
@@ -193,7 +193,7 @@ class DataSource {
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
-		$out_params = get_array_param($extra_params,'out_params',array(),'is_array');
+		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
 		$count_select = strtolower(get_array_param($extra_params,'type','','is_string'))=='count-select';
 		if($count_select) {
 			switch(intval($sp_count)) {
@@ -262,7 +262,7 @@ class DataSource {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function GetQueryCountAndData($query,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL) {
+	public function GetQueryCountAndData($query,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {
 		if($cache && NApp::_CacheDbCall()) {
 			$params_salt = \PAF\AppSession::GetNewUID($query,'md5',TRUE);
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
@@ -277,7 +277,7 @@ class DataSource {
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
-		$out_params = get_array_param($extra_params,'out_params',array(),'is_array');
+		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
 		$select_stmt =  get_array_param($extra_params,'select_statement','SELECT * ','is_notempty_string');
 		$count_select = strtolower(get_array_param($extra_params,'type','','is_string'))=='count-select';
 		if($count_select) {
@@ -324,7 +324,7 @@ class DataSource {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function GetProcedureData($procedure,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL) {
+	public function GetProcedureData($procedure,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {
 		if($cache && NApp::_CacheDbCall()) {
 			$params_salt = $procedure;
 			$params_salt .= serialize(!is_array($params) ? [] : $params);
@@ -368,7 +368,7 @@ class DataSource {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function GetQueryData($query,$params = array(),&$extra_params = array(),$cache = FALSE,$tag = NULL) {
+	public function GetQueryData($query,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {
 		if($cache && NApp::_CacheDbCall()) {
 			$params_salt = \PAF\AppSession::GetNewUID($query,'md5',TRUE);
 			$params_salt .= serialize(!is_array($params) ? [] : $params);

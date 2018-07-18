@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -165,12 +165,12 @@
 
 			$qsearch_field = strlen($this->qsearch_da_param) ? $this->qsearch_da_param : 'for_text';
 			$value_filter = strlen($this->value_da_param) ? $this->value_da_param : 'for_id';
-			$ifilters = array();
-			$s_params = array();
+			$ifilters = [];
+			$s_params = [];
 			$selectedvalue = get_array_param($lparams,'selected_value',NULL,'is_notempty_string');
 			$qsearch = get_array_param($lparams,'qsearch','','is_string');
 			$selectedtext = get_array_param($lparams,'text','','is_string');
-			$dynf = get_array_param($lparams,'dynf',array(),'is_array');
+			$dynf = get_array_param($lparams,'dynf',[],'is_array');
 			foreach($dynf as $dk=>$dv) {
 				if(!is_array($this->ds_params) || !array_key_exists($dk,$this->ds_params)) { continue; }
 				$this->ds_params[$dk] = $dv;

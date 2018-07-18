@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.2.0.0
  * @filesource

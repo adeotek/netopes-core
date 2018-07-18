@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.2.0.1
  * @filesource
@@ -139,7 +139,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	public static function AddError(\PAF\AppException $exception) {
 		if(!is_object($exception) || get_class($exception)!=='PAF\AppException') { throw new \PAF\AppException('Invalid exception !',E_WARNING,0); }
 		$errfile = str_replace(_AAPP_ROOT_PATH,'',$exception->getFile());
-		if(!is_array(self::$errors_stack)) { self::$errors_stack = array(); }
+		if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 		self::$errors_stack[] = array('errstr'=>$exception->getMessage(),'errno'=>$exception->getCode(),'errfile'=>$errfile,'errline'=>$exception->getLine());
 		if(class_exists('NApp') && NApp::GetDebuggerState()) {
 			NApp::_Elog($exception->getMessage().' -> file: '.$errfile.' -> line: '.$exception->getLine(),'Error['.$exception->getCode().']');

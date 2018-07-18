@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -47,7 +47,7 @@
 		 * @var    array Iterator items array
 		 * @access public
 		 */
-		public $items = array();
+		public $items = [];
 		/**
 		 * @var    string Dynamic control parameters prefix
 		 * @access public
@@ -62,17 +62,17 @@
 		 * @var    array Control parameters array
 		 * @access public
 		 */
-		public $params = array();
+		public $params = [];
 		/**
 		 * @var    array Iterator conditions (if TRUE control is shown, else not)
 		 * @access public
 		 */
-		public $conditions = array();
+		public $conditions = [];
 		// /**
 		//  * @var    array Control dynamic parameters array
 		//  * @access public
 		//  */
-		// public $dynamic_params = array();
+		// public $dynamic_params = [];
 
 		public function __construct($params = NULL) {
 			$this->postable = FALSE;
@@ -94,22 +94,22 @@
 				case 'module':
 					$result = NULL;
 					if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method) && ModulesProvider::ModuleMethodExists($this->iterator_name,$this->iterator_method)) {
-						$iparams = is_array($this->iterator_params) ? $this->iterator_params : array();
+						$iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
 						$result = ModulesProvider::Exec($this->iterator_name,$this->iterator_method,$iparams);
 					}//if(...
-					$items = is_array($result) ? $result : array();
+					$items = is_array($result) ? $result : [];
 					break;
 				case 'DataSource':
 					$result = NULL;
 					if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method) && DataProvider::MethodExists($this->iterator_name,$this->iterator_method)) {
-						$iparams = is_array($this->iterator_params) ? $this->iterator_params : array();
+						$iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
 						$result = DataProvider::GetArray($this->iterator_name,$this->iterator_method,$iparams);
 					}//if(...
-					$items = is_array($result) ? $result : array();
+					$items = is_array($result) ? $result : [];
 					break;
 				case 'array':
 				default:
-					$items = is_array($this->items) ? $this->items : array();
+					$items = is_array($this->items) ? $this->items : [];
 					break;
 			}//END switch
 			return $items;
@@ -146,7 +146,7 @@
 					if(is_array($this->params)) {
 						$lparams = self::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
 					} else {
-						$lparams = array();
+						$lparams = [];
 					}//if(is_array($this->params))
 					$ctrl = new $this->control($lparams);
 					$lcontent .= $lprefix.$ctrl->Show()."\n".$lsufix;

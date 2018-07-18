@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core\App\Helpers
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2012 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.2.0.1
  * @filesource
@@ -36,7 +36,7 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		// Application author name
 		'app_author_name'=>['access'=>'readonly','default'=>'','validation'=>'is_string'],
 		//  Provider name
-		'app_provider_name'=>['access'=>'readonly','default'=>'Style Mag Universal SRL','validation'=>'is_string'],
+		'app_provider_name'=>['access'=>'readonly','default'=>'AdeoTEK Software SRL','validation'=>'is_string'],
 		// Provider URL
 		'app_provider_url'=>['access'=>'readonly','default'=>'http://www.adeotek.com','validation'=>'is_string'],
 		// Enable multi-account support

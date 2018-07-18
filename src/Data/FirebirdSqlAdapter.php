@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -262,7 +262,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function FirebirdSqlPrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
+	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)){
 			foreach($params as $k=>$v) {
 				if(strlen($v)>4000) {
@@ -363,7 +363,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function FirebirdSqlExecuteQuery($query,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function FirebirdSqlExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$transaction = NULL;
 		if(is_string($tran_name) && strlen($tran_name)) {
@@ -379,7 +379,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$raw_query = NULL;
 		$bind_params = NULL;
 		$this->FirebirdSqlPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$bind_params,$transaction);
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
 		$final_result = NULL;
@@ -439,7 +439,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
-	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = array(),&$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
+	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
 			if(count($params)>0) {
 				$parameters = '';
@@ -633,7 +633,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function FirebirdSqlExecuteProcedure($procedure,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function FirebirdSqlExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$transaction = NULL;
 		if(is_string($tran_name) && strlen($tran_name)) {
@@ -646,7 +646,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		} else {
 			$tran_name = NULL;
 		}//if(is_string($tran_name) && strlen($tran_name))
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$sql_params = NULL;
 		$raw_query = NULL;
 		$bind_params = NULL;
@@ -706,7 +706,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function FirebirdSqlExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function FirebirdSqlExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for FirebirdSQL !!! in statement: ".$method.trim('->'.$property,'->'),E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 	}//END public function FirebirdSqlExecuteMethod
 	/**
@@ -721,7 +721,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	public static function FirebirdSqlEscapeString($param) {
 		$result = NULL;
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach ($param as $k=>$v) { $result[$k] = str_replace("'","''",$v); }
 		} else { $result = str_replace("'","''",$param); }
 		return $result;

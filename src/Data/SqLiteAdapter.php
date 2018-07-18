@@ -6,7 +6,7 @@
  *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 Hinter Software
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -27,7 +27,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @return bool  Returns TRUE on success or FALSE otherwise
 	 * @access public
 	 */
-	public function SqLiteSetGlobalVariables($params = array()) {
+	public function SqLiteSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
 		return FALSE;
 	}//END public function SqLiteSetGlobalVariables
@@ -94,7 +94,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @return void
 	 * @access public
 	 */
-	public function SqLitePrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	public function SqLitePrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		if(is_array($params) && count($params)){
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',$this->SqLiteEscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
@@ -177,7 +177,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function SqLiteExecuteQuery($query,$params = array(),$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function SqLiteExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$this->SqLitePrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		$final_result = NULL;
@@ -212,7 +212,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @return void   return description
 	 * @access public
 	 */
-	public function SqLiteExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function SqLiteExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for SQLite !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
 	}//END public function SqLiteExecuteMethod
 	/**
@@ -226,7 +226,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	public function SqLiteEscapeString($param) {
 		$result = NULL;
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach ($param as $k=>$v) { $result[$k] = $this->connection->escapeString($v); }
 		} else { $result = $this->connection->escapeString($param); }
 		return $result;

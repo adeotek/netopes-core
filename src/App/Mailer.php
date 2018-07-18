@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.2.0.1
  * @filesource
@@ -57,7 +57,7 @@ class Mailer {
 				'for_active'=>1,
 				'for_implicit'=>1,
 			));
-			$settings = get_array_param($items,0,array(),'is_array');
+			$settings = get_array_param($items,0,[],'is_array');
 		}//if(!is_array($settings) || !count($settings))
 		$sendmail = get_array_param($settings,'sendmail',0,'is_numeric');
 		if($sendmail!=1) {

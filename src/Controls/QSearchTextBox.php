@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -28,7 +28,7 @@
 		}//END public function __construct
 
 		protected function SetControl() {
-			$baseact = array();
+			$baseact = [];
 			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
 			$lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
 			$this->ProcessActions();

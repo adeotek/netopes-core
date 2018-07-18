@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -28,7 +28,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @static
 	 */
-	public static function GetStartUpQuery($params = array()) {
+	public static function GetStartUpQuery($params = []) {
 		if(!is_array($params) || !count($params)) { return NULL; }
 		throw new AException('Method [GetStartUpQuery] not implemented for Oracle !!!',E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 	}//public static function GetStartUpQuery
@@ -39,7 +39,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @return bool  Returns TRUE on success or FALSE otherwise
 	 * @access public
 	 */
-	public function OracleSetGlobalVariables($params = array()) {
+	public function OracleSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
 		throw new AException('Method [OracleSetGlobalVariables] not implemented for Oracle !!!',E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 	}//END public function OracleSetGlobalVariables
@@ -145,7 +145,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @return void
 	 * @access public
 	 */
-	public function OraclePrepareQuery(&$query,$params = array(),$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
+	public function OraclePrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
 		//OCI_NO_AUTO_COMMIT
 		if(is_array($params) && count($params)){
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',self::OracleEscapeString($v),$query); }
@@ -230,11 +230,11 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function OracleExecuteQuery($query,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function OracleExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$raw_query = NULL;
 		$this->OraclePrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
 		if(strlen($tran_name)) {
@@ -297,7 +297,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @return string|resource Returns processed command string or the statement resource
 	 * @access protected
 	 */
-	protected function OraclePrepareProcedureStatement($procedure,$params = array(),&$out_params = array(),$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
+	protected function OraclePrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
 		if(is_array($params)) {
 			if(count($params)>0) {
 				$parameters = '';
@@ -463,9 +463,9 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @return array|bool Returns database request result
 	 * @access public
 	 */
-	public function OracleExecuteProcedure($procedure,$params = array(),&$out_params = array(),$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function OracleExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
-		if(!is_array($out_params)) { $out_params = array(); }
+		if(!is_array($out_params)) { $out_params = []; }
 		$sql_params = NULL;
 		$raw_query = NULL;
 		$query = $this->OraclePrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
@@ -527,7 +527,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @return void   return description
 	 * @access public
 	 */
-	public function OracleExecuteMethod($method,$property = NULL,$params = array(),$extra_params = array(),$log = TRUE) {
+	public function OracleExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for Oracle !!! in statement: ".$method.trim('->'.$property,'->'),E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 	}//END public function OracleExecuteMethod
 	/**
@@ -542,7 +542,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	public static function OracleEscapeString($param) {
 		$result = NULL;
 		if(is_array($param)) {
-			$result = array();
+			$result = [];
 			foreach ($param as $k=>$v) { $result[$k] = str_replace("'","''",$v); }
 		} else { $result = str_replace("'","''",$param); }
 		return $result;

@@ -6,7 +6,7 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK
+ * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.1.0.0
  * @filesource
@@ -40,7 +40,7 @@
 					$fclass = '';
 					break;
 			}//switch (strtolower($this->uc_first))
-			$baseact = array();
+			$baseact = [];
 			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
 			$lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
 			$ltype = $this->password ? 'password' : 'text';
