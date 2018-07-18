@@ -251,7 +251,9 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
+	 * @param bool  $new
+	 * @param string|null $orientation
+	 * @param string|null $page_size
 	 * @return void
 	 * @access public
 	 */
@@ -264,8 +266,19 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
+	 * @param string|null $orientation
+	 * @param string|null $page_size
 	 * @return void
+	 * @access public
+	 */
+	protected function StartPageGroup($newPage = FALSE,$orientation = NULL,$page_size = NULL) {
+		$this->pdf->startPageGroup();
+		if($newPage) { $this->AddPage(TRUE,$orientation,$page_size); }
+	}//END protected function StartPageGroup
+	/**
+	 * description
+	 *
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetHeader() {
@@ -276,8 +289,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetFooter() {
@@ -290,21 +302,21 @@ class PdfDocument {
 		$this->pdf->SetFooterMargin(abs(get_array_param($this->footer_params,'bottom_margin',12,'is_numeric')));
 		$this->pdf->custom_footer = TRUE;
 		$this->pdf->custom_footer_params = $this->footer_params;
+		return TRUE;
 	}//END protected function SetFooter
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
+	 * @param int|null $docId Data key (ID)
 	 * @return void
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	protected function LoadData() {
+	protected function LoadData(?int $docId): void {
 		switch($this->type) {
 			case X_STOCK_DOC_TYPE_PDF:
-				$docid = get_array_param($this->params,'key',NULL,'is_integer');
-				if(!$docid) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
-				$document = DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docid]);
+				if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
+				$document = DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docId]);
 				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
 				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
 				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
@@ -316,15 +328,14 @@ class PdfDocument {
 				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
 				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
 				if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
-				$lines = DataProvider::GetArray('Tran\Documents','GetItemLines',array('document_id'=>$docid,'taxes_as_lines'=>1,'discount_as_lines'=>1));
+				$lines = DataProvider::GetArray('Tran\Documents','GetItemLines',array('document_id'=>$docId,'taxes_as_lines'=>1,'discount_as_lines'=>1));
 				if(!$lines) { throw new AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__)); }
 				$this->document_data = is_array($document) && count($document) ? $document : NULL;
 				$this->details_data = is_array($lines) && count($lines) ? $lines : NULL;
 				break;
 			case X_PAY_DOC_TYPE_PDF:
-				$docid = get_array_param($this->params,'key',NULL,'is_integer');
-				if(!$docid) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
-				$document = DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docid]);
+				if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
+				$document = DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docId]);
 				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
 				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
 				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
@@ -349,7 +360,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetDocument() {
@@ -358,7 +369,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetDocumentHeader() {
@@ -367,7 +378,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetPageHeader() {
@@ -376,7 +387,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetPageFooter() {
@@ -385,7 +396,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetDocumentLines() {
@@ -394,7 +405,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetDocumentFooter() {
@@ -403,7 +414,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetDocumentContent() {
@@ -417,8 +428,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @param array $params Input parameters array
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
 	protected function SetContentFromHtml() {
@@ -489,20 +499,31 @@ class PdfDocument {
 	protected function WriteData() {
 		switch($this->type) {
 			case X_HTML_TYPE_PDF:
-						$this->SetContent();
+				$this->SetContent();
 				break;
 			case X_STOCK_DOC_TYPE_PDF:
 			case X_PAY_DOC_TYPE_PDF:
-				$this->LoadData();
-				$this->SetHeader();
-				$this->SetContent();
-				$this->SetFooter();
+				$docId = get_array_param($this->params,'key',NULL,'isset');
+				$docIds = [];
+				if(is_array($docId)) {
+					$docIds = $docId;
+				} elseif(is_numeric($docId)) {
+					$docIds = [$docId];
+				}//if(is_array($docId))
+				if(!count($docIds)) { throw new AppException('Invalid document identifier!',E_ERROR,1,basename(__FILE__)); }
+				foreach($docIds as $i=>$docId) {
+					$this->StartPageGroup($i>0);
+					$this->LoadData($docId);
+					$this->SetHeader();
+					$this->SetFooter();
+					$this->SetContent();
+				}//END foreach
 				break;
 			case X_REPORT_TYPE_PDF:
 			case X_GENERAL_TYPE_PDF:
 				$this->SetHeader();
-				$this->SetContent();
 				$this->SetFooter();
+				$this->SetContent();
 				break;
 			default:
 				throw new AppException('Not implemented!',E_ERROR,1,basename(__FILE__));
@@ -513,18 +534,18 @@ class PdfDocument {
 	 * description
 	 *
 	 * @param array $params Input parameters array
-	 * @return void
+	 * @return mixed
 	 * @access public
 	 */
 	public function Output($params = NULL) {
 		try {
 			$this->WriteData();
 			if(get_array_param($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
-		} catch(Exception $e){
+		} catch(\Exception $e){
 			NApp::_Write2LogFile($e->getMessage(),'error');
 			NApp::_Elog($e->getMessage());
 			echo $e->getMessage();
-			return;
+			return FALSE;
 		}//END try
 		$file_name = get_array_param($params,'file_name',$this->file_name,'is_notempty_string');
 		$output_type = get_array_param($params,'output_type','S','is_notempty_string');
@@ -599,7 +620,7 @@ class PdfDocument {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param array $formats
 	 * @return void
 	 * @access protected
 	 */
@@ -610,11 +631,13 @@ class PdfDocument {
 			$this->formats = array_merge($this->default_formats,$formats);
 		}//if(!is_array($formats) || !count($formats))
 	}//END protected function SetFormats
-    /**
+	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @param $data
+	 * @param $column
+	 * @param $col
+	 * @return string
 	 * @access protected
 	 */
 	protected function GetCellValue($data,$column,$col) {
@@ -661,12 +684,20 @@ class PdfDocument {
 		$col_value .= (array_key_exists('sufix',$column) && $column['sufix']) ? $column['sufix'] : '';
 		return $col_value;
 	}//END protected function GetCellValue
-
+	/**
+	 * @param $data
+	 * @param $column
+	 * @return null|string
+	 */
 	protected function NumberFormat0($data,$column) {
 		if(is_array($column['dbfield'])) { return NULL; }
 		return number_format($data[$column['dbfield']],0,$this->decimal_separator,$this->group_separator);;
 	}//END protected function NumberFormat0
-
+	/**
+	 * @param $data
+	 * @param $column
+	 * @return null|string
+	 */
 	protected function NumberFormat2($data,$column) {
 		if(is_array($column['dbfield'])) { return NULL; }
 		return number_format($data[$column['dbfield']],2,$this->decimal_separator,$this->group_separator);

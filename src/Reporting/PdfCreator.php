@@ -240,11 +240,18 @@ class PdfCreator extends TCPDF {
 			get_array_param($params,'font_style','','is_string'),
 			get_array_param($params,'font_size',8,'is_not0_numeric')
 		);
+		if(is_array($this->pagegroups) && count($this->pagegroups)) {
+			$cPageAlias = $this->getPageNumGroupAlias();
+			$tPagesAlias = $this->getPageGroupAlias();
+		} else {
+			$cPageAlias = $this->getAliasNumPage();
+			$tPagesAlias = $this->getAliasNbPages();
+		}//if(is_array($this->pagegroups) && count($this->pagegroups))
 		$mask = get_array_param($params,'mask','','is_string');
 		if($mask) {
-			$value = str_replace('{{pages_no}}',$this->getAliasNbPages(),str_replace('{{page}}',$this->getAliasNumPage(),$mask));
+			$value = str_replace('{{pages_no}}',$cPageAlias,str_replace('{{page}}',$tPagesAlias,$mask));
 		} else {
-			$value = $this->getAliasNumPage().' / '.$this->getAliasNbPages();
+			$value = $cPageAlias.' / '.$tPagesAlias;
 		}//if($mask)
 		$align = get_array_param($params,'align','C','is_notempty_string');
 		$this->Cell(0,0,$value,0,FALSE,$align,0,'',0,FALSE,'T','M');
