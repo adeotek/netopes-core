@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
 /**
  * ClassName description
  *
@@ -41,7 +42,6 @@ class Link extends Control {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
 	 * @access public
 	 */
