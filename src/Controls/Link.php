@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
 /**
  * ClassName description
  *
@@ -34,14 +35,13 @@ class Link extends Control {
 			if(!is_string($this->domain) || !strlen($this->domain) || trim($this->domain)=='-') {
 				$this->href = NApp::app_web_link().'/';
 			} else {
-				$this->href = NApp::app_web_protocol().$this->domain.NApp::url_folder().'/';
+				$this->href = NApp::url()->GetAppWebProtocol().$this->domain.NApp::url()->GetUrlFolder().'/';
 			}//if(!is_string($this->domain) || !strlen($this->domain) || trim($this->domain)=='-')
 		}//if(!is_string($this->href) || !strlen($this->href))
 	}//END public function __construct
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
 	 * @access public
 	 */

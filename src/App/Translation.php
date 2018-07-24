@@ -79,11 +79,11 @@ class Translation {
 		if(!function_exists('GET_'.strtoupper($langcode).'_STRINGS')) {
 			if(!$loop) { return NULL; }
 			unlink($lpath.$lfile);
-			return self::GetTranslationCacheFile($langcode,FALSE);
+			return static::GetTranslationCacheFile($langcode,FALSE);
 		}//if(!function_exists('GET_TRANSLATIONS_'.strtoupper($langcode)))
-		if(!is_array(self::$_LANGUAGES_STRINGS)) { self::$_LANGUAGES_STRINGS = []; }
-		self::$_LANGUAGES_STRINGS[$langcode] = call_user_func('GET_'.strtoupper($langcode).'_STRINGS');
-		return self::$_LANGUAGES_STRINGS[$langcode];
+		if(!is_array(static::$_LANGUAGES_STRINGS)) { static::$_LANGUAGES_STRINGS = []; }
+		static::$_LANGUAGES_STRINGS[$langcode] = call_user_func('GET_'.strtoupper($langcode).'_STRINGS');
+		return static::$_LANGUAGES_STRINGS[$langcode];
 	}//END protected static function GetTranslationCacheFile
 	/**
 	 * Get resource translation value
@@ -107,8 +107,8 @@ class Translation {
 			$lmethod = '';
 		}//if(is_array($key))
 		$llang_code = (is_string($langcode) && strlen($langcode)) ? $langcode : NApp::_GetLanguageCode();
-		if(!is_array(self::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,self::$_LANGUAGES_STRINGS) || !is_array(self::$_LANGUAGES_STRINGS[$llang_code])) { self::GetTranslationCacheFile($llang_code); }
-		if(!is_array(self::$_LANGUAGES_STRINGS) || !count(self::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,self::$_LANGUAGES_STRINGS) || !is_array(self::$_LANGUAGES_STRINGS[$llang_code]) || !count(self::$_LANGUAGES_STRINGS[$llang_code]) || !array_key_exists($lmodule,self::$_LANGUAGES_STRINGS[$llang_code]) || !is_array(self::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !array_key_exists($lmethod,self::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !is_array(self::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod]) || !array_key_exists($lkey,self::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod])) {
+		if(!is_array(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code])) { static::GetTranslationCacheFile($llang_code); }
+		if(!is_array(static::$_LANGUAGES_STRINGS) || !count(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code]) || !count(static::$_LANGUAGES_STRINGS[$llang_code]) || !array_key_exists($lmodule,static::$_LANGUAGES_STRINGS[$llang_code]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !array_key_exists($lmethod,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod]) || !array_key_exists($lkey,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod])) {
 			if(AppConfig::auto_insert_missing_translations()) {
 				try {
 					if(NApp::current_namespace()=='web') {
@@ -138,8 +138,8 @@ class Translation {
 			}//if(AppConfig::auto_insert_missing_translations())
 			return "[{$lkey}]";
 		}//if(...
-		if($echo) { echo self::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey]; }
-		return self::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey];
+		if($echo) { echo static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey]; }
+		return static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey];
 	}//END public static function Get
 	/**
 	 * Get label translation
@@ -153,7 +153,7 @@ class Translation {
 	 */
 	public static function GetLabel(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('label_'.$key,$langcode,$echo);
+		return static::Get('label_'.$key,$langcode,$echo);
 	}//END public static function GetLabel
 	/**
 	 * Get button translation
@@ -167,7 +167,7 @@ class Translation {
 	 */
 	public static function GetButton(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('button_'.$key,$langcode,$echo);
+		return static::Get('button_'.$key,$langcode,$echo);
 	}//END public static function GetButton
 	/**
 	 * Get title translation
@@ -181,7 +181,7 @@ class Translation {
 	 */
 	public static function GetTitle(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('title_'.$key,$langcode,$echo);
+		return static::Get('title_'.$key,$langcode,$echo);
 	}//END public static function GetTitle
 	/**
 	 * Get message translation
@@ -195,7 +195,7 @@ class Translation {
 	 */
 	public static function GetMessage(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('msg_'.$key,$langcode,$echo);
+		return static::Get('msg_'.$key,$langcode,$echo);
 	}//END public static function GetMessage
 	/**
 	 * Get error translation
@@ -209,7 +209,7 @@ class Translation {
 	 */
 	public static function GetError(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('error_'.$key,$langcode,$echo);
+		return static::Get('error_'.$key,$langcode,$echo);
 	}//END public static function GetError
 	/**
 	 * Get URLID translation
@@ -223,7 +223,7 @@ class Translation {
 	 */
 	public static function GetUrlId(string $key,$langcode = NULL,$echo = FALSE) {
 		if(!strlen($key)) { return NULL; }
-		return self::Get('urlid_'.$key,$langcode,$echo);
+		return static::Get('urlid_'.$key,$langcode,$echo);
 	}//END public static function GetUrlId
 }//END class Translation
 ?>
