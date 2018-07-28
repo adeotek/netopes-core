@@ -327,16 +327,16 @@ class Module {
 	 */
 	public function CloseForm($params = NULL) {
 		if(!is_object($params)) { $params = new Params($params); }
-		$targetid = $params->safeGet('targetid',$params->safeGet('targetid','','is_string'),'is_string');
-		if($params->safeGet('modal',$params->safeGet('modal',TRUE,'bool'),'bool')) {
-			$callback = $params->safeGet('callback',$params->safeGet('callback','','is_string'),'is_string');
+		$targetid = $params->safeGet('targetid','','is_string');
+		if($params->safeGet('modal',TRUE,'bool')) {
+			$callback = $params->safeGet('callback','','is_string');
 			if($callback) { GibberishAES::enc($callback ,'cmf'); }
-			$dynamic = intval($params->safeGet('dynamic',$params->safeGet('dynamic',TRUE,'bool'),'bool'));
+			$dynamic = intval($params->safeGet('dynamic',TRUE,'bool'));
 			NApp::arequest()->ExecuteJs("CloseModalForm('{$callback}','{$targetid}','{$dynamic}');");
 		} elseif(strlen($targetid)) {
 			NApp::arequest()->ExecuteJs("$(document).off('keypress');");
 			NApp::arequest()->hide($targetid);
-		}//if($params->safeGet('modal',$params->safeGet('modal',TRUE,'bool'),'bool'))
+		}//if($params->safeGet('modal',TRUE,'bool'))
 	}//END public function CloseForm
 	/**
 	 * @param string $module Module full qualified name
