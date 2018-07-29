@@ -119,6 +119,11 @@ class CoreNApp extends \PAF\App {
 	 */
 	public $customizations = [];
 	/**
+	 * @var    \NETopes\Core\App\ITheme Current theme object instance
+	 * @access public
+	 */
+	public $theme = NULL;
+	/**
 	 * description
 	 *
 	 * @param bool  $ajax
