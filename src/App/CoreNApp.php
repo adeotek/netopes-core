@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.5.3
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -42,6 +42,12 @@ class CoreNApp extends \PAF\App {
 	 * @static
 	 */
 	public static $debug = FALSE;
+	/**
+	 * @var    \NETopes\Core\App\ITheme Current theme object instance
+	 * @access public
+	 * @static
+	 */
+	public static $theme = NULL;
 	/**
 	 * @var    bool If set TRUE, name-space session will be cleared at commit
 	 * @access protected
@@ -118,11 +124,6 @@ class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public $customizations = [];
-	/**
-	 * @var    \NETopes\Core\App\ITheme Current theme object instance
-	 * @access public
-	 */
-	public $theme = NULL;
 	/**
 	 * description
 	 *
@@ -1132,6 +1133,8 @@ class CoreNApp extends \PAF\App {
 			$app_theme_type = get_array_param($appdata,'theme_type','','is_string');
 			if(strlen($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
 		}//if(strlen($app_theme))
+		$themeClass = 'NETopes\Themes\\'.ucfirst($this->current_namespace).'\\'.ucfirst(strlen(AppConfig::app_theme()) ? AppConfig::app_theme() : 'default').'Theme';
+		if(class_exists($themeClass)) { static::$theme = new $themeClass(); }
 		$this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
 		$this->SetPageParam('id_lang',$appdata->getProperty('id_language'));
 		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
