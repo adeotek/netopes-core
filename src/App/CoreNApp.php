@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.5.3
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -23,7 +23,7 @@ use NETopes\Core\Data\DataProvider;
   * @package  NETopes\Base
   * @access   public
   */
-class CoreNApp extends \PAF\App {
+abstract class CoreNApp extends \PAF\App {
 	/**
 	 * @var    bool Flag indicating if GUI was loaded or not
 	 * @access public
@@ -42,6 +42,12 @@ class CoreNApp extends \PAF\App {
 	 * @static
 	 */
 	public static $debug = FALSE;
+	/**
+	 * @var    \NETopes\Core\App\ITheme Current theme object instance
+	 * @access public
+	 * @static
+	 */
+	public static $theme = NULL;
 	/**
 	 * @var    bool If set TRUE, name-space session will be cleared at commit
 	 * @access protected
@@ -1146,6 +1152,7 @@ class CoreNApp extends \PAF\App {
 		);
 		DataProvider::SetGlobalVariables($this->db_global_params);
 		*/
+		$this->ThemeInit();
 		if($this->current_namespace=='web') { $this->app_options_loaded = TRUE; return; }
 		//Load user rights
 		if($this->login_status) {
@@ -1292,5 +1299,12 @@ class CoreNApp extends \PAF\App {
 		}//if($this->current_namespace=='web')
 		return $relative_path;
 	}//END public function GetSectionPath
+	/**
+	 * Theme object initialization
+	 *
+	 * @returns void
+	 * @access protecteld
+	 */
+	protected abstract function ThemeInit(): void;
 }//END class CoreNApp extends \PAF\App
 ?>

@@ -13,7 +13,7 @@
  */
 namespace NETopes\Core\App;
 /**
- * Errors handler interface file
+ * Errors handler interface
  *
  * Must be implemented by the ErrorHandler class that will be registered as application error handler
  *
