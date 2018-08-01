@@ -23,7 +23,7 @@ use NETopes\Core\Data\DataProvider;
   * @package  NETopes\Base
   * @access   public
   */
-class CoreNApp extends \PAF\App {
+abstract class CoreNApp extends \PAF\App {
 	/**
 	 * @var    bool Flag indicating if GUI was loaded or not
 	 * @access public
@@ -1133,8 +1133,6 @@ class CoreNApp extends \PAF\App {
 			$app_theme_type = get_array_param($appdata,'theme_type','','is_string');
 			if(strlen($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
 		}//if(strlen($app_theme))
-		$themeClass = 'NETopes\Themes\\'.ucfirst($this->current_namespace).'\\'.ucfirst(strlen(AppConfig::app_theme()) ? AppConfig::app_theme() : 'default').'Theme';
-		if(class_exists($themeClass)) { static::$theme = new $themeClass(); }
 		$this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
 		$this->SetPageParam('id_lang',$appdata->getProperty('id_language'));
 		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
@@ -1154,6 +1152,7 @@ class CoreNApp extends \PAF\App {
 		);
 		DataProvider::SetGlobalVariables($this->db_global_params);
 		*/
+		$this->ThemeInit();
 		if($this->current_namespace=='web') { $this->app_options_loaded = TRUE; return; }
 		//Load user rights
 		if($this->login_status) {
@@ -1300,5 +1299,12 @@ class CoreNApp extends \PAF\App {
 		}//if($this->current_namespace=='web')
 		return $relative_path;
 	}//END public function GetSectionPath
+	/**
+	 * Theme object initialization
+	 *
+	 * @returns void
+	 * @access protecteld
+	 */
+	protected abstract function ThemeInit(): void;
 }//END class CoreNApp extends \PAF\App
 ?>
