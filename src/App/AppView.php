@@ -234,6 +234,14 @@ class AppView {
 		$this->content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm'];
 	}//END public function AddBasicForm
 	/**
+	 * @param string $file
+	 * @return void
+	 * @access public
+	 */
+	public function AddTabControl(string $file): void {
+		$this->content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl'];
+	}//END public function AddTabControl
+	/**
 	 * Render view content
 	 *
 	 * @param bool $return If TRUE view content is returned as string, else is outputted
