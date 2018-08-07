@@ -40,6 +40,13 @@ abstract class BaseView {
 	 */
 	protected $type = GENERIC_CONTENT_VIEW;
 	/**
+	 * View theme
+	 *
+	 * @var string|null
+	 * @access protected
+	 */
+	protected $theme = NULL;
+	/**
 	 * Debug mode on/off
 	 *
 	 * @var bool
@@ -85,6 +92,7 @@ abstract class BaseView {
 	 */
 	public function __construct(array $params,?int $type = NULL,?string $theme = NULL) {
 		$this->params = $params;
+		$this->theme = $theme;
 		if(isset($type)) { $this->type = $type; }
 	}//END public function __construct
 	/**
@@ -95,6 +103,14 @@ abstract class BaseView {
 	public function SetDebug(bool $debug): void {
 		$this->debug = $debug;
 	}//END public function SetDebug
+	/**
+	 * @param string|null $theme
+	 * @return void
+	 * @access public
+	 */
+	public function SetTheme(?string $theme): void {
+		$this->theme = $theme;
+	}//END public function SetTheme
 	/**
 	 * @param string $title
 	 * @return void
@@ -160,18 +176,14 @@ abstract class BaseView {
 				case 'control':
 					$class = get_array_param($c,'class','','is_string');
 					if(!strlen($class) || !count($value)) {
-						if($this->debug) {
-							NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!');
-						}//if($this->debug)
+						if($this->debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !count($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetControlContent($value,$class);
 					break;
 				case 'file':
 					if(!count($value)) {
-						if($this->debug) {
-							NApp::_Dlog('Invalid content value [file:index:'.$k.']!');
-						}//if($this->debug)
+						if($this->debug) { NApp::_Dlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!count($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetFileContent($value);
@@ -218,7 +230,38 @@ abstract class BaseView {
 	 * @return string
 	 */
 	protected function ProcessViewTheme(string $content): string {
-		return '';
+		if(strlen($this->theme)) {
+			$themeObj = NApp::GetTheme($this->theme);
+		} else {
+			$themeObj = NApp::$theme;
+		}//if(strlen($this->theme))
+		if(!is_object($themeObj)) { return implode("\n",$this->actions)."\n".$content; }
+		switch($this->type) {
+			case MAIN_CONTENT_VIEW:
+				ob_start();
+				$themeObj->GetMainContainer();
+				$container = ob_get_clean();
+				break;
+			case MODAL_CONTENT_VIEW:
+				ob_start();
+				$themeObj->GetModalContainer();
+				$container = ob_get_clean();
+				break;
+			case GENERIC_CONTENT_VIEW:
+				ob_start();
+				$themeObj->GetGenericContainer();
+				$container = ob_get_clean();
+				break;
+			default:
+				if($this->debug) { NApp::_Dlog('Invalid view type ['.$this->type.']!'); }
+				return implode("\n",$this->actions)."\n".$content;
+		}//END switch
+		if($this->debug && strpos($container,'{{CONTENT}}')===FALSE) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$this->type.']!'); }
+		if($this->debug && count($this->actions) && strpos($container,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->type.']!'); }
+		$container = str_replace('{{TITLE}}',$this->title,$container);
+		$container = str_replace('{{CONTENT}}',$content,$container);
+		$container = str_replace('{{ACTIONS}}',implode("\n",$this->actions),$container);
+		return $container;
 	}//END protected function ProcessViewTheme
 }//END abstract class BaseView
 ?>

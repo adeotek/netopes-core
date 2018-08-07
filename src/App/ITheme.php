@@ -21,5 +21,6 @@ interface ITheme {
 	public function GetButtonClass(?string $type): string;
 	public function GetMainContainer(): void;
 	public function GetModalContainer(): void;
+	public function GetGenericContainer(): void;
 }//END interface ITheme
 ?>
