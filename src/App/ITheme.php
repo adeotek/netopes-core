@@ -19,9 +19,7 @@ namespace NETopes\Core\App;
  */
 interface ITheme {
 	public function GetButtonClass(?string $type): string;
-	public function GetMainContentStart(?string $title): void;
-	public function GetMainContentEnd(): void;
-	public function GetModalStart(): void;
-	public function GetModalEnd(): void;
+	public function GetMainContainer(): void;
+	public function GetModalContainer(): void;
 }//END interface ITheme
 ?>
