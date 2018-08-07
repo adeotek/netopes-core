@@ -314,9 +314,10 @@ class AppView {
 	 */
 	protected function ProcessViewTheme(string $content): string {
 		if(strlen($this->theme)) {
-			$themeObj = NApp::GetTheme($this->theme);
+			$themeObj = NApp::_GetTheme($this->theme);
 		} else {
 			$themeObj = NApp::$theme;
+			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
 		}//if(strlen($this->theme))
 		if(!is_object($themeObj)) { return implode("\n",$this->actions)."\n".$content; }
 		switch($this->type) {

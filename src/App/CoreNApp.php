@@ -1302,10 +1302,10 @@ abstract class CoreNApp extends \PAF\App {
 	/**
 	 * Get theme object
 	 *
-	 * @param null|string $theme
+	 * @param string $theme
 	 * @return ITheme|null
-	 * @access protected
+	 * @access public
 	 */
-	protected abstract function GetTheme(?string $theme = NULL): ?ITheme;
+	public abstract function GetTheme(string $theme = ''): ?ITheme;
 }//END class CoreNApp extends \PAF\App
 ?>
