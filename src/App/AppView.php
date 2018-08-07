@@ -61,6 +61,20 @@ class AppView {
 	 */
 	protected $title = '';
 	/**
+	 * Modal view width
+	 *
+	 * @var string|integer|null
+	 * @access protected
+	 */
+	protected $modalWidth = 300;
+	/**
+	 * Auto-generate js script for modal view
+	 *
+	 * @var bool
+	 * @access protected
+	 */
+	protected $modalAutoJs = TRUE;
+	/**
 	 * View pass trough params
 	 *
 	 * @var array
@@ -82,6 +96,13 @@ class AppView {
 	 */
 	protected $content = [];
 	/**
+	 * View JS scripts to be executed on render
+	 *
+	 * @var array
+	 * @access protected
+	 */
+	protected $jsScripts = [];
+	/**
 	 * BaseView constructor.
 	 *
 	 * @param array $params Pass trough variables array
@@ -95,6 +116,51 @@ class AppView {
 		$this->theme = $theme;
 		if(isset($type)) { $this->type = $type; }
 	}//END public function __construct
+	/**
+	 * @return bool
+	 */
+	public function IsModalAutoJs(): bool {
+		return $this->modalAutoJs;
+	}//END public function IsModalAutoJs
+	/**
+	 * @param bool $modalAutoJs
+	 * @return void
+	 * @access public
+	 */
+	public function SetModalAutoJs(bool $modalAutoJs): void {
+		$this->modalAutoJs = $modalAutoJs;
+	}//END public function SetModalAutoJs
+	/**
+	 * @return array
+	 */
+	public function GetJsScripts(): array {
+		return $this->jsScripts;
+	}//END public function GetJsScripts
+	/**
+	 * @return string
+	 */
+	public function GetJsScript(): string {
+		if(!count($this->jsScripts)) { return ''; }
+		$result = '';
+		foreach($this->jsScripts as $js) {
+			$js = trim($js);
+			$result .= (strlen($result) ? "\n" : '').(substr($js,-1)=='}' ? $js : rtrim($js,';').';');
+		}//END foreach
+		return $result;
+	}//END public function GetJsScript
+	/**
+	 * @param string $script
+	 * @return void
+	 */
+	public function AddJsScript(string $script): void {
+		if(strlen(trim($script))) { $this->jsScripts = $script; }
+	}//END public function GetJsScripts
+	/**
+	 * @return void
+	 */
+	public function ClearJsScripts(): void {
+		$this->jsScripts = [];
+	}//END public function GetJsScripts
 	/**
 	 * @param bool $debug
 	 * @return void
@@ -119,6 +185,14 @@ class AppView {
 	public function SetTitle(string $title): void {
 		$this->title = $title;
 	}//END public function SetTitle
+	/**
+	 * @param mixed $width
+	 * @return void
+	 * @access public
+	 */
+	public function SetModalWidth($width): void {
+		$this->modalWidth = $width;
+	}//END public function SetModalWidth
 	/**
 	 * @param string $action
 	 * @return void
@@ -199,6 +273,7 @@ class AppView {
 		$result = $this->ProcessViewTheme($content);
 		if($return) { return $result; }
 		echo $result;
+		if(count($this->jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
 		return NULL;
 	}//END public function Render
 	/**
@@ -246,6 +321,10 @@ class AppView {
 				ob_start();
 				$themeObj->GetModalContainer();
 				$container = ob_get_clean();
+				if($this->modalAutoJs) {
+					$mWidth = is_numeric($this->modalWidth) && $this->modalWidth>0 ? $this->modalWidth : (is_string($this->modalWidth) && strlen($this->modalWidth) ? "'{$this->modalWidth}'" : 300);
+					$this->AddJsScript("ShowModalForm({$mWidth},'{$this->title}');");
+				}//if($this->modalAutoJs)
 				break;
 			case GENERIC_CONTENT_VIEW:
 				ob_start();
