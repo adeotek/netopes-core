@@ -33,87 +33,86 @@ define('MODAL_CONTENT_VIEW',2);
  */
 class AppView {
 	/**
-	 * View type
-	 *
-	 * @var int
+	 * @var int View type
 	 * @access protected
 	 */
 	protected $type = GENERIC_CONTENT_VIEW;
 	/**
-	 * View theme
-	 *
-	 * @var string|null
+	 * @var string|null View theme
 	 * @access protected
 	 */
 	protected $theme = NULL;
 	/**
-	 * Debug mode on/off
-	 *
-	 * @var bool
+	 * @var bool Debug mode on/off
 	 * @access protected
 	 */
 	protected $debug = FALSE;
 	/**
-	 * View title
-	 *
-	 * @var string
+	 * @var string View title
 	 * @access protected
 	 */
 	protected $title = '';
 	/**
-	 * Modal view width
-	 *
-	 * @var string|integer|null
+	 * @var string|integer|null Modal view width
 	 * @access protected
 	 */
 	protected $modalWidth = 300;
 	/**
-	 * Auto-generate js script for modal view
-	 *
-	 * @var bool
+	 * @var bool Auto-generate js script for modal view
 	 * @access protected
 	 */
 	protected $modalAutoJs = TRUE;
 	/**
-	 * View pass trough params
-	 *
-	 * @var array
+	 * @var array View pass trough params
 	 * @access protected
 	 */
 	protected $params = [];
 	/**
-	 * View actions
-	 *
-	 * @var array
+	 * @var array View actions
 	 * @access protected
 	 */
 	protected $actions = [];
 	/**
-	 * View content
-	 *
-	 * @var array
+	 * @var array View content
 	 * @access protected
 	 */
 	protected $content = [];
 	/**
-	 * View JS scripts to be executed on render
-	 *
-	 * @var array
+	 * @var array View JS scripts to be executed on render
 	 * @access protected
 	 */
 	protected $jsScripts = [];
+	/**
+	 * @var object Parent module object
+	 * @access public
+	 */
+	public $parent = NULL;
+	/**
+	 * @var string|null Parent module short class name (called class without base prefix)
+	 * @access public
+	 */
+	public $name = NULL;
+	/**
+	 * @var    string Parent module full qualified class name
+	 * @access public
+	 */
+	public $class;
 	/**
 	 * BaseView constructor.
 	 *
 	 * @param array $params Pass trough variables array
 	 * Obtained by calling: get_defined_vars()
 	 * @param int   $type View type
-	 * @return void
+	 * @param null|object $parent
 	 * @access public
 	 */
-	public function __construct(array $params,?int $type = NULL,?string $theme = NULL) {
+	public function __construct(array $params,?int $type = NULL,?object $parent = NULL) {
 		$this->params = $params;
-		$this->theme = $theme;
+		if(is_object($parent)) {
+			$this->parent = $parent;
+			$this->name = $parent->name;
+			$this->class = $parent->class;
+		}//if(is_object($parent))
 		if(isset($type)) { $this->type = $type; }
 	}//END public function __construct
 	/**
@@ -153,7 +152,7 @@ class AppView {
 	 * @return void
 	 */
 	public function AddJsScript(string $script): void {
-		if(strlen(trim($script))) { $this->jsScripts = $script; }
+		if(strlen(trim($script))) { $this->jsScripts[] = $script; }
 	}//END public function GetJsScripts
 	/**
 	 * @return void
@@ -257,17 +256,17 @@ class AppView {
 			switch($type) {
 				case 'control':
 					$class = get_array_param($c,'class','','is_string');
-					if(!strlen($class) || !count($value)) {
+					if(!strlen($class) || !strlen($value)) {
 						if($this->debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
-					}//if(!strlen($class) || !count($value))
+					}//if(!strlen($class) || !strlen($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetControlContent($value,$class);
 					break;
 				case 'file':
-					if(!count($value)) {
+					if(!strlen($value)) {
 						if($this->debug) { NApp::_Dlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
-					}//if(!count($value))
+					}//if(!strlen($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetFileContent($value);
 					break;
 				case 'string':
