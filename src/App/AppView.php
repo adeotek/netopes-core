@@ -10,8 +10,8 @@
  * @filesource
  */
 namespace NETopes\Core\App;
-use \NApp;
 use PAF\AppException;
+use \NApp;
 
 /**
  * Generic view type (no theme container)
@@ -31,7 +31,7 @@ define('MODAL_CONTENT_VIEW',2);
  * @package    NETopes\Core\App
  * @abstract
  */
-abstract class BaseView {
+class AppView {
 	/**
 	 * View type
 	 *
@@ -263,5 +263,5 @@ abstract class BaseView {
 		$container = str_replace('{{ACTIONS}}',implode("\n",$this->actions),$container);
 		return $container;
 	}//END protected function ProcessViewTheme
-}//END abstract class BaseView
+}//END class AppView
 ?>
