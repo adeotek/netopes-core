@@ -121,6 +121,18 @@ class AppView {
 	 */
 	public $class;
 	/**
+	 * Pass trough parameters magic getter
+	 *
+	 * @param  string $name The name of the property
+	 * @return mixed Returns the value of the property
+	 * @access public
+	 * @throws \PAF\AppException
+	 */
+	public function __get($name) {
+		if(!array_key_exists($name,$this->_passTrough)) { throw new AppException('Undefined property ['.$name.']!',E_ERROR,1); }
+		return $this->_passTrough[$name];
+	}//END public function __get
+	/**
 	 * BaseView constructor.
 	 *
 	 * @param array $params Pass trough variables array
