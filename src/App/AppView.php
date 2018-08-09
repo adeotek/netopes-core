@@ -111,16 +111,6 @@ class AppView {
 	 */
 	public $parent = NULL;
 	/**
-	 * @var string|null Parent module short class name (called class without base prefix)
-	 * @access public
-	 */
-	public $name = NULL;
-	/**
-	 * @var    string Parent module full qualified class name
-	 * @access public
-	 */
-	public $class;
-	/**
 	 * Pass trough parameters magic getter
 	 *
 	 * @param  string $name The name of the property
@@ -145,11 +135,7 @@ class AppView {
 		$this->_params = $params;
 		if(is_object($parent)) {
 			$this->parent = $parent;
-			$this->name = $parent->name;
-			$this->class = $parent->class;
-			foreach(get_object_vars($parent) as $p) {
-				$this->_passTrough[$p] = $parent->$p;
-			}//END foreach
+			foreach(get_object_vars($parent) as $pn=>$pv) { $this->_passTrough[$pn] = $pv; }
 		}//if(is_object($parent))
 		if(isset($type)) { $this->_type = $type; }
 	}//END public function __construct
