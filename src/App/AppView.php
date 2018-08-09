@@ -44,62 +44,67 @@ class AppView {
 	 * @var int View type
 	 * @access protected
 	 */
-	protected $type = CONTENT_ONLY_VIEW;
+	protected $_type = CONTENT_ONLY_VIEW;
 	/**
 	 * @var string|null View theme
 	 * @access protected
 	 */
-	protected $theme = NULL;
+	protected $_theme = NULL;
 	/**
 	 * @var bool Debug mode on/off
 	 * @access protected
 	 */
-	protected $debug = FALSE;
+	protected $_debug = FALSE;
 	/**
 	 * @var string View title
 	 * @access protected
 	 */
-	protected $title = '';
+	protected $_title = '';
 	/**
 	 * @var string View dynamic title tag ID
 	 * @access protected
 	 */
-	protected $titleTagId = '';
+	protected $_titleTagId = '';
 	/**
 	 * @var string|integer|null Modal view width
 	 * @access protected
 	 */
-	protected $modalWidth = 300;
+	protected $_modalWidth = 300;
 	/**
 	 * @var string Modal view dynamic target ID
 	 * @access protected
 	 */
-	protected $targetId = '';
+	protected $_targetId = '';
 	/**
 	 * @var bool Auto-generate js script for modal view
 	 * @access protected
 	 */
-	protected $modalAutoJs = TRUE;
+	protected $_modalAutoJs = TRUE;
 	/**
 	 * @var array View pass trough params
 	 * @access protected
 	 */
-	protected $params = [];
+	protected $_params = [];
 	/**
 	 * @var array View actions
 	 * @access protected
 	 */
-	protected $actions = [];
+	protected $_actions = [];
 	/**
 	 * @var array View content
 	 * @access protected
 	 */
-	protected $content = [];
+	protected $_content = [];
 	/**
 	 * @var array View JS scripts to be executed on render
 	 * @access protected
 	 */
-	protected $jsScripts = [];
+	protected $_jsScripts = [];
+	/**
+	 * @var array View pass trough properties
+	 * @access protected
+	 */
+	protected $_passTrough = [];
 	/**
 	 * @var object Parent module object
 	 * @access public
@@ -125,19 +130,22 @@ class AppView {
 	 * @access public
 	 */
 	public function __construct(array $params,?int $type = NULL,$parent = NULL) {
-		$this->params = $params;
+		$this->_params = $params;
 		if(is_object($parent)) {
 			$this->parent = $parent;
 			$this->name = $parent->name;
 			$this->class = $parent->class;
+			foreach(get_object_vars($parent) as $p) {
+				$this->_passTrough[$p] = $parent->$p;
+			}//END foreach
 		}//if(is_object($parent))
-		if(isset($type)) { $this->type = $type; }
+		if(isset($type)) { $this->_type = $type; }
 	}//END public function __construct
 	/**
 	 * @return bool
 	 */
 	public function IsModalAutoJs(): bool {
-		return $this->modalAutoJs;
+		return $this->_modalAutoJs;
 	}//END public function IsModalAutoJs
 	/**
 	 * @param bool $modalAutoJs
@@ -145,21 +153,21 @@ class AppView {
 	 * @access public
 	 */
 	public function SetModalAutoJs(bool $modalAutoJs): void {
-		$this->modalAutoJs = $modalAutoJs;
+		$this->_modalAutoJs = $modalAutoJs;
 	}//END public function SetModalAutoJs
 	/**
 	 * @return array
 	 */
 	public function GetJsScripts(): array {
-		return $this->jsScripts;
+		return $this->_jsScripts;
 	}//END public function GetJsScripts
 	/**
 	 * @return string
 	 */
 	public function GetJsScript(): string {
-		if(!count($this->jsScripts)) { return ''; }
+		if(!count($this->_jsScripts)) { return ''; }
 		$result = '';
-		foreach($this->jsScripts as $js) {
+		foreach($this->_jsScripts as $js) {
 			$js = trim($js);
 			$result .= (strlen($result) ? "\n" : '').(substr($js,-1)=='}' ? $js : rtrim($js,';').';');
 		}//END foreach
@@ -170,13 +178,13 @@ class AppView {
 	 * @return void
 	 */
 	public function AddJsScript(string $script): void {
-		if(strlen(trim($script))) { $this->jsScripts[] = $script; }
+		if(strlen(trim($script))) { $this->_jsScripts[] = $script; }
 	}//END public function GetJsScripts
 	/**
 	 * @return void
 	 */
 	public function ClearJsScripts(): void {
-		$this->jsScripts = [];
+		$this->_jsScripts = [];
 	}//END public function GetJsScripts
 	/**
 	 * @param bool $debug
@@ -184,7 +192,7 @@ class AppView {
 	 * @access public
 	 */
 	public function SetDebug(bool $debug): void {
-		$this->debug = $debug;
+		$this->_debug = $debug;
 	}//END public function SetDebug
 	/**
 	 * @param string|null $theme
@@ -192,7 +200,7 @@ class AppView {
 	 * @access public
 	 */
 	public function SetTheme(?string $theme): void {
-		$this->theme = $theme;
+		$this->_theme = $theme;
 	}//END public function SetTheme
 	/**
 	 * @param string $title
@@ -200,7 +208,7 @@ class AppView {
 	 * @access public
 	 */
 	public function SetTitle(string $title): void {
-		$this->title = $title;
+		$this->_title = $title;
 	}//END public function SetTitle
 	/**
 	 * @param string $title
@@ -209,8 +217,8 @@ class AppView {
 	 * @access public
 	 */
 	public function SetDynamicTitle(string $title,string $tagId): void {
-		$this->title = $title;
-		$this->titleTagId = $tagId;
+		$this->_title = $title;
+		$this->_titleTagId = $tagId;
 	}//END public function SetDynamicTitle
 	/**
 	 * @param mixed $width
@@ -218,7 +226,7 @@ class AppView {
 	 * @access public
 	 */
 	public function SetModalWidth($width): void {
-		$this->modalWidth = $width;
+		$this->_modalWidth = $width;
 	}//END public function SetModalWidth
 	/**
 	 * @param string $targetId
@@ -226,7 +234,7 @@ class AppView {
 	 * @access public
 	 */
 	public function SetTargetId(string $targetId): void {
-		$this->targetId = $targetId;
+		$this->_targetId = $targetId;
 	}//END public function SetTargetId
 	/**
 	 * @param string $action
@@ -234,21 +242,21 @@ class AppView {
 	 * @access public
 	 */
 	public function AddAction(string $action): void {
-		$this->actions[] = $action;
+		$this->_actions[] = $action;
 	}//END public function AddAction
 	/**
 	 * @return bool
 	 * @access public
 	 */
 	public function HasActions(): bool {
-		return count($this->actions)>0;
+		return count($this->_actions)>0;
 	}//END public function HasActions
 	/**
 	 * @return bool
 	 * @access public
 	 */
 	public function HasTitle(): bool {
-		return strlen($this->title)>0;
+		return strlen($this->_title)>0;
 	}//END public function HasTitle
 	/**
 	 * @param string $content
@@ -256,7 +264,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddHtmlContent(string $content): void {
-		$this->content[] = ['type'=>'string','value'=>$content];
+		$this->_content[] = ['type'=>'string','value'=>$content];
 	}//END public function AddHtmlContent
 	/**
 	 * @param string $file
@@ -264,18 +272,17 @@ class AppView {
 	 * @access public
 	 */
 	public function AddContent(string $file): void {
-		$this->content[] = ['type'=>'file','value'=>$file];
+		$this->_content[] = ['type'=>'file','value'=>$file];
 	}//END public function AddContent
 	/**
 	 * @param string $module
 	 * @param string $method
 	 * @param null   $params
-	 * @param string $targetId
 	 * @return void
 	 * @access public
 	 */
 	public function AddModuleContent(string $module,string $method,$params = NULL): void {
-		$this->content[] = ['type'=>'module','module'=>$module,'method'=>$method,'params'=>$params];
+		$this->_content[] = ['type'=>'module','module'=>$module,'method'=>$method,'params'=>$params];
 	}//END public function AddModuleContent
 	/**
 	 * @param string $file
@@ -283,7 +290,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddTableView(string $file): void {
-		$this->content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TableView'];
+		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TableView'];
 	}//END public function AddTableView
 	/**
 	 * @param string $file
@@ -291,7 +298,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddBasicForm(string $file): void {
-		$this->content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm'];
+		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm'];
 	}//END public function AddBasicForm
 	/**
 	 * @param string $file
@@ -299,7 +306,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddTabControl(string $file): void {
-		$this->content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl'];
+		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl'];
 	}//END public function AddTabControl
 	/**
 	 * Render view content
@@ -311,21 +318,21 @@ class AppView {
 	 */
 	public function Render(bool $return = FALSE): ?string {
 		$content = '';
-		foreach($this->content as $k=>$c) {
+		foreach($this->_content as $k=>$c) {
 			$type = get_array_param($c,'type','','is_string');
 			$value = get_array_param($c,'value','','is_string');
 			switch($type) {
 				case 'control':
 					$class = get_array_param($c,'class','','is_string');
 					if(!strlen($class) || !strlen($value)) {
-						if($this->debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
+						if($this->_debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !strlen($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetControlContent($value,$class);
 					break;
 				case 'file':
 					if(!strlen($value)) {
-						if($this->debug) { NApp::_Dlog('Invalid content value [file:index:'.$k.']!'); }
+						if($this->_debug) { NApp::_Dlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetFileContent($value);
@@ -334,7 +341,7 @@ class AppView {
 					$module = get_array_param($c,'module','','is_string');
 					$method = get_array_param($c,'method','','is_string');
 					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
-						if($this->debug) { NApp::_Dlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
+						if($this->_debug) { NApp::_Dlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
 						continue;
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
 					$params = get_array_param($c,'params',NULL,'isset');
@@ -344,14 +351,14 @@ class AppView {
 					$content .= ($content && $value ? "\n" : '').$value;
 					break;
 				default:
-					if($this->debug) { NApp::_Dlog('Invalid content type [index:'.$k.']!'); }
+					if($this->_debug) { NApp::_Dlog('Invalid content type [index:'.$k.']!'); }
 					break;
 			}//END switch
 		}//END foreach
 		$result = $this->ProcessViewTheme($content);
 		if($return) { return $result; }
 		echo $result;
-		if(count($this->jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
+		if(count($this->_jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
 		return NULL;
 	}//END public function Render
 	/**
@@ -361,7 +368,7 @@ class AppView {
 	 * @throws \PAF\AppException
 	 */
 	protected function GetControlContent(string $_v_file,string $_c_class): string {
-		if(count($this->params)) { extract($this->params); }
+		if(count($this->_params)) { extract($this->_params); }
 		require($_v_file);
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
@@ -372,7 +379,7 @@ class AppView {
 	 * @return string
 	 */
 	protected function GetFileContent(string $_v_file): string {
-		if(count($this->params)) { extract($this->params); }
+		if(count($this->_params)) { extract($this->_params); }
 		ob_start();
 		require($_v_file);
 		$result = ob_get_clean();
@@ -396,14 +403,14 @@ class AppView {
 	 * @return string
 	 */
 	protected function ProcessViewTheme(string $content): string {
-		if(strlen($this->theme)) {
-			$themeObj = NApp::_GetTheme($this->theme);
+		if(strlen($this->_theme)) {
+			$themeObj = NApp::_GetTheme($this->_theme);
 		} else {
 			$themeObj = NApp::$theme;
 			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
 		}//if(strlen($this->theme))
-		if(!is_object($themeObj)) { return implode("\n",$this->actions)."\n".$content; }
-		switch($this->type) {
+		if(!is_object($themeObj)) { return implode("\n",$this->_actions)."\n".$content; }
+		switch($this->_type) {
 			case MAIN_CONTENT_VIEW:
 				ob_start();
 				$themeObj->GetMainContainer($this->HasActions(),$this->HasTitle());
@@ -413,10 +420,10 @@ class AppView {
 				ob_start();
 				$themeObj->GetModalContainer($this->HasActions(),$this->HasTitle());
 				$container = ob_get_clean();
-				if($this->modalAutoJs) {
-					$mJsScript = strlen($this->targetId) ? "ShowDynamicModalForm('{$this->targetId}'," : "ShowModalForm(";
-					$mJsScript .= is_numeric($this->modalWidth) && $this->modalWidth>0 ? $this->modalWidth : (is_string($this->modalWidth) && strlen($this->modalWidth) ? "'{$this->modalWidth}'" : 300);
-					$mJsScript .= strlen($this->titleTagId) ? ",($('#{$this->titleTagId}').html()".(strlen($this->title) ? "+' - {$this->title}'" : '')."));" : ",'{$this->title}');";
+				if($this->_modalAutoJs) {
+					$mJsScript = strlen($this->_targetId) ? "ShowDynamicModalForm('{$this->_targetId}'," : "ShowModalForm(";
+					$mJsScript .= is_numeric($this->_modalWidth) && $this->_modalWidth>0 ? $this->_modalWidth : (is_string($this->_modalWidth) && strlen($this->_modalWidth) ? "'{$this->_modalWidth}'" : 300);
+					$mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+' - {$this->_title}'" : '')."));" : ",'{$this->_title}');";
 					$this->AddJsScript($mJsScript);
 				}//if($this->modalAutoJs)
 				break;
@@ -433,17 +440,17 @@ class AppView {
 			case CONTENT_ONLY_VIEW:
 				return $content;
 			default:
-				if($this->debug) { NApp::_Dlog('Invalid view type ['.$this->type.']!'); }
-				return implode("\n",$this->actions)."\n".$content;
+				if($this->_debug) { NApp::_Dlog('Invalid view type ['.$this->_type.']!'); }
+				return implode("\n",$this->_actions)."\n".$content;
 		}//END switch
-		if($this->debug && strpos($container,'{{CONTENT}}')===FALSE) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$this->type.']!'); }
-		if($this->debug && count($this->actions) && strpos($container,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->type.']!'); }
-		if($this->debug && strlen($this->title) && strpos($container,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->type.']!'); }
-		if($this->debug && strlen($this->targetId) && strpos($container,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->type.']!'); }
-		$container = str_replace('{{TITLE}}',$this->title,$container);
-		$container = str_replace('{{TARGETID}}',$this->targetId,$container);
+		if($this->_debug && strpos($container,'{{CONTENT}}')===FALSE) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$this->_type.']!'); }
+		if($this->_debug && count($this->_actions) && strpos($container,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_type.']!'); }
+		if($this->_debug && strlen($this->_title) && strpos($container,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_type.']!'); }
+		if($this->_debug && strlen($this->_targetId) && strpos($container,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_type.']!'); }
+		$container = str_replace('{{TITLE}}',$this->_title,$container);
+		$container = str_replace('{{TARGETID}}',$this->_targetId,$container);
 		$container = str_replace('{{CONTENT}}',$content,$container);
-		$container = str_replace('{{ACTIONS}}',implode("\n",$this->actions),$container);
+		$container = str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$container);
 		return $container;
 	}//END protected function ProcessViewTheme
 }//END class AppView
