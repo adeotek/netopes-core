@@ -14,9 +14,9 @@ use PAF\AppException;
 use \NApp;
 
 /**
- * Generic view type (no theme container)
+ * Content only (no theme container)
  */
-define('GENERIC_CONTENT_VIEW',0);
+define('CONTENT_ONLY_VIEW',0);
 /**
  * Main content view type (main content theme container)
  */
@@ -25,6 +25,14 @@ define('MAIN_CONTENT_VIEW',1);
  * Modal content view type (modal content theme container)
  */
 define('MODAL_CONTENT_VIEW',2);
+/**
+ * Secondary content view type (sub-content in main content theme container)
+ */
+define('SECONDARY_CONTENT_VIEW',3);
+/**
+ * Generic view type (theme generic container)
+ */
+define('GENERIC_CONTENT_VIEW',10);
 /**
  * Application BaseView class
  *
@@ -36,7 +44,7 @@ class AppView {
 	 * @var int View type
 	 * @access protected
 	 */
-	protected $type = GENERIC_CONTENT_VIEW;
+	protected $type = CONTENT_ONLY_VIEW;
 	/**
 	 * @var string|null View theme
 	 * @access protected
@@ -53,10 +61,20 @@ class AppView {
 	 */
 	protected $title = '';
 	/**
+	 * @var string View dynamic title tag ID
+	 * @access protected
+	 */
+	protected $titleTagId = '';
+	/**
 	 * @var string|integer|null Modal view width
 	 * @access protected
 	 */
 	protected $modalWidth = 300;
+	/**
+	 * @var string Modal view dynamic target ID
+	 * @access protected
+	 */
+	protected $targetId = '';
 	/**
 	 * @var bool Auto-generate js script for modal view
 	 * @access protected
@@ -106,7 +124,7 @@ class AppView {
 	 * @param null|object $parent
 	 * @access public
 	 */
-	public function __construct(array $params,?int $type = NULL,?object $parent = NULL) {
+	public function __construct(array $params,?int $type = NULL,$parent = NULL) {
 		$this->params = $params;
 		if(is_object($parent)) {
 			$this->parent = $parent;
@@ -185,6 +203,16 @@ class AppView {
 		$this->title = $title;
 	}//END public function SetTitle
 	/**
+	 * @param string $title
+	 * @param string $tagId
+	 * @return void
+	 * @access public
+	 */
+	public function SetDynamicTitle(string $title,string $tagId): void {
+		$this->title = $title;
+		$this->titleTagId = $tagId;
+	}//END public function SetDynamicTitle
+	/**
 	 * @param mixed $width
 	 * @return void
 	 * @access public
@@ -193,6 +221,14 @@ class AppView {
 		$this->modalWidth = $width;
 	}//END public function SetModalWidth
 	/**
+	 * @param string $targetId
+	 * @return void
+	 * @access public
+	 */
+	public function SetTargetId(string $targetId): void {
+		$this->targetId = $targetId;
+	}//END public function SetTargetId
+	/**
 	 * @param string $action
 	 * @return void
 	 * @access public
@@ -200,6 +236,20 @@ class AppView {
 	public function AddAction(string $action): void {
 		$this->actions[] = $action;
 	}//END public function AddAction
+	/**
+	 * @return bool
+	 * @access public
+	 */
+	public function HasActions(): bool {
+		return count($this->actions)>0;
+	}//END public function HasActions
+	/**
+	 * @return bool
+	 * @access public
+	 */
+	public function HasTitle(): bool {
+		return strlen($this->title)>0;
+	}//END public function HasTitle
 	/**
 	 * @param string $content
 	 * @return void
@@ -216,6 +266,17 @@ class AppView {
 	public function AddContent(string $file): void {
 		$this->content[] = ['type'=>'file','value'=>$file];
 	}//END public function AddContent
+	/**
+	 * @param string $module
+	 * @param string $method
+	 * @param null   $params
+	 * @param string $targetId
+	 * @return void
+	 * @access public
+	 */
+	public function AddModuleContent(string $module,string $method,$params = NULL): void {
+		$this->content[] = ['type'=>'module','module'=>$module,'method'=>$method,'params'=>$params];
+	}//END public function AddModuleContent
 	/**
 	 * @param string $file
 	 * @return void
@@ -269,6 +330,16 @@ class AppView {
 					}//if(!strlen($value))
 					$content .= (strlen($content) ? "\n" : '').$this->GetFileContent($value);
 					break;
+				case 'module':
+					$module = get_array_param($c,'module','','is_string');
+					$method = get_array_param($c,'method','','is_string');
+					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
+						if($this->debug) { NApp::_Dlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
+						continue;
+					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
+					$params = get_array_param($c,'params',NULL,'isset');
+					$content .= (strlen($content) ? "\n" : '').$this->GetModuleContent($module,$method,$params);
+					break;
 				case 'string':
 					$content .= ($content && $value ? "\n" : '').$value;
 					break;
@@ -308,6 +379,19 @@ class AppView {
 		return $result;
 	}//END protected function GetFileContent
 	/**
+	 * @param string $module
+	 * @param string $method
+	 * @param        $params
+	 * @return string
+	 * @throws \PAF\AppException
+	 */
+	protected function GetModuleContent(string $module,string $method,$params): string {
+		ob_start();
+		ModulesProvider::Exec($module,$method,$params);
+		$result = ob_get_clean();
+		return $result;
+	}//END protected function GetModuleContent
+	/**
 	 * @param string $content
 	 * @return string
 	 */
@@ -322,30 +406,42 @@ class AppView {
 		switch($this->type) {
 			case MAIN_CONTENT_VIEW:
 				ob_start();
-				$themeObj->GetMainContainer();
+				$themeObj->GetMainContainer($this->HasActions(),$this->HasTitle());
 				$container = ob_get_clean();
 				break;
 			case MODAL_CONTENT_VIEW:
 				ob_start();
-				$themeObj->GetModalContainer();
+				$themeObj->GetModalContainer($this->HasActions(),$this->HasTitle());
 				$container = ob_get_clean();
 				if($this->modalAutoJs) {
-					$mWidth = is_numeric($this->modalWidth) && $this->modalWidth>0 ? $this->modalWidth : (is_string($this->modalWidth) && strlen($this->modalWidth) ? "'{$this->modalWidth}'" : 300);
-					$this->AddJsScript("ShowModalForm({$mWidth},'{$this->title}');");
+					$mJsScript = strlen($this->targetId) ? "ShowDynamicModalForm('{$this->targetId}'," : "ShowModalForm(";
+					$mJsScript .= is_numeric($this->modalWidth) && $this->modalWidth>0 ? $this->modalWidth : (is_string($this->modalWidth) && strlen($this->modalWidth) ? "'{$this->modalWidth}'" : 300);
+					$mJsScript .= strlen($this->titleTagId) ? ",($('#{$this->titleTagId}').html()".(strlen($this->title) ? "+' - {$this->title}'" : '')."));" : ",'{$this->title}');";
+					$this->AddJsScript($mJsScript);
 				}//if($this->modalAutoJs)
+				break;
+			case SECONDARY_CONTENT_VIEW:
+				ob_start();
+				$themeObj->GetSecondaryContainer($this->HasActions(),$this->HasTitle());
+				$container = ob_get_clean();
 				break;
 			case GENERIC_CONTENT_VIEW:
 				ob_start();
-				$themeObj->GetGenericContainer();
+				$themeObj->GetGenericContainer($this->HasActions(),$this->HasTitle());
 				$container = ob_get_clean();
 				break;
+			case CONTENT_ONLY_VIEW:
+				return $content;
 			default:
 				if($this->debug) { NApp::_Dlog('Invalid view type ['.$this->type.']!'); }
 				return implode("\n",$this->actions)."\n".$content;
 		}//END switch
 		if($this->debug && strpos($container,'{{CONTENT}}')===FALSE) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$this->type.']!'); }
 		if($this->debug && count($this->actions) && strpos($container,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->type.']!'); }
+		if($this->debug && strlen($this->title) && strpos($container,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->type.']!'); }
+		if($this->debug && strlen($this->targetId) && strpos($container,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->type.']!'); }
 		$container = str_replace('{{TITLE}}',$this->title,$container);
+		$container = str_replace('{{TARGETID}}',$this->targetId,$container);
 		$container = str_replace('{{CONTENT}}',$content,$container);
 		$container = str_replace('{{ACTIONS}}',implode("\n",$this->actions),$container);
 		return $container;
