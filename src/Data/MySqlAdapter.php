@@ -47,7 +47,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
-			if(!($this->connection = new mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
+			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
 			//NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 		} catch(\Exception $e){
@@ -338,7 +338,7 @@ class MySqlAdapter extends SqlDataAdapter {
 			//$this->RollbackTran($tran_name);
 			throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 		}//if(mysqli_error($this->connection) || $result===FALSE)
-		if((is_array($out_params) && count($out_params)>0) || (!is_array($out_params) && count($out_params)>0)) {
+		if((is_array($out_params) && count($out_params)>0) || (!is_array($out_params) && strlen($out_params)>0)) {
 			$parameters_out = implode(",",$out_params);
 			$out_result = $this->connection->query("SELECT $parameters_out");
 			if($this->connection->error || $out_result===FALSE) {

@@ -11,6 +11,9 @@
  * @version    2.1.0.0
  * @filesource
  */
+namespace NETopes\Core\Data;
+use PAF\AppException;
+
 /**
  * MariaDbDatabase Is implementing the MariaDb database
  *
@@ -43,17 +46,18 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param  array $connection Database connection
 	 * @return void
 	 * @access protected
+	 * @throws \PAF\AppException
 	 */
 	protected function Init($connection) {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
-			if(!($this->connection = new mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
+			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
 			//NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
-			if(!$this->connection->set_charset("utf8")) { throw new Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
+			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 			if(isset($connection['tables_prefix']) && is_string($connection['tables_prefix']) && strlen($connection['tables_prefix'])) { $this->tables_prefix = $connection['tables_prefix']; }
-		} catch(Exception $e){
-			throw new AException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
+		} catch(\Exception $e){
+			throw new AppException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
 		}//END try
 	}//END protected function Init
 	/**
@@ -92,19 +96,23 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * Prepares the query string for execution
 	 *
 	 * @param  string $query The query string (by reference)
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param null    $filters
+	 * @param null    $raw_query
+	 * @param null    $bind_params
+	 * @param null    $transaction
 	 * @return void
 	 * @access public
 	 */
-	public function MariaDbPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	public function MariaDbPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',$this->EscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
@@ -144,7 +152,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 								continue;
 								break;
 						}//END switch
-					} elseif(count($v==2)) {
+					} elseif(count($v)==2) {
 						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
 						$sep = get_array_param($v,'logical_separator','and','is_notempty_string');
@@ -175,23 +183,28 @@ class MariaDbAdapter extends SqlDataAdapter {
 		}//if(is_numeric($firstrow) && $firstrow>0 && is_numeric($lastrow) && $lastrow>0)
 	}//public function MariaDbPrepareQuery
 	/**
-	 * Executs a query against the database
+	 * Executes a query against the database
 	 *
 	 * @param  string $query The query string
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
+	 * (if used with 'lastrow' represents the offset of the returned rows)
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param null    $filters
+	 * @param bool    $log
+	 * @param null    $results_keys_case
+	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @access public
+	 * @throws \PAF\AppException
 	 */
-	public function MariaDbExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function MariaDbExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$this->MariaDbPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		/*
@@ -210,12 +223,12 @@ class MariaDbAdapter extends SqlDataAdapter {
 		*/
 		$final_result = NULL;
 		if($this->connection->connect_errno) {
-			throw new AException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+			throw new AppException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 		}//if($this->connection->connect_errno)
 		$result = $this->connection->query($query);
 		if($this->connection->error || $result===FALSE) {
 			//$this->RollbackTran($tran_name);
-			throw new AException("FAILED QUERY: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+			throw new AppException("FAILED QUERY: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 		}//if(mysqli_error($this->connection) || $result===FALSE)
 		if(is_object($result)){
 			if(method_exists('mysqli_result','fetch_all')) {
@@ -242,20 +255,23 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * Prepares the command string to be executed
 	 *
 	 * @param  string $procedure The name of the stored procedure
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applyed in WHERE clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $filters An array of condition to be applyed in WHERE clause
+	 * @param null    $raw_query
+	 * @param null    $bind_params
+	 * @param null    $transaction
 	 * @return string Returns processed command string
 	 * @access protected
 	 */
-	protected function MariaDbPrepareProcedureStatement($procedure,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
+	protected function MariaDbPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
 			if(count($params)>0) {
 				$parameters_in = '';
@@ -284,21 +300,25 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * Executs a stored procedure against the database
 	 *
 	 * @param  string $procedure The name of the stored procedure
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applyed in WHERE clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $filters An array of condition to be applyed in WHERE clause
+	 * @param bool    $log
+	 * @param null    $results_keys_case
+	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @access public
+	 * @throws \PAF\AppException
 	 */
-	public function MariaDbExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
+	public function MariaDbExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$query = $this->MariaDbPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		/*
@@ -317,19 +337,19 @@ class MariaDbAdapter extends SqlDataAdapter {
 		*/
 		$final_result = NULL;
 		if($this->connection->connect_errno) {
-			throw new AException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+			throw new AppException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 		}//if($this->connection->connect_errno)
 		$result = $this->connection->query($query);
 		if($this->connection->error || $result===FALSE) {
 			//$this->RollbackTran($tran_name);
-			throw new AException("FAILED EXECUTE PROCEDURE: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+			throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 		}//if(mysqli_error($this->connection) || $result===FALSE)
 		if((is_array($out_params) && count($out_params)>0) || (!is_array($out_params) && strlen($out_params)>0)) {
 			$parameters_out = implode(",",$out_params);
 			$out_result = $this->connection->query("SELECT $parameters_out");
 			if($this->connection->error || $out_result===FALSE) {
 				//$this->RollbackTran($tran_name);
-				throw new AException("FAILED EXECUTE PROCEDURE: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query -> SELECT $parameters_out",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+				throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query -> SELECT $parameters_out",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
 			}//if(mysqli_error($this->connection) || $out_result===FALSE)
 			if(is_object($out_result)){
 				if(method_exists('mysqli_result','fetch_all')) {
@@ -391,15 +411,16 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the method
-	 * @param  array $extra_params An array of extra parameters
+	 * @param  array  $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
 	 * @access public
+	 * @throws \PAF\AppException
 	 */
 	public function MariaDbExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
-		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for MySQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
+		throw new AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for MySQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
 	}//END public function MariaDbExecuteMethod
 	/**
 	 * Escapes MariaDb special charcaters from a string
