@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.2.5.7
  * @filesource
  */
 if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request!'); }
@@ -92,6 +92,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'api_cron_jobs_log_file'=>['access'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
 	//END START NETopes specific configuration
 	//START Basic configuration
+		// Root namespace
+		'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
 		// Use custom modules and data sources autoloader
 		'use_custom_autoloader'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
 		// Error handler class NULL/empty for default NETopes implementation

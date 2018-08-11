@@ -1152,7 +1152,7 @@ abstract class CoreNApp extends \PAF\App {
 		);
 		DataProvider::SetGlobalVariables($this->db_global_params);
 		*/
-		$this->ThemeInit();
+		static::$theme = $this->GetTheme();
 		if($this->current_namespace=='web') { $this->app_options_loaded = TRUE; return; }
 		//Load user rights
 		if($this->login_status) {
@@ -1300,11 +1300,12 @@ abstract class CoreNApp extends \PAF\App {
 		return $relative_path;
 	}//END public function GetSectionPath
 	/**
-	 * Theme object initialization
+	 * Get theme object
 	 *
-	 * @returns void
-	 * @access protecteld
+	 * @param string $theme
+	 * @return ITheme|null
+	 * @access public
 	 */
-	protected abstract function ThemeInit(): void;
+	public abstract function GetTheme(string $theme = ''): ?ITheme;
 }//END class CoreNApp extends \PAF\App
 ?>

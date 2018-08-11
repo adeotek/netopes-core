@@ -8,10 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.5.7
  * @filesource
  */
 namespace NETopes\Core\Data;
+use PAF\AppConfig;
 use PAF\AppException;
 use NApp;
 /**
@@ -40,7 +41,7 @@ class DataProvider {
 	 * @access private
 	 * @static
 	 */
-	private static $ds_prefix = 'NETopes\DataSources\\';
+	private static $ns_path = 'DataSources\\';
 	/**
 	 * Gets the connection array by name from the connections.inc file
 	 *
@@ -76,13 +77,14 @@ class DataProvider {
 	 * @static
 	 */
 	public static function GetDataSource($ds_name,$connection = NULL,$mode = NULL,$existing_only = FALSE) {
+		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$ns_path;
 		$ds_arr = explode('\\',trim($ds_name,'\\'));
 		$ds_type = array_shift($ds_arr);
 		$ds_class = trim($ds_name,'\\');
 		if($ds_type=='_Custom') {
 			$dbmode = '_Custom';
 			$conn = NULL;
-			$ds_full_name = '\\'.(substr($ds_class,0,20)==self::$ds_prefix ? '' : self::$ds_prefix).$ds_class;
+			$ds_full_name = '\\'.(substr($ds_class,0,20)==$ns_prefix ? '' : $ns_prefix).$ds_class;
 			$entity = NULL;
 		} else {
 			if((is_array($connection) && count($connection))) {
@@ -109,7 +111,7 @@ class DataProvider {
 			} else {
 				$entity = NULL;
 			}//if($dbmode=='Doctrine')
-			if(!$ds_full_name) { $ds_full_name = '\\'.self::$ds_prefix.$dbmode.'\\'.$ds_class; }
+			if(!$ds_full_name) { $ds_full_name = '\\'.$ns_prefix.$dbmode.'\\'.$ds_class; }
 		}//if($ds_type=='_Custom')
 		return $ds_full_name::GetInstance($dbmode,$conn,$existing_only,$entity);
 	}//END public static function GetDataSource

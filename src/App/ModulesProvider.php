@@ -24,7 +24,7 @@ class ModulesProvider {
 	 * @access private
 	 * @static
 	 */
-	private static $ns_prefix = 'NETopes\Modules\\';
+	private static $ns_path = 'Modules\\';
 	/**
 	 * Get a module instance
 	 *
@@ -35,8 +35,9 @@ class ModulesProvider {
 	 * @static
 	 */
 	public static function GetModule($name,$base = FALSE) {
+		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$ns_path;
 		$mname = trim($name,'\\');
-		$bname = '\\'.(substr($mname,0,16)==self::$ns_prefix ? '' : self::$ns_prefix).$mname;
+		$bname = '\\'.(substr($mname,0,16)==$ns_prefix ? '' : $ns_prefix).$mname;
 		if($base) {
 			$cname = $bname;
 			$custom = FALSE;

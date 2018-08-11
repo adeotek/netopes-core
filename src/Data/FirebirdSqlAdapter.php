@@ -247,20 +247,22 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * Prepares the query string for execution
 	 *
 	 * @param  string $query The query string (by reference)
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applied in WHERE clause
-	 * @param  string $row_query By reference parameter that will store row query string
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $filters An array of condition to be applied in WHERE clause
+	 * @param null    $raw_query
+	 * @param null    $bind_params
+	 * @param null    $transaction
 	 * @return void
-	 * @access public
 	 * @throws \PAF\AppException
+	 * @access public
 	 */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)){
@@ -345,23 +347,28 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			$query .= ' ROWS '.$firstrow;
 		}//if(is_numeric($firstrow) && $firstrow>0 && is_numeric($lastrow) && $lastrow>0)
 	}//public function FirebirdSqlPrepareQuery
+
 	/**
 	 * Executes a query against the database
 	 *
 	 * @param  string $query The query string
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param null    $filters
+	 * @param bool    $log
+	 * @param null    $results_keys_case
+	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 * @throws \PAF\AppException
+	 * @access public
 	 */
 	public function FirebirdSqlExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -424,20 +431,22 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * Prepares the command string to be executed
 	 *
 	 * @param  string $procedure The name of the stored procedure
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applied in WHERE clause
-	 * @param  string $row_query By reference parameter that will store row query string
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $filters An array of condition to be applied in WHERE clause
+	 * @param null    $raw_query
+	 * @param null    $bind_params
+	 * @param null    $transaction
 	 * @return string|resource Returns processed command string or the statement resource
-	 * @access protected
 	 * @throws \PAF\AppException
+	 * @access protected
 	 */
 	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
@@ -618,20 +627,23 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * Executs a stored procedure against the database
 	 *
 	 * @param  string $procedure The name of the stored procedure
-	 * @param  array $params An array of parameters
+	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
+	 * @param  array  $out_params An array of output params
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
+	 * @param  int    $firstrow Integer to limit number of returned rows
 	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
+	 * @param  int    $lastrow Integer to limit number of returned rows
 	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applied in WHERE clause
+	 * @param  array  $sort An array of fields to compose ORDER BY clause
+	 * @param  array  $filters An array of condition to be applied in WHERE clause
+	 * @param bool    $log
+	 * @param null    $results_keys_case
+	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 * @throws \PAF\AppException
+	 * @access public
 	 */
 	public function FirebirdSqlExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
