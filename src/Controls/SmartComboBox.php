@@ -207,10 +207,7 @@ class SmartComboBox extends Control {
 				$ltext = $this->GetDisplayFieldValue($item);
 				$lselected = '';
 				if(is_array($s_values) && count($s_values)) {
-					foreach($s_values as $svv) {
-						if(!is_array($svv)) { continue; }
-						reset($svv);
-						$svk = key($svv);
+					foreach($s_values as $svk=>$svv) {
 						if($lval==$svk && !(($svk==='null' && $lval!=='null') || ($svk!=='null' && $lval==='null'))) {
 							$lselected = ' selected="selected"';
 							break;
