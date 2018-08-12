@@ -299,8 +299,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
-							case 'notlike':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
+								break;
+							case 'notlike':
+								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" NOT LIKE'.(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
 								break;
 							case '==':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.(strtolower($fvalue)==='null' ? 'IS NULL' : "= '{$fvalue}'");
@@ -492,8 +494,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
-							case 'notlike':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
+								break;
+							case 'notlike':
+								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" NOT LIKE'.(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
 								break;
 							case '==':
 							case '<>':

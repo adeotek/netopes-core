@@ -16,6 +16,7 @@ use PAF\AppConfig;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
@@ -561,7 +562,11 @@ class TableView {
 	protected function GetData() {
 		$this->totals = [];
 		if(!strlen($this->data_source) || !strlen($this->ds_method)) {
-			$result = is_object($this->data) ? $this->data : new DataSet($this->data);
+			if(is_object($this->data)) {
+				$result = $this->data;
+			} else {
+				$result = DataSource::ConvertResultsToDataSet($this->data,'\NETopes\Core\Data\VirtualEntity');
+			}//if(is_object($this->data))
 			$result->total_count = $result->count();
 			return $result;
 		}//if(!strlen($this->data_source) || !strlen($this->ds_method))
