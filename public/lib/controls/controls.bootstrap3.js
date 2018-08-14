@@ -1,8 +1,8 @@
 /**
  * NETopes controls Bootstrap 3 javascript file
  *
- * Copyright (c) 2013 - 2017 Hinter Universal SRL
- * License    LICENSE.txt
+ * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
  * @version    2.1.0.0

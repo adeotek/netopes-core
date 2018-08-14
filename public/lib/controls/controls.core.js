@@ -1,12 +1,12 @@
 /**
  * NETopes controls core javascript file
  *
- * Copyright (c) 2013 - 2017 Hinter Universal SRL
- * License    LICENSE.txt
+ * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.1.0.0
- */
+ * @version    2.2.5.8
+ ***/
 /*** For Loader and Screen blocking ***/
 function ShowLoader(element,full) {
 	if(typeof(element)=='object') {
@@ -67,7 +67,7 @@ function getReCaptcha(elementid) {
 function resetReCaptcha() {
 	if(grecaptcha) { grecaptcha.reset(); }
 }//function resetReCaptcha
-/* END Generic functions */
+/*** END Generic functions ***/
 /*** For Language selector ***/
 function GetCurrentLanguageCode(){
 	var langsel = $('#lang-selector').val();
@@ -103,7 +103,7 @@ function SetNewLanguageLink(newlang,newdomain,olddomain) {
 	var lnlink = GetNewLanguageLink(newlang,newdomain,olddomain);
 	if(lnlink) { window.location.href = lnlink; }
 }//END function SetNewLanguageLink
-/* END For Language selector */
+/*** END For Language selector ***/
 
 /*** For getting element value ***/
 function GetElementValue(elementid,elementproperty) {
@@ -125,7 +125,7 @@ function GetElementValue(elementid,elementproperty) {
 	}//if($('#'+elementid).length>0)
 	return result;
 }//END function GetElementValue
-/* END For getting element value */
+/*** END For getting element value ***/
 /*** For jQuery DateTimePicker ***/
 $(document).on('focus','.clsJqDatePicker',function(e) {
 	var langcode = GetCurrentLanguageCode();
@@ -157,7 +157,7 @@ $(document).on('focus','.clsJqTimePicker',function(e) {
 		$(this).timepicker();
 	}//if($(this).attr('data-jqdpparams').length)
 });//$(document).on('focus','.clsJqTimePicker',function(e)
-/* END For jQuery DateTimePicker */
+/*** END For jQuery DateTimePicker ***/
 
 /*** For NumericTextBox ***/
 $(document).on('focus','.clsSetNumberFormat',function(e) {
@@ -211,7 +211,7 @@ function GetCalculatedValue(element_value,decimal_separator) {
 	formated_value = formated_value.replaceAll('.',decimal_separator);
 	return formated_value;
 }//function GetCalculatedValue(element_value,decimal_separator)
-/* END For NumericTextBox */
+/*** END For NumericTextBox ***/
 
 /*** For CheckBox control ***/
 function CheckBoxClickBaseEvent(obj,elementid) {
@@ -476,7 +476,7 @@ $(document).on('keydown','input.clsTreeComboBox[type=text]',function(e) {
     	$('#'+$(this).attr('data-id')+'-dropdown').hide();
     }//if(e.keyCode==13)
 });//$(document).on('keydown','input.clsTreeComboBox[type=text]',function(e)
-/* END For ComboBox */
+/*** END For ComboBox ***/
 
 /*** For Select2 and SmartComboBox ***/
 function SmartCBOInitialize() {
@@ -542,7 +542,7 @@ function GetSelect2Val(element,org) {
 	if(org!=true && org!=1 && typeof(lval)=='object') { lval = lval.join(','); }
 	return lval;
 }//function GetSelect2Val
-/* END For Select2 and SmartComboBox */
+/*** END For Select2 and SmartComboBox ***/
 
 /*** For KVList ***/
 $(document).on('click','div.MainKVL > .KVLAddBtn',function(e) { KVLAddElement(this); });
@@ -572,7 +572,7 @@ function KVLRemoveElement(obj) {
 		}//if(ulparent && $(ulparent).find('li').length<=1)
 	}//if(parent)
 }//END function KVLRemoveElement
-/* END For KVList */
+/*** END For KVList ***/
 
 /*** For Actions ***/
 function BindShortcuts(saveCtrl,cancelCtrl){
@@ -621,7 +621,7 @@ function AddClassOnError(elementid,reset,errclass) {
 		$('#'+elementid).addClass(lclass);
 	}//if(reset)
 }//function AddClassOnError
-/* END For Actions */
+/*** END For Actions ***/
 
 /*** For Validations ***/
 function CheckIfEnter(e){ //e is event object passed from function invocation
@@ -713,7 +713,7 @@ $(document).on('keydown','.clsSetPhoneValidation',function(e) {
 		) { return; }
 	e.preventDefault();
 });//$(document).on('keydown','.clsSetPhoneValidation',function(e)
-/* END For Validations */
+/*** END For Validations ***/
 
 /*** For text inputs ***/
 $(document).on('focusout','.clsSetUcFirst',function(e) {
@@ -725,7 +725,7 @@ $(document).on('focusout','.clsSetUcFirstAll',function(e) {
 	var lval = $(this).val().ucfirst(true);
 	$(this).val(lval);
 });//$(document).on('focusout','.clsSetUcFirstAll',function(e)
-/* END For text inputs */
+/*** END For text inputs ***/
 
 function AnimatedHide(elementid,val,speed) {
 	if($('#'+elementid).length>0) {
@@ -833,7 +833,7 @@ function GetCkEditorData(e) {
     if(editor) { return editor.getData(); }
     return '';
 }//function GetCkEditorData
-/* END For CKEditor */
+/*** END For CKEditor ***/
 /*** For FileUploader ***/
 function CreateFileUploader(elementid,multi) {
 	if(multi==1) {
@@ -895,7 +895,7 @@ function CreateFileUploader(elementid,multi) {
 		return false;
 	}//if(multi==1)
 }//END function CreateFileUploader
-/* END For FileUploader */
+/*** END For FileUploader ***/
 /*** For TreeGrid ***/
 function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 	if(!orgid) { orgid = pid; }
@@ -910,7 +910,7 @@ function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 		}//if(typeof(obj)=='object')
 	});//$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i)
 }//END function TreeGridViewAction
-/* END For TreeGrid */
+/*** END For TreeGrid ***/
 
 /*** For Dynamic Forms ***/
 function RepeatControl(obj,tagid) {
@@ -945,4 +945,4 @@ function RemoveRepeatableControl(obj,elementid) {
 	$('#'+elementid).remove();
 	$(obj).remove();
 }//END function RemoveRepeatableControl
-/* END For Dynamic Forms */
+/*** END For Dynamic Forms ***/

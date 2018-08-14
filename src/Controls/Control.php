@@ -276,6 +276,7 @@ abstract class Control {
 	 * Gets the html tag id string (' id="..."')
 	 *
 	 * @param  bool   $tagname Include the tag name in the result TRUE/FALSE (default FALSE)
+	 * @param null  $sufix
 	 * @return string Returns the html tag id
 	 * @access protected
 	 */

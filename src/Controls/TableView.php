@@ -1685,9 +1685,9 @@ class TableView {
 		switch($cell_type) {
 			case 'actions':
 				$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
-				if(is_null($ac_width)) {
+				if(is_null($ac_width) && is_object(NApp::$theme)) {
 					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_param($v,'count',0,'is_integer'));
-				}//if(isset($ac_width))
+				}//if(is_null($ac_width) && is_object(NApp::$theme))
 				$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
 				$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
 				$c_style .= $c_style ? '"' : '';

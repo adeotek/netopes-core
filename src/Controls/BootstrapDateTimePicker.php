@@ -12,6 +12,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
+
 /**
  * BootstrapDateTimePicker control classes
  *
@@ -22,45 +24,42 @@ namespace NETopes\Core\Controls;
  */
 class BootstrapDateTimePicker extends Control {
 	public function __construct($params = null) {
-		$this->version = '2';
 		$this->button = TRUE;
 		$this->width_offset = 20;
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
-		if(!strlen($this->version)) { $this->version = '2'; }
-		if(!strlen($this->version)) { $this->version = '2'; }
+		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
+		if(!strlen($this->format)) { $this->format = ($this->dateonly!==FALSE || $this->dateonly!==0) ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm'; }
+		if(!is_integer($this->minutesStepping) || $this->minutesStepping<=0) { $this->minutesStepping = 5; }
+		if(!is_string($this->align)) { $this->align = 'center'; }
 	}//END public function __construct
 
 	protected function SetControl() {
 		$dpclass = '';
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) { $dpclass = 'clsBsDateTimePicker'; }
 
-		$ldata = ' data-timeformat="HH:mm:ss"';
 		if(strlen($this->bsdpparams)) {
-			$ldata .= ' data-bsdpparams="'.$this->bsdpparams.'"';
+			$bsdpparams = $this->bsdpparams;
 		} else {
-			$bsdpparams = "constrainInput: true,"
-				."showButtonPanel: true"
-				."controlType: 'select',"
-				."oneLine: true,"
-				//."showSecond: false,"
-				//."pickerTimeFormat: 'HH:mm',"
-				."timeFormat: 'HH:mm:ss'";
-			$ldata .= ' data-bsdpparams="'.$bsdpparams.'"';
-		}//if(strlen($this->jqdpparams))
+			$bsdpparams = "{ locale: '{$this->locale}',"
+				."format: '{$this->format}',"
+				."showTodayButton: true,"
+				."stepping: {$this->minutesStepping} }";
+		}//if(strlen($this->bsdpparams))
 
 		$this->ProcessActions();
 		if($this->button) {
-			$result = "\t\t".'<div class="input-group date" id="datetimepicker'.$this->version.'">'."\n";
-	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
+			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'-container">'."\n";
+	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
 	    } else {
-	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
+	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	    }//if($this->button)
 		$result .= $this->GetActions();
+		NApp::_ExecJs("$('#{$this->tagid}-container').datetimepicker({$bsdpparams});");
 		return $result;
 	}//END protected function SetControl
 }//END class BootstrapDateTimePicker extends Control
