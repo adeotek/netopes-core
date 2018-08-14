@@ -25,6 +25,12 @@ interface ITheme {
 	 */
 	public function GetButtonClass(?string $type,?string $extra = NULL): string;
 	/**
+	 * @param int $actionsCount
+	 * @return int
+	 * @access public
+	 */
+	public function GetTableViewActionsWidth(int $actionsCount): int;
+	/**
 	 * @param bool $hasActions
 	 * @param bool $hasTitle
 	 * @return void
