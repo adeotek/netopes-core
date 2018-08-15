@@ -33,12 +33,12 @@ class ColorPicker extends Control {
 		if(!strlen($this->format)) { $this->format = 'hex'; }
 	}//END public function __construct
 	/**
-	 * description
+	 * Set control HTML tag
 	 *
-	 * @return void
+	 * @return string
 	 * @access protected
 	 */
-	protected function SetControl() {
+	protected function SetControl(): string {
 		if(strlen($this->jsparams)) {
 			$jsparams = $this->jsparams;
 		} else {

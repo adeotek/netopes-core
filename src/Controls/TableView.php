@@ -8,11 +8,10 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.3
+ * @version    2.2.6.1
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use PAF\AppConfig;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\Data\DataProvider;
@@ -334,7 +333,7 @@ class TableView {
 		$this->chash = \PAF\AppSession::GetNewUID();
 		$this->baseclass = 'cls'.get_class_basename($this);
 		$this->currentpage = 1;
-		$this->theme_type = AppConfig::app_theme_type();
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }

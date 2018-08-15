@@ -373,7 +373,7 @@ class Module {
 	private function ViewFileProvider($name,$sub_dir = NULL,$theme_dir = NULL) {
 		$fname = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.AppConfig::app_views_extension();
 		// Get theme directory and theme views base directory
-		$app_theme = AppConfig::app_theme();
+		$app_theme = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
 		$views_def_dir = AppConfig::app_default_views_dir();
 		$theme_modules_views_path = AppConfig::app_theme_modules_views_path();
 		$defdir = (is_string($views_def_dir) ? (strlen(trim($views_def_dir,'/')) ? '/'.trim($views_def_dir,'/') : '') : '/_default');

@@ -8,12 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.6.1
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Validator;
-use PAF\AppConfig;
 use NApp;
 /**
  * BasicForm control class
@@ -138,9 +137,9 @@ class BasicForm {
 	 */
 	public function __construct($params = NULL) {
 		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
-		$this->theme_type = AppConfig::app_theme_type();
-		$this->controls_size = AppConfig::app_theme_def_controls_size();
-		$this->actions_size = AppConfig::app_theme_def_actions_size();
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
+		$this->controls_size = is_object(NApp::$theme) ? NApp::$thme->GetControlsDefaultSize() : 'xs';
+		$this->actions_size = is_object(NApp::$theme) ? NApp::$thme->GetButtonsDefaultSize() : 'xs';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }

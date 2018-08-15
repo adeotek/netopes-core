@@ -55,19 +55,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_views_extension'=>['access'=>'readonly','default'=>'.php','validation'=>'is_notempty_string'],
   		// View files default directory inside theme
 		'app_default_views_dir'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
-	 	// Admin application theme (NULL or empty for default theme)
+	 	// Application theme (NULL or empty for default theme)
 		'app_theme'=>['access'=>'public','default'=>NULL,'validation'=>'is_string'],
- 		// Application theme type
-  		//   Values:
-  		//   - native/NULL -> custom HTML+CSS
-  		//   - bootstrap2 -> Tweeter Bootstrap 2
-  		//   - bootstrap3 -> Tweeter Bootstrap 3
-  		//   - bootstrap4 -> Tweeter Bootstrap 4
-		'app_theme_type'=>['access'=>'public','default'=>'bootstrap3','validation'=>'is_string'],
- 		// Admin application theme default controls size (Values: xlg/lg/sm/xs/xxs)
-		'app_theme_def_controls_size'=>['access'=>'public','default'=>'xxs','validation'=>'is_string'],
- 		// Admin application theme default actions (buttons) size (Values: xlg/lg/sm/xs/xxs)
-		'app_theme_def_actions_size'=>['access'=>'public','default'=>'xs','validation'=>'is_string'],
  		// Modules themed views path
 		//   If NULL/empty modules sub-directory with theme name will be used,
 		//   else the relative to application path given will be used
