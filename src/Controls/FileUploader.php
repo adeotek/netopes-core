@@ -29,7 +29,7 @@ class FileUploader extends Control {
 		$this->width = 0;
 		$this->height = 0;
 		$this->require_login = TRUE;
-		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $this->$k = $v; }
 		}//if(is_array($params) && count($params))

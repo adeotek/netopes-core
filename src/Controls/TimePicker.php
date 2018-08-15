@@ -28,9 +28,9 @@ class TimePicker extends Control {
 	 */
 	public function __construct($params = NULL) {
 		$this->button = TRUE;
-		$this->width_offset = is_object(NApp::$theme) ? NApp::$thme->GetControlsActionWidth() : 20;
-		$this->plugin_type = is_object(NApp::$theme) ? NApp::$thme->GetDateTimePickerControlsType() : '';
-		$this->plugin = is_object(NApp::$theme) ? NApp::$thme->GetDateTimePickerControlsPlugin() : '';
+		$this->width_offset = is_object(NApp::$theme) ? NApp::$theme->GetControlsActionWidth() : 20;
+		$this->plugin_type = is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsType() : '';
+		$this->plugin = is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
 		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }

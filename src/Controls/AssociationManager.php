@@ -166,7 +166,7 @@ abstract class AssociationManager {
 		$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
 		$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
 		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
-		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			if(!is_array($this->pdata)) { $this->pdata = []; }
 			foreach($params as $k=>$v) {

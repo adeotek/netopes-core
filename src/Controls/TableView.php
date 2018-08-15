@@ -333,7 +333,7 @@ class TableView {
 		$this->chash = \PAF\AppSession::GetNewUID();
 		$this->baseclass = 'cls'.get_class_basename($this);
 		$this->currentpage = 1;
-		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }

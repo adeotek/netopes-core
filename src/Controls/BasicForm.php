@@ -137,9 +137,9 @@ class BasicForm {
 	 */
 	public function __construct($params = NULL) {
 		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
-		$this->theme_type = is_object(NApp::$theme) ? NApp::$thme->GetThemeType() : 'bootstrap3';
-		$this->controls_size = is_object(NApp::$theme) ? NApp::$thme->GetControlsDefaultSize() : 'xs';
-		$this->actions_size = is_object(NApp::$theme) ? NApp::$thme->GetButtonsDefaultSize() : 'xs';
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
+		$this->controls_size = is_object(NApp::$theme) ? NApp::$theme->GetControlsDefaultSize() : 'xs';
+		$this->actions_size = is_object(NApp::$theme) ? NApp::$theme->GetButtonsDefaultSize() : 'xs';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }
