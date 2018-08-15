@@ -38,18 +38,21 @@ class BootstrapDateTimePicker extends Control {
 		$dpclass = '';
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) { $dpclass = 'clsBsDateTimePicker'; }
 
-		if(strlen($this->bsdpparams)) {
-			$bsdpparams = $this->bsdpparams;
+		if(strlen($this->jsparams)) {
+			$jsparams = $this->jsparams;
 		} else {
-			$bsdpparams = "{ locale: '{$this->locale}',"
-				."format: '{$this->format}',"
-				."showTodayButton: true,"
-				."stepping: {$this->minutesStepping} }";
-		}//if(strlen($this->bsdpparams))
+			$jsparams = "{ "
+				."locale: '{$this->locale}', "
+				."format: '{$this->format}', "
+				."showTodayButton: true, "
+				."stepping: {$this->minutesStepping}"
+				." }";
+		}//if(strlen($this->jsparams))
+		NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();
 		if($this->button) {
-			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'-container">'."\n";
+			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
@@ -59,7 +62,7 @@ class BootstrapDateTimePicker extends Control {
 	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	    }//if($this->button)
 		$result .= $this->GetActions();
-		NApp::_ExecJs("$('#{$this->tagid}-container').datetimepicker({$bsdpparams});");
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tagid}_control').datetimepicker({$jsparams});"); }
 		return $result;
 	}//END protected function SetControl
 }//END class BootstrapDateTimePicker extends Control
