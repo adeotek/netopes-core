@@ -12,6 +12,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
+
 /**
  * TimePicker control class
  *
