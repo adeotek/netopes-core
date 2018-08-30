@@ -37,7 +37,10 @@ class SmartComboBox extends Control {
 	 * @var null
 	 */
 	public $extra_items = NULL;
-
+	/**
+	 * @var null
+	 */
+	public $template_selection = NULL;
 	/**
 	 * SmartComboBox constructor.
 	 *
@@ -157,11 +160,15 @@ class SmartComboBox extends Control {
 						delay: 0,
 						cache: false,
 						data: {$ac_data_func},
-						processResults: function (data, params) { return { results: data }; }
+				processResults: function(data,params) { return { results: data }; }
 					},
-					escapeMarkup: function (markup) { return markup; },
-					templateResult: function (item) { return item.name; },
-					templateSelection: function (item) { return item.name || item.text; },\n";
+			escapeMarkup: function(markup) { return markup; },
+			templateResult: function(item) { return item.name; },\n";
+					if(is_string($this->template_selection) && strlen($this->template_selection)) {
+						$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
+					} else {
+						$js_script .= "\t\t\ttemplateSelection: function(item) { return item.name || item.text; },\n";
+					}//if(is_string($this->template_selection) && strlen($this->template_selection))
 				}//if(strlen($ac_module) && strlen($ac_method))
 				break;
 			case 'database':
@@ -178,10 +185,16 @@ class SmartComboBox extends Control {
 					}//if(is_array($data))
 				}//if(strlen($ds_name) && strlen($ds_method))
 				$litems = array_merge($litems,$dbvalues);
+				if(is_string($this->template_selection) && strlen($this->template_selection)) {
+					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
+				}//if(is_string($this->template_selection) && strlen($this->template_selection))
 				break;
 			case 'value':
 				if($this->allow_clear && strlen($this->cbo_placeholder)) { array_unshift($litems,[''=>'']); }
 				if(is_array($this->value) && count($this->value)) { $litems = array_merge($litems,$this->value); }
+				if(is_string($this->template_selection) && strlen($this->template_selection)) {
+					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
+				}//if(is_string($this->template_selection) && strlen($this->template_selection))
 				break;
 			default:
 				throw new AppException('Invalid SmartComboBox load type!');

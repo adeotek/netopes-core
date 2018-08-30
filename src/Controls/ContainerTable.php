@@ -45,7 +45,7 @@
 			$result = '';
 			if($this->control->container) {
 				$tdstyle = (is_numeric($this->control->width) && $this->control->width>0) ? ' style="width: '.$this->control->width.'px;"' : (strpos($this->control->width,'%')!==FALSE ? ' style="width: '.$this->control->width.';"' : '');
-				$lcclass = strlen($this->control->containerclass)>0 ? $this->control->containerclass : 'clsControlContainer';
+				$lcclass = strlen($this->control->container_class)>0 ? $this->control->container_class : 'clsControlContainer';
 				$result .= "\t".'<table class="'.$lcclass.'">'."\n";
 				if($this->control->no_label) {
 					$result .= "\t\t".'<tr><td>'.$content.'</td></tr>'."\n";
