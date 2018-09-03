@@ -218,6 +218,43 @@ var ARequest = {
 			window[id] = content;
 		}//if(property)
 	},//END put
+	getRadioValueFromObject : function(obj,parent,name) {
+		var result = null;
+		var radios = null;
+		if(typeof(obj)=='object' && obj!=null) {
+			if(typeof(name)!='string' || name.length==0) {
+				name = (typeof(obj.name)=='string' && obj.name.length>0 ? obj.name : '');
+			}//if(typeof(name)!='string' || name.length==0)
+			if(name.length>0) {
+				if(typeof(parent)!='object' || parent==null) {
+					var dparent = obj.dataset.parent;
+					if(dparent) {
+						parent = document.getElementById(dparent);
+					} else {
+						parent = document.getElementsByTagName('body')[0];
+					}//if(dparent)
+				}//if(typeof(parent)!='object')
+				if(typeof(parent)=='object' && parent!=null) {
+					radios = parent.querySelectorAll('[name='+name+']');
+					for(var i=0;i<radios.length;i++) {
+						if(radios[i].checked) {
+							result = radios[i].value;
+							break;
+						}//if(radios[i].checked)
+					}//END for
+				}//if(typeof(parent)=='object' && parent!=null)
+			}//if(name.length>0)
+		} else if(typeof(parent)=='object' && parent!=null && typeof(name)=='string' && name.length>0) {
+			radios = parent.querySelectorAll('[name='+name+']');
+			for(var i=0;i<radios.length;i++) {
+				if(radios[i].checked) {
+					result = radios[i].value;
+					break;
+				}//if(radios[i].checked)
+			}//END for
+		}//if(typeof(obj)=='object' && obj!=null)
+		return result;
+	},//END getRadioValueFromObject
 	getFromObject : function(obj,property,attribute) {
 		var val = '';
 		if(typeof(obj)!='object' || obj==null || !property) { return val; }
@@ -230,15 +267,10 @@ var ARequest = {
 				}//if(typeof(attribute)=='string' && attribute.length>0)
 				break;
 			case 'radio':
-				val = null;
 				if(typeof(attribute)=='string' && attribute.length>0) {
-					var radios = obj.querySelectorAll('[name='+attribute+']');
-					for(var i=0;i<radios.length;i++) {
-						if(radios[i].checked) {
-							val = radios[i].value;
-							break;
-						}//if(radios[i].checked)
-					}//END for
+					val = ARequest.getRadioValueFromObject(null,obj,attribute);
+				} else {
+					val = null;
 				}//if(typeof(attribute)=='string' && attribute.length>0)
 				break;
 			case 'visible':
@@ -312,7 +344,11 @@ var ARequest = {
 				break;
 			default:
 				// Removed call "attr--" (replaced by "attr:")
-				val = obj[property];
+				if(typeof(obj.type)=='string' && obj.type=='radio' && property=='value') {
+					val = ARequest.getRadioValueFromObject(obj,null,null);
+				} else {
+					val = obj[property];
+				}//if(typeof(obj.type)=='string' && obj.type=='radio')
 				break;
 		}//END switch
 		if(val && typeof(val)=='string') { val = val.split(ARequest.actSeparator).join(''); }
