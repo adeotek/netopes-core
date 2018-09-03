@@ -268,7 +268,8 @@ input[type="image"].FInLine {
 	font-weight: bold;
 	margin-left: 2px;
 }
-/* Forms controls sizing */
+/*** Forms controls sizing ***/
+/* XXS */
 .form-xxs .form-group .form-control,
 .form-group-xxs .form-control,
 .input-xxs {
@@ -279,41 +280,15 @@ input[type="image"].FInLine {
     line-height: 14px;
     border-radius: 2px;
 }
-.form-xs .form-group .form-control,
-.form-group-xs .form-control,
-.input-xs {
-    height: 24px;
-    padding: 4px 5px;
-    margin: 0;
-    font-size: 12px;
-    line-height: 14px;
-    border-radius: 2px;
-}
-.form-sm .form-group .form-control,
-.form-group-sm .form-control,
-.input-sm {
-    height: 30px;
-    padding: 5px;
-    margin: 0;
-    font-size: 14px;
-    line-height: 18px;
-    border-radius: 2px;
-}
+.form-xxs .form-group .input-group-addon,
+.form-group-xxs .input-group-addon,
+.input-group-addon.input-xxs { padding: 2px 4px; }
+.form-xxs .form-group .input-group-addon .glyphicon,
+.form-group-xxs .input-group-addon .glyphicon,
+.input-group-addon.input-xxs .glyphicon { font-size: 13px; }
 .form-xxs .form-group select.form-control,
 .form-group-xxs select.form-control,
-select.input-xxs {
-	padding: 2px;
-}
-.form-xs .form-group select.form-control,
-.form-group-xs select.form-control,
-select.input-xs {
-	padding: 4px 2px;
-}
-.form-sm .form-group select.form-control,
-.form-group-sm select.form-control,
-select.input-sm {
-	padding: 5px 2px;
-}
+select.input-xxs { padding: 2px; }
 .form-xxs .form-group .control-label,
 .form-group-xxs .control-label,
 .control-label.label-xxs {
@@ -322,24 +297,6 @@ select.input-sm {
     padding-bottom: 0;
     font-size: 12px;
     line-height: 20px;
-}
-.form-xs .form-group .control-label,
-.form-group-xs .control-label,
-.control-label.label-xs {
-	height: 24px;
-    padding-top: 0 !important;
-    padding-bottom: 0;
-    font-size: 12px;
-    line-height: 24px;
-}
-.form-sm .form-group .control-label,
-.form-group-sm .control-label,
-.control-label.label-sm {
-	height: 30px;
-    padding-top: 0 !important;
-    padding-bottom: 0;
-    font-size: 14px;
-    line-height: 30px;
 }
 .form-xxs .form-group .select2-selection--single,
 .form-group-xxs .select2-selection--single,
@@ -369,6 +326,35 @@ select.input-sm {
     right: 1px;
     width: 20px;
 }
+/* XS */
+.form-xs .form-group .form-control,
+.form-group-xs .form-control,
+.input-xs {
+    height: 24px;
+    padding: 4px 5px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 14px;
+    border-radius: 2px;
+}
+.form-xs .form-group .input-group-addon,
+.form-group-xs .input-group-addon,
+.input-group-addon.input-xs { padding: 4px; }
+.form-xs .form-group .input-group-addon .glyphicon,
+.form-group-xs .input-group-addon .glyphicon,
+.input-group-addon.input-xs .glyphicon { font-size: 15px; }
+.form-xs .form-group select.form-control,
+.form-group-xs select.form-control,
+select.input-xs { padding: 4px 2px; }
+.form-xs .form-group .control-label,
+.form-group-xs .control-label,
+.control-label.label-xs {
+	height: 24px;
+    padding-top: 0 !important;
+    padding-bottom: 0;
+    font-size: 12px;
+    line-height: 24px;
+}
 .form-xs .form-group .select2-selection--single,
 .form-group-xs .select2-selection--single,
 .select2-container .select2-selection--single.input-xs {
@@ -396,6 +382,29 @@ select.input-sm {
     top: 1px;
     right: 1px;
     width: 20px;
+}
+/* SM */
+.form-sm .form-group .form-control,
+.form-group-sm .form-control,
+.input-sm {
+    height: 30px;
+    padding: 5px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 18px;
+    border-radius: 2px;
+}
+.form-sm .form-group select.form-control,
+.form-group-sm select.form-control,
+select.input-sm { padding: 5px 2px; }
+.form-sm .form-group .control-label,
+.form-group-sm .control-label,
+.control-label.label-sm {
+	height: 30px;
+    padding-top: 0 !important;
+    padding-bottom: 0;
+    font-size: 14px;
+    line-height: 30px;
 }
 .form-sm .form-group .select2-selection--single,
 .form-group-sm .select2-selection--single,
@@ -425,6 +434,8 @@ select.input-sm {
     right: 1px;
     width: 20px;
 }
+/*** END Forms controls sizing ***/
+
 .select2-dropdown { margin-left: 0 !important; }
 
 .control-set {
