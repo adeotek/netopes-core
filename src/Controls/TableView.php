@@ -8,14 +8,14 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.3
+ * @version    2.2.6.1
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use PAF\AppConfig;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
@@ -333,7 +333,7 @@ class TableView {
 		$this->chash = \PAF\AppSession::GetNewUID();
 		$this->baseclass = 'cls'.get_class_basename($this);
 		$this->currentpage = 1;
-		$this->theme_type = AppConfig::app_theme_type();
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }
@@ -561,7 +561,11 @@ class TableView {
 	protected function GetData() {
 		$this->totals = [];
 		if(!strlen($this->data_source) || !strlen($this->ds_method)) {
-			$result = is_object($this->data) ? $this->data : new DataSet($this->data);
+			if(is_object($this->data)) {
+				$result = $this->data;
+			} else {
+				$result = DataSource::ConvertResultsToDataSet($this->data,'\NETopes\Core\Data\VirtualEntity');
+			}//if(is_object($this->data))
 			$result->total_count = $result->count();
 			return $result;
 		}//if(!strlen($this->data_source) || !strlen($this->ds_method))
@@ -863,6 +867,7 @@ class TableView {
 				}//if(!$f_subtype)
 				switch($f_subtype) {
 					case 'DatePicker':
+					    $ctrl_params['size'] = 'xxs';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
@@ -889,6 +894,7 @@ class TableView {
 						}//if($fc_type=='><')
 						break;
 					case 'NumericTextBox':
+					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						$ctrl_params['numberformat'] = get_array_param($selectedv,'filter_format','0|||','is_notempty_string');
@@ -911,6 +917,7 @@ class TableView {
 						break;
 					case 'TextBox':
 					default:
+					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						$ctrl_filter_value = new TextBox($ctrl_params);
@@ -1653,16 +1660,19 @@ class TableView {
 	 * @access protected
 	 */
 	protected function SetCell(&$row,&$v,$name,$has_child = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
+		$cell_type = strtolower(get_array_param($v,'type','','is_string'));
 		$result = '';
 		$c_style = '';
 		$c_halign = get_array_param($v,'halign',NULL,'is_notempty_string');
 		$c_style .= $c_halign ? ($c_style ? '' : ' style="').'text-align: '.$c_halign.';' : '';
 		$c_valign = get_array_param($v,'valign',NULL,'is_notempty_string');
 		$c_style .= $c_valign ? ($c_style ? '' : ' style="').'vertical-align: '.$c_valign.';' : '';
-		$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
-		$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
-		$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
-		$c_style .= $c_style ? '"' : '';
+		if($cell_type!='actions') {
+			$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
+			$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
+			$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
+			$c_style .= $c_style ? '"' : '';
+		}//if($cell_type!='actions')
 		$c_class = get_array_param($v,'class','','is_string');
 		$c_tooltip = $this->GetToolTip($row,$c_class,get_array_param($v,'tooltip',NULL,'isset'));
 		$c_cond_format_class = get_array_param($v,'conditional_class','','is_string','class');
@@ -1672,11 +1682,17 @@ class TableView {
 				$c_class = trim($c_class.' '.$c_cond_format_class);
 			}//if($this->CheckRowConditions($row,$c_cond_format_conditions))
 		}//if(strlen($c_cond_format_class) && count($c_cond_format_conditions))
-		$cell_type = strtolower(get_array_param($v,'type','','is_string'));
 		if($cell_type=='actions') { $c_class = trim('act-col '.$c_class); }
 		$c_class = $c_class ? ' class="'.$c_class.'"' : '';
 		switch($cell_type) {
 			case 'actions':
+				$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
+				if(is_null($ac_width) && is_object(NApp::$theme)) {
+					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_param($v,'count',0,'is_integer'));
+				}//if(is_null($ac_width) && is_object(NApp::$theme))
+				$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
+				$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
+				$c_style .= $c_style ? '"' : '';
 				if(!check_array_key('actions',$v,'is_notempty_array')) {
 					$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>&nbsp;</td>'."\n";
 					break;

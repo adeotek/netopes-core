@@ -1,8 +1,8 @@
 /**
  * NETopes controls Bootstrap 3 javascript file
  *
- * Copyright (c) 2013 - 2017 Hinter Universal SRL
- * License    LICENSE.txt
+ * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
  * @version    2.1.0.0
@@ -174,6 +174,10 @@ function ShowModalForm(width,title,close_callback,targetid) {
 				var d_close_callback = $(this).attr('data-close-callback');
 				if(d_close_callback) { eval (d_close_callback); }
             }
+            if(targetid!='modal') {
+            	$('#'+targetid).dialog('destroy');
+            	$('#'+targetid).html('');
+            }
 		},
         open: function() {
         	if($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
@@ -198,8 +202,11 @@ function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	// console.log('dynamic: '+dynamic);
 	if(skip_default_ccb==1 || skip_default_ccb==true) { $('#'+targetid).attr('data-close-callback',''); }
 	if($('#'+targetid).dialog('instance')) {
+		// console.log('dialog: close');
 		$('#'+targetid).dialog('close');
+		if(targetid!='modal') { $('#'+targetid).dialog('destroy'); }
 	} else {
+		// console.log('element: hide');
 		$('#'+targetid).hide();
 	}//if($('#'+targetid).dialog('instance'))
 	$('#'+targetid).html('');

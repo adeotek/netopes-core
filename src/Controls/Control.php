@@ -8,16 +8,17 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.6.1
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use PAF\AppConfig;
 use NETopes\Core\App\Module;
 use NETopes\Core\Data\DataProvider;
 use PAF\AppException;
 use NApp;
 use GibberishAES;
+use PAF\AppSession;
+
 /**
  * Control abstract class file
  *
@@ -123,8 +124,8 @@ abstract class Control {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
-		$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
+		$this->chash = AppSession::GetNewUID(get_class_basename($this));
+		$this->uid = AppSession::GetNewUID(get_class_basename($this),'md5');
 		$this->required = FALSE;
 		$this->labelposition = 'left';
 		$this->labelwidth = 0;
@@ -135,11 +136,11 @@ abstract class Control {
 		// $this->size = 'xxs';
 		$this->tabindex = NULL;
 		$this->baseclass = 'cls'.get_class_basename($this);
-		$this->theme_type = AppConfig::app_theme_type();
+		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $this->$k = $v; }
 		}//if(is_array($params) && count($params))
-		$this->tagid = $this->tagid=='__auto' ? \PAF\AppSession::GetNewUID() : $this->tagid;
+		$this->tagid = $this->tagid=='__auto' ? AppSession::GetNewUID() : $this->tagid;
 		if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
 		switch($this->theme_type) {
 			case 'bootstrap2':
@@ -276,6 +277,7 @@ abstract class Control {
 	 * Gets the html tag id string (' id="..."')
 	 *
 	 * @param  bool   $tagname Include the tag name in the result TRUE/FALSE (default FALSE)
+	 * @param null  $sufix
 	 * @return string Returns the html tag id
 	 * @access protected
 	 */

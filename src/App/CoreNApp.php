@@ -2,13 +2,11 @@
 /**
  * PAF implementation class file.
  *
- * description
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.5.3
+ * @version    2.2.6.1
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -16,9 +14,9 @@ use PAF\AppConfig;
 use PAF\AppSession;
 use NETopes\Core\Data\DataProvider;
 /**
-  * ClassName description
+  * CoreNApp class
   *
-  * long_description
+  * PAF implementation class
   *
   * @package  NETopes\Base
   * @access   public
@@ -155,8 +153,6 @@ abstract class CoreNApp extends \PAF\App {
 		if(strlen($views_extension)) { AppConfig::app_views_extension($views_extension); }
 		$app_theme = get_array_param($this->globals['domain_config'],'app_theme',NULL,'is_string');
 		if(isset($app_theme)) { AppConfig::app_theme($app_theme); }
-		$app_theme_type = get_array_param($this->globals['domain_config'],'app_theme_type',NULL,'is_string');
-		if(isset($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
 		$this->requires_login = $this->globals['domain_config']['requires_login'];
 		$this->login_namespace = isset($this->globals['domain_config']['login_namespace']) ? $this->globals['domain_config']['login_namespace'] : NULL;
 		$this->with_sections = $this->globals['domain_config']['with_sections'];
@@ -1125,14 +1121,7 @@ abstract class CoreNApp extends \PAF\App {
 		$this->SetParam('confirmed_user',$appdata->getProperty('confirmed'));
 		$this->SetParam('sadmin',$appdata->getProperty('sadmin'));
 		$app_theme = get_array_param($appdata,'app_theme',NULL,'is_string');
-		if(strlen($app_theme)) {
-			AppConfig::app_theme($app_theme=='_default' ? NULL : $app_theme);
-			$themes = DataProvider::GetKeyValueArray('_Custom\Offline','GetAppThemes',['raw'=>1],['keyfield'=>'value']);
-			AppConfig::app_theme_type(get_array_param($themes,$app_theme,NULL,'is_string','type'));
-		} else {
-			$app_theme_type = get_array_param($appdata,'theme_type','','is_string');
-			if(strlen($app_theme_type)) { AppConfig::app_theme_type($app_theme_type); }
-		}//if(strlen($app_theme))
+		if(strlen($app_theme)) { AppConfig::app_theme($app_theme=='_default' ? NULL : $app_theme); }
 		$this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
 		$this->SetPageParam('id_lang',$appdata->getProperty('id_language'));
 		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
@@ -1295,7 +1284,7 @@ abstract class CoreNApp extends \PAF\App {
 			$relative_path .= (is_string($theme_dir) && strlen($theme_dir) ? '/themes/'.$theme_dir : '').'/';
 		} else {
 			$app_theme = AppConfig::app_theme();
-			$relative_path .= '/themes/'.(is_string($theme_dir) && strlen($theme_dir) ? $theme_dir : (is_string($app_theme) && strlen($app_theme) ? $app_theme : 'default')).'/';
+			$relative_path .= '/themes/'.(is_string($theme_dir) && strlen($theme_dir) ? $theme_dir : (is_string($app_theme) && strlen($app_theme) && $app_theme!='_default' ? $app_theme : 'default')).'/';
 		}//if($this->current_namespace=='web')
 		return $relative_path;
 	}//END public function GetSectionPath

@@ -113,16 +113,17 @@ class DataSource {
 			$result = new DataSet($data);
 		} else {
 			if(count($data)) {
-				if(isset($data[0])) {
-					if(is_object($data[0])) {
-				$result = new DataSet($data);
-			} else {
-				$result = new DataSet();
-				foreach($data as $v) { $result->add(new $entity_class($v)); }
-					}//if(is_object($data[0]))
-				} else {
-					$result = new $entity_class($data);
-				}//if(isset($data[0]))
+			    $fElement = reset($data);
+                if(is_scalar($fElement)) {
+                    $result = new $entity_class($data);
+                } else {
+					if(is_object($fElement)) {
+				        $result = new DataSet($data);
+			        } else {
+				        $result = new DataSet();
+				        foreach($data as $v) { $result->add(new $entity_class($v)); }
+					}//if(is_object($fElement))
+				}//if(is_scalar($fElement))
 			} else {
 				$result = new DataSet([]);
 			}//if(count($data))

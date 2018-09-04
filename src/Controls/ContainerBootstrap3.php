@@ -48,6 +48,7 @@
 				$result = '';
 				$c_label_cols = 0;
 				$c_label = '';
+				$c_class = is_string($this->control->container_class) && strlen(trim($this->control->container_class)) ? $this->control->container_class : '';
 				if(!$this->control->no_label) {
 					if($this->control->labelposition=='top') {
 						$c_label_cols = 12;
@@ -64,7 +65,7 @@
 				} else {
 					$c_cols = is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=(12-$c_label_cols) ? $this->control->cols : (12-$c_label_cols);
 				}//if(!$this->control->no_label && $this->control->labelposition=='top')
-				if($this->control->container) { $result .= "\t".'<div class="form-group">'."\n"; }
+				if($this->control->container) { $result .= "\t".'<div class="form-group'.(strlen($c_class) ? ' '.$c_class : '').'">'."\n"; }
 				$result .= $c_label;
 				// if($this->control->labelposition!='top') { }
 				$result .= "\t\t".'<div class="col-md-'.$c_cols.'">'."\n";

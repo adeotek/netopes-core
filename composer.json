@@ -12,7 +12,7 @@
     "repositories": [
 		{
 			"type":"git",
-			"url": "https://git.hinter.ro:7990/scm/nop/phpajaxframework.git"
+			"url": "https://git.adeotek.com:7990/scm/nop/phpajaxframework.git"
 		},
 		{
 		  	"type": "git",
