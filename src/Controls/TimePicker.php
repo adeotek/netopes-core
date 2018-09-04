@@ -108,9 +108,10 @@ class TimePicker extends Control {
 
 		$this->ProcessActions();
 		if($this->button) {
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
-	        $result .= "\t\t\t".'<span class="input-group-addon">'."\n";
+	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";

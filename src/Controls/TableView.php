@@ -867,6 +867,7 @@ class TableView {
 				}//if(!$f_subtype)
 				switch($f_subtype) {
 					case 'DatePicker':
+					    $ctrl_params['size'] = 'xxs';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
@@ -893,6 +894,7 @@ class TableView {
 						}//if($fc_type=='><')
 						break;
 					case 'NumericTextBox':
+					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						$ctrl_params['numberformat'] = get_array_param($selectedv,'filter_format','0|||','is_notempty_string');
@@ -915,6 +917,7 @@ class TableView {
 						break;
 					case 'TextBox':
 					default:
+					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
 						$ctrl_filter_value = new TextBox($ctrl_params);

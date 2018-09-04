@@ -912,31 +912,42 @@ div.clsTableView div.clsTableViewFilters div.f-container {
 }
 div.clsTableView div.clsTableViewFilters div.f-container select,
 div.clsTableView div.clsTableViewFilters div.f-container input[type="text"] {
-	float: left;
+    float: left;
     padding: 1px 3px;
     font-size: 12px;
     line-height: 20px;
-    margin-right: 5px;
     color: #333333;
 	background: #fff none;
 	border: 1px solid #ddd;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-    border-radius: 3px;
+	border-radius: 3px;
     -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
-div.clsTableView div.clsTableViewFilters div.f-container .control-set {
+div.clsTableView div.clsTableViewFilters div.f-container select,
+div.clsTableView div.clsTableViewFilters div.f-container input[type="text"].t-box {
+    margin-right: 5px;
+}
+div.clsTableView div.clsTableViewFilters div.f-container .control-set,
+div.clsTableView div.clsTableViewFilters div.f-container .input-group {
 	float: left;
 	display: inline-table;
 	width: 200px;
+	margin-right: 5px;
 }
 div.clsTableView div.clsTableViewFilters div.f-container .control-set input[type="text"] {
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 }
-div.clsTableView div.clsTableViewFilters div.f-container .input-group-addon { padding: 4px 12px; }
+div.clsTableView div.clsTableViewFilters div.f-container .input-group input[type="text"] {
+    display: table-cell;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+div.clsTableView div.clsTableViewFilters div.f-container .control-set .input-group-addon { padding: 4px 12px; }
 div.clsTableView div.clsTableViewFilters div.f-container .select2-container {
 	float: left;
 	margin-right: 5px;
@@ -955,7 +966,7 @@ div.clsTableView div.clsTableViewFilters div.f-container input[type="text"]:focu
     outline: 0;
 }
 div.clsTableView div.clsTableViewFilters div.f-container button,
-div.clsTableView div.clsTableViewFilters div.f-container a {
+div.clsTableView div.clsTableViewFilters div.f-container > a {
 	float: left;
 	line-height: 20px;
 	padding: 1px 5px;
@@ -968,22 +979,22 @@ div.clsTableView div.clsTableViewFilters div.f-container a {
 	color: #fff;
     background-color: #00bcd4;
 }
-div.clsTableView div.clsTableViewFilters div.f-container a {
+div.clsTableView div.clsTableViewFilters div.f-container > a {
 	text-decoration: none;
 	cursor: pointer;
 }
 div.clsTableView div.clsTableViewFilters div.f-container button > i,
-div.clsTableView div.clsTableViewFilters div.f-container a > i {
+div.clsTableView div.clsTableViewFilters div.f-container > a > i {
 	margin-right: 7px;
 }
 div.clsTableView div.clsTableViewFilters div.f-container button.compact > i,
-div.clsTableView div.clsTableViewFilters div.f-container a.compact > i {
+div.clsTableView div.clsTableViewFilters div.f-container > a.compact > i {
 	margin: 0;
 	width: 20px;
 	text-align: center;
 }
 div.clsTableView div.clsTableViewFilters div.f-container button.dg-export-btn,
-div.clsTableView div.clsTableViewFilters div.f-container a.dg-export-btn {
+div.clsTableView div.clsTableViewFilters div.f-container > a.dg-export-btn {
 	float: right;
 	margin-right: 0;
 	margin-left: 5px;
@@ -1001,7 +1012,7 @@ div.clsTableView div.clsTableViewFilters div.f-container button.f-clear-btn {
     border-color: #ddd;
 }
 div.clsTableView div.clsTableViewFilters div.f-container button:hover,
-div.clsTableView div.clsTableViewFilters div.f-container a:hover {
+div.clsTableView div.clsTableViewFilters div.f-container > a:hover {
 	background-color: #00bcd4;
     border-color: #00bcd4;
     -webkit-box-shadow: 0 0 0 100px rgba(0,0,0,.05) inset;

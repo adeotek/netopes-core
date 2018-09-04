@@ -36,7 +36,7 @@ class DatePicker extends Control {
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
 		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
-		if(!is_integer($this->minutesStepping) || $this->minutesStepping<=0) { $this->minutesStepping = 5; }
+		if(!is_integer($this->minutesStepping) || $this->minutesStepping<=0) { $this->minutesStepping = 1; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->today_button)) { $this->today_button = TRUE; }
 	}//END public function __construct
@@ -95,8 +95,9 @@ class DatePicker extends Control {
 		}//if(strlen($this->jqdpparams))
 		$this->ProcessActions();
 		if($this->button) {
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="control-set">'."\n";
-			$result .= "\t\t\t".'<span class="input-group-addon" onclick="$(\'#'.$this->tagid.'\').focus();"><i class="fa fa-calendar"></i></span>'."\n";
+			$result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'" onclick="$(\'#'.$this->tagid.'\').focus();"><i class="fa fa-calendar"></i></span>'."\n";
 			$result .= "\t\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
 			$result .= "\t\t".'</div>'."\n";
 		} else {
@@ -138,7 +139,7 @@ class DatePicker extends Control {
 	            $lFormat = 'DD.MM.YYYY';
 	        } else {
 	            $lTimeFormat = strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
-	            $lFormat = 'DD.MM.YYYY HH:mm';
+	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
 	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
 	    }//if(strlen($this->format))
 	    // NApp::_Dlog($lFormat,'$lFormat');
@@ -159,9 +160,10 @@ class DatePicker extends Control {
 
 		$this->ProcessActions();
 		if($this->button) {
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
-	        $result .= "\t\t\t".'<span class="input-group-addon">'."\n";
+	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
