@@ -125,12 +125,12 @@ abstract class BaseEntity {
 	 * @param array $params
 	 * @return $this
 	 */
-	public function setBulkAttributes(array $params=[]){
-        foreach ($params as $param => $value){
-            $methodName="set".$param;
-            $this->$methodName($value);
-        }
+	public function setBulkAttributes(array $params) {
+        foreach($params as $k=>$v) {
+            $mv = 'set'.ucfirst($v);
+            $this->$mv($v);
+        }//END foreach
         return $this;
-    }
+    }//END public function setBulkAttributes
 }//END abstract class BaseEntity
 ?>
