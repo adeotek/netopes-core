@@ -118,7 +118,7 @@ abstract class BaseEntity {
      * Check if is a new instance
      */
     public function isNew(): bool {
-        if(property_exists($this,'id')) { return (!is_numeric($this->id) || $this->id==0); }
+        if(method_exists($this,'getId')) { return (!is_numeric($this->getId()) || $this->getId()==0); }
         return FALSE;
     }//END public function isNew
 	/**
