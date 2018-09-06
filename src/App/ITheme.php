@@ -96,6 +96,13 @@ interface ITheme {
 	 * @return void
 	 * @access public
 	 */
+	public function GetSubContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
+	/**
+	 * @param bool $hasActions
+	 * @param bool $hasTitle
+	 * @return void
+	 * @access public
+	 */
 	public function GetGenericContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
 }//END interface ITheme
 ?>
