@@ -14,16 +14,15 @@ trait DoctrineRepositoryStandardTrait {
 	 * @return array|null
 	 * @throws \PAF\AppException
 	 */
-	public function findFiltered(?array $params = []): ?array
-    {
+	public function findFiltered(?array $params = []): ?array {
         try {
             $s_query = get_array_param($params,'query',NULL,'is_object');
 			if($s_query instanceof Query) { return $s_query->getResult(); }
 			$firstrow = get_array_param($params,'firstrow',0,'is_integer');
 	        $lastrow = get_array_param($params,'lastrow',0,'is_integer');
 	        $sort = get_array_param($params,'sort',[],'is_array');
+	        $relations = get_array_param($params,'relations',[],'is_array');
 	        $filters = get_array_param($params,'filters',[],'is_array');
-
 			$tcount = 0;
 			$qb = $this->createQueryBuilder('e');
 			if(count($filters)) {
@@ -118,6 +117,14 @@ trait DoctrineRepositoryStandardTrait {
 	        }//if($firstrow>0)
 
 			$qb->select('e');
+			if(count($relations)) {
+			    foreach($relations as $k=>$r) {
+			        if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
+			        $qb->leftJoin('e.'.$r,$k);
+                    $qb->addSelect($k);
+                }//END foreach
+			}//if(count($relations))
+
 			$stime = microtime(TRUE);
 			$data = $qb->getQuery()->getResult();
 			$this->DbDebug($qb->getQuery(),'findFiltered',$stime);

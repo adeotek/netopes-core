@@ -90,8 +90,7 @@ abstract class BaseEntity {
 	 * @param  bool   $not_null
 	 * @return bool Returns TRUE if property exists
 	 * @access public
-	 * @throws \PAF\AppException
-	 */
+     */
 	public function hasProperty(?string $name,bool $not_null = FALSE): bool {
 		$key = convert_to_camel_case($name,TRUE);
 		if($not_null) {
