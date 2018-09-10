@@ -161,31 +161,23 @@ class BasicForm {
 			$act_params = get_array_param($action,'params',[],'is_array');
 			if(!count($act_params)) { continue; }
 			$a_class = get_array_param($act_params,'class','','is_string');
-			switch($this->theme_type) {
-				case 'bootstrap2':
-				case 'bootstrap3':
-				case 'bootstrap4':
-					$ml_class = strlen($result) ? ' ml10' : '';
-					if(get_array_param($action,'type','','is_string')=='CloseModal') {
-						$act_params['onclick'] = "CloseModalForm('".get_array_param($action,'custom_action','','is_string')."','".get_array_param($action,'targetid','','is_string')."',".intval(get_array_param($action,'dynamic',1,'bool')).")";
-						$act_params['class'] = strlen($a_class) ? $a_class : 'btn btn-default';
-					} else {
-						$act_params['class'] = strlen($a_class) ? $a_class : 'btn btn-primary';
-					}//if(get_array_param($action,'type','','is_string')=='CloseModal')
-					$act_params['class'] .= $ml_class;
-					if(strlen($this->actions_size)) { $act_params['size'] = $this->actions_size; }
-					break;
-				default:
-					if(get_array_param($action,'type','','is_string')=='CloseModal') {
-						$act_params['onclick'] = "CloseModalForm('".get_array_param($action,'custom_action','','is_string')."','".get_array_param($action,'targetid','','is_string')."',".intval(get_array_param($action,'dynamic',1,'bool')).")";
-						$act_params['class'] = strlen($a_class) ? $a_class : 'type-2';
-					}//if(get_array_param($action,'type','','is_string')=='CloseModal')
-					break;
-			}//END switch
-			$act_class = get_array_param($action,'type','Button','is_notempty_string');
+			$act_type = get_array_param($action,'type','Button','is_notempty_string');
+            if($act_type=='CloseModal') {
+                $act_class = 'Button';
+                $act_params['onclick'] = "CloseModalForm('".get_array_param($action,'custom_action','','is_string')."','".get_array_param($action,'targetid','','is_string')."',".intval(get_array_param($action,'dynamic',1,'bool')).")";
+                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(THEME_BTN_DEFAULT) : 'btn btn-default');
+            } else {
+                $act_class = $act_type;
+                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(THEME_BTN_PRIMARY) : 'btn btn-primary');
+            }//if($act_type=='CloseModal')
 			if(!is_string($act_class) || !strlen($act_class)) { continue; }
 			$act_class = '\NETopes\Core\Controls\\'.$act_class;
 			if(!class_exists($act_class)) { continue; }
+            if(strlen($result)) {
+                $ml_class = is_object(NApp::$theme) ? NApp::$theme->GetActionsSeparatorClass() : 'ml10';
+                $act_params['class'] .= (strlen(trim($ml_class)) ? ' '.trim($ml_class) : '');
+            }//if(strlen($result))
+            if(strlen($this->actions_size)) { $act_params['size'] = $this->actions_size; }
 			$act_instance = new $act_class($act_params);
 			if(!Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
 			if(get_array_param($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }

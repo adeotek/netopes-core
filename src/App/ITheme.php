@@ -10,6 +10,43 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+
+/**
+ * Button type DEFAULT
+ */
+define('THEME_BTN_DEFAULT','default');
+/**
+ * Button type PRIMARY
+ */
+define('THEME_BTN_PRIMARY','primary');
+/**
+ * Button type INFO
+ */
+define('THEME_BTN_INFO','info');
+/**
+ * Button type SUCCESS
+ */
+define('THEME_BTN_SUCCESS','success');
+/**
+ * Button type WARNING
+ */
+define('THEME_BTN_WARNING','warning');
+/**
+ * Button type DANGER
+ */
+define('THEME_BTN_DANGER','danger');
+/**
+ * Button type SPECIAL WARNING
+ */
+define('THEME_BTN_SPECIAL_W','special-w');
+/**
+ * Button type SPECIAL DARK
+ */
+define('THEME_BTN_SPECIAL_D','special-d');
+/**
+ * Button type SPECIAL LIGHT
+ */
+define('THEME_BTN_SPECIAL_L','special-l');
 /**
  * Application Theme interface
  *
@@ -59,6 +96,11 @@ interface ITheme {
 	 * @access public
 	 */
 	public function GetControlsActionWidth(): int;
+	/**
+	 * @return string
+	 * @access public
+	 */
+	public function GetActionsSeparatorClass(): string;
 	/**
 	 * @return string
 	 * @access public
