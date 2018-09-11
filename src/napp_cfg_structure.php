@@ -73,6 +73,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_api_separator'=>['access'=>'readonly','default'=>'[!]','validation'=>'is_notempty_string'],
   		// Name of the API log file
 		'api_log_file'=>['access'=>'readonly','default'=>'api.log','validation'=>'is_notempty_string'],
+		// Name of the API error log file
+		'api_error_log_file'=>['access'=>'readonly','default'=>'api_error.log','validation'=>'is_notempty_string'],
   		// Name of the cron jobs log file
 		'cron_jobs_log_file'=>['access'=>'readonly','default'=>'cron_jobs.log','validation'=>'is_notempty_string'],
   		// Name of the system tasks log file
