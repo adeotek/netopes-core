@@ -683,7 +683,7 @@ abstract class CoreNApp extends \PAF\App {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return string
 	 * @access public
 	 */
 	public function GetCurrentNamespace() {
