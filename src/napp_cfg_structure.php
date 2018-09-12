@@ -71,6 +71,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'sys_notifications_url'=>['access'=>'readonly','default'=>'http://localhost:3339','validation'=>'is_string'],
   		// API security key separator
 		'app_api_separator'=>['access'=>'readonly','default'=>'[!]','validation'=>'is_notempty_string'],
+		// Enable API requests logging
+		'api_log_requests'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
   		// Name of the API log file
 		'api_log_file'=>['access'=>'readonly','default'=>'api.log','validation'=>'is_notempty_string'],
 		// Name of the API error log file
