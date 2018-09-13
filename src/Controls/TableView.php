@@ -436,7 +436,7 @@ class TableView {
 				$fdtype = $params->safeGet('data_type','','is_string');
 				//~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
 				//~'fcond'|{$this->tagid}-f-cond-type:value
-				$isdaparam = $params->safeGet('is_ds_param',0,'is_numeric');
+				$isDSParam = $params->safeGet('is_ds_param',0,'is_numeric');
 				$call = "ControlAjaxRequest('{$this->chash}','Show',
 						'faction'|'add'
 						~'sessact'|'filters'
@@ -448,7 +448,7 @@ class TableView {
 						~'fdvalue'|".$params->safeGet('fdvalue',$this->tagid.'-f-value:value','is_notempty_string')."
 						~'fsdvalue'|".$params->safeGet('fsdvalue',"''",'is_notempty_string')."
 						~'data_type'|'{$fdtype}'
-						~'is_ds_param'|'{$isdaparam}'
+						~'is_ds_param'|'{$isDSParam}'
 					,'".$this->GetThis()."',1)->{$this->target}";
 				break;
 			case 'sort':
@@ -495,7 +495,7 @@ class TableView {
 					if(array_key_exists($ifk,$params) && !is_array($ifa)) {
 						$params[$ifk] = $ifa;
 					} else {
-						$fkey = get_array_param($this->columns[$ifk],'da_param');
+						$fkey = get_array_param($this->columns[$ifk],'ds_param');
 						if(strlen($fkey) && array_key_exists($fkey,$params)) {
 							$params[$fkey] = is_array($ifa) ? $ifa['value'] : $ifa;
 						} else {
@@ -520,7 +520,7 @@ class TableView {
 					if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) { continue; }
 					$params[$this->qsearch] = $a['value'];
 				} else {
-					$fkey = get_array_param($this->columns[$a['type']],'da_param');
+					$fkey = get_array_param($this->columns[$a['type']],'ds_param');
 					if(strlen($fkey) && array_key_exists($fkey,$params)) {
 						$params[$fkey] = $a['value'];
 					} else {
@@ -609,9 +609,9 @@ class TableView {
 				$dvalue = get_array_param($fparams,'fdvalue',NULL,'isset');
 				$sdvalue = get_array_param($fparams,'fsdvalue',NULL,'isset');
 				$fdtype = get_array_param($fparams,'data_type','','is_string');
-				$isdaparam = get_array_param($fparams,'is_ds_param',0,'is_numeric');
+				$isDSParam = get_array_param($fparams,'is_ds_param',0,'is_numeric');
 				if(!$op || !isset($type) || !$cond || !isset($value)) { continue; }
-				$lfilters[] = array('operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam);
+				$lfilters[] = array('operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 			}//END foreach
 		} else {
 			$op = $params->safeGet('fop',NULL,'is_notempty_string');
@@ -622,9 +622,9 @@ class TableView {
 			$dvalue = $params->safeGet('fdvalue',NULL,'isset');
 			$sdvalue = $params->safeGet('fsdvalue',NULL,'isset');
 			$fdtype = $params->safeGet('data_type','','is_string');
-			$isdaparam = $params->safeGet('is_ds_param',0,'is_numeric');
+			$isDSParam = $params->safeGet('is_ds_param',0,'is_numeric');
 			if(!$op || !isset($type) || !$cond || !isset($value)) { return $this->filters; }
-			$lfilters[] = array('operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam);
+			$lfilters[] = array('operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 		}//if(count($multif))
 		// NApp::_Dlog($lfilters,'$lfilters');
 		return $lfilters;
@@ -735,8 +735,8 @@ class TableView {
 		$cfctype = '';
 		foreach($this->columns as $k=>$v) {
 			if(!get_array_param($v,'filterable',FALSE,'bool')) { continue; }
-			$isdaparam = intval(strlen(get_array_param($v,'da_param','','is_string'))>0);
-			if($isdaparam && $this->CheckIfFilterIsActive($k)) { continue; }
+			$isDSParam = intval(strlen(get_array_param($v,'ds_param','','is_string'))>0);
+			if($isDSParam && $this->CheckIfFilterIsActive($k)) { continue; }
 			if($cftype==$k || (!strlen($cftype) && !$is_qsearch && !$selectedv)) {
 				$lselected = ' selected="selected"';
 				$cfctype = get_array_param($v,'filter_type','','is_string');
@@ -790,9 +790,9 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'combobox':
@@ -811,9 +811,9 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'treecombobox':
@@ -836,9 +836,9 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'datepicker':
@@ -938,7 +938,7 @@ class TableView {
 						break;
 				}//END switch
 				$dvalue = $this->tagid.'-f-value:value';
-				$f_b_params = $fc_type=='><' ? array('fdvalue'=>$dvalue,'fsdvalue'=>$sdvalue,'fvalue'=>$fval,'fsvalue'=>$fsval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam) : array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isdaparam);
+				$f_b_params = $fc_type=='><' ? array('fdvalue'=>$dvalue,'fsdvalue'=>$sdvalue,'fvalue'=>$fval,'fsvalue'=>$fsval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam) : array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 				if($this->compact_mode) {
 					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
