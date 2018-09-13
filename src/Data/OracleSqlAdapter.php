@@ -172,7 +172,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':
@@ -329,7 +329,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':
@@ -343,7 +343,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 									case 'datetime':
 									case 'datetime_obj':
 										switch(strtolower($fcond)) {
-											case '=':
+											case '==':
 												$fvalue = NValidator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart);
 												$fsvalue = NValidator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart);
 												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield)."\" BETWEEN '{$fvalue}' AND '{$fsvalue}') ";

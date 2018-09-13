@@ -37,14 +37,25 @@ class DoctrineDataSource extends DataSource {
 	 * @throws \PAF\AppException
 	 */
 	public function GetItems($params = [],$extra_params = []) {
-		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-		if(!is_array($extra_params)) { $extra_params = []; }
-		if(!isset($extra_params['filters']) || !is_array($extra_params['filters'])) { $extra_params['filters'] = []; }
-		$qsearch = get_array_param($params,'for_text','','is_string');
-		if(!strlen($qsearch) || strtolower($qsearch)!=='null') { $extra_params['filters'][] = ['field'=>['name','comments'],'condition_type'=>'contains','value'=>$qsearch]; }
-		$result = $this->adapter->em->getRepository($this->entityName)->findFiltered($extra_params);
-		return $result;
-	}//END public function GetItems
+        if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
+        if(!is_array($extra_params)) { $extra_params = []; }
+        if(!isset($extra_params['filters']) || !is_array($extra_params['filters'])) { $extra_params['filters'] = []; }
+        if(is_array($params) && count($params)) {
+            foreach($params as $pn=>$pv) {
+                switch($pn) {
+                    case 'for_text':
+                        $fieldsList = get_array_param($extra_params,'qs_fields',[],'is_array');
+                        if(is_string($pv) && strlen($pv) && strtolower($pv)!=='null') { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'contains','value'=>$pv]; }
+                        break;
+                    default:
+                        if(isset($pv) && is_scalar($pv)) { $extra_params['filters'][] = ['field'=>$pn,'condition_type'=>'==','value'=>$pv]; }
+                        break;
+                }//END switch
+            }//END foreach
+        }//if(is_array($params) && count($params))
+        $result = $this->adapter->em->getRepository($this->entityName)->findFiltered($extra_params);
+        return $result;
+    }//END public function GetItems
 	/**
 	 * Gets projects list
 	 *

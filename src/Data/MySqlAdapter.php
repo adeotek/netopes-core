@@ -136,7 +136,7 @@ class MySqlAdapter extends SqlDataAdapter {
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtolower($sep) : '').' '.$t_alias.'`'.$ffield.'` '.strtolower($fcond)." '%".$fvalue."%'";
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':

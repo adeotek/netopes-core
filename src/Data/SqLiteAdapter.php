@@ -120,7 +120,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtolower($sep) : '').' "'.$ffield.'" '.strtolower($fcond)." '%".$fvalue."%'";
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':

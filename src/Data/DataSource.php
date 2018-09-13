@@ -114,7 +114,7 @@ class DataSource {
 		} else {
 			if(count($data)) {
 			    $fElement = reset($data);
-                if(is_scalar($fElement)) {
+                if(is_null($fElement) || is_scalar($fElement)) {
                     $result = new $entity_class($data);
                 } else {
 					if(is_object($fElement)) {

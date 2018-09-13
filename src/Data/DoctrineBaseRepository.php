@@ -5,12 +5,10 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 
-class DoctrineBaseRepository extends EntityRepository
-{
+class DoctrineBaseRepository extends EntityRepository {
 	use DoctrineRepositoryStandardTrait;
 
-	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10)
-    {
+	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10) {
         $qb = $this->createQueryBuilder('e');
 		$words = str_word_count($term, 1, '1234567890');
 		foreach($params as $pn=>$pv) {
@@ -30,6 +28,6 @@ class DoctrineBaseRepository extends EntityRepository
         \NApp::_Dlog($qb->getDQL(),'getDQL');
         \NApp::_Dlog($qb->getQuery()->getSQL(),'getSQL');
         return $qb->getQuery()->getResult();
-    }
-}
+    }//END public function getSearchResults
+}//END class DoctrineBaseRepository extends EntityRepository
 ?>

@@ -275,8 +275,10 @@
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+     * @param array $params Parameters object (instance of [Params])
+     * @param null  $info
+     * @return bool|string
+     * @throws \Exception
 	 */
 	function curl_call($params = [],&$info = NULL) {
 		if(!is_array($params) || !count($params)) { return FALSE; }
@@ -295,7 +297,7 @@
 			CURLOPT_FOLLOWLOCATION=>TRUE,
 			CURLOPT_CONNECTTIMEOUT=>60,
 			CURLOPT_TIMEOUT=>300,
-			CURLOPT_MUTE=>TRUE,
+			// CURLOPT_MUTE=>TRUE,
 			// CURLOPT_FRESH_CONNECT=>TRUE,
 	        // CURLOPT_HEADER=>FALSE,
 			CURLOPT_USERAGENT=>$req_user_agent,

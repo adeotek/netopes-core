@@ -1478,6 +1478,40 @@ class TableView {
 					$this->export_data['data'][$row->__rowid][$name] = $result;
 				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
 				break;
+			case 'relation':
+				// Check conditions for displaing action
+				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+					$result = NULL;
+					break;
+				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
+				$c_data_type = get_array_param($v,'data_type','','is_string');
+				$c_relation = get_array_param($v,'relation','','is_string');
+				if(strlen($c_relation) && is_object($row)) {
+				    $rGetter = 'get'.ucfirst($c_relation);
+				    $pGetter = 'get'.ucfirst($v['db_field']);
+				    $rObj = $row->$rGetter();
+                    $c_value = is_object($rObj) ? $rObj->$pGetter() : NULL;
+				} else {
+				    $c_value = NULL;
+				}//if(strlen($c_relation) && is_object($row))
+				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+					if($c_data_type=='numeric') {
+						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+					} else {
+						$c_summarize_type = 'count';
+					}//if($c_data_type=='numeric')
+					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
+				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				$result = $c_value;
+				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
+					if(strlen($c_format) && $c_data_type=='numeric') {
+						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
+					}//if(strlen($c_format) && $c_data_type=='numeric')
+					$this->export_data['data'][$row->__rowid][$name] = $c_value;
+				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				break;
 			case 'custom_function':
 				$c_function = get_array_param($v,'function_name','','is_string');
 				if(strlen($c_function) && method_exists($this,$c_function)) {
@@ -1705,6 +1739,7 @@ class TableView {
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
 				break;
+			case 'relation':
 			case 'value':
 				if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));

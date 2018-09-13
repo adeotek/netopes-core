@@ -123,6 +123,11 @@ abstract class CoreNApp extends \PAF\App {
 	 */
 	public $customizations = [];
 	/**
+	 * @var    array|null An array of instance configuration options
+	 * @access protected
+	 */
+	protected $instanceConfig = NULL;
+	/**
 	 * description
 	 *
 	 * @param bool  $ajax
@@ -683,7 +688,7 @@ abstract class CoreNApp extends \PAF\App {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return string
 	 * @access public
 	 */
 	public function GetCurrentNamespace() {
@@ -1289,6 +1294,43 @@ abstract class CoreNApp extends \PAF\App {
 		return $relative_path;
 	}//END public function GetSectionPath
 	/**
+     * @param array $config
+     * @return array
+     * @access protected
+     */
+    protected function PrepareInstanceConfigData(array $config): array {
+        $result = [];
+        foreach($config as $item) {
+            $section = strtolower(get_array_param($item,'section','','is_string'));
+            $option = strtolower(get_array_param($item,'option','','is_string'));
+            if(!strlen($option)) { continue; }
+            $locationId = get_array_param($item,'id_location',NULL,'is_integer');
+            if(!isset($result[$section])) {
+                $result[$section] = [];
+            } elseif(!isset($result[$section][$option])) {
+                $result[$section][$option] = [];
+            }//if(!isset($result[$section]))
+            $result[$section][$option][(string)$locationId] = get_array_param($item,'value','','is_string');
+        }//END foreach
+	    return $result;
+	}//END protected function PrepareInstanceConfigData
+    /**
+     * @param string   $option
+     * @param string   $section
+     * @param int|null $locationId
+     * @return string|null
+     * @access public
+     * @throws \Exception
+     */
+    public function GetInstanceOption(string $option,string $section = '',?int $locationId = NULL): ?string {
+        if(is_null($locationId)) { $locationId = $this->GetPageParam('location_id'); }
+        if(!is_array($this->instanceConfig)) { $this->LoadInstanceConfig(); }
+        $options = get_array_param($this->instanceConfig,strtolower($section),[],'is_array',strtolower($option));
+        $this->Dlog($options,'$options');
+        $this->Dlog($locationId,'$locationId');
+        return get_array_param($options,$locationId,get_array_param($options,'',NULL,'is_string'),'is_string');
+	}//END protected function GetInstanceOption
+	/**
 	 * Get theme object
 	 *
 	 * @param string $theme
@@ -1296,5 +1338,12 @@ abstract class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public abstract function GetTheme(string $theme = ''): ?ITheme;
+	/**
+	 * Load instance specific configuration options (into protected $instanceConfig property)
+	 *
+	 * @return void
+	 * @access public
+	 */
+	protected abstract function LoadInstanceConfig(): void;
 }//END class CoreNApp extends \PAF\App
 ?>

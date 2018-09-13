@@ -90,8 +90,7 @@ abstract class BaseEntity {
 	 * @param  bool   $not_null
 	 * @return bool Returns TRUE if property exists
 	 * @access public
-	 * @throws \PAF\AppException
-	 */
+     */
 	public function hasProperty(?string $name,bool $not_null = FALSE): bool {
 		$key = convert_to_camel_case($name,TRUE);
 		if($not_null) {
@@ -118,19 +117,26 @@ abstract class BaseEntity {
      * Check if is a new instance
      */
     public function isNew(): bool {
-        if(property_exists($this,'id')) { return (!is_numeric($this->id) || $this->id==0); }
+        if(method_exists($this,'getId')) {
+            try {
+                $result = (!is_numeric($this->getId()) || $this->getId()==0);
+            } catch(\Exception $e) {
+                $result = FALSE;
+            }//END try
+            return $result;
+        }//if(method_exists($this,'getId'))
         return FALSE;
     }//END public function isNew
 	/**
 	 * @param array $params
 	 * @return $this
 	 */
-	public function setBulkAttributes(array $params=[]){
-        foreach ($params as $param => $value){
-            $methodName="set".$param;
-            $this->$methodName($value);
-        }
+	public function setBulkAttributes(array $params) {
+        foreach($params as $k=>$v) {
+            $mv = 'set'.ucfirst($v);
+            $this->$mv($v);
+        }//END foreach
         return $this;
-    }
+    }//END public function setBulkAttributes
 }//END abstract class BaseEntity
 ?>

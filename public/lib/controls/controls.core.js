@@ -162,7 +162,7 @@ $(document).on('focus','.clsJqTimePicker',function(e) {
 /*** For NumericTextBox ***/
 $(document).on('focus','.clsSetNumberFormat',function(e) {
 	var anull = $(this).attr('data-anull');
-	if(anull!=1 || $(this).val()!='') {
+	if(anull!==1 || $(this).val()!=='') {
 		var nformat = $(this).attr('data-format');
 		if(nformat) {
 			var farr = nformat.split('|');
@@ -174,7 +174,7 @@ $(document).on('focus','.clsSetNumberFormat',function(e) {
 
 $(document).on('focusout','.clsSetNumberFormat',function(e) {
 	var anull = $(this).attr('data-anull');
-	if((anull=='1' || anull=='true') && $(this).val()=='') {
+	if((anull==='1' || anull==='true') && $(this).val()==='') {
 		$(this).css('color','#000000');
 	} else {
 		if($(this).hasClass('clsNumDiscColor')) {
@@ -201,16 +201,49 @@ $(document).on('focusout','.clsSetNumberFormat',function(e) {
 	}//if((anull=='1' || anull=='true') && $(this).val()=='')
 });//$(document).on('focusout','.clsSetNumberFormat',function(e)
 
-function GetNumericTextboxValue(element_value,decimal_separator,group_separator,sufix) {
-	var numeric_val = Number(element_value.replaceAll(sufix,'').replaceAll(group_separator,'').replaceAll(decimal_separator,'.'));
-	return numeric_val;
-}//function GetNumericTextboxValue(element_value,decimal_separator,group_separator,sufix)
+/**
+ * @return {number}
+ */
+function FormatToNumericValue(element_value,decimal_separator,group_separator,sufix) {
+    return Number(element_value.replaceAll(sufix,'').replaceAll(group_separator,'').replaceAll(decimal_separator,'.'));
+}//END function FormatToNumericValue
+
+/**
+ * @return {number}
+ */
+function GetNumericTextboxValue(element) {
+	var eObj = null;
+	if(typeof(element)==='object') {
+		if(element.length) {
+			eObj = element;
+		}
+	} else if(typeof(element)==='string') {
+		if(element.length) {
+			eObj = $('#'+element);
+		}
+	}
+	if(eObj==null) {
+		console.log('Invalid element:');
+		console.log(element);
+		return null;
+	}
+	var dFormat = eObj.data('format');
+	if(!dFormat.length) {
+		return eObj.val();
+	} else {
+		var farr = dFormat.split('|');
+		var decimalSeparator = farr[1] || '.';
+		var groupSeparator = farr[2] || ',';
+		var suffix = farr[3] || '';
+		return FormatToNumericValue(eObj.val(), decimalSeparator, groupSeparator, suffix);
+	}//if(!dFormat.length)
+}//END function GetNumericTextboxValue
 
 function GetCalculatedValue(element_value,decimal_separator) {
 	var formated_value = element_value+'';
 	formated_value = formated_value.replaceAll('.',decimal_separator);
 	return formated_value;
-}//function GetCalculatedValue(element_value,decimal_separator)
+}//END function GetCalculatedValue
 /*** END For NumericTextBox ***/
 
 /*** For CheckBox control ***/
