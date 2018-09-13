@@ -76,7 +76,7 @@ class DataProvider {
 	 * @access public
 	 * @static
 	 */
-	public static function GetDataSource($ds_name,$connection = NULL,$mode = NULL,$existing_only = FALSE) {
+	public static function GetDataSource(string $ds_name,$connection = NULL,?string $mode = NULL,bool $existing_only = FALSE) {
 		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$ns_path;
 		$ds_arr = explode('\\',trim($ds_name,'\\'));
 		$ds_type = array_shift($ds_arr);
@@ -125,9 +125,9 @@ class DataProvider {
 	 * @static
 	 * @throws \PAF\AppException
 	 */
-	public static function MethodExists($name,$method) {
+	public static function MethodExists(string $name,string $method,?string $mode = NULL): bool {
 		if(!strlen($name) || !strlen($method)) { return FALSE; }
-		$da = self::GetDataSource($name);
+		$da = self::GetDataSource($name,NULL,$mode);
 		return method_exists($da,$method);
 	}//END public static function MethodExists
 	/**
@@ -144,7 +144,7 @@ class DataProvider {
 	 * @static
 	 * @throws \PAF\AppException
 	 */
-	public static function GetArray($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
+	public static function GetArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$connection = NULL;
 		if(is_array($extra_params) && array_key_exists('connection',$extra_params)) {
 			if((is_array($extra_params['connection']) && count($extra_params['connection'])) || (is_string($extra_params['connection']) && strlen($extra_params['connection']))) { $connection = $extra_params['connection']; }
@@ -180,7 +180,7 @@ class DataProvider {
 	 * @static
 	 * @throws \PAF\AppException
 	 */
-	public static function GetKeyValueArray($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
+	public static function GetKeyValueArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$keyfield = get_array_param($extra_params,'keyfield','id','is_notempty_string');
 		unset($extra_params['keyfield']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
@@ -200,7 +200,7 @@ class DataProvider {
 	 * @static
 	 * @throws \PAF\AppException
 	 */
-	public static function Get($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
+	public static function Get(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
@@ -232,7 +232,7 @@ class DataProvider {
 	 *
 	 * @param array $params
 	 * @param array $connection
-	 * @return void
+	 * @return mixed
 	 * @throws \PAF\AppException
 	 * @access public
 	 * @static
@@ -274,7 +274,7 @@ class DataProvider {
 	 * @param bool  $log
 	 * @param bool  $overwrite
 	 * @param null  $custom_tran_params
-	 * @return void
+	 * @return mixed
 	 * @throws \PAF\AppException
 	 * @access public
 	 * @static
@@ -295,7 +295,7 @@ class DataProvider {
 	 * @param bool  $error
 	 * @param array $connection
 	 * @param bool  $log
-	 * @return void
+	 * @return mixed
 	 * @throws \PAF\AppException
 	 * @access public
 	 * @static
