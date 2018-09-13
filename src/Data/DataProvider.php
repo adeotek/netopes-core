@@ -120,10 +120,11 @@ class DataProvider {
 	 *
 	 * @param  string $name Data adapter name
 	 * @param  string $method Method to be searched
+     * @param null|string $mode
 	 * @return bool Returns TRUE if the method exist of FALSE otherwise
+     * @throws \PAF\AppException
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
 	 */
 	public static function MethodExists(string $name,string $method,?string $mode = NULL): bool {
 		if(!strlen($name) || !strlen($method)) { return FALSE; }

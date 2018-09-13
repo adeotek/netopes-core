@@ -14,6 +14,9 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\DataSet;
+use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\VirtualEntity;
 
 /**
  * Control iterator control
@@ -28,7 +31,7 @@ class ControlIterator extends Control {
      * @var    string Iterator type (array/DataSource/Module)
      * @access public
      */
-    public $iterator_type = 'array';
+    public $iterator_type = 'list';
     /**
      * @var    string Iterator class name (DataSource/Module name)
      * @access public
@@ -44,6 +47,11 @@ class ControlIterator extends Control {
      * @access public
      */
     public $iterator_params = NULL;
+    /**
+     * @var    array Iterator extra parameters array
+     * @access public
+     */
+    public $iterator_extra_params = [];
     /**
      * @var    array Iterator items array
      * @access public
@@ -69,12 +77,11 @@ class ControlIterator extends Control {
      * @access public
      */
     public $conditions = [];
-    // /**
-    //  * @var    array Control dynamic parameters array
-    //  * @access public
-    //  */
-    // public $dynamic_params = [];
-
+    /**
+     * ControlIterator constructor.
+     *
+     * @param null $params
+     */
     public function __construct($params = NULL) {
         $this->postable = FALSE;
         parent::__construct($params);
@@ -89,34 +96,41 @@ class ControlIterator extends Control {
                 break;
         }//END switch
     }//END public function __construct
-
+    /**
+     * @return array|mixed|\NETopes\Core\Data\DataSet|null
+     * @throws \PAF\AppException
+     */
     protected function GetItems() {
+        $items = NULL;
         switch(strtolower($this->iterator_type)) {
             case 'module':
-                $result = NULL;
                 if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method) && ModulesProvider::ModuleMethodExists($this->iterator_name,$this->iterator_method)) {
                     $iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
-                    $result = ModulesProvider::Exec($this->iterator_name,$this->iterator_method,$iparams);
+                    $items = ModulesProvider::Exec($this->iterator_name,$this->iterator_method,$iparams);
                 }//if(...
-                $items = is_array($result) ? $result : [];
                 break;
             case 'datasource':
-                $result = NULL;
-                if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method) && DataProvider::MethodExists($this->iterator_name,$this->iterator_method)) {
-                    $iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
-                    $result = DataProvider::GetArray($this->iterator_name,$this->iterator_method,$iparams);
+                $iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
+                $ieparams = is_array($this->iterator_extra_params) ? $this->iterator_extra_params : [];
+                if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method)) {
+                    if(DataProvider::MethodExists($this->iterator_name,$this->iterator_method,get_array_value($ieparams,'mode',NULL,'is_notempty_string'))) {
+                        $items = DataProvider::Get($this->iterator_name,$this->iterator_method,$iparams,$ieparams);
+                    }//if(...
                 }//if(...
-                $items = is_array($result) ? $result : [];
                 break;
-            case 'array':
+            case 'list':
             default:
-                $items = is_array($this->items) ? $this->items : [];
+                $items = $this->items;
                 break;
         }//END switch
-        return $items;
+        if(is_object($this->items)) { return $this->items; }
+        return DataSource::ConvertArrayToDataSet($items,VirtualEntity::class);
     }//END protected function GetItems
-
-    protected function SetControl() {
+    /**
+     * @return string|null
+     * @throws \PAF\AppException
+     */
+    protected function SetControl(): ?string {
         $this->items = $this->GetItems();
         switch($this->theme_type) {
             case 'bootstrap2':
@@ -138,23 +152,26 @@ class ControlIterator extends Control {
                 }//if($this->container)
                 break;
         }//END switch
-        if(strlen($this->control) && class_exists($this->control)) {
+        if(strlen($this->control) && is_object($this->items) && $this->items->count()) {
+            $controlClass = 'NETopes\Core\Controls\\'.$this->control;
+            if(class_exists($controlClass)) {
             foreach($this->items as $k=>$v) {
                 if(is_array($this->conditions) && count($this->conditions)) {
                     $iconditions = self::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
-                    if(!self::CheckRowConditions($v,$iconditions)) { continue; }
+                    if(!self::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
                 }//if(is_array($this->conditions) && count($this->conditions))
                 if(is_array($this->params)) {
                     $lparams = self::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
                 } else {
                     $lparams = [];
                 }//if(is_array($this->params))
-                $ctrl = new $this->control($lparams);
+                    $ctrl = new $controlClass($lparams);
                 $lcontent .= $lprefix.$ctrl->Show()."\n".$lsufix;
                 unset($ctrl);
                 unset($lparams);
             }//END foreach
-        }//if(strlen($this->control) && class_exists($this->control))
+            }//if(class_exists($controlClass))
+        }//if(strlen($this->control) && class_exists($this->control) && is_object($this->items) && $this->items->count())
         switch($this->theme_type) {
             case 'bootstrap2':
             case 'bootstrap3':

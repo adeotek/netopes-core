@@ -15,6 +15,8 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSet;
 use NApp;
+use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
 /**
@@ -60,7 +62,7 @@ class GroupCheckBox extends Control {
      */
     public function __construct($params = NULL) {
         parent::__construct($params);
-        if(is_array($this->items)) { $this->items = new DataSet($this->items); }
+        if(!is_object($this->items)) { $this->items = DataSource::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
         if(!strlen($this->tagid)) { $this->tagid = \PAF\AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
 
