@@ -277,7 +277,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':
@@ -286,7 +286,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
                                     case 'datetime':
                                     case 'datetime_obj':
                                         switch(strtolower($fcond)) {
-                                            case '=':
+                                            case '==':
                                                 $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
                                                 $fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,1);
                                                 $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
@@ -507,7 +507,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 							case 'not like':
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
 								break;
-							case '=':
+							case '==':
 							case '<>':
 							case '<=':
 							case '>=':
@@ -521,7 +521,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 									case 'datetime':
 									case 'datetime_obj':
 										switch(strtolower($fcond)) {
-											case '=':
+											case '==':
 												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart);
 												$fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart);
 												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}')";
