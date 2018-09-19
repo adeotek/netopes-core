@@ -1,0 +1,35 @@
+{
+    "name": "netopes/core",
+    "description": "NETopes Framework Core",
+    "type": "library",
+    "license": "MIT License",
+    "authors": [
+        {
+            "name": "George Benjamin-Schonberger",
+            "email": "george.benjamin@gmail.com"
+        }
+    ],
+    "repositories": [
+		{
+			"type":"git",
+			"url": "https://github.com/adeotek/paf.git"
+		},
+		{
+		  	"type": "git",
+		  	"url": "https://github.com/adeotek/gibberish-aes-php.git"
+		}
+	],
+	"minimum-stability": "stable",
+    "require": {
+        "php": ">=7.1",
+        "adeotek/paf": "2.*",
+        "tecnickcom/tcpdf": "6.2.*",
+		"phpoffice/phpspreadsheet": "1.2.*",
+		"swiftmailer/swiftmailer": "6.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "NETopes\\Core\\": "src"
+        }
+    }
+}
