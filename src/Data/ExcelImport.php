@@ -223,7 +223,7 @@ class ExcelImport {
 		try {
 			$lparams = $this->ds_params;
 			foreach($this->fields as $k=>$v) {
-				$da_param = get_array_param($v,'da_param','','is_string');
+				$da_param = get_array_param($v,'ds_param','','is_string');
 				if(!strlen($da_param) || !array_key_exists($da_param,$lparams)) { continue; }
 				$lparams[$da_param] = get_array_param($row,$k,'null','isset');
 			}//END foreach

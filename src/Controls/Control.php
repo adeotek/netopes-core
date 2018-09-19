@@ -14,6 +14,7 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\VirtualEntity;
 use PAF\AppException;
 use NApp;
 use GibberishAES;
@@ -760,11 +761,14 @@ abstract class Control {
 	* @param  array $params The parameters array to be parsed
 	* @param  object $row Data row object to be used for replacements
 	* @param  bool  $recursive Flag indicating if the array should be parsed recursively
-	* @return array Return processed parameters array
+     * @param null    $params_prefix
+     * @return array|string Return processed parameters array
 	* @access public
 	* @static
+     * @throws \PAF\AppException
 	*/
 	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$params_prefix = NULL) {
+	    $lRow = is_object($row) ? $row : new VirtualEntity(is_array($row) ? $row : []);
 		if(is_string($params)) {
 			if(!strlen($params)) { return $params; }
 			if(is_string($params_prefix) && strlen($params_prefix)) {
@@ -777,7 +781,7 @@ abstract class Control {
 			if(is_array($rv_arr[0])) {
 				foreach($rv_arr[0] as $pfr) {
 					if(strpos($result,$pfr)===FALSE) { continue; }
-					$result = str_replace($pfr,addslashes($row->getProperty(trim($pfr,'{}'),NULL,'isset')),$result);
+					$result = str_replace($pfr,addslashes($lRow->getProperty(trim($pfr,'{}'),NULL,'isset')),$result);
 				}//END foreach
 			}//if(is_array($rv_arr[0]))
 			return $result;
@@ -786,7 +790,7 @@ abstract class Control {
 		$result = [];
 		foreach(array_keys($params) as $pk) {
 			if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1'))) {
-				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$row,TRUE,$params_prefix);
+				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$lRow,TRUE,$params_prefix);
 			} else {
 				$result[$pk] = $params[$pk];
 			}//if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1')))

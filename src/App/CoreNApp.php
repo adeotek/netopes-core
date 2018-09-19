@@ -118,16 +118,6 @@ abstract class CoreNApp extends \PAF\App {
 	 */
 	public $app_options_loaded = FALSE;
 	/**
-	 * @var    array Customizations options array
-	 * @access public
-	 */
-	public $customizations = [];
-	/**
-	 * @var    array|null An array of instance configuration options
-	 * @access protected
-	 */
-	protected $instanceConfig = NULL;
-	/**
 	 * description
 	 *
 	 * @param bool  $ajax
@@ -1132,12 +1122,6 @@ abstract class CoreNApp extends \PAF\App {
 		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
 		$this->url->SetParam('language',$appdata->getProperty('lang_code'));
 		$this->InitializeKCFinder();
-		try {
-			require_once($this->app_path._AAPP_CONFIG_PATH.'/Customizations.inc');
-			$this->customizations = (isset($_CUSTOMIZATION_CONFIG) && is_array($_CUSTOMIZATION_CONFIG)) ? $_CUSTOMIZATION_CONFIG : [];
-		} catch(\Exception $e) {
-			$this->Write2LogFile($e->getMessage(),'error');
-		}//END try
 		/*
 		$this->db_global_params = array(
 			'user_id'=>$this->GetParam('user_id'),
@@ -1293,27 +1277,6 @@ abstract class CoreNApp extends \PAF\App {
 		}//if($this->current_namespace=='web')
 		return $relative_path;
 	}//END public function GetSectionPath
-	/**
-     * @param array $config
-     * @return array
-     * @access protected
-     */
-    protected function PrepareInstanceConfigData(array $config): array {
-        $result = [];
-        foreach($config as $item) {
-            $section = strtolower(get_array_param($item,'section','','is_string'));
-            $option = strtolower(get_array_param($item,'option','','is_string'));
-            if(!strlen($option)) { continue; }
-            $locationId = get_array_param($item,'id_location',NULL,'is_integer');
-            if(!isset($result[$section])) {
-                $result[$section] = [];
-            } elseif(!isset($result[$section][$option])) {
-                $result[$section][$option] = [];
-            }//if(!isset($result[$section]))
-            $result[$section][$option][(string)$locationId] = get_array_param($item,'value','','is_string');
-        }//END foreach
-	    return $result;
-	}//END protected function PrepareInstanceConfigData
     /**
      * @param string   $option
      * @param string   $section
@@ -1322,14 +1285,20 @@ abstract class CoreNApp extends \PAF\App {
      * @access public
      * @throws \Exception
      */
-    public function GetInstanceOption(string $option,string $section = '',?int $locationId = NULL): ?string {
+    public function GetIOption(string $option,string $section = '',?int $locationId = NULL): ?string {
         if(is_null($locationId)) { $locationId = $this->GetPageParam('location_id'); }
-        if(!is_array($this->instanceConfig)) { $this->LoadInstanceConfig(); }
-        $options = get_array_param($this->instanceConfig,strtolower($section),[],'is_array',strtolower($option));
-        $this->Dlog($options,'$options');
-        $this->Dlog($locationId,'$locationId');
-        return get_array_param($options,$locationId,get_array_param($options,'',NULL,'is_string'),'is_string');
-	}//END protected function GetInstanceOption
+        if(!is_array(AppConfig::IsInstanceConfigLoaded())) { $this->LoadInstanceConfig(); }
+        return AppConfig::GetInstanceOption($option,$section,$locationId);
+	}//END public function GetIOption
+    /**
+     * @param array $data
+     * @param bool  $raw
+     * @return array
+     * @access public
+     */
+    public function SetInstanceConfigData(array $data,bool $raw): array {
+        return AppConfig::SetInstanceConfigData($data,$raw,'id_location');
+	}//END protected function SetInstanceConfigData
 	/**
 	 * Get theme object
 	 *
@@ -1341,7 +1310,7 @@ abstract class CoreNApp extends \PAF\App {
 	/**
 	 * Load instance specific configuration options (into protected $instanceConfig property)
 	 *
-	 * @return void
+	 * @return array
 	 * @access public
 	 */
 	protected abstract function LoadInstanceConfig(): void;

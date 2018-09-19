@@ -165,22 +165,6 @@ class Module {
 	/**
 	 * description
 	 *
-	 * @param string $module
-	 * @param string $method
-	 * @param string $key
-	 * @param mixed $def_value
-	 * @return mixed
-	 * @access public
-	 * @static
-	 */
-	public static function GlobalGetCustomisationsData($module,$method,$key = NULL,$def_value = NULL) {
-		if(!is_array(NApp::customizations()) || !count(NApp::customizations()) || !array_key_exists($module,NApp::customizations()) || !is_array(NApp::customizations()[$module]) || !count(NApp::customizations()[$module]) || !array_key_exists($method,NApp::customizations()[$module]) || !count(NApp::customizations()[$module][$method])) { return $def_value; }
-		if(!$key) { return NApp::customizations()[$module][$method]; }
-		return (array_key_exists($key,NApp::customizations()[$module][$method]) ? NApp::customizations()[$module][$method][$key] : $def_value);
-	}//END public static function GlobalGetCustomisationsData
-	/**
-	 * description
-	 *
 	 * @param null $firstrow
 	 * @param null $lastrow
 	 * @param null $current_page
