@@ -19,6 +19,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'repository_path'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
 		// Use CDN for loading resources
 		'use_cdn'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+		// Use KCFinder plugin
+		'use_kc_finder'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
 		// PHP password_hash function algorithm
 		'password_hash_algo'=>['access'=>'readonly','default'=>CRYPT_BLOWFISH,'validation'=>'is_integer'],
 		// Website name
