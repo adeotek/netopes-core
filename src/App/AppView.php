@@ -34,6 +34,10 @@ define('SECONDARY_CONTENT_VIEW',3);
  */
 define('SUB_CONTAINER_CONTENT_VIEW',4);
 /**
+ * TableView control view container
+ */
+define('TABLE_VIEW_CONTENT',5);
+/**
  * Generic view type (theme generic container)
  */
 define('GENERIC_CONTENT_VIEW',10);
@@ -496,6 +500,15 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
 				break;
+            case TABLE_VIEW_CONTENT:
+                ob_start();
+				if($main) {
+				    $themeObj->GetTableViewContainer($this->HasActions(),$this->HasTitle());
+				} else {
+				    $themeObj->GetTableViewContainer(FALSE,FALSE);
+				}//if($main)
+				$container = ob_get_clean();
+                break;
 			case GENERIC_CONTENT_VIEW:
 				ob_start();
 				if($main) {

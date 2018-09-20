@@ -998,7 +998,9 @@ class TableView {
 	/**
 	 * Gets the table header row(s)
 	 *
+     * @param $t_c_width
 	 * @return string Returns the header row(s) HTML as string
+     * @throws \PAF\AppException
 	 * @access protected
 	 */
 	protected function GetTableHeader(&$t_c_width) {
