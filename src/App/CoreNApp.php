@@ -480,9 +480,9 @@ abstract class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetLanguageId() {
-		$result = $this->GetPageParam('id_lang');
+		$result = $this->GetPageParam('id_language');
 		if(!is_numeric($result) || $result<=0) {
-			$result = $this->GetParam('id_lang');
+			$result = $this->GetParam('id_language');
 		}//if(!is_numeric($result) || $result<=0)
 		// $this->Dlog($result,'GetLanguageId');
 		return $result;
@@ -494,8 +494,8 @@ abstract class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function GetLanguageCode() {
-		$result = $this->GetPageParam('lang_code');
-		if(!is_string($result) || !strlen($result)) { $result = $this->GetParam('lang_code'); }
+		$result = $this->GetPageParam('language_code');
+		if(!is_string($result) || !strlen($result)) { $result = $this->GetParam('language_code'); }
 		// $this->Dlog($result,'GetLanguageCode');
 		return $result;
 	}//END public function GetLanguageCode
@@ -945,7 +945,7 @@ abstract class CoreNApp extends \PAF\App {
 	 * @access public
 	 */
 	public function InitializeKCFinder($params = NULL) {
-		if(!AppSession::WithSession()) { return; }
+		if(!AppSession::WithSession() || !AppConfig::use_kc_finder()) { return; }
 		$type = get_array_param($params,'type','','is_string');
 		switch(strtolower($type)) {
 			case 'public':
@@ -1029,16 +1029,16 @@ abstract class CoreNApp extends \PAF\App {
 		setcookie($lcookie_hash,$_COOKIE[$cookie_hash],time()+$lvalidity,'/',$this->url->GetAppDomain());
 		return TRUE;
 	}//END public function SetLoginCookie
-	/**
-	 * Loads the base application setting stored in the database
-	 *
-	 * @param array $params
-	 * @return void
-	 * @throws \PAF\AppException
-	 * @throws \Exception
-	 * @access public
-	 */
-	public function LoadAppSettings($params = NULL) {
+    /**
+     * Loads application settings from database or from request parameters
+     *
+     * @param bool       $notFromDb
+     * @param array|null $params
+     * @return void
+     * @throws \Exception
+     * @access public
+     */
+	public function LoadAppSettings(bool $notFromDb = FALSE,?array $params = NULL): void {
 		if($this->app_options_loaded) { return; }
 		$cookie_hash = $this->GetCookieHash();
 		$auto_login = 1;
@@ -1054,86 +1054,108 @@ abstract class CoreNApp extends \PAF\App {
 		$idzone = $this->url->GetParam('zone');
 		$langcode = $this->url->GetParam('language');
 		if($this->ajax || !is_string($langcode) || !strlen($langcode)) { $langcode = $this->GetLanguageCode(); }
-		$appdata = DataProvider::Get('System\System','GetAppSettings',[
-			'for_domain'=>$this->url->GetAppDomain(),
-			'for_namespace'=>$this->current_namespace,
-			'for_lang_code'=>$langcode,
-			'for_user_hash'=>$user_hash,
-			'login_namespace'=>(strlen($this->login_namespace) ? $this->login_namespace : 'null'),
-			'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : 'null'),
-			'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : 'null'),
-			'validity'=>$this->GetLoginTimeout(),
-			'keep_alive'=>($this->keep_alive ? 1 : 0),
-			'auto_login'=>$auto_login,
-			'for_user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1'),
-		],['mode'=>'native']);
-		if(!is_object($appdata)) { die('Invalid application settings!'); }
-		$login_msg = $appdata->safeGetLoginMsg('','is_string');
-		if(!is_object($appdata) || !$appdata->safeGetIdAccount(0,'is_integer')  || !$appdata->safeGetIdSection(0,'is_integer') || !$appdata->safeGetIdZone(0,'is_integer') || !$appdata->safeGetIdLanguage(0,'is_integer') || $login_msg=='incorect_namespace') { die('Wrong domain or application settings !!!'); }
-		$this->user_status = $appdata->safeGetState(-1,'is_integer');
-		$this->login_status = ($login_msg=='1' && ($this->user_status==1 || $this->user_status==2));
-		if($this->login_status && isset($_COOKIE[$cookie_hash]) && strlen($appdata->getProperty('user_hash'))) {
-			$this->SetLoginCookie($appdata->getProperty('user_hash'),NULL,$cookie_hash);
-		}//if($this->login_status && isset($_COOKIE[$cookie_hash]) && strlen($appdata->getProperty('user_hash')))
-		$this->SetParam('login_status',$this->login_status);
-		$this->SetParam('id_registry',$appdata->getProperty('id_registry'));
-		$this->SetParam('id_section',$appdata->getProperty('id_section'));
-		$this->SetParam('section_folder',$appdata->getProperty('section_folder'));
-		$this->current_section_folder = '';
-		$c_section_dir = get_array_param($appdata,'section_folder','','is_string');
-		if($this->with_sections && strlen($c_section_dir)) { $this->current_section_folder = '/'.$c_section_dir; }
-		$this->SetParam('id_zone',$appdata->getProperty('id_zone'));
-		$this->SetParam('zone_code',$appdata->getProperty('zone_code'));
-		$this->SetParam('id_account',$appdata->getProperty('id_account'));
-		$this->SetParam('account_type',$appdata->getProperty('account_type'));
-		$this->SetParam('account_name',$appdata->getProperty('account_name'));
-		$this->SetParam('access_key',$appdata->getProperty('access_key'));
-		$this->app_access_key = $appdata->getProperty('access_key');
-		$this->SetParam('account_timezone',$appdata->getProperty('account_timezone'));
-		$this->SetParam('id_entity',$appdata->getProperty('id_entity'));
-		$this->SetParam('id_location',$appdata->getProperty('id_location'));
-		$this->SetParam('website_name',$appdata->getProperty('website_name'));
-		$this->SetParam('rows_per_page',$appdata->getProperty('rows_per_page'));
-		$timezone = strlen($appdata->getProperty('timezone')) ? $appdata->getProperty('timezone') : $appdata->getProperty('account_timezone');
-		$this->SetParam('timezone',$timezone);
-		date_default_timezone_set($timezone);
-		$this->SetParam('translation_cache_is_dirty',$appdata->getProperty('is_dirty'));
-		$this->SetParam('decimal_separator',$appdata->getProperty('decimal_separator'));
-		$this->SetParam('group_separator',$appdata->getProperty('group_separator'));
-		$this->SetParam('date_separator',$appdata->getProperty('date_separator'));
-		$this->SetParam('time_separator',$appdata->getProperty('time_separator'));
-		$this->SetParam('id_user',$appdata->getProperty('id_user'));
-		$this->SetParam('id_users_group',$appdata->getProperty('id_users_group'));
-		$this->SetParam('restrict_access',$appdata->getProperty('restrict_access'));
-		$this->SetParam('id_country',$appdata->getProperty('id_country'));
-		$this->SetParam('id_company',$appdata->getProperty('id_company'));
-		$this->SetParam('company_name',$appdata->getProperty('company_name'));
-		$this->SetParam('user_hash',$appdata->getProperty('user_hash'));
-		$this->SetParam('user_email',$appdata->getProperty('email'));
-		$this->SetParam('username',$appdata->getProperty('username'));
-		$this->SetParam('user_full_name',$appdata->getProperty('surname').' '.$appdata->getProperty('name'));
-		$this->SetParam('user_phone',$appdata->getProperty('phone'));
-		$this->SetParam('confirmed_user',$appdata->getProperty('confirmed'));
-		$this->SetParam('sadmin',$appdata->getProperty('sadmin'));
-		$app_theme = get_array_param($appdata,'app_theme',NULL,'is_string');
-		if(strlen($app_theme)) { AppConfig::app_theme($app_theme=='_default' ? NULL : $app_theme); }
-		$this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
-		$this->SetPageParam('id_lang',$appdata->getProperty('id_language'));
-		$this->SetPageParam('lang_code',$appdata->getProperty('lang_code'));
-		$this->url->SetParam('language',$appdata->getProperty('lang_code'));
-		$this->InitializeKCFinder();
-		/*
-		$this->db_global_params = array(
-			'user_id'=>$this->GetParam('user_id'),
-			'user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::'),
-			'language_id'=>$this->GetParam('language_id'),
-		);
-		DataProvider::SetGlobalVariables($this->db_global_params);
-		*/
+		if($notFromDb) {
+		    $this->user_status = -1;
+            $this->login_status = FALSE;
+            $this->SetParam('login_status',$this->login_status);
+            $this->SetParam('id_section',$idsection);
+            $this->SetParam('id_zone',$idzone);
+            $this->SetParam('user_hash',$user_hash);
+            $this->current_section_folder = '';
+            $this->SetParam('account_timezone',AppConfig::server_timezone());
+            $this->SetParam('timezone',AppConfig::server_timezone());
+            if(strlen(AppConfig::server_timezone())) { date_default_timezone_set(AppConfig::server_timezone()); }
+            $this->SetParam('website_name',AppConfig::website_name());
+            $this->SetParam('rows_per_page',20);
+            $this->SetParam('decimal_separator','.');
+            $this->SetParam('group_separator',',');
+            $this->SetParam('date_separator','.');
+            $this->SetParam('time_separator',':');
+            $this->SetPageParam('language_code',strtolower($langcode));
+            $this->url->SetParam('language',$langcode);
+        } else {
+            $appdata = DataProvider::Get('System\System','GetAppSettings',[
+                'for_domain'=>$this->url->GetAppDomain(),
+                'for_namespace'=>$this->current_namespace,
+                'for_lang_code'=>$langcode,
+                'for_user_hash'=>$user_hash,
+                'login_namespace'=>(strlen($this->login_namespace) ? $this->login_namespace : 'null'),
+                'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : 'null'),
+                'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : 'null'),
+                'validity'=>$this->GetLoginTimeout(),
+                'keep_alive'=>($this->keep_alive ? 1 : 0),
+                'auto_login'=>$auto_login,
+                'for_user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1'),
+            ],['mode'=>'native']);
+            if(!is_object($appdata)) { die('Invalid application settings!'); }
+            $login_msg = $appdata->safeGetLoginMsg('','is_string');
+            if(!is_object($appdata) || !$appdata->safeGetIdAccount(0,'is_integer')  || !$appdata->safeGetIdSection(0,'is_integer') || !$appdata->safeGetIdZone(0,'is_integer') || !$appdata->safeGetIdLanguage(0,'is_integer') || $login_msg=='incorect_namespace') { die('Wrong domain or application settings !!!'); }
+            $this->user_status = $appdata->safeGetState(-1,'is_integer');
+            $this->login_status = ($login_msg=='1' && ($this->user_status==1 || $this->user_status==2));
+            if($this->login_status && isset($_COOKIE[$cookie_hash]) && strlen($appdata->getProperty('user_hash'))) {
+                $this->SetLoginCookie($appdata->getProperty('user_hash'),NULL,$cookie_hash);
+            }//if($this->login_status && isset($_COOKIE[$cookie_hash]) && strlen($appdata->getProperty('user_hash')))
+            $this->SetParam('login_status',$this->login_status);
+            $this->SetParam('id_registry',$appdata->getProperty('id_registry'));
+            $this->SetParam('id_section',$appdata->getProperty('id_section'));
+            $this->SetParam('section_folder',$appdata->getProperty('section_folder'));
+            $this->current_section_folder = '';
+            $c_section_dir = $appdata->getProperty('section_folder','','is_string');
+            if($this->with_sections && strlen($c_section_dir)) { $this->current_section_folder = '/'.$c_section_dir; }
+            $this->SetParam('id_zone',$appdata->getProperty('id_zone'));
+            $this->SetParam('zone_code',$appdata->getProperty('zone_code'));
+            $this->SetParam('id_account',$appdata->getProperty('id_account'));
+            $this->SetParam('account_type',$appdata->getProperty('account_type'));
+            $this->SetParam('account_name',$appdata->getProperty('account_name'));
+            $this->SetParam('access_key',$appdata->getProperty('access_key'));
+            $this->app_access_key = $appdata->getProperty('access_key');
+            $this->SetParam('account_timezone',$appdata->getProperty('account_timezone',AppConfig::server_timezone(),'is_notempty_string'));
+            $this->SetParam('id_entity',$appdata->getProperty('id_entity'));
+            $this->SetParam('id_location',$appdata->getProperty('id_location'));
+            $this->SetParam('website_name',$appdata->getProperty('website_name'));
+            $this->SetParam('rows_per_page',$appdata->getProperty('rows_per_page'));
+            $timezone = $appdata->getProperty('timezone',$this->GetParam('account_timezone'),'is_notempty_string');
+            $this->SetParam('timezone',$timezone);
+            if(strlen($timezone)) { date_default_timezone_set($timezone); }
+            $this->SetParam('translation_cache_is_dirty',$appdata->getProperty('is_dirty'));
+            $this->SetParam('decimal_separator',$appdata->getProperty('decimal_separator'));
+            $this->SetParam('group_separator',$appdata->getProperty('group_separator'));
+            $this->SetParam('date_separator',$appdata->getProperty('date_separator'));
+            $this->SetParam('time_separator',$appdata->getProperty('time_separator'));
+            $this->SetParam('id_user',$appdata->getProperty('id_user'));
+            $this->SetParam('id_users_group',$appdata->getProperty('id_users_group'));
+            $this->SetParam('restrict_access',$appdata->getProperty('restrict_access'));
+            $this->SetParam('id_country',$appdata->getProperty('id_country'));
+            $this->SetParam('id_company',$appdata->getProperty('id_company'));
+            $this->SetParam('company_name',$appdata->getProperty('company_name'));
+            $this->SetParam('user_hash',$appdata->getProperty('user_hash'));
+            $this->SetParam('user_email',$appdata->getProperty('email'));
+            $this->SetParam('username',$appdata->getProperty('username'));
+            $this->SetParam('user_full_name',$appdata->getProperty('surname').' '.$appdata->getProperty('name'));
+            $this->SetParam('user_phone',$appdata->getProperty('phone'));
+            $this->SetParam('confirmed_user',$appdata->getProperty('confirmed'));
+            $this->SetParam('sadmin',$appdata->getProperty('sadmin'));
+            $app_theme = $appdata->getProperty('app_theme',NULL,'is_string');
+            if(strlen($app_theme)) { AppConfig::app_theme($app_theme=='_default' ? NULL : $app_theme); }
+            $this->SetPageParam('menu_state',$appdata->getProperty('menu_state'));
+            $this->SetPageParam('id_language',$appdata->getProperty('id_language'));
+            $this->SetPageParam('language_code',strtolower($appdata->getProperty('lang_code')));
+            $this->url->SetParam('language',strtolower($appdata->getProperty('lang_code')));
+            /*
+            $this->db_global_params = array(
+                'user_id'=>$this->GetParam('id_user'),
+                'user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::'),
+                'language_id'=>$this->GetPageParam('id_language'),
+            );
+            DataProvider::SetGlobalVariables($this->db_global_params);
+            */
+		}//if($notFromDb)
+
 		static::$theme = $this->GetTheme();
+		$this->InitializeKCFinder();
 		if($this->current_namespace=='web') { $this->app_options_loaded = TRUE; return; }
 		//Load user rights
-		if($this->login_status) {
+		if($this->login_status && !$notFromDb) {
 			$ur_ts = $this->GetParam('user_rights_revoked_ts');
 			$dt_ur_ts = strlen($ur_ts) ? new \DateTime($ur_ts) : new \DateTime('1900-01-01 01:00:00');
 			if($dt_ur_ts->add(new \DateInterval('PT30M'))<(new \DateTime('now'))) {
@@ -1144,7 +1166,8 @@ abstract class CoreNApp extends \PAF\App {
 		} else {
 			$this->SetParam('user_rights_revoked_ts',NULL);
 			$this->SetParam('user_rights_revoked',NULL);
-		}//if($this->login_status)
+		}//if($this->login_status && !$notFromDb)
+
 		$this->app_options_loaded = TRUE;
 	}//END public function LoadAppSettings
 	/**
@@ -1220,8 +1243,8 @@ abstract class CoreNApp extends \PAF\App {
 		$this->SetParam('date_separator',$userdata->getProperty('date_separator',$this->GetParam('date_separator'),'is_notempty_string'));
 		$this->SetParam('time_separator',$userdata->getProperty('time_separator',$this->GetParam('time_separator'),'is_notempty_string'));
 		if($userdata->getProperty('id_language_def',0,'is_integer')>0 && strlen($userdata->getProperty('lang_code','','is_string'))) {
-			$this->SetPageParam('id_lang',$userdata->getProperty('id_language_def'));
-			$this->SetPageParam('lang_code',$userdata->getProperty('lang_code'));
+			$this->SetPageParam('id_language',$userdata->getProperty('id_language_def'));
+			$this->SetPageParam('language_code',$userdata->getProperty('lang_code'));
 			$this->url->SetParam('language',$userdata->getProperty('lang_code'));
 		}//if($userdata->getProperty('id_language_def',0,'is_integer')>0 && strlen($userdata->getProperty('lang_code','','is_string')))
 		if($remember && strlen($userdata->getProperty('hash','','is_string'))) {

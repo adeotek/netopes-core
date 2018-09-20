@@ -126,8 +126,8 @@ class AjaxRequest extends \PAF\AjaxRequest {
 	public function AjaxSetLanguage($window_name,$selected_lang) {
 		$alang = explode('^',$selected_lang);
 		$old_lang = $this->app->GetLanguageCode();
-		$this->app->SetPageParam('lang_code',$alang[1]);
-		$this->app->SetPageParam('id_lang',$alang[0]);
+		$this->app->SetPageParam('language_code',$alang[1]);
+		$this->app->SetPageParam('id_language',$alang[0]);
 		$this->ExecuteJs("window.location.href = window.location.href.toString().replace('/{$old_lang}/','/".$alang[1]."/');");
 	}//END public function AjaxSetLanguage
 }//END class AjaxRequest extends \PAF\AjaxRequest
