@@ -14,6 +14,8 @@
 namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use NApp;
+use Redis;
+
 /**
  * DataSource is the base class for all data sources
  *
@@ -405,7 +407,7 @@ class DataSource {
 		$lkey = is_string($tag) && strlen($tag) ? $tag.':'.$key : $key;
 		$result = FALSE;
 		$handled = FALSE;
-		if(AppConfig::app_cache_redis() && class_exists('Redis',FALSE)) {
+		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
 			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
 			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
@@ -653,4 +655,3 @@ class DataSource {
 		return $result;
 	}//public static function ClearAllCache
 }//END class DataSource
-?>

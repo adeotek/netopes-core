@@ -374,6 +374,7 @@ class Module {
 		// NApp::_Dlog($basedir,'$basedir');
 		$parents = self::GetParents($this->class);
 		$m_path_arr = explode('\\',trim($this->class,'\\'));
+		// NApp::_Dlog($this->class,'$this->class');
 		array_shift($m_path_arr);
 		array_shift($m_path_arr);
 		array_pop($m_path_arr);
