@@ -512,11 +512,11 @@ class Validator {
 	 * description
 	 *
 	 * @param bool $forPhp
-	 * @return void
+	 * @return string|null
 	 * @access public
 	 * @static
 	 */
-	public static function GetDateFormat($forPhp = FALSE) {
+	public static function GetDateFormat(bool $forPhp = FALSE): ?string {
 		$format = NApp::_GetParam('date_format');
 		if(!strlen($format)) { return NULL; }
 		if(!$forPhp) { return $format; }
@@ -526,11 +526,11 @@ class Validator {
 	 * description
 	 *
 	 * @param bool $forPhp
-	 * @return void
+	 * @return string|null
 	 * @access public
 	 * @static
 	 */
-	public static function GetTimeFormat($forPhp = FALSE) {
+	public static function GetTimeFormat(bool $forPhp = FALSE): ?string {
 		$format = NApp::_GetParam('time_format');
 		if(!strlen($format)) { return NULL; }
 		if(!$forPhp) { return $format; }

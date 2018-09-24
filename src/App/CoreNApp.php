@@ -1310,7 +1310,7 @@ abstract class CoreNApp extends \PAF\App {
      */
     public function GetIOption(string $option,string $section = '',?int $locationId = NULL): ?string {
         if(is_null($locationId)) { $locationId = $this->GetPageParam('location_id'); }
-        if(!is_array(AppConfig::IsInstanceConfigLoaded())) { $this->LoadInstanceConfig(); }
+        if(!AppConfig::IsInstanceConfigLoaded()) { $this->LoadInstanceConfig(); }
         return AppConfig::GetInstanceOption($option,$section,$locationId);
 	}//END public function GetIOption
     /**
