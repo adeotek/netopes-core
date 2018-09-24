@@ -1020,26 +1020,35 @@ class TableView {
 			$ch_n_width = 0;
 			$ch_p_width = 0;
 			$ch_w_type = NULL;
-			if(strlen($ch_width)) {
-				if(strpos($ch_width,'%')!==FALSE) {
-					$ch_style .= ($ch_style ? '' : ' style="').'width: '.$ch_width.';';
-					$ch_p_width = trim(str_replace('%','',$ch_width));
-					if(is_numeric($ch_p_width) && $ch_p_width) {
-						$ch_w_type = 'p';
+			if(strtolower(get_array_param($v,'type','','is_string'))=='actions') {
+				if(is_null($ch_width) && is_object(NApp::$theme)) {
+					$ch_width = NApp::$theme->GetTableViewActionsWidth(get_array_param($v,'count',0,'is_integer'));
+				}//if(is_null($ac_width) && is_object(NApp::$theme))
+				$ch_width = is_numeric($ch_width) && $ch_width>0 ? $ch_width.'px' : $ch_width;
+				$ch_style .= $ch_width ? ($ch_style ? '' : ' style="').'width: '.$ch_width.';' : '';
+				$ch_style .= $ch_style ? '"' : '';
+			} else {
+				if(strlen($ch_width)) {
+					if(strpos($ch_width,'%')!==FALSE) {
+						$ch_style .= ($ch_style ? '' : ' style="').'width: '.$ch_width.';';
+						$ch_p_width = trim(str_replace('%','',$ch_width));
+						if(is_numeric($ch_p_width) && $ch_p_width) {
+							$ch_w_type = 'p';
+						} else {
+							$ch_p_width = 0;
+						}//if(!is_numeric($ch_p_width) && $ch_p_width)
 					} else {
-						$ch_p_width = 0;
-					}//if(!is_numeric($ch_p_width) && $ch_p_width)
-				} else {
-					$ch_n_width = str_replace('px','',$ch_width);
-					if(is_numeric($ch_n_width) && $ch_n_width) {
-						$ch_style .= ($ch_style ? '' : ' style="').'width: '.$ch_n_width.'px;';
-						$ch_w_type = 'n';
-					} else {
-						$ch_n_width = 0;
-					}//if(is_numeric($ch_n_width) && $ch_n_width)
-				}//if(strpos($ch_width,'%')!==FALSE)
-			}//if(strlen($ch_width))
-			$ch_style .= $ch_style ? '"' : '';
+						$ch_n_width = str_replace('px','',$ch_width);
+						if(is_numeric($ch_n_width) && $ch_n_width) {
+							$ch_style .= ($ch_style ? '' : ' style="').'width: '.$ch_n_width.'px;';
+							$ch_w_type = 'n';
+						} else {
+							$ch_n_width = 0;
+						}//if(is_numeric($ch_n_width) && $ch_n_width)
+					}//if(strpos($ch_width,'%')!==FALSE)
+				}//if(strlen($ch_width))
+				$ch_style .= $ch_style ? '"' : '';
+			}//if(strtolower(get_array_param($v,'type','','is_string'))=='actions')
 			$ch_sort_act = '';
 			$ch_sort_icon = '';
 			$ch_sclass = '';
