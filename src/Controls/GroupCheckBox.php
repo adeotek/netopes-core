@@ -68,11 +68,11 @@ class GroupCheckBox extends Control {
 
     protected function GetItems() {
         if(isset($this->items)) { return; }
-        $ds_class = get_array_param($this->data_source,'ds_class','','is_string');
-        $ds_method = get_array_param($this->data_source,'ds_method','','is_string');
-        $ds_params = get_array_param($this->data_source,'ds_params',[],'is_array');
-        $ds_extra_params = get_array_param($this->data_source,'ds_extra_params',[],'is_array');
-        $mode = get_array_param($ds_extra_params,'mode',NULL,'is_notempty_string');
+        $ds_class = get_array_value($this->data_source,'ds_class','','is_string');
+        $ds_method = get_array_value($this->data_source,'ds_method','','is_string');
+        $ds_params = get_array_value($this->data_source,'ds_params',[],'is_array');
+        $ds_extra_params = get_array_value($this->data_source,'ds_extra_params',[],'is_array');
+        $mode = get_array_value($ds_extra_params,'mode',NULL,'is_notempty_string');
         if(!strlen($ds_class) || !strlen($ds_method) || !DataProvider::MethodExists($ds_class,$ds_method,$mode)) { return; }
         $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
     }//END protected function GetItems

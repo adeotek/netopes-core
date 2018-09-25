@@ -299,7 +299,7 @@ class PdfDocument {
 			return FALSE;
 		}//if(!$this->footer_params)
 		$this->pdf->setPrintFooter(TRUE);
-		$this->pdf->SetFooterMargin(abs(get_array_param($this->footer_params,'bottom_margin',12,'is_numeric')));
+		$this->pdf->SetFooterMargin(abs(get_array_value($this->footer_params,'bottom_margin',12,'is_numeric')));
 		$this->pdf->custom_footer = TRUE;
 		$this->pdf->custom_footer_params = $this->footer_params;
 		return TRUE;
@@ -318,15 +318,15 @@ class PdfDocument {
 				if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
 				$document = DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docId]);
 				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
-				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
-				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
-				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
-				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
+				$this->langcode = get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
+				$this->decimal_separator = get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
+				$this->group_separator = get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
+				$this->date_separator = get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
 					$this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
-				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
-				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
+				$id_entity = get_array_value($document,'id_entity',NULL,'is_integer');
+				$id_location = get_array_value($document,'id_location',NULL,'is_integer');
 				if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
 				$lines = DataProvider::GetArray('Tran\Documents','GetItemLines',array('document_id'=>$docId,'taxes_as_lines'=>1,'discount_as_lines'=>1));
 				if(!$lines) { throw new AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__)); }
@@ -337,15 +337,15 @@ class PdfDocument {
 				if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
 				$document = DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docId]);
 				if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
-				$this->langcode = get_array_param($document,'lang_code',$this->langcode,'is_notempty_string');
-				$this->decimal_separator = get_array_param($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
-				$this->group_separator = get_array_param($document,'group_separator',$this->group_separator,'is_notempty_string');
-				$this->date_separator = get_array_param($document,'date_separator',$this->date_separator,'is_notempty_string');
+				$this->langcode = get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
+				$this->decimal_separator = get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
+				$this->group_separator = get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
+				$this->date_separator = get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
 				if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
 					$this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
 				}//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
-				$id_entity = get_array_param($document,'id_entity',NULL,'is_integer');
-				$id_location = get_array_param($document,'id_location',NULL,'is_integer');
+				$id_entity = get_array_value($document,'id_entity',NULL,'is_integer');
+				$id_location = get_array_value($document,'id_location',NULL,'is_integer');
 				if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
 				$this->document_data = is_array($document) && count($document) ? $document : NULL;
 				break;
@@ -503,7 +503,7 @@ class PdfDocument {
 				break;
 			case X_STOCK_DOC_TYPE_PDF:
 			case X_PAY_DOC_TYPE_PDF:
-				$docId = get_array_param($this->params,'key',NULL,'isset');
+				$docId = get_array_value($this->params,'key',NULL,'isset');
 				$docIds = [];
 				if(is_array($docId)) {
 					$docIds = $docId;
@@ -540,17 +540,17 @@ class PdfDocument {
 	public function Output($params = NULL) {
 		try {
 			$this->WriteData();
-			if(get_array_param($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
+			if(get_array_value($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
 		} catch(\Exception $e){
 			NApp::_Write2LogFile($e->getMessage(),'error');
 			NApp::_Elog($e->getMessage());
 			echo $e->getMessage();
 			return FALSE;
 		}//END try
-		$file_name = get_array_param($params,'file_name',$this->file_name,'is_notempty_string');
-		$output_type = get_array_param($params,'output_type','S','is_notempty_string');
+		$file_name = get_array_value($params,'file_name',$this->file_name,'is_notempty_string');
+		$output_type = get_array_value($params,'output_type','S','is_notempty_string');
 		if(strtoupper($output_type)=='S') {
-			if(get_array_param($params,'base64',FALSE,'bool')) { return base64_encode($this->pdf->Output($file_name,$output_type)); }
+			if(get_array_value($params,'base64',FALSE,'bool')) { return base64_encode($this->pdf->Output($file_name,$output_type)); }
 			return $this->pdf->Output($file_name,$output_type);
 		}//if(strtoupper($output_type)=='S')
 		return $this->pdf->Output($file_name,$output_type);
@@ -583,18 +583,18 @@ class PdfDocument {
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
 			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
-			$default_width = get_array_param($layout,'default_width',20,'is_not0_numeric');
+			$default_width = get_array_value($layout,'default_width',20,'is_not0_numeric');
 			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : [])) : $this->formats['standard'];
 			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : [])) : $this->formats['header'];
 			$this->pdf->custom_header = TRUE;
 			$this->pdf->custom_header_params = array('type'=>'table','columns'=>$layout['columns'],'format'=>$header_format,'default_width'=>$default_width,'border'=>$borders);
-			if($first || get_array_param($layout,'new_page',FALSE,'bool')) {
+			if($first || get_array_value($layout,'new_page',FALSE,'bool')) {
 				$first = FALSE;
 				$this->pdf->AddPage("P","A4");
 			} else {
 				$this->pdf->Cell(10,15,'',0,TRUE,'C',0,'',0,FALSE,'T','M');
 				$this->pdf->SetCustomHeader(TRUE);
-			}//if($first || get_array_param($layout,'new_page',FALSE,'bool'))
+			}//if($first || get_array_value($layout,'new_page',FALSE,'bool'))
 			if(!count($layout['data'])) { continue; }
 			$set_totals = TRUE;
 			foreach($layout['data'] as $data_row) {
@@ -607,7 +607,7 @@ class PdfDocument {
 					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
 					$cformat = array_merge($default_format,$col_def_format,$col_custom_format);
 					$fr = $this->pdf->SetFormat($cformat);
-					$w = get_array_param($column,'width',$default_width,'is_not0_numeric');
+					$w = get_array_value($column,'width',$default_width,'is_not0_numeric');
 					$cvalue = $this->GetCellValue($data_row,$column,$col_no);
 					$this->pdf->Cell($w,0,$cvalue,$borders,($col_no==count($layout['columns'])),$this->pdf->GetAlign($cformat),$fr['fc'],'',1,FALSE,'T',$this->pdf->GetAlign($cformat,'v'));
 				}//END foreach

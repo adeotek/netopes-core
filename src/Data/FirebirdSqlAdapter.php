@@ -8,12 +8,15 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.2.7.0
  * @filesource
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\App\Validator;
+use PAF\AppSession;
 use PAF\AppException;
+use NApp;
+
 /**
  * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
  *
@@ -23,15 +26,19 @@ use PAF\AppException;
  * @access   public
  */
 class FirebirdSqlAdapter extends SqlDataAdapter {
+    /**
+     * Objects names enclosing symbol
+     */
+    const ENCLOSING_SYMBOL = '"';
 	/**
 	 * Get startup query string
 	 *
 	 * @param  array $params Key-value array of variables to be set
-	 * @return string  Returns the query to be executed after connection
+	 * @return string|null  Returns the query to be executed after connection
 	 * @access public
 	 * @static
 	 */
-	public static function GetStartUpQuery($params = NULL) {
+	public static function GetStartUpQuery(?array $params = NULL): ?string {
 		if(!is_array($params) || !count($params)) { return NULL; }
 		$query = 'EXECUTE BLOCK AS DECLARE VARIABLE TVAR INT; BEGIN ';
 		foreach(self::FirebirdSqlEscapeString($params) as $k=>$v) {
@@ -48,7 +55,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function FirebirdSqlSetGlobalVariables($params = NULL) {
+	public function FirebirdSqlSetGlobalVariables(?array $params = NULL): bool {
 		if(!is_array($params) || !count($params)) { return TRUE; }
 		$time = microtime(TRUE);
 		$query = self::GetStartUpQuery($params);
@@ -79,7 +86,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
-	protected function Init($connection) {
+	protected function Init($connection): void {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? '/'.$connection['db_port'] : '';
 		$charset = (array_key_exists('charset',$connection) && strlen($connection['charset'])) ? str_replace([' ','-'],['',''],$connection['charset']) : 'UTF8';
 		$persistent = (array_key_exists('persistent',$connection) && is_bool($connection['persistent'])) ? $connection['persistent'] : FALSE;
@@ -92,17 +99,17 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			}//if($persistent)
 			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbname.']','Connection',$time);
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 	}//END protected function Init
 	/**
 	 * Close current database connection
 	 *
-	 * @return void
+	 * @return bool
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
-	protected function FirebirdSqlCloseConnection() {
+	protected function FirebirdSqlCloseConnection(): bool {
 		if(!is_resource($this->connection)) {
 			$this->connection = NULL;
 			return TRUE;
@@ -114,20 +121,21 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 				$result = TRUE;
 			}//if(ibase_close($this->connection))
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 		return $result;
 	}//END protected function FirebirdSqlCloseConnection
-	/**
-	 * Get a firebird transaction
-	 *
-	 * @param  string $name Transaction name
-	 * @param  bool $start Flag for starting the transaction
-	 * if not exists (defaul value FALSE)
-	 * @param  array $tran_params Custom transaction arguments
-	 * @return object Returns the transaction instance
-	 * @access public
-	 */
+    /**
+     * Get a firebird transaction
+     *
+     * @param  string $name Transaction name
+     * @param bool    $log
+     * @param  bool   $start Flag for starting the transaction
+     * if not exists (defaul value FALSE)
+     * @param  array  $tran_params Custom transaction arguments
+     * @return object Returns the transaction instance
+     * @access public
+     */
 	public function FirebirdSqlGetTran($name,$log = FALSE,$start = TRUE,$tran_params = NULL) {
 		if(!is_string($name) || !strlen($name)) { return NULL; }
 		if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name])) {
@@ -138,19 +146,20 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			return NULL;
 		}//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
 	}//END public function FirebirdSqlGetTran
-	/**
-	 * Begins a firebird transaction
-	 *
-	 * @param  string $name Transaction name
-	 * @param  bool $overwrite Flag for overwriting the transaction
-	 * if exists (defaul value FALSE)
-	 * @param  array $tran_params Custom transaction arguments
-	 * @return object Returns the transaction instance
-	 * @access public
-	 */
+    /**
+     * Begins a firebird transaction
+     *
+     * @param  string $name Transaction name
+     * @param bool    $log
+     * @param  bool   $overwrite Flag for overwriting the transaction
+     * if exists (defaul value FALSE)
+     * @param  array  $tran_params Custom transaction arguments
+     * @return object Returns the transaction instance
+     * @access public
+     */
 	public function FirebirdSqlBeginTran(&$name,$log = FALSE,$overwrite = TRUE,$tran_params = NULL) {
 		if(!is_string($name) || !strlen($name)) {
-			$name = \PAF\AppSession::GetNewUID(chr(rand(48,57)).chr(rand(48,57)));
+			$name = AppSession::GetNewUID(chr(rand(48,57)).chr(rand(48,57)));
 		} else {
 			if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]) && !$overwrite){ return NULL; }
 		}//if(!is_string($name) || !strlen($name))
@@ -164,13 +173,14 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$this->DbDebug($name.' => TRANSACTION STARTED','BeginTran',NULL,$log);
 		return $this->transactions[$name];
 	}//END public function FirebirdSqlBeginTran
-	/**
-	 * Rolls back a firebird transaction
-	 *
-	 * @param  string $name Transaction name
-	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 */
+    /**
+     * Rolls back a firebird transaction
+     *
+     * @param  string $name Transaction name
+     * @param bool    $log
+     * @return bool Returns TRUE on success or FALSE otherwise
+     * @access public
+     */
 	public function FirebirdSqlRollbackTran($name,$log = FALSE) {
 		$result = FALSE;
 		if(is_null($name)) {
@@ -185,13 +195,15 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
 		return $result;
 	}//END public function FirebirdSqlRollbackTran
-	/**
-	 * Commits a firebird transaction
-	 *
-	 * @param  string $name Transaction name
-	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 */
+    /**
+     * Commits a firebird transaction
+     *
+     * @param  string $name Transaction name
+     * @param bool    $log
+     * @param bool    $preserve
+     * @return bool Returns TRUE on success or FALSE otherwise
+     * @access public
+     */
 	public function FirebirdSqlCommitTran($name,$log = FALSE,$preserve = FALSE) {
 		$result = FALSE;
 		if(is_null($name)) {
@@ -216,15 +228,16 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
 		return $result;
 	}//END public function FirebirdSqlCommitTran
-	/**
-	 * Add blob parameter to query
-	 *
-	 * @param  string $param Parameter string value
-	 * @param  string $tran_name Transaction name
-	 * @return mixed Returns the blob ID for write, TRUE on success for read or FALSE otherwise
-	 * @access public
-	 */
-	public function AddBlobParam($param,$transaction = NULL) {
+
+    /**
+     * Add blob parameter to query
+     *
+     * @param  string $param Parameter string value
+     * @param  string|null    $transaction
+     * @return mixed Returns the blob ID for write, TRUE on success for read or FALSE otherwise
+     * @access public
+     */
+	public function AddBlobParam($param,?string $transaction = NULL) {
 		if(!is_string($param)) { return NULL; }
 		try {
 			if(is_resource($transaction)) {
@@ -243,6 +256,93 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		return $blob_id;
 	}//END public function AddBlobParam
+    /**
+     * @param array $condition
+     * @return string
+     */
+    private function GetFilterCondition(array $condition): string {
+        $cond = get_array_value($condition,'condition',NULL,'is_notempty_string');
+        if($cond) { return $cond; }
+        $field = get_array_value($condition,'field',NULL,'is_notempty_string');
+        if(!$field) { return ''; }
+        $dataType = get_array_value($condition,'data_type',NULL,'is_notempty_string');
+        $conditionType = get_array_value($condition,'condition_type','==','is_notempty_string');
+        $conditionString = NULL;
+        $filterValue = NULL;
+
+        switch(strtolower($conditionType)) {
+            case 'like':
+            case 'notlike':
+                $conditionString = strtolower($conditionType)=='like' ? 'LIKE' : 'NOT LIKE';
+                $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
+                if(isset($filterValue)) { $filterValue = "'%".$filterValue."%'"; }
+                break;
+            case '==':
+            case '<>':
+                $conditionString = $conditionType=='==' ? '=' : $conditionType;
+                $nullConditionString = 'IS '.($conditionType=='<>' ? ' NOT ' : '').'NULL';
+                if(strtolower($dataType)=='string') {
+                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_string'));
+                    $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                } else {
+                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $filterValueS = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,0);
+                        $filterValueE = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,1);
+                        $conditionString = ($conditionType=='<>' ? 'NOT ' : '').'BETWEEN';
+                        $filterValue = "'".$filterValueS."' AND '".$filterValueE."'";
+                    } elseif(in_array(strtolower($dataType),['datetime','datetime_obj'])) {
+                        $filterValue = Validator::ConvertDateTimeToDbFormat($filterValue);
+                        $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                    } else {
+                        $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                    }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                }//if(strtolower($dataType)=='string')
+                break;
+            case '<=':
+            case '>=':
+                $conditionString = $conditionType;
+                $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $daypart = ($conditionType=='<=' ? 1 : 0);
+                    } else {
+                        $daypart = NULL;
+                    }//if(in_array(strtolower($dataType),['date','date_obj']))
+                    $filterValue = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,$daypart);
+                }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                if(isset($filterValue)) { $filterValue = "'".$filterValue."'"; }
+                break;
+            case '><':
+                $conditionString = 'BETWEEN';
+                $filterValueS = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                $filterValueE = $this->EscapeString(get_array_param($condition,'svalue',NULL,'?is_notempty_string'));
+                if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $daypart = 0;
+                        $sdaypart = 1;
+                    } else {
+                        $daypart = NULL;
+                        $sdaypart = NULL;
+                    }//if(in_array(strtolower($dataType),['date','date_obj']))
+                    $filterValueS = Validator::ConvertDateTimeToDbFormat($filterValueS,NULL,$daypart);
+                    $filterValueE = Validator::ConvertDateTimeToDbFormat($filterValueE,NULL,$sdaypart);
+                }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                if(isset($filterValueS) && isset($filterValueE)) { $filterValue = "'".$filterValueS."' AND '".$filterValueE."'"; }
+                break;
+            case 'is':
+            case 'isnot':
+                $conditionString = strtolower($conditionType)=='like' ? 'IS' : 'IS NOT';
+                $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
+                $filterValue = isset($filterValue) ? "'".$filterValue."'" : 'NULL';
+                break;
+		}//END switch
+        if(!$conditionString || !$filterValue) { return ''; }
+
+		$result = ' '.self::ENCLOSING_SYMBOL.strtoupper($field).self::ENCLOSING_SYMBOL;
+		$result .= ' '.$conditionString.' '.$filterValue;
+        return $result;
+	}//END private function GetFilterCondition
 	/**
 	 * Prepares the query string for execution
 	 *
@@ -265,13 +365,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
-		if(is_array($params) && count($params)){
+		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(strlen($v)>4000) {
 					$bpid = $this->AddBlobParam($this->EscapeString($v),$transaction);
-					if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) {
-						throw new AppException('Invalid query parameter!',E_USER_ERROR);
-					}
+					if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
 					if(!is_array($bind_params)) { $bind_params = []; }
 					$bind_params[] = $bpid;
 					$query = str_replace('{{'.$k.'}}','?',$query);
@@ -282,62 +380,31 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
-			if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
+			if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
 				$filter_prefix = ' WHERE ';
 				$filter_sufix = ' ';
 			} else {
 				$filter_prefix =  ' AND (';
 				$filter_sufix = ') ';
-			}//if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
+			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
 			foreach ($filters as $v) {
 				if(is_array($v)) {
-					if(count($v)==4) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$fvalue = get_array_param($v,'value',NULL,'is_notempty_string');
-						if(!$ffield || !$fvalue || strtolower($fvalue)==='null') { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
-						switch(strtolower($fcond)) {
-							case 'like':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
-								break;
-							case 'notlike':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" NOT LIKE'.(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
-								break;
-							case '==':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.(strtolower($fvalue)==='null' ? 'IS NULL' : "= '{$fvalue}'");
-								break;
-							case '<>':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.(strtolower($fvalue)==='null' ? 'IS NOT NULL' : "<> '{$fvalue}'");
-								break;
-							case '<=':
-							case '>=':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.$fcond.(strtolower($fvalue)==='null' ? ' NULL' : " '{$fvalue}'");
-								break;
-							default:
-								continue;
-								break;
-						}//END switch
-					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
-						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
-						$filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').$cond;
-					}//if(count($v)==4)
-				}else{
-					$filter_str .= ($filter_str ? ' AND ' : ' ').$v;
+				    $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                    $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
+				} else {
+					$filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
 				}//if(is_array($v))
 			}//END foreach
 			$filter_str = strlen(trim($filter_str))>0 ? $filter_prefix.$filter_str.$filter_sufix : '';
-		} elseif(strlen($filters)>0) {
+		} elseif(strlen($filters)) {
 			$filter_str = " {$filters} ";
 		}//if(is_array($filters))
 		$query .= $filter_str;
 		$raw_query = $query;
-		if($type=='count'){ return; }
+		if($type=='count') { return; }
 		$sort_str = '';
 		if(is_array($sort)) {
-			foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ')."{$k} {$v}"; }
+			foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ').self::ENCLOSING_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_SYMBOL.' '.strtoupper($v); }
 			$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
 		} elseif(strlen($sort)>0) {
 			$sort_str = " ORDER BY {$sort} ASC ";
@@ -349,7 +416,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			$query .= ' ROWS '.$firstrow;
 		}//if(is_numeric($firstrow) && $firstrow>0 && is_numeric($lastrow) && $lastrow>0)
 	}//public function FirebirdSqlPrepareQuery
-
 	/**
 	 * Executes a query against the database
 	 *
@@ -479,117 +545,15 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		if(is_array($filters)) {
 			$filter_prefix = ' WHERE ';
 			$filter_sufix = ' ';
-			foreach($filters as $v) {
+			foreach ($filters as $v) {
 				if(is_array($v)) {
-					if(count($v)>2) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$dtype = get_array_param($v,'data_type',NULL,'is_notempty_string');
-						if(strtolower($dtype)=='string') {
-							$fvalue = $this->EscapeString(get_array_param($v,'value',NULL,'is_string'));
-						} else {
-							$fvalue = $this->EscapeString(get_array_param($v,'value',NULL,'is_notempty_string'));
-						}//if(strtolower($dtype)=='string')
-						if(!$ffield || is_null($fvalue)) { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
-						switch(strtolower($fcond)) {
-							case 'like':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
-								break;
-							case 'notlike':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" NOT LIKE'.(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
-								break;
-							case '==':
-							case '<>':
-							case '<=':
-							case '>=':
-								$daypart = NULL;
-								$sdaypart = NULL;
-								switch(strtolower($dtype)) {
-									case 'date':
-									case 'date_obj':
-										$daypart = 0;
-										$sdaypart = 1;
-									case 'datetime':
-									case 'datetime_obj':
-										switch(strtolower($fcond)) {
-											case '==':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart,FALSE,TRUE);
-												$fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart,FALSE,TRUE);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield)."\" BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-												break;
-											case '<>':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart,FALSE,TRUE);
-												$fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart,FALSE,TRUE);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield)."\" NOT BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-												break;
-											case '<=':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart,FALSE,TRUE);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" '.$fcond." '".$fvalue."')";
-												break;
-											case '>=':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart,FALSE,TRUE);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" '.$fcond." '".$fvalue."')";
-												break;
-										}//END switch
-										break;
-									default:
-										switch(strtolower($fcond)) {
-											case '==':
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').'( "'.strtoupper($ffield).'" '.(strtolower($fvalue)==='null' ? 'IS NULL)' : "= '{$fvalue}')");
-												break;
-											case '<>':
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').'( "'.strtoupper($ffield).'" '.$fcond.(strtolower($fvalue)==='null' ? 'IS NOT NULL)' : "<> '{$fvalue}')");
-												break;
-											default:
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').'( "'.strtoupper($ffield).'" '.$fcond.(strtolower($fvalue)==='null' ? ' NULL)' : " '{$fvalue}')");
-												break;
-										}//END switch
-										break;
-								}//END switch
-								break;
-							case 'is':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" IS'.(strtolower($fvalue)==='null' ? ' NULL)' : " {$fvalue})");
-								break;
-							case 'isnot':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield).'" IS NOT'.(strtolower($fvalue)==='null' ? ' NULL)' : " {$fvalue})");
-								break;
-							case '><':
-								$fsvalue = $this->EscapeString(get_array_param($v,'svalue',NULL,'is_notempty_string'));
-								if(is_null($fsvalue)) { continue; }
-								$daypart = NULL;
-								$sdaypart = NULL;
-								switch(strtolower($dtype)) {
-									case 'date':
-									case 'date_obj':
-										$daypart = 0;
-										$sdaypart = 1;
-									case 'datetime':
-									case 'datetime_obj':
-										$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart,FALSE,TRUE);
-										$fsvalue = Validator::ConvertDateTimeToDbFormat($fsvalue,NULL,$sdaypart,FALSE,TRUE);
-										$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield)."\" BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-										break;
-									default:
-										$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ("'.strtoupper($ffield)."\" BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-										break;
-								}//END switch
-								break;
-							default:
-								continue;
-								break;
-						}//END switch
-					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
-						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
-						$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ('.$cond.')';
-					}//if(count($v)==4)
+				    $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                    $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
 				} else {
-					$filter_str .= ($filter_str ? ' AND' : '').' ('.$v.')';
+					$filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
 				}//if(is_array($v))
 			}//END foreach
-			$filter_str = strlen(trim($filter_str))>0 ? $filter_prefix.$filter_str.$filter_sufix : '';
+			$filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
 		} elseif(strlen($filters)) {
 			$filter_str = strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
 		}//if(is_array($filters))
@@ -609,9 +573,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			default:
 				$sort_str = '';
 				if(is_array($sort)) {
-					foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ')."{$k} {$v}"; }
+				    foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ').self::ENCLOSING_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_SYMBOL.' '.strtoupper($v); }
 					$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
-				} elseif(strlen($sort)>0) {
+				} elseif(strlen($sort)) {
 					$sort_str = " ORDER BY {$sort} ASC ";
 				}//if(is_array($sort))
 				if(is_numeric($firstrow) && $firstrow>0) {
@@ -738,8 +702,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$result = NULL;
 		if(is_array($param)) {
 			$result = [];
-			foreach ($param as $k=>$v) { $result[$k] = str_replace("'","''",$v); }
-		} else { $result = str_replace("'","''",$param); }
+			foreach($param as $k=>$v) { $result[$k] = str_replace("'","''",$v); }
+		} elseif(is_string($param)) { $result = str_replace("'","''",$param); }
 		return $result;
 	}//END public static function FirebirdSqlEscapeString
 	/**

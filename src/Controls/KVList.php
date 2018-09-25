@@ -77,7 +77,7 @@
 		protected function SetControl() {
 			$label = (is_string($this->label) && strlen($this->label) ? $this->label : NULL);
 			if(is_array($this->lang_items) && count($this->lang_items)) {
-				$ds_field = get_array_param($lang,'ds_field','value','is_notempty_string');
+				$ds_field = get_array_value($lang,'ds_field','value','is_notempty_string');
 				$result = '<div id="'.$this->tagid.'" class="clsAccordion clsControlContainer">'."\n";
 				$result .= "\t".'<h3>'.(strlen($label) ? $label.' - ' : '').\Translate::Get('label_general').'</h3>'."\n";
 				$result .= "\t".'<div>'."\n";
@@ -85,13 +85,13 @@
 				$result .= "\t".'</div>'."\n";
 				foreach($this->lang_items as $lang) {
 					if(!is_array($lang) || !count(!$lang)) { continue; }
-					$value = get_array_param($lang,$ds_field,NULL,'is_string');
+					$value = get_array_value($lang,$ds_field,NULL,'is_string');
 					if(is_null($value)) {
 						if(!is_array($this->lang_ds) || !count($this->lang_ds)) { continue; }
 						$rparams = $this->lang_ds;
 						$rparams['record_key'] = $lang['id'];
 						$record = Control::GetTranslationData($rparams);
-						$value = get_array_param($record,0,NULL,'is_string',$ds_field);
+						$value = get_array_value($record,[0,$ds_field],NULL,'is_string');
 					}//if(is_null($value))
 					$result .= "\t".'<h3>'.(strlen($label) ? $label.' - ' : '').$lang['name'].'</h3>'."\n";
 					$result .= "\t".'<div>'."\n";

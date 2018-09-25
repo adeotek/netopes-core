@@ -339,19 +339,19 @@ class AppView {
 	public function Render(bool $return = FALSE): ?string {
 		$content = '';
 		foreach($this->_content as $k=>$c) {
-			$type = get_array_param($c,'type','','is_string');
-			$value = get_array_param($c,'value','','is_string');
+			$type = get_array_value($c,'type','','is_string');
+			$value = get_array_value($c,'value','','is_string');
 			switch($type) {
 				case 'control':
-					$class = get_array_param($c,'class','','is_string');
+					$class = get_array_value($c,'class','','is_string');
 					if(!strlen($class) || !strlen($value)) {
 						if($this->_debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !strlen($value))
 					$cContent = $this->GetControlContent($value,$class);
-					$cContainer = get_array_param($c,'container',0,'is_integer');
+					$cContainer = get_array_value($c,'container',0,'is_integer');
 					if($cContainer>0) {
-					    $cContainerId = get_array_param($c,'container_id','','is_string');
+					    $cContainerId = get_array_value($c,'container_id','','is_string');
                         $cContent = $this->ProcessViewTheme(FALSE,$cContent,$cContainer,$cContainerId);
 					}//if($cContainer>0)
 					$content .= (strlen($content) ? "\n" : '').$cContent;
@@ -362,34 +362,34 @@ class AppView {
 						continue;
 					}//if(!strlen($value))
 					$cContent = $this->GetFileContent($value);
-					$cContainer = get_array_param($c,'container',0,'is_integer');
+					$cContainer = get_array_value($c,'container',0,'is_integer');
 					if($cContainer>0) {
-					    $cContainerId = get_array_param($c,'container_id','','is_string');
+					    $cContainerId = get_array_value($c,'container_id','','is_string');
                         $cContent = $this->ProcessViewTheme(FALSE,$cContent,$cContainer,$cContainerId);
 					}//if($cContainer>0)
 					$content .= (strlen($content) ? "\n" : '').$cContent;
 					break;
 				case 'module':
-					$module = get_array_param($c,'module','','is_string');
-					$method = get_array_param($c,'method','','is_string');
+					$module = get_array_value($c,'module','','is_string');
+					$method = get_array_value($c,'method','','is_string');
 					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
 						if($this->_debug) { NApp::_Dlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
 						continue;
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
-					$params = get_array_param($c,'params',NULL,'isset');
+					$params = get_array_value($c,'params',NULL,'isset');
 					$cContent = $this->GetModuleContent($module,$method,$params);
-					$cContainer = get_array_param($c,'container',0,'is_integer');
+					$cContainer = get_array_value($c,'container',0,'is_integer');
 					if($cContainer>0) {
-					    $cContainerId = get_array_param($c,'container_id','','is_string');
+					    $cContainerId = get_array_value($c,'container_id','','is_string');
                         $cContent = $this->ProcessViewTheme(FALSE,$cContent,$cContainer,$cContainerId);
 					}//if($cContainer>0)
 					$content .= (strlen($content) ? "\n" : '').$cContent;
 					break;
 				case 'string':
 				    $cContent = $value;
-					$cContainer = get_array_param($c,'container',0,'is_integer');
+					$cContainer = get_array_value($c,'container',0,'is_integer');
 					if($cContainer>0) {
-					    $cContainerId = get_array_param($c,'container_id','','is_string');
+					    $cContainerId = get_array_value($c,'container_id','','is_string');
                         $cContent = $this->ProcessViewTheme(FALSE,$cContent,$cContainer,$cContainerId);
 					}//if($cContainer>0)
 					$content .= (strlen($content) ? "\n" : '').$cContent;

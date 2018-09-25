@@ -80,10 +80,10 @@ class ComboBox extends Control {
                     $ldisplayfield = '';
                     foreach($this->displayfield as $dk=>$dv) {
                         if(is_array($dv)) {
-                            $ov_items = get_array_param($dv,'items',[],'is_notempty_array');
-                            $ov_value = get_array_param($dv,'value','','is_string');
-                            $ov_mask = get_array_param($dv,'mask','','is_string');
-                            $ldisplayfield .= strlen($ov_mask)>0 ? str_replace('~',get_array_param($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset'),$ov_mask) : get_array_param($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset');
+                            $ov_items = get_array_value($dv,'items',[],'is_notempty_array');
+                            $ov_value = get_array_value($dv,'value','','is_string');
+                            $ov_mask = get_array_value($dv,'mask','','is_string');
+                            $ldisplayfield .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset'),$ov_mask) : get_array_value($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset');
                         } else {
                             $ldisplayfield .= strlen($dv)>0 ? str_replace('~',$item->getProperty($dk,NULL,'isset'),$dv) : $item->getProperty($dk,NULL,'isset');
                         }//if(is_array($dv))

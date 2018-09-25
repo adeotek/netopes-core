@@ -16,24 +16,24 @@ trait DoctrineRepositoryStandardTrait {
 	 */
 	public function findFiltered(?array $params = []): ?array {
         try {
-            $s_query = get_array_param($params,'query',NULL,'is_object');
+            $s_query = get_array_value($params,'query',NULL,'is_object');
 			if($s_query instanceof Query) { return $s_query->getResult(); }
-			$firstrow = get_array_param($params,'firstrow',0,'is_integer');
-	        $lastrow = get_array_param($params,'lastrow',0,'is_integer');
-	        $sort = get_array_param($params,'sort',[],'is_array');
-	        $relations = get_array_param($params,'relations',[],'is_array');
-	        $filters = get_array_param($params,'filters',[],'is_array');
+			$firstrow = get_array_value($params,'firstrow',0,'is_integer');
+	        $lastrow = get_array_value($params,'lastrow',0,'is_integer');
+	        $sort = get_array_value($params,'sort',[],'is_array');
+	        $relations = get_array_value($params,'relations',[],'is_array');
+	        $filters = get_array_value($params,'filters',[],'is_array');
 			$tcount = 0;
 			$qb = $this->createQueryBuilder('e');
 			if(count($filters)) {
 				foreach($filters as $k=>$f) {
-					$field = get_array_param($f,'field',NULL,'isset');
-                    $value = get_array_param($f,'value',NULL,'isset');
+					$field = get_array_value($f,'field',NULL,'isset');
+                    $value = get_array_value($f,'value',NULL,'isset');
                     if(is_null($field) || is_null($value)) { continue; }
                     $operators = $this->getOperators();
-                    $operator = get_array_param($operators,strtolower(get_array_param($f,'condition_type','==','is_string')),'','is_string');
+                    $operator = get_array_value($operators,strtolower(get_array_value($f,'condition_type','==','is_string')),'','is_string');
                     if(!strlen($operator)) { continue; }
-                    $logical_operator = get_array_param($f,'logical_separator','and','is_notempty_string');
+                    $logical_operator = get_array_value($f,'logical_separator','and','is_notempty_string');
                     if(is_array($field) && count($field)) {
                         $expression = $qb->expr()->orX();
                         foreach($field as $mfi) { $expression->add($qb->expr()->$operator('e.'.$mfi,':in'.$k.'_'.$mfi)); }
@@ -128,7 +128,7 @@ trait DoctrineRepositoryStandardTrait {
 			$stime = microtime(TRUE);
 			$data = $qb->getQuery()->getResult();
 			$this->DbDebug($qb->getQuery(),'findFiltered',$stime);
-			if(get_array_param($params,'collection',FALSE,'bool')) { return $data; }
+			if(get_array_value($params,'collection',FALSE,'bool')) { return $data; }
 			return ['data'=>$data,'count'=>$tcount];
 		} catch(\Doctrine\ORM\Query\QueryException $qe) {
 			// NApp::_Dlog($qe->getTrace());

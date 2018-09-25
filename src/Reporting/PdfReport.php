@@ -124,18 +124,18 @@ class PdfReport {
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
 			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
-			$default_width = get_array_param($layout,'default_width',20,'is_not0_numeric');
+			$default_width = get_array_value($layout,'default_width',20,'is_not0_numeric');
 			$default_format = array_key_exists('default_format',$layout) ? (is_array($layout['default_format']) ? $layout['default_format'] : (array_key_exists($layout['default_format'],$this->formats) ? $this->formats[$layout['default_format']] : [])) : $this->formats['standard'];
 			$header_format = array_key_exists('header_format',$layout) ? (is_array($layout['header_format']) ? $layout['header_format'] : (array_key_exists($layout['header_format'],$this->formats) ? $this->formats[$layout['header_format']] : [])) : $this->formats['header'];
 			$this->pdf->custom_header = TRUE;
 			$this->pdf->custom_header_params = array('type'=>'table','columns'=>$layout['columns'],'format'=>$header_format,'default_width'=>$default_width,'border'=>$borders);
-			if($first || get_array_param($layout,'new_page',FALSE,'bool')) {
+			if($first || get_array_value($layout,'new_page',FALSE,'bool')) {
 				$first = FALSE;
 				$this->pdf->AddPage("P","A4");
 			} else {
 				$this->pdf->Cell(10,15,'',0,TRUE,'C',0,'',0,FALSE,'T','M');
 				$this->pdf->SetCustomHeader(TRUE);
-			}//if($first || get_array_param($layout,'new_page',FALSE,'bool'))
+			}//if($first || get_array_value($layout,'new_page',FALSE,'bool'))
 			if(!count($layout['data'])) { continue; }
 			$set_totals = TRUE;
 			foreach($layout['data'] as $data_row) {
@@ -148,7 +148,7 @@ class PdfReport {
 					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
 					$cformat = array_merge($default_format,$col_def_format,$col_custom_format);
 					$fr = $this->pdf->SetFormat($cformat);
-					$w = get_array_param($column,'width',$default_width,'is_not0_numeric');
+					$w = get_array_value($column,'width',$default_width,'is_not0_numeric');
 					$cvalue = $this->GetCellValue($data_row,$column,$col_no);
 					$this->pdf->Cell($w,0,$cvalue,$borders,($col_no==count($layout['columns'])),$this->pdf->GetAlign($cformat),$fr['fc'],'',1,FALSE,'T',$this->pdf->GetAlign($cformat,'v'));
 				}//END foreach

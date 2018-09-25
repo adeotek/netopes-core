@@ -94,11 +94,11 @@ class ExcelImport {
     public function __construct(array $fields,array $params = []) {
 		if(!count($fields)) { throw new AppException('Invalid ExcelImport fields list!',E_ERROR,1); }
 		$this->fields = $fields;
-        $this->dsep = get_array_param($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$this->gsep = get_array_param($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
-		$this->ds_name = get_array_param($params,'ds_name','','is_notempty_string');
-		$this->ds_method = get_array_param($params,'ds_method','','is_notempty_string');
-		$this->ds_params = get_array_param($params,'ds_params',[],'is_array');
+        $this->dsep = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
+		$this->gsep = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+		$this->ds_name = get_array_value($params,'ds_name','','is_notempty_string');
+		$this->ds_method = get_array_value($params,'ds_method','','is_notempty_string');
+		$this->ds_params = get_array_value($params,'ds_params',[],'is_array');
 		$this->send_to_db = strlen($this->ds_name) && strlen($this->ds_method) && DataProvider::MethodExists($this->ds_name,$this->ds_method);
 		ini_set('max_execution_time',7200);
 		ini_set('max_input_time',-1);
@@ -120,17 +120,17 @@ class ExcelImport {
 		if(strlen($file_type)) {
 			$file_type = strtolower($file_type);
 		} else {
-			$file_type = strtolower(get_array_param($params,'file_type','','is_string'));
+			$file_type = strtolower(get_array_value($params,'file_type','','is_string'));
 		}//if(strlen($file_type))
 		if(!strlen($file_type) && strpos($file,'.')!==FALSE) {
 			$file_type = strtolower(substr($file,strpos($file,'.')+1));
 		}//if(!strlen($file_type))
 		if(!strlen($file_type)) { throw new AppException('Invalid input file type!',E_ERROR,1); }
 		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('Unsupported file type!',E_ERROR,1); }
-		$sheet_index = get_array_param($params,'sheet_index',0,'is_not0_numeric');
-		$header_row = get_array_param($params,'header_row',1,'is_not0_numeric');
-		$start_row = get_array_param($params,'start_row',2,'is_not0_numeric');
-		$max_rows = get_array_param($params,'max_rows',-1,'is_numeric');
+		$sheet_index = get_array_value($params,'sheet_index',0,'is_not0_numeric');
+		$header_row = get_array_value($params,'header_row',1,'is_not0_numeric');
+		$start_row = get_array_value($params,'start_row',2,'is_not0_numeric');
+		$max_rows = get_array_value($params,'max_rows',-1,'is_numeric');
 		// $this->spreadsheet = IOFactory::load($file);
 		$reader = IOFactory::createReader($this->file_types[$file_type]);
 		$this->spreadsheet = $reader->load($file);
@@ -146,10 +146,10 @@ class ExcelImport {
 		// Read data line by line
 		foreach($this->fields as $k=>$v) {
 			if(isset($v['column']) && strlen($v['column'])) { continue; }
-			if(get_array_param($v,'optional',FALSE,'bool')) {
+			if(get_array_value($v,'optional',FALSE,'bool')) {
 				$this->fields[$k]['column'] = NULL;
 				continue;
-			}//if(get_array_param($v,'optional',FALSE,'bool'))
+			}//if(get_array_value($v,'optional',FALSE,'bool'))
 			throw new AppException("Invalid data: missing column [{$k}]!",E_USER_ERROR,1);
 		}//END foreach
 		$rowno = 0;
@@ -178,13 +178,13 @@ class ExcelImport {
 			foreach($this->fields as $k=>$v) {
 	    		$val = $v['column'] ? $this->sheet->getCell($v['column'].$rdata['_rowno'])->getValue() : NULL;
 				$cell = $v['column'].$rdata['_rowno'];
-				if(!get_array_param($v,'optional',FALSE,'bool') && (!isset($val) || !strlen($val))) {
+				if(!get_array_value($v,'optional',FALSE,'bool') && (!isset($val) || !strlen($val))) {
 					$rdata['_has_error'] = 1;
 					$rdata['_error'] .= "Invalid value at column [{$k}], cell [{$cell}]! ";
 				} else {
 					$rdata[$k] = $this->FormatValue($val,$v);
 					if(!isset($rdata[$k])) { $eno++; }
-				}//if(!get_array_param($v,'optional',FALSE,'bool') && (!isset($val) || !strlen($val)))
+				}//if(!get_array_value($v,'optional',FALSE,'bool') && (!isset($val) || !strlen($val)))
 			}//END foreach
 			if(count($this->fields)==$eno) { return; }
 			$this->ProcessDataRow($rdata);
@@ -203,12 +203,12 @@ class ExcelImport {
 	 * @access protected
 	 */
     protected function FormatValue($value,array $field) {
-		$format_value_func = get_array_param($field,'format_value_func',NULL,'is_notempty_string');
+		$format_value_func = get_array_value($field,'format_value_func',NULL,'is_notempty_string');
 		if($format_value_func && method_exists($this,$format_value_func)) {
 			return $this->$format_value_func($value,$field);
 		}//if($format_value_func && method_exists($this,$format_value_func))
-	    $format = get_array_param($field,'format',get_array_param($field,'type','','is_string'),'is_string');
-		$validation = get_array_param($field,'validation','isset','is_notempty_string');
+	    $format = get_array_value($field,'format',get_array_value($field,'type','','is_string'),'is_string');
+		$validation = get_array_value($field,'validation','isset','is_notempty_string');
 		return Validator::ValidateParam($value,NULL,$validation,$format);
 	}//END protected function FormatValue
 	/**
@@ -223,16 +223,16 @@ class ExcelImport {
 		try {
 			$lparams = $this->ds_params;
 			foreach($this->fields as $k=>$v) {
-				$da_param = get_array_param($v,'ds_param','','is_string');
+				$da_param = get_array_value($v,'ds_param','','is_string');
 				if(!strlen($da_param) || !array_key_exists($da_param,$lparams)) { continue; }
-				$lparams[$da_param] = get_array_param($row,$k,'null','isset');
+				$lparams[$da_param] = get_array_value($row,$k,'null','isset');
 			}//END foreach
 			$result = DataProvider::GetArray($this->ds_name,$this->ds_method,$lparams);
-			if(get_array_param($result,0,0,'is_numeric','inserted_id')==0) {
+			if(get_array_value($result,[0,'inserted_id'],0,'is_numeric')==0) {
 				$row['_has_error'] = 1;
 				$row['_error'] = 'unknown_item';
 				return FALSE;
-			}//if(get_array_param($result,0,0,'is_numeric','inserted_id')==0)
+			}//if(get_array_value($result,0,0,'is_numeric','inserted_id')==0)
 			return TRUE;
 		} catch(AppException $e) {
 			$row['_has_error'] = 1;

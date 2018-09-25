@@ -151,20 +151,20 @@ class ExcelExport {
 	 */
 	public function __construct(array $params) {
 		if(!count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new AppException('ExcelExport: Invalid parameters !',E_ERROR,1); }
-		$this->pre_processed_data = get_array_param($params,'pre_processed_data',FALSE,'bool');
+		$this->pre_processed_data = get_array_value($params,'pre_processed_data',FALSE,'bool');
 
-		$this->decimal_separator = get_array_param($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$this->group_separator = get_array_param($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
-		$this->date_separator = get_array_param($params,'date_separator',NApp::_GetParam('date_separator'),'is_string');
-		$this->time_separator = get_array_param($params,'time_separator',NApp::_GetParam('time_separator'),'is_string');
-		$this->langcode = get_array_param($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
-		$this->timezone = get_array_param($params,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
+		$this->decimal_separator = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
+		$this->group_separator = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+		$this->date_separator = get_array_value($params,'date_separator',NApp::_GetParam('date_separator'),'is_string');
+		$this->time_separator = get_array_value($params,'time_separator',NApp::_GetParam('time_separator'),'is_string');
+		$this->langcode = get_array_value($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
+		$this->timezone = get_array_value($params,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
 
-		$file_type = get_array_param($params,'version','xlsx','is_notempty_string');
+		$file_type = get_array_value($params,'version','xlsx','is_notempty_string');
 		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('ExcelExport: Invalid output file type!',E_ERROR,1); }
-		$output = get_array_param($params,'output',FALSE,'bool');
-		$save_path = get_array_param($params,'save_path',NULL,'is_string');
-		$file_name = get_array_param($params,'file_name','','is_string');
+		$output = get_array_value($params,'output',FALSE,'bool');
+		$save_path = get_array_value($params,'save_path',NULL,'is_string');
+		$file_name = get_array_value($params,'file_name','','is_string');
 
 		Cell::setValueBinder(new AdvancedValueBinder());
 		$this->obj = new Spreadsheet();
@@ -179,7 +179,7 @@ class ExcelExport {
 				$this->obj = NULL;
 				throw new AppException('ExcelExport: Invalid sheet parameters !',E_ERROR,1);
 			}//if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout))
-			$c_sheet_name = get_array_param($layout,'sheet_name','','is_string');
+			$c_sheet_name = get_array_value($layout,'sheet_name','','is_string');
 			if($sheet_index<0 || $c_sheet_name!=$sheet_name) {
 				$sheet_index++;
 				$row_no = 1;
@@ -216,14 +216,14 @@ class ExcelExport {
 			$col_no = 0;
 			foreach($layout['columns'] as $k=>$column) {
 				$col_no++;
-				if(get_array_param($column,'summarize',FALSE,'bool')) {
+				if(get_array_value($column,'summarize',FALSE,'bool')) {
 					$this->total_row[$col_no] = array(
 						'value'=>0,
 						'key'=>$k,
-						'type'=>strtolower(get_array_param($column,'summarize_type','count','is_notempty_string')),
+						'type'=>strtolower(get_array_value($column,'summarize_type','count','is_notempty_string')),
 					);
-				}//if(get_array_param($column,'summarize',FALSE,'bool'))
-				$c_width = get_array_param($column,'width',get_array_param($column,'ewidth',NULL,'is_notempty_string'),'is_notempty_string');
+				}//if(get_array_value($column,'summarize',FALSE,'bool'))
+				$c_width = get_array_value($column,'width',get_array_value($column,'ewidth',NULL,'is_notempty_string'),'is_notempty_string');
 				if($c_width && strpos($c_width,'%')===FALSE) {
 					if(strpos($c_width,'px')!==FALSE) { $c_width = str_replace('px','',trim($c_width)); }
 					if(is_numeric($c_width)) {
@@ -233,7 +233,7 @@ class ExcelExport {
 				if(array_key_exists('header_format',$column) && $column['header_format']) {
 					$this->ApplyStyleArray($active_sheet,$this->IndexToColumn($col_no).$row_no,$column['header_format']);
 				}//if(array_key_exists('header_format',$column) && $column['header_format'])
-				$active_sheet->setCellValue($this->IndexToColumn($col_no).$row_no,get_array_param($column,'label',$col_no,'is_string'));
+				$active_sheet->setCellValue($this->IndexToColumn($col_no).$row_no,get_array_value($column,'label',$col_no,'is_string'));
 			}//END foreach
 			if(!is_array($layout['data']) || !count($layout['data'])) { continue; }
 			foreach($layout['data'] as $data_row) {
@@ -243,13 +243,13 @@ class ExcelExport {
 				$row_format = (array_key_exists('format_row_func',$layout) && $layout['format_row_func']) ? $this->$layout['format_row_func']($data_row) : [];
 				foreach($layout['columns'] as $column) {
 					$col_no++;
-					$col_format_name = get_array_param($column,'format',NULL,'is_notempty_string');
+					$col_format_name = get_array_value($column,'format',NULL,'is_notempty_string');
 					if($col_format_name) {
-						$col_format_name .= '_'.substr(get_array_param($column,'halign','center','is_notempty_string'),0,1);
+						$col_format_name .= '_'.substr(get_array_value($column,'halign','center','is_notempty_string'),0,1);
 					} else {
-						$col_format_name = get_array_param($column,'eformat','standard','is_notempty_string');
+						$col_format_name = get_array_value($column,'eformat','standard','is_notempty_string');
 					}//if($col_format_name)
-					$col_def_format = get_array_param($this->formats,$col_format_name,[],'is_array');
+					$col_def_format = get_array_value($this->formats,$col_format_name,[],'is_array');
 					$col_custom_format = (array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
 					$col_format = array_merge((is_array($col_def_format) ? $col_def_format : []),(is_array($row_format) ? $row_format : []),(is_array($col_custom_format) ? $col_custom_format : []));
 					$this->ApplyStyleArray($active_sheet,$this->IndexToColumn($col_no).$row_no,$col_format);
@@ -267,8 +267,8 @@ class ExcelExport {
 					$this->ApplyStyleArray($active_sheet,'A'.$row_no.':'.$this->IndexToColumn(count($layout['columns'])).$row_no,'border_out');
 				}//if($this->with_borders)
 				foreach($this->total_row as $c=>$v) {
-					if(!get_array_param($layout['columns'][$v['key']],'summarize',FALSE,'bool')) { continue; }
-					$col_def_format = get_array_param($layout['columns'][$v['key']],'format','standard','is_notempty_string');
+					if(!get_array_value($layout['columns'][$v['key']],'summarize',FALSE,'bool')) { continue; }
+					$col_def_format = get_array_value($layout['columns'][$v['key']],'format','standard','is_notempty_string');
 					$this->ApplyStyleArray($active_sheet,$this->IndexToColumn($c).$row_no,$col_def_format);
 					switch($v['type']) {
 						case 'sum':
@@ -311,8 +311,8 @@ class ExcelExport {
 			$col_value = $this->$column['format_formula_func']($row,$col,$data,$column);
 		} else {
 			if($this->pre_processed_data) {
-				$col_name = get_array_param($column,'name',NULL,'is_string');
-				$col_value = get_array_param($data,$col_name,get_array_param($column,'default_value',NULL,'isset'),'isset');
+				$col_name = get_array_value($column,'name',NULL,'is_string');
+				$col_value = get_array_value($data,$col_name,get_array_value($column,'default_value',NULL,'isset'),'isset');
 			} else {
 				$col_value = '';
 				$dbfield = is_array($column['db_field']) ? $column['db_field'] : [$column['db_field']];
@@ -334,8 +334,8 @@ class ExcelExport {
 			}//if($this->pre_processed_data)
 		}//if(array_key_exists('format_value_func',$column) && $column['format_value_func'])
 		$col_value = (isset($col_value) ? $col_value : '');
-		if(count($this->total_row) && get_array_param($column,'summarize',FALSE,'bool')) {
-			if(get_array_param($column,'values_total_row',FALSE,'bool')) {
+		if(count($this->total_row) && get_array_value($column,'summarize',FALSE,'bool')) {
+			if(get_array_value($column,'values_total_row',FALSE,'bool')) {
 				switch($this->total_row[$col]['type']) {
 					case 'sum':
 					case 'average':
@@ -349,15 +349,15 @@ class ExcelExport {
 				}//END switch
 			} else {
 				$this->total_row[$col]['value'] = TRUE;
-			}//if(get_array_param($column,'values_total_row',FALSE,'bool'))
-		}//if(count($this->total_row) && get_array_param($column,'summarize',FALSE,'bool'))
+			}//if(get_array_value($column,'values_total_row',FALSE,'bool'))
+		}//if(count($this->total_row) && get_array_value($column,'summarize',FALSE,'bool'))
 		if($return) { return $col_value; }
 		if(array_key_exists('format_formula_func',$column) && $column['format_formula_func']) {
 			$sheet->setCellValue($this->IndexToColumn($col).$row,$col_value);
 		} else {
 			$ccol = is_integer($col) ? $this->IndexToColumn($col) : $col;
 			$v_dtype = is_numeric($col_value) ? 'numeric' : 'string';
-			$data_type = get_array_param($column,'data_type',$v_dtype,'is_notempty_string');
+			$data_type = get_array_value($column,'data_type',$v_dtype,'is_notempty_string');
 			if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
 				$dt_value = unixts2excel($col_value,AppConfig::server_timezone(),$this->timezone);
 				if($dt_value) {
@@ -370,7 +370,7 @@ class ExcelExport {
 				$data_type = 'string';
 			}//if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj')
 			if($data_type=='string') {
-				$col_value .= get_array_param($column,'sufix','','is_string');
+				$col_value .= get_array_value($column,'sufix','','is_string');
 			}//if($data_type=='string')
 			$sheet->getCell($ccol.$row)->setValueExplicit($col_value,$this->GetDataType($data_type));
 		}//if(array_key_exists('format_formula_func',$column) && $column['format_formula_func'])

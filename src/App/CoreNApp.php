@@ -142,11 +142,11 @@ abstract class CoreNApp extends \PAF\App {
 		$this->globals['domain_config'] = $_DOMAINS_CONFIG['namespaces'][$this->current_namespace];
 		$this->default_db_connection = $this->globals['domain_config']['db_connection'];
 		$this->url->url_virtual_path = isset($this->globals['domain_config']['link_alias']) ? $this->globals['domain_config']['link_alias'] : '';
-		$default_views_dir = get_array_param($this->globals['domain_config'],'default_views_dir','','is_string');
+		$default_views_dir = get_array_value($this->globals['domain_config'],'default_views_dir','','is_string');
 		if(strlen($default_views_dir)) { AppConfig::app_default_views_dir($default_views_dir); }
-		$views_extension = get_array_param($this->globals['domain_config'],'views_extension','','is_string');
+		$views_extension = get_array_value($this->globals['domain_config'],'views_extension','','is_string');
 		if(strlen($views_extension)) { AppConfig::app_views_extension($views_extension); }
-		$app_theme = get_array_param($this->globals['domain_config'],'app_theme',NULL,'is_string');
+		$app_theme = get_array_value($this->globals['domain_config'],'app_theme',NULL,'is_string');
 		if(isset($app_theme)) { AppConfig::app_theme($app_theme); }
 		$this->requires_login = $this->globals['domain_config']['requires_login'];
 		$this->login_namespace = isset($this->globals['domain_config']['login_namespace']) ? $this->globals['domain_config']['login_namespace'] : NULL;
@@ -368,7 +368,7 @@ abstract class CoreNApp extends \PAF\App {
 	 */
 	public function GetGlobalVar($key,$def_value = NULL,$validation = NULL) {
 		if(is_object($this->globals)) { return $this->globals->safeGet($key,$def_value,$validation); }
-		if(is_array($this->globals)) { return get_array_param($this->globals,$key,$def_value,$validation); }
+		if(is_array($this->globals)) { return get_array_value($this->globals,$key,$def_value,$validation); }
 		return NULL;
 	}//END public function GetGlobalVar
 	/**
@@ -420,8 +420,8 @@ abstract class CoreNApp extends \PAF\App {
 		$data = '';
 		foreach($scripts as $s) {
 			if(is_array($s)) {
-				$d_js = get_array_param($s,'js','','is_string');
-				$d_html = get_array_param($s,'html','','is_string');
+				$d_js = get_array_value($s,'js','','is_string');
+				$d_html = get_array_value($s,'html','','is_string');
 				if(strlen($d_js)) { $data .= $d_js."\n"; }
 				if(strlen($d_html)) { $html_data .= $d_html."\n"; }
 			} elseif(is_string($s) && strlen($s)) {
@@ -471,7 +471,7 @@ abstract class CoreNApp extends \PAF\App {
 	 */
 	public function GetRequestParamValue($key,$def_value = NULL,$validation = NULL) {
 		if(!is_array($this->globals) || !array_key_exists('req_params',$this->globals)) { return $def_value; }
-		return get_array_param($this->globals['req_params'],$key,$def_value,$validation);
+		return get_array_value($this->globals['req_params'],$key,$def_value,$validation);
 	}//END public function GetRequestParamValue
 	/**
 	 * Get current language ID
@@ -653,7 +653,7 @@ abstract class CoreNApp extends \PAF\App {
 	public function IsMultiLanguage($namespace = NULL) {
 		if(!is_array(AppConfig::app_multi_language())) { return AppConfig::app_multi_language(); }
 		$namespace = $namespace ? $namespace : $this->current_namespace;
-		return get_array_param(AppConfig::app_multi_language(),$namespace,TRUE,'bool');
+		return get_array_value(AppConfig::app_multi_language(),$namespace,TRUE,'bool');
 	}//END public function IsMultiLanguage
 	/**
 	 * Get database cache state
@@ -767,11 +767,11 @@ abstract class CoreNApp extends \PAF\App {
 		$namespace = $namespace ? $namespace : $this->current_namespace;
 		if($namespace!=$this->current_namespace) {
 			global $_DOMAINS_CONFIG;
-			$domainreg = get_array_param($_DOMAINS_CONFIG,'namespaces',NULL,'is_array',$namespace);
+			$domainreg = get_array_value($_DOMAINS_CONFIG,['namespaces',$namespace],NULL,'is_array');
 			if(!is_array($domainreg) || !count($domainreg)) { throw new \PAF\AppException('Invalid domain registry!',E_ERROR); }
-			$ns_link_alias = get_array_param($domainreg,'link_alias','','is_string');
+			$ns_link_alias = get_array_value($domainreg,'link_alias','','is_string');
 		} else {
-			$ns_link_alias = get_array_param($this->globals,'domain_config','','is_string','link_alias');
+			$ns_link_alias = get_array_value($this->globals,['domain_config','link_alias'],'','is_string');
 		}//if($namespace!=$this->current_namespace)
 		$llangcode = $langcode===FALSE ? '' : (is_string($langcode) && strlen($langcode) ? $langcode : $this->GetLanguageCode());
 		$lang = ($this->IsMultiLanguage($namespace) && !AppConfig::url_without_language() && strlen($llangcode)) ? strtolower($llangcode) : '';
@@ -946,7 +946,7 @@ abstract class CoreNApp extends \PAF\App {
 	 */
 	public function InitializeKCFinder($params = NULL) {
 		if(!AppSession::WithSession() || !AppConfig::use_kc_finder()) { return; }
-		$type = get_array_param($params,'type','','is_string');
+		$type = get_array_value($params,'type','','is_string');
 		switch(strtolower($type)) {
 			case 'public':
 				AppSession::SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);
@@ -960,8 +960,8 @@ abstract class CoreNApp extends \PAF\App {
 				break;
 			case 'cms':
 			default:
-				$section_folder = get_array_param($params,'section_folder',$this->GetParam('section_folder'),'is_string');
-				$zone_code = get_array_param($params,'zone_code',$this->GetParam('zone_code'),'is_string');
+				$section_folder = get_array_value($params,'section_folder',$this->GetParam('section_folder'),'is_string');
+				$zone_code = get_array_value($params,'zone_code',$this->GetParam('zone_code'),'is_string');
 				// TODO: fix multi instance
 				AppSession::SetGlobalParam('disabled',($this->login_status && $this->GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
 				AppSession::SetGlobalParam('uploadURL',$this->app_web_link.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);

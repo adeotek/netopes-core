@@ -12,9 +12,11 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NApp;
 use PAF\AppConfig;
+use PAF\AppSession;
 use PAF\AppException;
+use NApp;
+
 /**
  * DbAdapter is the base abstract class for all database adapters
  *
@@ -97,7 +99,7 @@ abstract class DataAdapter {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];
-		$this->results_keys_case = get_array_param($connection,'results_keys_case',$this->results_keys_case,'numeric');
+		$this->results_keys_case = get_array_value($connection,'results_keys_case',$this->results_keys_case,'is_integer');
 		$this->Init($connection);
 	}//END protected function __construct
 	/**
@@ -112,7 +114,7 @@ abstract class DataAdapter {
 	public static function GetInstance($type,$connection,$existing_only = FALSE) {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !$type) { return NULL; }
 		$dbclass = get_called_class();
-		$dbiname = \PAF\AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
+		$dbiname = AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
 		if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection)) {
 			if($existing_only) { return NULL; }
 			self::$DatabaseAdapterInstances[$dbiname] = new $dbclass($connection);
@@ -126,7 +128,7 @@ abstract class DataAdapter {
 	 * @return string Returns name of the database
 	 * @access public
 	 */
-	public function GetName() {
+	public function GetName(): string {
 		return $this->dbname;
 	}//END public function GetName
 	/**
@@ -147,4 +149,3 @@ abstract class DataAdapter {
 		if($this->debug2file) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 }//END abstract class BaseAdapter
-?>

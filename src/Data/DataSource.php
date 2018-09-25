@@ -198,8 +198,8 @@ class DataSource {
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
-		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
-		$count_select = strtolower(get_array_param($extra_params,'type','','is_string'))=='count-select';
+		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
+		$count_select = strtolower(get_array_value($extra_params,'type','','is_string'))=='count-select';
 		if($count_select) {
 			switch(intval($sp_count)) {
 				case 1:
@@ -282,9 +282,9 @@ class DataSource {
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
-		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
-		$select_stmt =  get_array_param($extra_params,'select_statement','SELECT * ','is_notempty_string');
-		$count_select = strtolower(get_array_param($extra_params,'type','','is_string'))=='count-select';
+		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
+		$select_stmt =  get_array_value($extra_params,'select_statement','SELECT * ','is_notempty_string');
+		$count_select = strtolower(get_array_value($extra_params,'type','','is_string'))=='count-select';
 		if($count_select) {
 			$extra_params['type'] = 'count';
 			$result = arr_change_key_case($this->adapter->ExecuteQuery('SELECT COUNT(1) AS RCOUNT '.$query,$params,$extra_params),TRUE,CASE_LOWER);
@@ -296,7 +296,7 @@ class DataSource {
 		} else {
 			if(strtolower(substr(trim($query),0,6))=='select') {
 				$qry = $query;
-			} elseif(strtolower(get_array_param($extra_params,'type','','is_string'))=='count') {
+			} elseif(strtolower(get_array_value($extra_params,'type','','is_string'))=='count') {
 				$qry = 'SELECT COUNT(1) AS RCOUNT '.$query;
 			} else {
 				$qry = $select_stmt.$query;
@@ -411,12 +411,12 @@ class DataSource {
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
+			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
+			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
 			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_index = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_timeout = get_array_param($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_password = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
+				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
+				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
+				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
 					$redis = new Redis();
 					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
@@ -479,12 +479,12 @@ class DataSource {
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
+			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
+			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
 			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_timeout = get_array_param($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_index = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_password = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
+				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
+				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
+				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
 					$redis = new Redis();
 					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
@@ -552,12 +552,12 @@ class DataSource {
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
+			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
+			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
 			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_timeout = get_array_param($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_index = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_password = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
+				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
+				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
+				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
 					$redis = new Redis();
 					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
@@ -613,12 +613,12 @@ class DataSource {
 		$result = NULL;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
 			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
+			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
+			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
 			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_index = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_timeout = get_array_param($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_password = get_array_param($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
+				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
+				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
+				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
 					$redis = new Redis();
 					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {

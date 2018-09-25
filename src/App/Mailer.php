@@ -48,28 +48,28 @@ class Mailer {
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
 		if(!is_array($settings) || !count($settings)) {
-			$id_section = get_array_param($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
-			$id_zone = get_array_param($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
+			$id_section = get_array_value($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
+			$id_zone = get_array_value($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
 			$items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
 				'section_id'=>(is_numeric($id_section) ? $id_section : 'null'),
 				'zone_id'=>(is_numeric($id_zone) ? $id_zone : 'null'),
-				'for_stype'=>get_array_param($params,'nwl_stype',2,'is_numeric'),
+				'for_stype'=>get_array_value($params,'nwl_stype',2,'is_numeric'),
 				'for_active'=>1,
 				'for_implicit'=>1,
 			));
-			$settings = get_array_param($items,0,[],'is_array');
+			$settings = get_array_value($items,0,[],'is_array');
 		}//if(!is_array($settings) || !count($settings))
-		$sendmail = get_array_param($settings,'sendmail',0,'is_numeric');
+		$sendmail = get_array_value($settings,'sendmail',0,'is_numeric');
 		if($sendmail!=1) {
-			$smtphost = get_array_param($settings,'smtp_server','localhost','is_string');
-			$smtpport = get_array_param($settings,'smtp_port',25,'is_numeric');
-			$smtpauth = get_array_param($settings,'smtp_auth',0,'is_numeric');
-			$smtpuser = get_array_param($settings,'smtp_user','','is_string');
-			$smtppass = get_array_param($settings,'smtp_password','','is_string');
-			$smtpencrypt = get_array_param($settings,'smtp_encrypt',0,'is_numeric');
-			$replyto = strlen($reply_to) ? $reply_to : get_array_param($settings,'reply_to','','is_string');
-			$returnpath = get_array_param($settings,'return_path','','is_string');
-			$exchangedomain = get_array_param($settings,'exchange_domain','','is_string');
+			$smtphost = get_array_value($settings,'smtp_server','localhost','is_string');
+			$smtpport = get_array_value($settings,'smtp_port',25,'is_numeric');
+			$smtpauth = get_array_value($settings,'smtp_auth',0,'is_numeric');
+			$smtpuser = get_array_value($settings,'smtp_user','','is_string');
+			$smtppass = get_array_value($settings,'smtp_password','','is_string');
+			$smtpencrypt = get_array_value($settings,'smtp_encrypt',0,'is_numeric');
+			$replyto = strlen($reply_to) ? $reply_to : get_array_value($settings,'reply_to','','is_string');
+			$returnpath = get_array_value($settings,'return_path','','is_string');
+			$exchangedomain = get_array_value($settings,'exchange_domain','','is_string');
 		}//if($sendmail!=1)
 		try {
 			if($sendmail!=1) {

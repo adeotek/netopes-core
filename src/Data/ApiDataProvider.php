@@ -153,7 +153,7 @@ class ApiDataProvider {
 				$result_data = explode(NApp::_GetApiSeparator(),$response);
 				if(NApp::$debug && FALSE) {
 					echo '<strong>API Call non result output ('.$rtype.'):</strong><br/>';
-					echo get_array_param($result_data,0).'<br/>'.get_array_param($result_data,2).'<br/><br/>';
+					echo get_array_value($result_data,0).'<br/>'.get_array_value($result_data,2).'<br/><br/>';
 				}//if(NApp::$debug)
 				if(is_array($result_data) && count($result_data)>=2 && $result_data[1]) {
 					$target['result'] = unserialize(GibberishAES::dec($result_data[1],NApp::_GetMyAccessKey()));

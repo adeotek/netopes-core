@@ -216,13 +216,13 @@ abstract class Control {
 		if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
 			$this->ctrl_actions = [];
 			foreach($this->actions as $av) {
-				$c_a_params = get_array_param($av,'params',NULL,'is_notempty_array');
+				$c_a_params = get_array_value($av,'params',NULL,'is_notempty_array');
 				if(!$c_a_params) { continue; }
 				$c_a_params['theme_type'] = $this->theme_type;
 				$c_a_params['size'] = $this->size;
 				$this->ctrl_actions[] = array(
 					'params'=>$c_a_params,
-					'action_params'=>get_array_param($av,'action_params',NULL,'is_notempty_array'),
+					'action_params'=>get_array_value($av,'action_params',NULL,'is_notempty_array'),
 				);
 			}//END foreach
 		}//if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions))
@@ -265,10 +265,10 @@ abstract class Control {
 		}//if(strlen($this->dynamic_target))
 		foreach($this->ctrl_actions as $act) {
 			$act_params = $act['params'];
-			$act_params['action_params'] = get_array_param($act,'action_params',NULL,'is_notempty_array');
-			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tagid.'\').val(); '.get_array_param($act_params,'onclick','','is_string');
+			$act_params['action_params'] = get_array_value($act,'action_params',NULL,'is_notempty_array');
+			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tagid.'\').val(); '.get_array_value($act_params,'onclick','','is_string');
 			$act_params['disabled'] = $this->disabled;
-			$act_params['style'] = 'display: inline-block; '.get_array_param($act,'style','','is_string');
+			$act_params['style'] = 'display: inline-block; '.get_array_value($act,'style','','is_string');
 			$act_button = new Button($act_params);
 			$result .= $act_button->Show();
 		}//END foreach
@@ -602,24 +602,24 @@ abstract class Control {
 		$result = '';
 		foreach($this->custom_actions as $ca) {
 			if(!is_array($ca) || !count($ca)) { continue; }
-			$ca_params = get_array_param($ca,'params',[],'is_array');
+			$ca_params = get_array_value($ca,'params',[],'is_array');
 			$ca_params['theme_type'] = $this->theme_type;
 			$ca_params['size'] = $this->size;
-			$ca_type = get_array_param($ca,'type','DivButton','is_notempty_string');
+			$ca_type = get_array_value($ca,'type','DivButton','is_notempty_string');
 			if(!class_exists($ca_type)){ continue; }
-			$ca_dright = get_array_param($ca,'dright','','is_string');
+			$ca_dright = get_array_value($ca,'dright','','is_string');
 			if(strlen($ca_dright)) {
 				$dright = Module::GetDRights($this->module,$this->method,$ca_dright);
 				if($dright) { continue; }
 			}//if(strlen($a_dright))
-			$ca_command = get_array_param($ca,'command_string',NULL,'is_notempty_string');
-			if($ca_command){
+			$ca_command = get_array_value($ca,'command_string',NULL,'is_notempty_string');
+			if($ca_command) {
 				$ac_params = explode('}}',$ca_command);
 				$ca_command = '';
-				foreach($ac_params as $ce){
+				foreach($ac_params as $ce) {
 					$ce_arr = explode('{{',$ce);
-					if(count($ce_arr)>1){
-						$ca_command .= $ce_arr[0].get_array_param($row,$ce_arr[1],'','true');
+					if(count($ce_arr)>1) {
+						$ca_command .= $ce_arr[0].get_array_value($ca,$ce_arr[1],'','true');
 					}else{
 						$ca_command .= $ce_arr[0];
 					}//if(count($ce_arr)>1)
@@ -627,7 +627,7 @@ abstract class Control {
 				$ca_params['onclick'] = NApp::arequest()->Prepare($ca_command,$this->loader);
 			}//if($acommand)
 			$ca_ctrl = new $ca_type($ca_params);
-			if(get_array_param($ca,'clear_base_class',FALSE,'bool')){ $ca_ctrl->ClearBaseClass(); }
+			if(get_array_value($ca,'clear_base_class',FALSE,'bool')){ $ca_ctrl->ClearBaseClass(); }
 			$result .= $ca_ctrl->Show();
 		}//END foreach
 		// NApp::_Dlog($result,'custom_actions>$result');
@@ -686,13 +686,13 @@ abstract class Control {
 		$result = FALSE;
 		if(!is_array($conditions) || !count($conditions)) { return $result; }
 		foreach($conditions as $cond) {
-			$cond_field = get_array_param($cond,'field',NULL,'is_notempty_string');
-			$cond_value = get_array_param($cond,'value',NULL,'isset');
+			$cond_field = get_array_value($cond,'field',NULL,'is_notempty_string');
+			$cond_value = get_array_value($cond,'value',NULL,'isset');
 			if(!$cond_field) { continue; }
-			$cond_type = get_array_param($cond,'type','=','is_notempty_string');
-			$validation = get_array_param($cond,'validation','','is_string');
+			$cond_type = get_array_value($cond,'type','=','is_notempty_string');
+			$validation = get_array_value($cond,'validation','','is_string');
 			if($validation) {
-				$lvalue = validate_param($this->{$cond_field},get_array_param($cond,'default_value',NULL,'isset'),$validation);
+				$lvalue = validate_param($this->{$cond_field},get_array_value($cond,'default_value',NULL,'isset'),$validation);
 			} else {
 				$lvalue = $this->{$cond_field};
 			}//if($validation)
@@ -811,9 +811,9 @@ abstract class Control {
 		$result = FALSE;
 		if(!is_array($conditions) || !count($conditions) || !is_object($row)) { return $result; }
 		foreach($conditions as $cond) {
-			$cond_field = get_array_param($cond,'field',NULL,'is_notempty_string');
-			$cond_value = get_array_param($cond,'value',NULL,'isset');
-			$cond_type = get_array_param($cond,'type','=','is_notempty_string');
+			$cond_field = get_array_value($cond,'field',NULL,'is_notempty_string');
+			$cond_value = get_array_value($cond,'value',NULL,'isset');
+			$cond_type = get_array_value($cond,'type','=','is_notempty_string');
 			try {
 				switch($cond_type) {
 					case '<':
@@ -870,14 +870,14 @@ abstract class Control {
 	 */
 	public static function GetTranslationData($params = []) {
 		if(!is_array($params) || !count($params)) { return NULL; }
-		$ds_name = get_array_param($params,'ds_class','','is_string');
-		$ds_method = get_array_param($params,'ds_method','','is_string');
+		$ds_name = get_array_value($params,'ds_class','','is_string');
+		$ds_method = get_array_value($params,'ds_method','','is_string');
 		if(!strlen($ds_name) || !strlen($ds_method) || !DataProvider::MethodExists($ds_name,$ds_method)) { return NULL; }
-		$record_key = get_array_param($params,'record_key',0,'is_integer');
-		$record_key_field = get_array_param($params,'record_key_field','language_id','is_notempty_string');
-		$ds_params = get_array_param($params,'ds_params',[],'is_array');
+		$record_key = get_array_value($params,'record_key',0,'is_integer');
+		$record_key_field = get_array_value($params,'record_key_field','language_id','is_notempty_string');
+		$ds_params = get_array_value($params,'ds_params',[],'is_array');
 		$ds_params[$record_key_field] = $record_key;
-		$ds_key = get_array_param($params,'ds_key','','is_string');
+		$ds_key = get_array_value($params,'ds_key','','is_string');
 		if(strlen($ds_key)) {
 			$result = DataProvider::GetKeyValueArray($ds_name,$ds_method,$ds_params,['keyfield'=>$ds_key]);
 		} else {

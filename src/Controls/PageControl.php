@@ -36,8 +36,8 @@
 			$p_no = ceil($this->totalrows/$rpp);
 			if(!$this->withcount || !$this->currentpage) {
 				$p_current_arr = NApp::_GetParam($this->module.$this->method.$this->phash);
-				$withcount = get_array_param($p_current_arr,'fullpagination',0,'is_numeric');
-				$p_current = get_array_param($p_current_arr,'currentpage',1,'is_numeric');
+				$withcount = get_array_value($p_current_arr,'fullpagination',0,'is_numeric');
+				$p_current = get_array_value($p_current_arr,'currentpage',1,'is_numeric');
 			} else {
 				$withcount = $this->withcount;
 				$p_current = $this->currentpage;

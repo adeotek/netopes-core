@@ -305,11 +305,11 @@ class Validator {
 	public static function FormatValue($value,$mode,$html_entities = FALSE,$prefix = '',$sufix = '',$def_value = '',$format = '',$validation = '',$regionals = []) {
 		$lvalue = ($format && $validation) ? self::ValidateParam($value,NULL,$validation,$format) : $value;
 		if(!isset($lvalue)) { return $def_value; }
-		$decimal_sep = get_array_param($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_notempty_string');
-		$group_sep = get_array_param($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_notempty_string');
-		$date_sep = get_array_param($regionals,'date_separator',NApp::_GetParam('date_separator'),'is_notempty_string');
-		$time_sep = get_array_param($regionals,'time_separator',NApp::_GetParam('time_separator'),'is_notempty_string');
-		$timezone = get_array_param($regionals,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
+		$decimal_sep = get_array_value($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_notempty_string');
+		$group_sep = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_notempty_string');
+		$date_sep = get_array_value($regionals,'date_separator',NApp::_GetParam('date_separator'),'is_notempty_string');
+		$time_sep = get_array_value($regionals,'time_separator',NApp::_GetParam('time_separator'),'is_notempty_string');
+		$timezone = get_array_value($regionals,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
 		$percent_sufix = $html_entities ? '&nbsp;&#37;' : ' %';
 		switch($mode) {
 			case 'date':

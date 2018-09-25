@@ -31,9 +31,9 @@
 			$this->baseclass = (strlen($this->color) && array_key_exists($this->color,$this->colors)) ? $this->colors[$this->color] : $this->baseclass;
 			if(is_array($this->value)) {
 				$lvalue = $this->value;
-				switch(get_array_param($lvalue,'type','','is_string')) {
+				switch(get_array_value($lvalue,'type','','is_string')) {
 					case 'eval':
-						$arg = get_array_param($lvalue,'arg','','is_string');
+						$arg = get_array_value($lvalue,'arg','','is_string');
 						if(strlen($arg)) {
 							try {
 								$lvalue = eval($arg);
@@ -46,7 +46,7 @@
 						}//if(strlen($arg))
 						break;
 					default:
-						$lvalue = get_array_param($lvalue,'arg',0,'isset');
+						$lvalue = get_array_value($lvalue,'arg',0,'isset');
 						break;
 				}//END switch
 			} else {

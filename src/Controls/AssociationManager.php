@@ -166,7 +166,7 @@ abstract class AssociationManager {
 	public function __construct($params = NULL) {
 		$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
 		$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
-		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
+		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			if(!is_array($this->pdata)) { $this->pdata = []; }
@@ -248,7 +248,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItemName($row) {
-		return get_array_param($row,$this->associated_name_field,'N/A','is_string');
+		return get_array_value($row,$this->associated_name_field,'N/A','is_string');
 	}//END protected function GetAssociatedItemName
 	/**
 	 * Get associated item
@@ -257,10 +257,10 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItem($row) {
-		$item_id = get_array_param($row,'id','','is_integer');
+		$item_id = get_array_value($row,'id','','is_integer');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
-		$itclass = get_array_param($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass = get_array_value($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
@@ -355,7 +355,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItemName($row) {
-		return get_array_param($row,$this->assignable_name_field,'N/A','is_string');
+		return get_array_value($row,$this->assignable_name_field,'N/A','is_string');
 	}//END protected function GetAssignableItemName
 	/**
 	 * Get assignable item
@@ -364,13 +364,13 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItem($row) {
-		$item_id = get_array_param($row,'id','','is_numeric');
-		$is_associated = get_array_param($row,'assoc',0,'is_numeric')==1;
+		$item_id = get_array_value($row,'id','','is_numeric');
+		$is_associated = get_array_value($row,'assoc',0,'is_numeric')==1;
 		if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
 		$item_name = $this->GetAssignableItemName($row);
 		$liclass = strlen($this->assignable_item_class) ? ' '.$this->assignable_item_class : '';
 		$itclass = $is_associated ? ' associated' : '';
-		$itclass .= get_array_param($row,$this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass .= get_array_value($row,$this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
@@ -429,10 +429,10 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetLiveVersionItem($row) {
-		$item_id = get_array_param($row,'id','','is_numeric');
+		$item_id = get_array_value($row,'id','','is_numeric');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
-		$itclass = get_array_param($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass = get_array_value($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$result .= "\t\t\t\t\t\t".'<span class="txt'.$itclass.'">'.$item_name.'</span>'."\n";
 		$result .= "\t\t\t\t\t".'</li>'."\n";

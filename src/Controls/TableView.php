@@ -21,6 +21,8 @@ use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
 use PAF\AppException;
 use NApp;
+use Translate;
+
 /**
  * Data grid control
  *
@@ -375,7 +377,7 @@ class TableView {
 		if(is_string($format) && strlen($format)) {
 			$result = \NETopes\Core\App\Validator::FormatValue($value,$format);
 		} elseif(is_array($format) && count($format)) {
-			$result = \NETopes\Core\App\Validator::FormatValue($value,get_array_param($format,'mode','','is_string'),get_array_param($format,'html_entities',FALSE,'bool'),get_array_param($format,'prefix','','is_string'),get_array_param($format,'sufix','','is_string'),get_array_param($format,'def_value','','is_string'),get_array_param($format,'format','','is_string'),get_array_param($format,'validation','','is_string'));
+			$result = \NETopes\Core\App\Validator::FormatValue($value,get_array_value($format,'mode','','is_string'),get_array_value($format,'html_entities',FALSE,'bool'),get_array_value($format,'prefix','','is_string'),get_array_value($format,'sufix','','is_string'),get_array_value($format,'def_value','','is_string'),get_array_value($format,'format','','is_string'),get_array_value($format,'validation','','is_string'));
 		} else {
 			$result = $value;
 		}//if(is_string($format) && strlen($format))
@@ -495,17 +497,17 @@ class TableView {
 					if(array_key_exists($ifk,$params) && !is_array($ifa)) {
 						$params[$ifk] = $ifa;
 					} else {
-						$fkey = get_array_param($this->columns[$ifk],'ds_param');
+						$fkey = get_array_value($this->columns[$ifk],'ds_param');
 						if(strlen($fkey) && array_key_exists($fkey,$params)) {
 							$params[$fkey] = is_array($ifa) ? $ifa['value'] : $ifa;
 						} else {
 							$extra_params['filters'][] = array(
 								'field'=>$ifk,
-								'condition_type'=>get_array_param($ifa,'condition_type','==','is_string'),
+								'condition_type'=>get_array_value($ifa,'condition_type','==','is_string'),
 								'value'=>is_array($ifa) ? $ifa['value'] : $ifa,
-								'svalue'=>get_array_param($ifa,'svalue','','is_string'),
-								'logical_separator'=>get_array_param($ifa,'operator','and','is_string'),
-								'data_type'=>get_array_param($ifa,'data_type','','is_string'),
+								'svalue'=>get_array_value($ifa,'svalue','','is_string'),
+								'logical_separator'=>get_array_value($ifa,'operator','and','is_string'),
+								'data_type'=>get_array_value($ifa,'data_type','','is_string'),
 							);
 						}//if(strlen($fkey) && array_key_exists($fkey,$params))
 					}//if(array_key_exists($ifk,$params) && !is_array($ifa))
@@ -520,13 +522,13 @@ class TableView {
 					if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) { continue; }
 					$params[$this->qsearch] = $a['value'];
 				} else {
-					$fkey = get_array_param($this->columns[$a['type']],'ds_param');
+					$fkey = get_array_value($this->columns[$a['type']],'ds_param');
 					if(strlen($fkey) && array_key_exists($fkey,$params)) {
 						$params[$fkey] = $a['value'];
 					} else {
 						$extra_params['filters'][] = array(
 							//'field'=>$a['type'],
-							'field'=>get_array_param($this->columns,$a['type'],$a['type'],'is_notempty_string','db_field'),
+							'field'=>get_array_value($this->columns,[$a['type'],'db_field'],$a['type'],'is_notempty_string'),
 							'condition_type'=>$a['condition_type'],
 							'value'=>$a['value'],
 							'svalue'=>$a['svalue'],
@@ -544,11 +546,11 @@ class TableView {
 			$extra_params['firstrow'] = $firstrow;
 			$extra_params['lastrow'] = $lastrow;
 		}//if($this->with_pagination && !$this->export_only)
-		$sortcolumn = get_array_param($this->sortby,'column',NULL,'is_notempty_string');
+		$sortcolumn = get_array_value($this->sortby,'column',NULL,'is_notempty_string');
 		$extra_params['sort'] = [];
 		if($this->tree) { $extra_params['sort']['"LVL"'] = 'ASC'; }
 		if(strlen($sortcolumn)) {
-			$extra_params['sort']['"'.strtoupper($sortcolumn).'"'] = strtoupper(get_array_param($this->sortby,'direction','asc','is_notempty_string'));
+			$extra_params['sort']['"'.strtoupper($sortcolumn).'"'] = strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
 		}//if(strlen($sortcolumn))
 	}//END protected function ProcessDataCallParams
 	/**
@@ -601,15 +603,15 @@ class TableView {
 		$multif = $params->safeGet('multif',[],'is_array');
 		if(count($multif)) {
 			foreach($multif as $fparams) {
-				$op = get_array_param($fparams,'fop',NULL,'is_notempty_string');
-				$type = get_array_param($fparams,'ftype',NULL,'is_notempty_string');
-				$cond = get_array_param($fparams,'fcond',NULL,'is_notempty_string');
-				$value = get_array_param($fparams,'fvalue',NULL,'isset');
-				$svalue = get_array_param($fparams,'fsvalue',NULL,'isset');
-				$dvalue = get_array_param($fparams,'fdvalue',NULL,'isset');
-				$sdvalue = get_array_param($fparams,'fsdvalue',NULL,'isset');
-				$fdtype = get_array_param($fparams,'data_type','','is_string');
-				$isDSParam = get_array_param($fparams,'is_ds_param',0,'is_numeric');
+				$op = get_array_value($fparams,'fop',NULL,'is_notempty_string');
+				$type = get_array_value($fparams,'ftype',NULL,'is_notempty_string');
+				$cond = get_array_value($fparams,'fcond',NULL,'is_notempty_string');
+				$value = get_array_value($fparams,'fvalue',NULL,'isset');
+				$svalue = get_array_value($fparams,'fsvalue',NULL,'isset');
+				$dvalue = get_array_value($fparams,'fdvalue',NULL,'isset');
+				$sdvalue = get_array_value($fparams,'fsdvalue',NULL,'isset');
+				$fdtype = get_array_value($fparams,'data_type','','is_string');
+				$isDSParam = get_array_value($fparams,'is_ds_param',0,'is_numeric');
 				if(!$op || !isset($type) || !$cond || !isset($value)) { continue; }
 				$lfilters[] = array('operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 			}//END foreach
@@ -642,28 +644,28 @@ class TableView {
 		$result = '';
 		if($this->exportable && $this->export_all && $this->with_pagination) {
 			if($this->compact_mode) {
-				$result .= "\t\t\t".'<button class="dg-export-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('export_all').'" title="'.\Translate::Get('button_export_all').'"><i class="fa fa-download"></i></button>'."\n";
+				$result .= "\t\t\t".'<button class="dg-export-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::Get('button_export_all').'"><i class="fa fa-download"></i></button>'."\n";
 			} else {
-				$result .= "\t\t\t".'<button class="dg-export-btn" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.\Translate::Get('button_export_all').'</button>'."\n";
+				$result .= "\t\t\t".'<button class="dg-export-btn" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.Translate::Get('button_export_all').'</button>'."\n";
 			}//if($this->compact_mode)
 		}//if($this->exportable && $this->export_all && $this->with_pagination)
 		if($this->export_button) {
 			if($this->compact_mode) {
-				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::current_namespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.\Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::current_namespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
 			} else {
-				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::current_namespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.\Translate::Get('button_export').'</a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::current_namespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
 			}//if($this->compact_mode)
 		}//if($this->export_button)
 		if(strlen($this->data_source) && strlen($this->ds_method)) {
 		if($this->compact_mode) {
-			$result .= "\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.\Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
+			$result .= "\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
 			if($with_filters) {
-				$result .= "\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.\Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
+				$result .= "\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
 			}//if($with_filters)
 		} else {
-			$result .= "\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.\Translate::Get('button_refresh').'</button>'."\n";
+			$result .= "\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::Get('button_refresh').'</button>'."\n";
 			if($with_filters) {
-				$result .= "\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.\Translate::Get('button_clear_filters').'</button>'."\n";
+				$result .= "\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.Translate::Get('button_clear_filters').'</button>'."\n";
 			}//if($with_filters)
 		}//if($this->compact_mode)
 		}//if(strlen($this->data_source) && strlen($this->ds_method))
@@ -679,7 +681,7 @@ class TableView {
 	protected function CheckIfFilterIsActive($key) {
 		if(!is_numeric($key) && (!is_string($key) || !strlen($key))) { return FALSE; }
 		if(!is_array($this->filters) || !count($this->filters)) { return FALSE; }
-		foreach($this->filters as $f) { if(get_array_param($f,'type','','is_string').''==$key.'') { return TRUE; } }
+		foreach($this->filters as $f) { if(get_array_value($f,'type','','is_string').''==$key.'') { return TRUE; } }
 		return FALSE;
 	}//protected function CheckIfFilterIsActive
 	/**
@@ -704,7 +706,7 @@ class TableView {
 		if($this->compact_mode) {
 			$filters = '';
 		} else {
-			$filters = "\t\t".'<span class="f-title">'.\Translate::Get('label_filters').'</span>'."\n";
+			$filters = "\t\t".'<span class="f-title">'.Translate::Get('label_filters').'</span>'."\n";
 		}//if($this->compact_mode)
 		$filters .= "\t\t".'<div class="f-container">'."\n";
 		if(is_array($this->filters) && count($this->filters)) {
@@ -729,28 +731,28 @@ class TableView {
 				$lselected = '';
 				$cfctype = '';
 			}//if($cftype.''=='0' || !strlen($cftype))
-			$filters .= "\t\t\t\t".'<option value="0"'.$lselected.'>'.\Translate::Get('label_qsearch').'</option>'."\n";
+			$filters .= "\t\t\t\t".'<option value="0"'.$lselected.'>'.Translate::Get('label_qsearch').'</option>'."\n";
 		}//if($this->qsearch && !$is_qsearch_active)
 		$selectedv = NULL;
 		$cfctype = '';
 		foreach($this->columns as $k=>$v) {
-			if(!get_array_param($v,'filterable',FALSE,'bool')) { continue; }
-			$isDSParam = intval(strlen(get_array_param($v,'ds_param','','is_string'))>0);
+			if(!get_array_value($v,'filterable',FALSE,'bool')) { continue; }
+			$isDSParam = intval(strlen(get_array_value($v,'ds_param','','is_string'))>0);
 			if($isDSParam && $this->CheckIfFilterIsActive($k)) { continue; }
 			if($cftype==$k || (!strlen($cftype) && !$is_qsearch && !$selectedv)) {
 				$lselected = ' selected="selected"';
-				$cfctype = get_array_param($v,'filter_type','','is_string');
+				$cfctype = get_array_value($v,'filter_type','','is_string');
 				$selectedv = $v;
 			} else {
 				$lselected = '';
 			}//if($cftype==$k || (!strlen($cftype) && !$is_qsearch && !$selectedv))
-			$filters .= "\t\t\t\t".'<option value="'.$k.'"'.$lselected.'>'.get_array_param($v,'label',$k,'is_notempty_string').'</option>'."\n";
+			$filters .= "\t\t\t\t".'<option value="'.$k.'"'.$lselected.'>'.get_array_value($v,'label',$k,'is_notempty_string').'</option>'."\n";
 		}//END foreach
 		$filters .= "\t\t\t".'</select>'."\n";
-		$fdtype = get_array_param($selectedv,'data_type','','is_string');
+		$fdtype = get_array_value($selectedv,'data_type','','is_string');
 		$fc_type = $params->safeGet('f-cond-type','','is_string');
 		$this->filter_cond_val_source = $this->tagid.'-f-cond-type:value';
-		$fc_cond_type = get_array_param($selectedv,'show_filter_cond_type',get_array_param($selectedv,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
+		$fc_cond_type = get_array_value($selectedv,'show_filter_cond_type',get_array_value($selectedv,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
 		if($fc_cond_type===TRUE && !$is_qsearch) {
 			$filter_cts = '';
 			$filter_ct_onchange = '';
@@ -771,7 +773,7 @@ class TableView {
 		} else {
 			$this->filter_cond_val_source = NULL;
 		}//if($fc_cond_type===TRUE && !$is_qsearch)
-		$ctrl_params = get_array_param($selectedv,'filter_params',[],'is_array');
+		$ctrl_params = get_array_value($selectedv,'filter_params',[],'is_array');
 		$ctrl_params['tagid'] = $this->tagid.'-f-value';
 		$ctrl_params['class'] = 'f-value';
 		$ctrl_params['clear_base_class'] = TRUE;
@@ -790,19 +792,19 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'combobox':
 				$ctrl_filter_items = [];
-				$cf_dc = get_array_param($selectedv,'filter_data_call',NULL,'is_notempty_array');
+				$cf_dc = get_array_value($selectedv,'filter_data_call',NULL,'is_notempty_array');
 				if($cf_dc) {
-					$cf_da = get_array_param($cf_dc,'data_source',NULL,'is_notempty_string');
-					$cf_dm = get_array_param($cf_dc,'ds_method',NULL,'is_notempty_string');
-					$cf_dep = get_array_param($cf_dc,'ds_extra_params',[],'is_array');
-					if($cf_da && $cf_dm) { $ctrl_filter_items = DataProvider::GetArray($cf_da,$cf_dm,get_array_param($cf_dc,'ds_params',[],'is_array'),$cf_dep); }
+					$cf_da = get_array_value($cf_dc,'data_source',NULL,'is_notempty_string');
+					$cf_dm = get_array_value($cf_dc,'ds_method',NULL,'is_notempty_string');
+					$cf_dep = get_array_value($cf_dc,'ds_extra_params',[],'is_array');
+					if($cf_da && $cf_dm) { $ctrl_filter_items = DataProvider::GetArray($cf_da,$cf_dm,get_array_value($cf_dc,'ds_params',[],'is_array'),$cf_dep); }
 				}//if($cf_dc)
 				$ctrl_params['value'] = $ctrl_filter_items;
 				$ctrl_filter_value = new ComboBox($ctrl_params);
@@ -811,9 +813,9 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'treecombobox':
@@ -823,9 +825,9 @@ class TableView {
 				// $ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 		  	case 'checkbox':
@@ -836,9 +838,9 @@ class TableView {
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'datepicker':
@@ -883,7 +885,7 @@ class TableView {
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tagid.'-f-value:dvalue';
 						if($fc_type=='><') {
-							$filters .= "\t\t\t".'<span class="f-i-lbl">'.\Translate::Get('label_and').'</span>'."\n";
+							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
 							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
 							$ctrl_filter_value = new DatePicker($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
@@ -897,14 +899,14 @@ class TableView {
 					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
 						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
-						$ctrl_params['numberformat'] = get_array_param($selectedv,'filter_format','0|||','is_notempty_string');
+						$ctrl_params['numberformat'] = get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
 						$ctrl_params['align'] = 'center';
 						$ctrl_filter_value = new NumericTextBox($ctrl_params);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tagid.'-f-value:nvalue';
 						if($fc_type=='><') {
-							$filters .= "\t\t\t".'<span class="f-i-lbl">'.\Translate::Get('label_and').'</span>'."\n";
+							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
 							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
 							$ctrl_filter_value = new NumericTextBox($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
@@ -925,7 +927,7 @@ class TableView {
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tagid.'-f-value:value';
 						if($fc_type=='><') {
-							$filters .= "\t\t\t".'<span class="f-i-lbl">'.\Translate::Get('label_and').'</span>'."\n";
+							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
 							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
 							$ctrl_filter_value = new TextBox($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
@@ -940,9 +942,9 @@ class TableView {
 				$dvalue = $this->tagid.'-f-value:value';
 				$f_b_params = $fc_type=='><' ? array('fdvalue'=>$dvalue,'fsdvalue'=>$sdvalue,'fvalue'=>$fval,'fsvalue'=>$fsval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam) : array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.\Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.\Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 		}//END switch
@@ -953,16 +955,16 @@ class TableView {
 			$fctypes = DataProvider::GetKeyValueArray('_Custom\Offline','FilterConditionsTypes',array('type'=>'all'),array('keyfield'=>'value'));
 			foreach($this->filters as $k=>$a) {
 				if($first) {
-					$filters .= "\t\t\t\t".'<span class="f-active-title">'.\Translate::Get('label_active_filters').':</span>'."\n";
+					$filters .= "\t\t\t\t".'<span class="f-active-title">'.Translate::Get('label_active_filters').':</span>'."\n";
 					$af_op = '';
 					$first = FALSE;
 				} else {
-					$af_op = \Translate::Get('label_'.$a['operator']).' ';
+					$af_op = Translate::Get('label_'.$a['operator']).' ';
 				}//if($first)
 				if($a['condition_type']=='><') {
-					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? \Translate::Get('label_qsearch') : get_array_param($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.\Translate::Get('label_and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
+					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::Get('label_and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
 				} else {
-					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? \Translate::Get('label_qsearch') : get_array_param($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
+					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
 				}//if($a['condition_type']=='><')
 			}//END foreach
 			$filters .= "\t\t\t".'</div>'."\n";
@@ -985,7 +987,7 @@ class TableView {
 			if($this->hide_status_bar) { return NULL; }
 			//$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
 			$result = "\t".'<div class="'.$this->baseclass.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
-			$result .= "\t\t".'<div class="pagination-container"><span class="rec-label">'.\Translate::Get('label_records').'</span><span class="rec-no">'.number_format($records_no,0).'</span><div class="clearfix"></div></div>';
+			$result .= "\t\t".'<div class="pagination-container"><span class="rec-label">'.Translate::Get('label_records').'</span><span class="rec-no">'.number_format($records_no,0).'</span><div class="clearfix"></div></div>';
 			$result .= "\t".'</div>'."\n";
 			return $result;
 		}//if(!$this->with_pagination)
@@ -1014,15 +1016,15 @@ class TableView {
 			$th_temp[$i] = array('text'=>NULL,'colspan'=>NULL,'skip'=>0,'width'=>0,'wtype'=>NULL);
 		}//for($i=0;$i<$this->th_rows_no;$i++)
 		foreach($this->columns as $k=>$v) {
-			if(!is_array($v) || !count($v) || strtolower(get_array_param($v,'type','','is_string'))=='filter-only' || get_array_param($v,'hidden',FALSE,'bool')) { continue; }
+			if(!is_array($v) || !count($v) || strtolower(get_array_value($v,'type','','is_string'))=='filter-only' || get_array_value($v,'hidden',FALSE,'bool')) { continue; }
 			$ch_style = '';
-			$ch_width = get_array_param($v,'width',NULL,'is_notempty_string');
+			$ch_width = get_array_value($v,'width',NULL,'is_notempty_string');
 			$ch_n_width = 0;
 			$ch_p_width = 0;
 			$ch_w_type = NULL;
-			if(strtolower(get_array_param($v,'type','','is_string'))=='actions') {
+			if(strtolower(get_array_value($v,'type','','is_string'))=='actions') {
 				if(is_null($ch_width) && is_object(NApp::$theme)) {
-					$ch_width = NApp::$theme->GetTableViewActionsWidth(get_array_param($v,'count',0,'is_integer'));
+					$ch_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'count',0,'is_integer'));
 				}//if(is_null($ac_width) && is_object(NApp::$theme))
 				$ch_width = is_numeric($ch_width) && $ch_width>0 ? $ch_width.'px' : $ch_width;
 				$ch_style .= $ch_width ? ($ch_style ? '' : ' style="').'width: '.$ch_width.';' : '';
@@ -1048,45 +1050,45 @@ class TableView {
 					}//if(strpos($ch_width,'%')!==FALSE)
 				}//if(strlen($ch_width))
 				$ch_style .= $ch_style ? '"' : '';
-			}//if(strtolower(get_array_param($v,'type','','is_string'))=='actions')
+			}//if(strtolower(get_array_value($v,'type','','is_string'))=='actions')
 			$ch_sort_act = '';
 			$ch_sort_icon = '';
 			$ch_sclass = '';
-			if(get_array_param($v,'sortable',FALSE,'true')){
+			if(get_array_value($v,'sortable',FALSE,'true')){
 				$ch_sclass .= 'sortable';
-				if(get_array_param($this->sortby,'column','','is_notempty_string')==$k) {
-					$ch_sortdir = strtolower(get_array_param($this->sortby,'direction','asc','is_notempty_string'));
+				if(get_array_value($this->sortby,'column','','is_notempty_string')==$k) {
+					$ch_sortdir = strtolower(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
 					$ch_iclass = ' active';
 					$ch_psortdir = $ch_sortdir;
 				} else {
 					$ch_sortdir = 'asc';
 					$ch_iclass = '';
 					$ch_psortdir = 'desc';
-				}//if(get_array_param($this->sortby,'column','','is_notempty_string')==$k)
+				}//if(get_array_value($this->sortby,'column','','is_notempty_string')==$k)
 				$ch_sort_icon = '<i class="fa '.($ch_sortdir=='desc' ? 'fa-arrow-down' : 'fa-arrow-up').$ch_iclass.'"></i>';
 				$ch_sort_act = ' onclick="'.$this->GetActionCommand('sort',array('column'=>$k,'direction'=>$ch_psortdir)).'"';
-			}//if(get_array_param($v,'sortable',FALSE,'true'))
-			$ch_class = get_array_param($v,'class','','is_notempty_string');
+			}//if(get_array_value($v,'sortable',FALSE,'true'))
+			$ch_class = get_array_value($v,'class','','is_notempty_string');
 			$ch_class = strlen(trim($ch_class.' '.$ch_sclass))>0 ? ' class="'.trim($ch_class.' '.$ch_sclass).'"' : '';
-			$iterator = get_array_param($v,'iterator',[],'is_array');
+			$iterator = get_array_value($v,'iterator',[],'is_array');
 			if(count($iterator)) {
-				$ch_label_arr = get_array_param($v,'label',NULL,'is_notempty_array');
+				$ch_label_arr = get_array_value($v,'label',NULL,'is_notempty_array');
 				foreach($iterator as $it) {
 					if(is_array($ch_label_arr)) {
 						foreach($ch_label_arr as $lk=>$lv) {
-							$ch_colspan = get_array_param($lv,'colspan',0,'is_numeric');
+							$ch_colspan = get_array_value($lv,'colspan',0,'is_numeric');
 							if($lk==$this->th_rows_no-1 || $ch_colspan<2) { continue; }
 							$th_temp[$lk]['wtype'] = $ch_w_type;
 							$th_temp[$lk]['width'] = $ch_w_type=='p' ? $ch_p_width : ($ch_w_type=='n' ? $ch_n_width : 0);
 							$th_temp[$lk]['skip'] = $ch_colspan-1;
 							$th_temp[$lk]['colspan'] = $ch_colspan;
-							$th_temp[$lk]['text'] = get_array_param($lv,'text','&nbsp;','is_notempty_string');
+							$th_temp[$lk]['text'] = get_array_value($lv,'text','&nbsp;','is_notempty_string');
 						}//END foreach
-						$ch_label = get_array_param($ch_label_arr,$this->th_rows_no-1,NULL,'is_notempty_string','text');
+						$ch_label = get_array_value($ch_label_arr,[$this->th_rows_no-1,'text'],NULL,'is_notempty_string');
 					} else {
-						$ch_label = get_array_param($v,'label',NULL,'is_notempty_string');
+						$ch_label = get_array_value($v,'label',NULL,'is_notempty_string');
 					}//if(is_array($ch_label_arr))
-					$ch_label = get_array_param($it,$ch_label,'&nbsp;','is_notempty_string');
+					$ch_label = get_array_value($it,$ch_label,'&nbsp;','is_notempty_string');
 					$ch_rowspan_no = 0;
 					$ch_lvl = 0;
 					for($i=0;$i<$this->th_rows_no-1;$i++) {
@@ -1120,20 +1122,20 @@ class TableView {
 					$th_result[$ch_lvl] .= "\t\t\t\t".'<th'.$ch_rowspan.$ch_style.$ch_class.$ch_sort_act.'><label>'.$ch_label.'</label>'.$ch_sort_icon.'</th>'."\n";
 				}//END foreach
 			} else {
-				$ch_label_arr = get_array_param($v,'label',NULL,'is_notempty_array');
+				$ch_label_arr = get_array_value($v,'label',NULL,'is_notempty_array');
 				if(is_array($ch_label_arr)) {
 					foreach($ch_label_arr as $lk=>$lv) {
-						$ch_colspan = get_array_param($lv,'colspan',0,'is_numeric');
+						$ch_colspan = get_array_value($lv,'colspan',0,'is_numeric');
 						if($lk==$this->th_rows_no-1 || $ch_colspan<2) { continue; }
 						$th_temp[$lk]['wtype'] = $ch_w_type;
 						$th_temp[$lk]['width'] = $ch_w_type=='p' ? $ch_p_width : ($ch_w_type=='n' ? $ch_n_width : 0);
 						$th_temp[$lk]['skip'] = $ch_colspan-1;
 						$th_temp[$lk]['colspan'] = $ch_colspan;
-						$th_temp[$lk]['text'] = get_array_param($lv,'text','&nbsp;','is_notempty_string');
+						$th_temp[$lk]['text'] = get_array_value($lv,'text','&nbsp;','is_notempty_string');
 					}//END foreach
-					$ch_label = get_array_param($ch_label_arr,$this->th_rows_no-1,'&nbsp;','is_notempty_string','text');
+					$ch_label = get_array_value($ch_label_arr,[$this->th_rows_no-1,'text'],'&nbsp;','is_notempty_string');
 				} else {
-					$ch_label = get_array_param($v,'label','&nbsp;','is_notempty_string');
+					$ch_label = get_array_value($v,'label','&nbsp;','is_notempty_string');
 				}//if(is_array($ch_label_arr))
 				// NApp::_Dlog($ch_label,'$ch_label');
 				// NApp::_Dlog($th_temp,'$th_temp');
@@ -1224,24 +1226,24 @@ class TableView {
 				if(!check_array_key('actions',$v,'is_notempty_array')) { break; }
 				$result = '';
 				foreach($v['actions'] as $act) {
-					if(get_array_param($act,'hidden',FALSE,'bool')) { continue; }
-					$aparams = get_array_param($act,'params',[],'is_array');
+					if(get_array_value($act,'hidden',FALSE,'bool')) { continue; }
+					$aparams = get_array_value($act,'params',[],'is_array');
 					$aparams = Control::ReplaceDynamicParams($aparams,$row);
 					// Check conditions for displaing action
-					$conditions = get_array_param($aparams,'conditions',NULL,'is_array');
+					$conditions = get_array_value($aparams,'conditions',NULL,'is_array');
 					if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) { continue; }
-					$atype = get_array_param($act,'type','DivButton','is_notempty_string');
+					$atype = get_array_value($act,'type','DivButton','is_notempty_string');
 					$atype = '\NETopes\Core\Controls\\'.$atype;
 					if(!class_exists($atype)) {
 						\NApp::_Elog('Control class ['.$atype.'] not found!');
 						continue;
 					}//if(!class_exists($atype))
-					$a_dright = get_array_param($act,'dright','','is_string');
+					$a_dright = get_array_value($act,'dright','','is_string');
 					if(strlen($a_dright)) {
 						$dright = Module::GetDRights($this->module,$this->method,$a_dright);
 						if($dright) { continue; }
 					}//if(strlen($a_dright))
-					$acommand = get_array_param($act,'command_string',NULL,'is_notempty_string');
+					$acommand = get_array_value($act,'command_string',NULL,'is_notempty_string');
 					if($acommand){
 						$ac_params = explode('}}',$acommand);
 						$acommand = '';
@@ -1256,9 +1258,9 @@ class TableView {
 						$aparams['onclick'] = NApp::arequest()->Prepare($acommand,$this->loader);
 					}//if($acommand)
 					$btn_action = new $atype($aparams);
-					if(get_array_param($act,'clear_base_class',FALSE,'bool')){ $btn_action->ClearBaseClass(); }
+					if(get_array_value($act,'clear_base_class',FALSE,'bool')){ $btn_action->ClearBaseClass(); }
 					$result .= $btn_action->Show();
-					$embedded_form = get_array_param($act,'embedded_form','','is_string');
+					$embedded_form = get_array_value($act,'embedded_form','','is_string');
 					if(strlen($embedded_form)) {
 						$this->row_embedded_form[] = Control::ReplaceDynamicParams($embedded_form,$row);
 					}//if(strlen($embedded_form))
@@ -1268,7 +1270,7 @@ class TableView {
 			case 'control':
 				$params_prefix = '';
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					if($type=='conditional_control') {
 						$params_prefix = 'alt_';
@@ -1277,8 +1279,8 @@ class TableView {
 						break;
 					}//if($type=='conditional_control')
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
-					$c_data_type = get_array_param($v,'data_type','','is_string');
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
+					$c_data_type = get_array_value($v,'data_type','','is_string');
 					if(is_null($v['db_field'])) {
 						$c_value = NULL;
 					} else {
@@ -1290,30 +1292,30 @@ class TableView {
 						}//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
 					}//if(is_null($v['db_field']))
 					if($c_data_type=='numeric') {
-						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
 				} else {
 						$c_summarize_type = 'count';
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
-				$c_type_s = get_array_param($v,$params_prefix.'control_type',NULL,'is_notempty_string');
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
+				$c_type_s = get_array_value($v,$params_prefix.'control_type',NULL,'is_notempty_string');
 				$c_type = '\NETopes\Core\Controls\\'.$c_type_s;
 				if(!$c_type_s || !class_exists($c_type)) {
 					\NApp::_Elog('Control class ['.$c_type.'] not found!');
 					continue;
 				}//if(!$c_type_s || !class_exists($c_type))
-				$c_params = Control::ReplaceDynamicParams(get_array_param($v,$params_prefix.'control_params',[],'is_array'),$row);
+				$c_params = Control::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
 					if($is_iterator) {
-					$c_params['value'] = $row->getProperty($c_params['value'],get_array_param($v,'default_value','','is_string'),'is_notempty_string');
+					$c_params['value'] = $row->getProperty($c_params['value'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
 					} elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($c_params['value']) && isset($v['db_field'])) {
-					$c_params['value'] = $row->getProperty($v['db_field'],get_array_param($v,'default_value','','is_string'),'is_notempty_string');
+					$c_params['value'] = $row->getProperty($v['db_field'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
 					}//if($is_iterator)
 					if(isset($c_params['tagid'])) {
-					$key_value = $row->getProperty(get_array_param($v,'db_key','id','is_notempty_string'),NULL,'isset');
+					$key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
 						$key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
 						$c_params['tagid'] .= '_'.$key_value;
 					}//if(isset($c_params['tagid']))
-					$p_pafreq = get_array_param($v,$params_prefix.'control_pafreq',NULL,'is_array');
+					$p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
 					if(is_array($p_pafreq) && count($p_pafreq)) {
 						foreach($p_pafreq as $pr) {
 							if(!isset($c_params[$pr]) || !is_string($c_params[$pr]) || !strlen($c_params[$pr])) { continue; }
@@ -1321,7 +1323,7 @@ class TableView {
 						}//END foreach
 					}//if(is_array($p_pafreq) && count($p_pafreq))
 					$c_action_params = NULL;
-					$pp_params = get_array_param($v,$params_prefix.'passtrough_params',NULL,'is_array');
+					$pp_params = get_array_value($v,$params_prefix.'passtrough_params',NULL,'is_array');
 					if(is_array($pp_params) && count($pp_params)) {
 					$c_action_params = [];
 						foreach($pp_params as $pk=>$pv) {
@@ -1335,17 +1337,17 @@ class TableView {
 						}//END foreach
 					}//if($c_action_params && isset($c_params['actions']) && is_array($c_params['actions']))
 					$control = new $c_type($c_params);
-					if(get_array_param($v,$params_prefix.'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
+					if(get_array_value($v,$params_prefix.'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 					$result = $control->Show();
 				break;
 			case 'value':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				$c_data_type = get_array_param($v,'data_type','','is_string');
+				$c_data_type = get_array_value($v,'data_type','','is_string');
 				if(is_null($v['db_field'])) {
 					$c_value = NULL;
 				} else {
@@ -1356,43 +1358,43 @@ class TableView {
 						$c_value = strlen($c_value) ? $c_value : NULL;
 					}//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
 				}//if(is_null($v['db_field']))
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					if($c_data_type=='numeric') {
-						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
 					} else {
 						$c_summarize_type = 'count';
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'sum':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				$c_data_type = get_array_param($v,'data_type','','is_string');
+				$c_data_type = get_array_value($v,'data_type','','is_string');
 				if(!in_array($c_data_type,array('numeric','integer','string'))) {
 					$result = NULL;
 					break;
 				}//if(!in_array($c_data_type,array('numeric','integer','string'))
 				if($c_data_type=='string') {
 					$c_value = '';
-					$c_s_sep = get_array_param($v,'sum_separator',' ','is_string');
+					$c_s_sep = get_array_value($v,'sum_separator',' ','is_string');
 				} else {
 					$c_value = 0;
 					$c_s_sep = NULL;
 				}//if($c_data_type=='string')
-				foreach(get_array_param($v,'db_field',[],'is_array') as $s_db_field) {
+				foreach(get_array_value($v,'db_field',[],'is_array') as $s_db_field) {
 					if(!is_string($s_db_field) || !strlen($s_db_field) || !$row->hasProperty($s_db_field,TRUE)) { continue; }
 					if($c_data_type=='string') {
 						$c_value .= (strlen($c_value) ? $c_s_sep : '');
@@ -1401,103 +1403,103 @@ class TableView {
 						$c_value += $row->getProperty($s_db_field,0,'is_numeric');
 					}//if($c_data_type=='string')
 				}//END foreach
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					if($c_data_type=='numeric') {
-						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
 					} else {
 						$c_summarize_type = 'count';
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case '__rowno':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				$c_value = $result = isset($row->__rowno) ? $row->__rowno : NULL;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'multi-value':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				if(is_array($v['db_field']) && count($v['db_field'])) {
 					$m_value = '';
-					$c_f_separator = get_array_param($v,'field_separator',' ','is_string');
+					$c_f_separator = get_array_value($v,'field_separator',' ','is_string');
 					foreach($v['db_field'] as $f) {
 						$f_value = $row->getProperty($f);
 						if(!isset($f_value) || !strlen($f_value)) { continue; }
 						$m_value .= (strlen($m_value) ? $c_f_separator : '').$f_value;
 					}//END foreach
 					if(!strlen(str_replace($c_f_separator,'',$m_value))) {
-						$m_value = get_array_param($v,'default_value','','is_string');
+						$m_value = get_array_value($v,'default_value','','is_string');
 					}//if(!strlen(str_replace($c_f_separator,'',$m_value)))
-					if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+					if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 						$this->SetCellSubTotal($name,$m_value,'count');
-					}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
-					$c_def_value = get_array_param($v,'default_value','','is_string');
-					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format',NULL,'isset'),$row);
+					}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
+					$c_def_value = get_array_value($v,'default_value','','is_string');
+					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
 					$m_value = $this->FormatValue($m_value,$c_format,$c_def_value);
 				} else {
-					$m_value = get_array_param($v,'default_value',NULL,'is_string');
+					$m_value = get_array_value($v,'default_value',NULL,'is_string');
 				}//if(is_array($v['db_field']) && count($v['db_field']))
 				$result = $m_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
 					$this->export_data['data'][$row->__rowid][$name] = $result;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'indexof':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				$ci_def_index = get_array_param($v,'default_index',NULL,'is_string');
+				$ci_def_index = get_array_value($v,'default_index',NULL,'is_string');
 				$ci_value = $row->getProperty($v['db_field']);
 				if($ci_def_index && is_null($ci_value)) {
 					$ci_value = $ci_def_index;
 				} else {
 					$ci_value = is_null($ci_value) ? 'null' : $ci_value;
 				}//if($ci_def_value && is_null($ci_value))
-				$ci_values = get_array_param($v,'values_collection',[],'is_array');
-				$i_field = get_array_param($v,'index_field','name','is_notempty_field');
-				$ci_def_value = get_array_param($v,'default_value',NULL,'is_string');
-				$c_value = get_array_param($ci_values,$ci_value,$ci_def_value,'is_string',$i_field);
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				$ci_values = get_array_value($v,'values_collection',[],'is_array');
+				$i_field = get_array_value($v,'index_field','name','is_notempty_string');
+				$ci_def_value = get_array_value($v,'default_value',NULL,'is_string');
+				$c_value = get_array_value($ci_values,$ci_value,$ci_def_value,'is_string',$i_field);
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$c_value,'count');
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = ($c_value ? $c_value : NULL);
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
 					$this->export_data['data'][$row->__rowid][$name] = $result;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'relation':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				$c_data_type = get_array_param($v,'data_type','','is_string');
-				$c_relation = get_array_param($v,'relation','','is_string');
+				$c_data_type = get_array_value($v,'data_type','','is_string');
+				$c_relation = get_array_value($v,'relation','','is_string');
 				if(strlen($c_relation) && is_object($row)) {
 				    $rGetter = 'get'.ucfirst($c_relation);
 				    $pGetter = 'get'.ucfirst($v['db_field']);
@@ -1506,101 +1508,101 @@ class TableView {
 				} else {
 				    $c_value = NULL;
 				}//if(strlen($c_relation) && is_object($row))
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					if($c_data_type=='numeric') {
-						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
 					} else {
 						$c_summarize_type = 'count';
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format','','is_string'),$row);
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'custom_function':
-				$c_function = get_array_param($v,'function_name','','is_string');
+				$c_function = get_array_value($v,'function_name','','is_string');
 				if(strlen($c_function) && method_exists($this,$c_function)) {
 					$c_value = $this->$c_function($row,$v);
 				} else {
-					$c_value = get_array_param($v,'default_value','','is_string');
+					$c_value = get_array_value($v,'default_value','','is_string');
 				}//if(strlen($c_function) && method_exists($this,$c_function))
-				$c_data_type = get_array_param($v,'data_type','','is_string');
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				$c_data_type = get_array_value($v,'data_type','','is_string');
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					if($c_data_type=='numeric') {
-						$c_summarize_type = get_array_param($v,'summarize_type','sum','is_notempty_string');
+						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
 					} else {
 						$c_summarize_type = 'count';
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
-					$c_format = get_array_param($v,'format','','is_string');
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+					$c_format = get_array_value($v,'format','','is_string');
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'translate':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				$c_value = $row->getProperty($v['db_field']);
-				if(!isset($c_value) || !strlen($c_value)) { $c_value = get_array_param($v,'default_value','','is_string'); }
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				if(!isset($c_value) || !strlen($c_value)) { $c_value = get_array_value($v,'default_value','','is_string'); }
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$c_value,'count');
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
-				$c_value = \Translate::Get(get_array_param($v,'prefix','','is_string').$c_value.get_array_param($v,'sufix','','is_string'));
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
+				$c_value = Translate::Get(get_array_value($v,'prefix','','is_string').$c_value.get_array_value($v,'sufix','','is_string'));
 				$result = $c_value;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
 					$this->export_data['data'][$row->__rowid][$name] = $result;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'checkbox':
 				// Check conditions for displaing action
-				$conditions = get_array_param($v,'conditions',NULL,'is_array');
+				$conditions = get_array_value($v,'conditions',NULL,'is_array');
 				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-				if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name)) {
+				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$row->getProperty($v['db_field']),'count');
-				}//if($this->with_totals && get_array_param($v,'summarize',FALSE,'bool') && strlen($name))
-				$cb_classes = get_array_param($v,'checkbox_classes',NULL,'is_array');
+				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
+				$cb_classes = get_array_value($v,'checkbox_classes',NULL,'is_array');
 				$cb_val = $row->getProperty($v['db_field']);
 				if(is_array($cb_classes) && count($cb_classes)) {
-					if(get_array_param($v,'checkbox_eval_as_bool',FALSE,'bool')) {
+					if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool')) {
 						$bool_evl = is_numeric($cb_val) ? ($cb_val<0 ? -1 : ($cb_val>0 ? 1 : 0)) : ($cb_val ? 1 : 0);
-						$result = '<div class="'.get_array_param($cb_classes,$bool_evl,'','is_string').'"></div>';
+						$result = '<div class="'.get_array_value($cb_classes,$bool_evl,'','is_string').'"></div>';
 					} else {
-						$result = '<div class="'.get_array_param($cb_classes,$cb_val,'','is_string').'"></div>';
-					}//if(get_array_param($v,'checkbox_eval_as_bool',FALSE,'bool'))
+						$result = '<div class="'.get_array_value($cb_classes,$cb_val,'','is_string').'"></div>';
+					}//if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool'))
 				} else {
-					if(get_array_param($v,'checkbox_eval_as_bool',FALSE,'bool')) {
+					if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool')) {
 						$bool_evl = is_numeric($cb_val) ? ($cb_val<0 ? -1 : ($cb_val>0 ? 1 : 0)) : ($cb_val ? 1 : 0);
 						$result = '<div class="'.($bool_evl ? 'clsChecked' : 'clsUnchecked').'"></div>';
 					} else {
 						$result = '<div class="'.($cb_val==1 ? 'clsChecked' : 'clsUnchecked').'"></div>';
-					}//if(get_array_param($v,'checkbox_eval_as_bool',FALSE,'bool'))
+					}//if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool'))
 				}//if(is_array($cb_classes) && count($cb_classes))
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
 					$this->export_data['data'][$row->__rowid][$name] = $cb_val;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'filter-only':
 				$result = NULL;
-				if($this->exportable && get_array_param($v,'export',FALSE,'bool')) {
-					$c_data_type = get_array_param($v,'data_type','','is_string');
+				if($this->exportable && get_array_value($v,'export',FALSE,'bool')) {
+					$c_data_type = get_array_value($v,'data_type','','is_string');
 					if(is_null($v['db_field'])) {
 						$c_value = NULL;
 					} else {
@@ -1612,13 +1614,13 @@ class TableView {
 						}//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
 					}//if(is_null($v['db_field']))
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			default:
 				$result = NULL;
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
 					$this->export_data['data'][$row->__rowid][$name] = $result;
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 		}//END switch
 		return $result;
@@ -1636,48 +1638,48 @@ class TableView {
 		if(!$tooltip) { return NULL; }
 		$c_tooltip = '';
 		if(is_array($tooltip) && count($tooltip)) {
-			$c_ttclass = get_array_param($tooltip,'tooltip_class','clsWebuiPopover','is_notempty_string');
-			$c_t_type = get_array_param($tooltip,'type','','is_string');
+			$c_ttclass = get_array_value($tooltip,'tooltip_class','clsWebuiPopover','is_notempty_string');
+			$c_t_type = get_array_value($tooltip,'type','','is_string');
 			switch($c_t_type) {
 				case 'image':
-					$c_t_db_field = get_array_param($tooltip,'db_field','','is_string');
-					$c_t_dbdata = get_array_param($row,$c_t_db_field,'','is_string');
+					$c_t_db_field = get_array_value($tooltip,'db_field','','is_string');
+					$c_t_dbdata = get_array_value($row,$c_t_db_field,'','is_string');
 					if(!strlen($c_t_dbdata)) { return ''; }
-					$c_t_width = get_array_param($tooltip,'width',100,'is_not0_numeric');
-					$c_t_height = get_array_param($tooltip,'height',100,'is_not0_numeric');
-					$c_t_path = get_array_param($tooltip,'path','','is_string');
+					$c_t_width = get_array_value($tooltip,'width',100,'is_not0_numeric');
+					$c_t_height = get_array_value($tooltip,'height',100,'is_not0_numeric');
+					$c_t_path = get_array_value($tooltip,'path','','is_string');
 					if(strlen($c_t_path) && strlen($c_t_dbdata) && file_exists(NApp::app_public_path().rtrim($c_t_path,'/').'/'.$c_t_dbdata)) {
 						$c_tooltip = NApp::app_web_link().rtrim($c_t_path,'/').'/'.$c_t_dbdata;
 					} else {
 						$c_tooltip = NApp::app_web_link().'/repository/no-photo-300.png';
 					}//if(strlen($c_t_path) && strlen($c_tooltip) && file_exists(NApp::app_public_path.rtrim($c_t_path,'/').'/'.$c_tooltip))
-					$c_tt_label = get_array_param($tooltip,'label','','is_string');
+					$c_tt_label = get_array_value($tooltip,'label','','is_string');
 					$c_tooltip = "<div class=\"clsDGToolTip\" style=\"width: {$c_t_width}px; height: {$c_t_height}px; background: transparent url({$c_tooltip}) no-repeat center center; background-size: {$c_t_width}px auto;\"></div>";
 					$c_tooltip = ' data="'.GibberishAES::enc($c_tooltip,'HTML').'"';
 					if(strlen($c_tt_label)) { $c_tooltip .= ' data-title="'.$c_tt_label.'"'; }
-					$c_tt_left_offset = get_array_param($tooltip,'left_offset',0,'is_integer');
+					$c_tt_left_offset = get_array_value($tooltip,'left_offset',0,'is_integer');
 					if(strlen($c_tt_left_offset)) { $c_tooltip .= ' data-loffset="'.$c_tt_left_offset.'"'; }
 					break;
 				case 'db_field':
-					if($c_t_db_field = get_array_param($tooltip,'db_field',NULL,'is_array')) {
-						$c_t_fsep = get_array_param($tooltip,'field_separator',' ','is_string');
+					if($c_t_db_field = get_array_value($tooltip,'db_field',NULL,'is_array')) {
+						$c_t_fsep = get_array_value($tooltip,'field_separator',' ','is_string');
 						$c_tooltip = '';
 						foreach($c_t_db_field as $field) {
 							$c_tooltip .= (strlen($c_tooltip) ? $c_t_fsep : '').nl2br($row->getProperty($field,'','is_string'));
 						}//END foreach
-					} elseif($c_t_db_field = get_array_param($tooltip,'db_field','','is_string')) {
+					} elseif($c_t_db_field = get_array_value($tooltip,'db_field','','is_string')) {
 						$c_tooltip = nl2br($row->getProperty($c_t_db_field,'','is_string'));
 					} else {
 						$c_tooltip = '';
-					}//if($c_t_db_field = get_array_param($tooltip,'db_field',NULL,'is_array'))
+					}//if($c_t_db_field = get_array_value($tooltip,'db_field',NULL,'is_array'))
 					if(!strlen($c_tooltip)) { return ''; }
 					$c_tt_label = '';
-					if(!get_array_param($tooltip,'text_only',FALSE,'bool')) {
-						$c_tt_label = get_array_param($tooltip,'label','','is_string');
-					}//if(!get_array_param($tooltip,'text_only',FALSE,'bool'))
+					if(!get_array_value($tooltip,'text_only',FALSE,'bool')) {
+						$c_tt_label = get_array_value($tooltip,'label','','is_string');
+					}//if(!get_array_value($tooltip,'text_only',FALSE,'bool'))
 					$c_tooltip = ' data-placement="auto-top" data="'.GibberishAES::enc($c_tooltip,'HTML').'"';
 					if(strlen($c_tt_label)) { $c_tooltip .= ' data-title="'.$c_tt_label.'"'; }
-					$c_tt_left_offset = get_array_param($tooltip,'left_offset',0,'is_integer');
+					$c_tt_left_offset = get_array_value($tooltip,'left_offset',0,'is_integer');
 					if($c_tt_left_offset>0) { $c_tooltip .= ' data-offset-left="'.$c_tt_left_offset.'"'; }
 					break;
 				default:
@@ -1705,23 +1707,23 @@ class TableView {
 	 * @access protected
 	 */
 	protected function SetCell(&$row,&$v,$name,$has_child = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
-		$cell_type = strtolower(get_array_param($v,'type','','is_string'));
+		$cell_type = strtolower(get_array_value($v,'type','','is_string'));
 		$result = '';
 		$c_style = '';
-		$c_halign = get_array_param($v,'halign',NULL,'is_notempty_string');
+		$c_halign = get_array_value($v,'halign',NULL,'is_notempty_string');
 		$c_style .= $c_halign ? ($c_style ? '' : ' style="').'text-align: '.$c_halign.';' : '';
-		$c_valign = get_array_param($v,'valign',NULL,'is_notempty_string');
+		$c_valign = get_array_value($v,'valign',NULL,'is_notempty_string');
 		$c_style .= $c_valign ? ($c_style ? '' : ' style="').'vertical-align: '.$c_valign.';' : '';
 		if($cell_type!='actions') {
-			$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
+			$ac_width = get_array_value($v,'width',NULL,'is_notempty_string');
 			$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
 			$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
 			$c_style .= $c_style ? '"' : '';
 		}//if($cell_type!='actions')
-		$c_class = get_array_param($v,'class','','is_string');
-		$c_tooltip = $this->GetToolTip($row,$c_class,get_array_param($v,'tooltip',NULL,'isset'));
-		$c_cond_format_class = get_array_param($v,'conditional_class','','is_string','class');
-		$c_cond_format_conditions = get_array_param($v,'conditional_class',[],'is_array','conditions');
+		$c_class = get_array_value($v,'class','','is_string');
+		$c_tooltip = $this->GetToolTip($row,$c_class,get_array_value($v,'tooltip',NULL,'isset'));
+		$c_cond_format_class = get_array_value($v,'conditional_class','','is_string','class');
+		$c_cond_format_conditions = get_array_value($v,['conditional_class','conditions'],[],'is_array');
 		if(strlen($c_cond_format_class) && count($c_cond_format_conditions)) {
 			if($this->CheckRowConditions($row,$c_cond_format_conditions)) {
 				$c_class = trim($c_class.' '.$c_cond_format_class);
@@ -1731,9 +1733,9 @@ class TableView {
 		$c_class = $c_class ? ' class="'.$c_class.'"' : '';
 		switch($cell_type) {
 			case 'actions':
-				$ac_width = get_array_param($v,'width',NULL,'is_notempty_string');
+				$ac_width = get_array_value($v,'width',NULL,'is_notempty_string');
 				if(is_null($ac_width) && is_object(NApp::$theme)) {
-					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_param($v,'count',0,'is_integer'));
+					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'count',0,'is_integer'));
 				}//if(is_null($ac_width) && is_object(NApp::$theme))
 				$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
 				$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
@@ -1752,11 +1754,11 @@ class TableView {
 				break;
 			case 'relation':
 			case 'value':
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$t_value = '';
-				if($this->tree && $v['db_field']==get_array_param($this->tree,'main_field','name','is_notempty_string')) {
+				if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string')) {
 					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
 					if($has_child) {
 						$t_s_val = $r_tree_state ? 1 : 0;
@@ -1764,53 +1766,53 @@ class TableView {
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
 					}//if($has_child)
-				}//if($this->tree && $v['db_field']==get_array_param($this->tree,'main_field','name','is_notempty_string'))
+				}//if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string'))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
-				$c_def_value = get_array_param($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format',NULL,'isset'),$row);
-				$c_cond_format = get_array_param($v,'conditional_format',NULL,'is_notempty_array');
+				$c_def_value = get_array_value($v,'default_value','','is_string');
+				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
-					$c_cf_field = get_array_param($c_cond_format,'field','','is_string');
+					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
 					if(strlen($c_cf_field)) {
-						$c_cf_values = get_array_param($c_cond_format,'values',[],'is_array');
-						$c_format = get_array_param($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
+						$c_cf_values = get_array_value($c_cond_format,'values',[],'is_array');
+						$c_format = get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
 					}//if(strlen($c_cf_field))
 				}//if($c_cond_format)
 				$c_value = $this->FormatValue($c_value,$c_format,$c_def_value);
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
 				break;
 			case 'sum':
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$t_value = '';
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
-				$c_def_value = get_array_param($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format',NULL,'isset'),$row);
-				$c_cond_format = get_array_param($v,'conditional_format',NULL,'is_notempty_array');
+				$c_def_value = get_array_value($v,'default_value','','is_string');
+				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
-					$c_cf_field = get_array_param($c_cond_format,'field','','is_string');
+					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
 					if(strlen($c_cf_field)) {
-						$c_cf_values = get_array_param($c_cond_format,'values',[],'is_array');
-						$c_format = get_array_param($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
+						$c_cf_values = get_array_value($c_cond_format,'values',[],'is_array');
+						$c_format = get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
 					}//if(strlen($c_cf_field))
 				}//if($c_cond_format)
 				$c_value = $this->FormatValue($c_value,$c_format,$c_def_value);
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
 				break;
 			case '__rowno':
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
-				$c_def_value = get_array_param($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_param($v,'format',NULL,'isset'),$row);
-				$c_cond_format = get_array_param($v,'conditional_format',NULL,'is_notempty_array');
+				$c_def_value = get_array_value($v,'default_value','','is_string');
+				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
-					$c_cf_field = get_array_param($c_cond_format,'field','','is_string');
+					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
 					if(strlen($c_cf_field)) {
-						$c_cf_values = get_array_param($c_cond_format,'values',[],'is_array');
-						$c_format = get_array_param($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
+						$c_cf_values = get_array_value($c_cond_format,'values',[],'is_array');
+						$c_format = get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
 					}//if(strlen($c_cf_field))
 				}//if($c_cond_format)
 				$c_value = $this->FormatValue($c_value,$c_format,$c_def_value);
@@ -1821,9 +1823,9 @@ class TableView {
 			case 'translate':
 			case 'checkbox':
 			default:
-				if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
+				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
 				break;
@@ -1850,7 +1852,7 @@ class TableView {
 			$r_color = '';
 			if(strlen($this->row_color_field)) { $r_color = $row->getProperty($this->row_color_field,'','is_string'); }
 			$r_lvl = $row->safeGetLvl(1,'is_integer');
-			$r_tree_state = get_array_param($this->tree,'opened',FALSE,'bool');
+			$r_tree_state = get_array_value($this->tree,'opened',FALSE,'bool');
 			if($this->tree && $r_lvl>$this->tree_top_lvl) {
 				if(strlen($r_color)) { $r_style .= ' background-color: '.$r_color.';'; }
 				if(!$r_tree_state) { $r_style .= ' display: none;'; }
@@ -1861,8 +1863,8 @@ class TableView {
 				$r_style = ' style="background-color: '.$r_color.';"';
 			}//if($this->tree && $r_lvl>$this->tree_top_lvl)
 			$r_cc = FALSE;
-			$r_cc_class = get_array_param($this->row_conditional_class,'class','','is_string');
-			$r_cc_cond = get_array_param($this->row_conditional_class,'conditions',NULL,'is_array');
+			$r_cc_class = get_array_value($this->row_conditional_class,'class','','is_string');
+			$r_cc_cond = get_array_value($this->row_conditional_class,'conditions',NULL,'is_array');
 			if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond)) {
 				$r_cclass = ($r_cclass ? ' ' : '').$r_cc_class;
 				$r_cc = TRUE;
@@ -1873,24 +1875,24 @@ class TableView {
 			$result .= "\t\t\t".'<tr'.$r_class.$r_style.$r_tooltip.$r_tdata.'>'."\n";
 		}//if(!$this->export_only)
 		foreach($this->columns as $k=>$v) {
-			$c_type = strtolower(get_array_param($v,'type','','is_string'));
+			$c_type = strtolower(get_array_value($v,'type','','is_string'));
 			if(!is_array($v) || !count($v)) { continue; }
-			if($c_type=='filter-only' || get_array_param($v,'hidden',FALSE,'bool')) {
-				if($this->exportable && get_array_param($v,'export',($c_type!='filter-only'),'bool')) {
+			if($c_type=='filter-only' || get_array_value($v,'hidden',FALSE,'bool')) {
+				if($this->exportable && get_array_value($v,'export',($c_type!='filter-only'),'bool')) {
 					if(!array_key_exists($k,$this->export_data['columns'])) { $this->export_data['columns'][$k] = array_merge($v,array('name'=>$k)); }
 					$this->GetCellValue($row,$v,$k,$c_type);
-				}//if($this->exportable && get_array_param($v,'export',TRUE,'bool'))
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				continue;
-			}//if($c_type=='filter-only' || get_array_param($v,'hidden',FALSE,'bool'))
+			}//if($c_type=='filter-only' || get_array_value($v,'hidden',FALSE,'bool'))
 			if($c_type=='actions' && $this->export_only) { continue; }
-			$iterator = get_array_param($v,'iterator',[],'is_array');
+			$iterator = get_array_value($v,'iterator',[],'is_array');
 			if(count($iterator)) {
-				$ik = get_array_param($v,'iterator_key','id','is_notempty_string');
+				$ik = get_array_value($v,'iterator_key','id','is_notempty_string');
 				$values = [];
 				try {
-					$ids_arr = explode(',',$row->getProperty(get_array_param($v,'db_ids_field','','is_string')));
-					$keys_arr = explode(',',$row->getProperty(get_array_param($v,'db_keys_field','','is_string')));
-					$values_arr = explode(':#:',$row->getProperty(get_array_param($v,'db_field','','is_string')));
+					$ids_arr = explode(',',$row->getProperty(get_array_value($v,'db_ids_field','','is_string')));
+					$keys_arr = explode(',',$row->getProperty(get_array_value($v,'db_keys_field','','is_string')));
+					$values_arr = explode(':#:',$row->getProperty(get_array_value($v,'db_field','','is_string')));
 					foreach($keys_arr as $kl=>$vl) {
 						$values[$vl] = array('id'=>$ids_arr[$kl],'key'=>$vl,'value'=>$values_arr[$kl]);
 					}//END foreach
@@ -1901,15 +1903,15 @@ class TableView {
 				foreach($iterator as $it) {
 					$i_row_def = array('id'=>NULL,'key'=>$it[$ik],'value'=>NULL);
 					$i_row = clone $row;
-					$i_row->merge(get_array_param($values,$it[$ik],$i_row_def,'is_array'));
+					$i_row->merge(get_array_value($values,$it[$ik],$i_row_def,'is_array'));
 					$i_v = $v;
 					$i_v['db_field'] = 'value';
 					$i_v['db_key'] = 'id';
 					if($this->export_only) {
-						if(get_array_param($v,'export',TRUE,'bool')) {
+						if(get_array_value($v,'export',TRUE,'bool')) {
 							if(!array_key_exists($k,$this->export_data['columns'])) { $this->export_data['columns'][$k] = array_merge($v,array('name'=>$k)); }
 							$this->GetCellValue($i_row,$i_v,$k.'-'.$it[$ik],$c_type);
-						}//if(get_array_param($v,'export',TRUE,'bool'))
+						}//if(get_array_value($v,'export',TRUE,'bool'))
 					} else {
 						$result .= $this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$has_child,$r_lvl,$r_tree_state,TRUE);
 						$col_no++;
@@ -1917,10 +1919,10 @@ class TableView {
 				}//END foreach
 			} else {
 				if($this->export_only) {
-					if(get_array_param($v,'export',TRUE,'bool')) {
+					if(get_array_value($v,'export',TRUE,'bool')) {
 						if(!array_key_exists($k,$this->export_data['columns'])) { $this->export_data['columns'][$k] = array_merge($v,array('name'=>$k)); }
 						$this->GetCellValue($row,$v,$k,$c_type);
-					}//if(get_array_param($v,'export',TRUE,'bool'))
+					}//if(get_array_value($v,'export',TRUE,'bool'))
 				} else {
 					$result .= $this->SetCell($row,$v,$k,$has_child,$r_lvl,$r_tree_state);
 					$col_no++;
@@ -1949,15 +1951,15 @@ class TableView {
 		if(!is_array($this->totals) || !count($this->totals)) { return NULL; }
 		$result = "\t\t\t".'<tr class="tr-totals">'."\n";
 		foreach($this->columns as $k=>$v) {
-			if(!is_array($v) || !count($v) || strtolower(get_array_param($v,'type','','is_string'))=='filter-only'){ continue; }
+			if(!is_array($v) || !count($v) || strtolower(get_array_value($v,'type','','is_string'))=='filter-only'){ continue; }
 			$c_style = '';
-			$c_halign = get_array_param($v,'total_halign',get_array_param($v,'halign','','is_string'),'is_string');
+			$c_halign = get_array_value($v,'total_halign',get_array_value($v,'halign','','is_string'),'is_string');
 			if(strlen($c_halign)) { $c_style .= 'text-align: '.$c_halign.'; '; }
-			$c_valign = get_array_param($v,'total_valign',get_array_param($v,'valign','','is_string'),'is_string');
+			$c_valign = get_array_value($v,'total_valign',get_array_value($v,'valign','','is_string'),'is_string');
 			if(strlen($c_valign)) { $c_style .= 'vertical-align: '.$c_valign.'; '; }
 			if(strlen($c_style)) { $c_style =  ' style="'.trim($c_style).'"'; }
-			$c_class = ' class="'.trim('td-totals '.get_array_param($v,'class','','is_string')).'"';
-			$td_tagid = get_array_param($v,'total_cell_id','','is_string');
+			$c_class = ' class="'.trim('td-totals '.get_array_value($v,'class','','is_string')).'"';
+			$td_tagid = get_array_value($v,'total_cell_id','','is_string');
 			if(strlen($td_tagid)) { $td_tagid = ' id="'.$td_tagid.'"'; }
 			if(array_key_exists($k,$this->totals)) {
 				$c_sumtype = $this->totals[$k]['type'];
@@ -1969,23 +1971,23 @@ class TableView {
 				if($c_sumtype=='count') {
 					$c_format = 'decimal0';
 					$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
-				} elseif(get_array_param($v,'data_type','','is_string')!='numeric') {
+				} elseif(get_array_value($v,'data_type','','is_string')!='numeric') {
 					$c_format = 'decimal2';
 					$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
 				} else {
-					$c_format = get_array_param($v,'format',NULL,'is_notempty_string');
+					$c_format = get_array_value($v,'format',NULL,'is_notempty_string');
 					if($c_format) {
 						$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
 					} else {
-						$c_format = get_array_param($v,'format',NULL,'is_notempty_array');
+						$c_format = get_array_value($v,'format',NULL,'is_notempty_array');
 						if($c_format) {
-							$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,get_array_param($c_format,'mode','','is_string'),get_array_param($c_format,'html_entities',FALSE,'bool'),get_array_param($c_format,'prefix','','is_string'),get_array_param($c_format,'sufix','','is_string'),get_array_param($c_format,'def_value','','is_string'),get_array_param($c_format,'format','','is_string'),get_array_param($c_format,'validation','','is_string'));
+							$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,get_array_value($c_format,'mode','','is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'),get_array_value($c_format,'prefix','','is_string'),get_array_value($c_format,'sufix','','is_string'),get_array_value($c_format,'def_value','','is_string'),get_array_value($c_format,'format','','is_string'),get_array_value($c_format,'validation','','is_string'));
 						}//if($c_format)
 					}//if($c_format)
 				}//if($c_sumtype=='count')
 				$result .= "\t\t\t\t".'<td'.$td_tagid.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
 			} else {
-				$c_value = get_array_param($v,'summarize_label','&nbsp;','is_notempty_string');
+				$c_value = get_array_value($v,'summarize_label','&nbsp;','is_notempty_string');
 				$result .= "\t\t\t\t".'<td'.$td_tagid.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
 			}//if(array_key_exists($k,$this->totals))
 		}//END foreach
@@ -2092,7 +2094,7 @@ class TableView {
 				case 'page':
 					$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
 					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
-					$this->sortby = get_array_param($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
+					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = NApp::_GetPageParam($this->tagid.'#filters');
 					break;
 				case 'sort':
@@ -2105,7 +2107,7 @@ class TableView {
 					break;
 				case 'filters':
 					$this->currentpage = $params->safeGet('page',1,'is_numeric');
-					$this->sortby = get_array_param($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
+					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
 				case 'reset':
@@ -2122,14 +2124,14 @@ class TableView {
 						$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
 					}//if(!$this->currentpage)
 					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
-					if(!get_array_param($ssortby,'column',NULL,'is_notempty_string')) {
+					if(!get_array_value($ssortby,'column',NULL,'is_notempty_string')) {
 						$this->sortby = array(
 							'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 							'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
 						);
 					} else {
 						$this->sortby = $ssortby;
-					}//if(!get_array_param($ssortby,'column',NULL,'is_notempty_string'))
+					}//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
 					$this->filters = NApp::_GetPageParam($this->tagid.'#filters');
 					if(!$this->filters) {
 						$this->filters = $this->ProcessActiveFilters($params);
@@ -2337,12 +2339,12 @@ class TableView {
 		if($phash){ $this->phash = $phash; }
 		$this->export_only = TRUE;
 		$items = $this->GetData();
-		if(!is_object($items) || !count($items)) { throw new \PAF\AppException(\Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
+		if(!is_object($items) || !count($items)) { throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$tmp_export_data = $this->export_data;
 		$this->export_data = array('columns'=>[],'data'=>[]);
 		$tmpparams = [];
 		$this->IterateData($items,$tmpparams);
-		if(!$this->export_data) { throw new \PAF\AppException(\Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
+		if(!$this->export_data) { throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$this->export_data['with_borders'] = TRUE;
 		$this->export_data['freeze_pane'] = TRUE;
 		$this->export_data['default_width'] = 150;
@@ -2379,9 +2381,9 @@ class TableView {
 	 * @throws \PAF\AppException
 	 */
 	public static function ExportData(array $params = []) {
-		$chash = get_array_param($params,'chash',NULL,'is_notempty_string');
+		$chash = get_array_value($params,'chash',NULL,'is_notempty_string');
 		if(!$chash) { return; }
-		$export_all = get_array_param($params,'exportall',FALSE,'bool');
+		$export_all = get_array_value($params,'exportall',FALSE,'bool');
 		//NApp::StartTimeTrack('TableViewExportData');
 		$cachefile = NApp::_GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
 		try {

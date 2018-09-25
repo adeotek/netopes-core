@@ -112,7 +112,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
-			$t_alias = get_array_param($filters,'table__alias','','is_string');
+			$t_alias = get_array_value($filters,'table__alias','','is_string');
 			$t_alias = strlen($t_alias) ? $t_alias.'.' : '';
 			$f_addwhere = is_array($filters) && array_key_exists('add__where',$filters) ? $filters['add__where'] : NULL;
 			if($f_addwhere || (is_null($f_addwhere) && strpos(strtolower($query),' where ')===FALSE)) {
@@ -121,16 +121,16 @@ class MySqlAdapter extends SqlDataAdapter {
 			} else {
 				$filter_prefix =  ' and (';
 				$filter_sufix = ') ';
-			}//if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE)
+			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE)
 			foreach($filters as $k=>$v) {
 				if(!is_numeric($k) && $k=='table__alias') { continue; }
 				if(is_array($v)) {
 					if(count($v)==4) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$fvalue = get_array_param($v,'value',NULL,'is_notempty_string');
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						$fvalue = get_array_value($v,'value',NULL,'is_notempty_string');
 						if(!$ffield || !$fvalue || strtolower($fvalue)=='null') { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','and','is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','and','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
 							case 'not like':
@@ -147,9 +147,9 @@ class MySqlAdapter extends SqlDataAdapter {
 								break;
 						}//END switch
 					} elseif(count($v)==2) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','and','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','and','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtolower($sep).' ' : ' ').$cond;
 					}//if(count($v)==4)
 				} elseif(is_string($v) && strlen($v)) {

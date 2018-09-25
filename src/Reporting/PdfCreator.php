@@ -57,23 +57,23 @@ class PdfCreator extends TCPDF {
 	 */
 	public function SetFormat($format = []) {
 		$f = $c = $dc = $bgc = FALSE;
-		$font = get_array_param($format,'font',NULL,'is_notempty_string');
-		$font_size = get_array_param($format,'font_size',NULL,'is_not0_numeric');
-		$bold = get_array_param($format,'bold',NULL,'bool');
-		$italic = get_array_param($format,'italic',NULL,'bool');
-		$color_arr = get_array_param($format,'color',NULL,'is_notempty_array');
+		$font = get_array_value($format,'font',NULL,'is_notempty_string');
+		$font_size = get_array_value($format,'font_size',NULL,'is_not0_numeric');
+		$bold = get_array_value($format,'bold',NULL,'bool');
+		$italic = get_array_value($format,'italic',NULL,'bool');
+		$color_arr = get_array_value($format,'color',NULL,'is_notempty_array');
 		if(!$color_arr) {
-			$color = get_array_param($format,'color',NULL,'is_notempty_string');
+			$color = get_array_value($format,'color',NULL,'is_notempty_string');
 			$color_arr = $color ? hex2rgb($color) : NULL;
 		}//if(!$color_arr)
-		$dcolor_arr = get_array_param($format,'draw_color',NULL,'is_notempty_array');
+		$dcolor_arr = get_array_value($format,'draw_color',NULL,'is_notempty_array');
 		if(!$dcolor_arr) {
-			$dcolor = get_array_param($format,'draw_color',NULL,'is_notempty_string');
+			$dcolor = get_array_value($format,'draw_color',NULL,'is_notempty_string');
 			$dcolor_arr = $dcolor ? hex2rgb($dcolor) : NULL;
 		}//if(!$color_arr)
-		$bgcolor_arr = get_array_param($format,'background_color',NULL,'is_notempty_array');
+		$bgcolor_arr = get_array_value($format,'background_color',NULL,'is_notempty_array');
 		if(!$bgcolor_arr) {
-			$bgcolor = get_array_param($format,'background_color',NULL,'is_notempty_string');
+			$bgcolor = get_array_value($format,'background_color',NULL,'is_notempty_string');
 			$bgcolor_arr = $bgcolor ? hex2rgb($bgcolor) : NULL;
 		}//if(!$color_arr)
 		if($font || $font_size || $bold || $italic) { $f = TRUE; $this->SetFont(($font ? $font : 'helvetica'),($bold ? 'B' : '').($italic ? 'I' : ''),($font_size ? $font_size : 10)); }
@@ -93,7 +93,7 @@ class PdfCreator extends TCPDF {
 		$align = '';
 		switch(strtolower($mode)) {
 			case 'v':
-				$halign = get_array_param($format,'align_v',NULL,'is_notempty_string');
+				$halign = get_array_value($format,'align_v',NULL,'is_notempty_string');
 				if(!$halign) { return $align; }
 				switch($halign) {
 					case 'v_middle':
@@ -110,7 +110,7 @@ class PdfCreator extends TCPDF {
 				break;
 			case 'h':
 			default:
-				$halign = get_array_param($format,'align_h',NULL,'is_notempty_string');
+				$halign = get_array_value($format,'align_h',NULL,'is_notempty_string');
 				if(!$halign) { return $align; }
 				switch($halign) {
 					case 'h_center':
@@ -208,18 +208,18 @@ class PdfCreator extends TCPDF {
 	public function SetCustomHeader($params = NULL) {
 		if($params===TRUE) { $params = $this->custom_header_params; }
 		if(!is_array($params) || !count($params)) { return; }
-		switch(get_array_param($params,'type','','is_string')) {
+		switch(get_array_value($params,'type','','is_string')) {
 			case 'table':
-				$columns = get_array_param($params,'columns',NULL,'is_notempty_array');
+				$columns = get_array_value($params,'columns',NULL,'is_notempty_array');
 				if(!$columns) { return; }
-				$format = get_array_param($params,'format',[],'is_array');
+				$format = get_array_value($params,'format',[],'is_array');
 				$col_no = 0;
 				foreach($columns as $column) {
 					$col_no++;
-					$cformat = array_merge($format,get_array_param($column,'header_format',[],'is_array'));
+					$cformat = array_merge($format,get_array_value($column,'header_format',[],'is_array'));
 					$fr = $this->SetFormat($cformat);
-					$border = get_array_param($params,'border',0,'is_notempty_array');
-					$w = get_array_param($column,'width',get_array_param($params,'default_width',20,'is_not0_numeric'),'is_not0_numeric');
+					$border = get_array_value($params,'border',0,'is_notempty_array');
+					$w = get_array_value($column,'width',get_array_value($params,'default_width',20,'is_not0_numeric'),'is_not0_numeric');
 					$this->Cell($w,0,$column['name'],$border,($col_no==count($columns)),$this->GetAlign($cformat),$fr['fc'],'',0,FALSE,'T',$this->GetAlign($cformat,'v'));
 				}//END foreach
 				break;
@@ -234,11 +234,11 @@ class PdfCreator extends TCPDF {
 	 * @access public
 	 */
 	public function SetCustomFooter($params = NULL) {
-        $this->SetY(get_array_param($params,'bottom_margin',-12,'is_numeric'));
+        $this->SetY(get_array_value($params,'bottom_margin',-12,'is_numeric'));
         $this->SetFont(
-			get_array_param($params,'font','helvetica','is_notempty_string'),
-			get_array_param($params,'font_style','','is_string'),
-			get_array_param($params,'font_size',8,'is_not0_numeric')
+			get_array_value($params,'font','helvetica','is_notempty_string'),
+			get_array_value($params,'font_style','','is_string'),
+			get_array_value($params,'font_size',8,'is_not0_numeric')
 		);
 		if(is_array($this->pagegroups) && count($this->pagegroups)) {
 			$cPageAlias = $this->getPageNumGroupAlias();
@@ -247,13 +247,13 @@ class PdfCreator extends TCPDF {
 			$cPageAlias = $this->getAliasNumPage();
 			$tPagesAlias = $this->getAliasNbPages();
 		}//if(is_array($this->pagegroups) && count($this->pagegroups))
-		$mask = get_array_param($params,'mask','','is_string');
+		$mask = get_array_value($params,'mask','','is_string');
 		if($mask) {
 			$value = str_replace('{{pages_no}}',$cPageAlias,str_replace('{{page}}',$tPagesAlias,$mask));
 		} else {
 			$value = $cPageAlias.' / '.$tPagesAlias;
 		}//if($mask)
-		$align = get_array_param($params,'align','C','is_notempty_string');
+		$align = get_array_value($params,'align','C','is_notempty_string');
 		$this->Cell(0,0,$value,0,FALSE,$align,0,'',0,FALSE,'T','M');
 	}//END public function SetCustomHeader
 	/**

@@ -248,9 +248,9 @@ class Params implements Collection {
 	 * @param string|null $sub_key
 	 * @return mixed
 	 */
-    public function safeGet($key,$default_value = NULL,$validation = NULL,$sub_key = NULL)
+    public function safeGet($key,$default_value = NULL,$validation = NULL)
     {
-        return get_array_param($this->elements,$key,$default_value,$validation,$sub_key);
+        return get_array_value($this->elements,$key,$default_value,$validation);
     }
     /**
 	 * @param string|int  $key
@@ -262,7 +262,7 @@ class Params implements Collection {
     public function safeGetValue($key,$default_value = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
     {
         $validation = $validation ? $validation : 'is_string';
-        return get_array_param($this->elements,$key,$default_value,$validation,$sub_key);
+        return get_array_value($this->elements,[$key,$sub_key],$default_value,$validation);
     }
     /**
      * {@inheritDoc}

@@ -42,8 +42,8 @@ abstract class BaseEntity {
 		} else {
 			throw new AppException('Undefined method ['.$name.']!',E_ERROR,1);
 		}//if(strtolower(substr($name,0,3))==='get')
-		$default_value = get_array_param($arguments,0,NULL,'isset');
-		$validation = get_array_param($arguments,1,NULL,'is_string');
+		$default_value = get_array_value($arguments,0,NULL,'isset');
+		$validation = get_array_value($arguments,1,NULL,'is_string');
 		return $this->GetPropertyValue($prop_name,$strict,$default_value,$validation);
 	}//END public function __call
 	/**
@@ -105,13 +105,19 @@ abstract class BaseEntity {
 		}//if($not_null)
 		return (method_exists($this,'get'.ucfirst($key)) || property_exists($this,$key));
 	}//END public function hasProperty
-	/**
+    /**
      * Get data array
+     *
+     * @param bool $originalNames
+     * @return array
      */
-    public function toArray(): array {
+    public function toArray(bool $originalNames = FALSE): array {
         $properties = get_object_vars($this);
         if(!is_array($properties) || !count($properties)) { return []; }
-        return $properties;
+        if($originalNames) { return $properties; }
+        $result = [];
+        foreach($properties as $k=>$v) { $result[convert_from_camel_case($k,FALSE)] = $v; }
+        return $result;
     }//END public function toArray
     /**
      * Check if is a new instance

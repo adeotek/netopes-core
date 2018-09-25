@@ -38,7 +38,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \PAF\AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];
-		$this->results_keys_case = get_array_param($connection,'results_keys_case',$this->results_keys_case,'numeric');
+		$this->results_keys_case = get_array_value($connection,'results_keys_case',$this->results_keys_case,'is_integer');
 		if(array_key_exists('use_pdo',$connection) && $connection['use_pdo'] && extension_loaded('pdo_mssql')) {
 			$this->use_pdo = TRUE;
 			$this->connection = $this->SetPdoConnection($connection);
@@ -178,19 +178,19 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function ExecuteQuery($query,$params = [],&$extra_params = []) {
-		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
-		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
-		$tran_name = get_array_param($extra_params,'transaction',NULL,'is_notempty_string');
-		$type = strtolower(get_array_param($extra_params,'type','','is_notempty_string'));
-		$firstrow = get_array_param($extra_params,'firstrow',NULL,'is_not0_numeric');
-		$lastrow = get_array_param($extra_params,'lastrow',NULL,'is_not0_numeric');
-		$sort = get_array_param($extra_params,'sort',NULL,'is_notempty_array');
-		$filters = get_array_param($extra_params,'filters',NULL,'is_notempty_array');
-		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
-		$log = get_array_param($extra_params,'log',FALSE,'bool');
+		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
+		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
+		$tran_name = get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
+		$type = strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
+		$firstrow = get_array_value($extra_params,'firstrow',NULL,'is_not0_numeric');
+		$lastrow = get_array_value($extra_params,'lastrow',NULL,'is_not0_numeric');
+		$sort = get_array_value($extra_params,'sort',NULL,'is_notempty_array');
+		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
+		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
+		$log = get_array_value($extra_params,'log',FALSE,'bool');
 		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
-		$results_keys_case = get_array_param($extra_params,'results_keys_case',NULL,'is_numeric');
-		$custom_tran_params = get_array_param($extra_params,'custom_tran_params',NULL,'isset');
+		$results_keys_case = get_array_value($extra_params,'results_keys_case',NULL,'is_integer');
+		$custom_tran_params = get_array_value($extra_params,'custom_tran_params',NULL,'isset');
 		return $this::$method($query,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
 	}//END public function ExecuteQuery
 	/**
@@ -213,19 +213,19 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function ExecuteProcedure($procedure,$params = [],&$extra_params = []) {
-		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
-		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
-		$tran_name = get_array_param($extra_params,'transaction',NULL,'is_notempty_string');
-		$type = strtolower(get_array_param($extra_params,'type','','is_notempty_string'));
-		$firstrow = get_array_param($extra_params,'firstrow',NULL,'is_not0_numeric');
-		$lastrow = get_array_param($extra_params,'lastrow',NULL,'is_not0_numeric');
-		$sort = get_array_param($extra_params,'sort',NULL,'is_notempty_array');
-		$filters = get_array_param($extra_params,'filters',NULL,'is_notempty_array');
-		$out_params = get_array_param($extra_params,'out_params',[],'is_array');
-		$log = get_array_param($extra_params,'log',FALSE,'bool');
+		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
+		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
+		$tran_name = get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
+		$type = strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
+		$firstrow = get_array_value($extra_params,'firstrow',NULL,'is_not0_numeric');
+		$lastrow = get_array_value($extra_params,'lastrow',NULL,'is_not0_numeric');
+		$sort = get_array_value($extra_params,'sort',NULL,'is_notempty_array');
+		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
+		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
+		$log = get_array_value($extra_params,'log',FALSE,'bool');
 		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
-		$results_keys_case = get_array_param($extra_params,'results_keys_case',NULL,'is_numeric');
-		$custom_tran_params = get_array_param($extra_params,'custom_tran_params',NULL,'isset');
+		$results_keys_case = get_array_value($extra_params,'results_keys_case',NULL,'is_numeric');
+		$custom_tran_params = get_array_value($extra_params,'custom_tran_params',NULL,'isset');
 		$result = $this::$method($procedure,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
 		if($out_params) {
 			if(!is_array($extra_params)) { $extra_params = []; }
@@ -247,9 +247,9 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function ExecuteMethod($method,$property = NULL,$params = [],$extra_params = []) {
-		$this->debug = get_array_param($extra_params,'debug',$this->debug,'bool');
-		$this->debug2file = get_array_param($extra_params,'debug2file',$this->debug2file,'bool');
-		$log = get_array_param($extra_params,'log',FALSE,'bool');
+		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
+		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
+		$log = get_array_value($extra_params,'log',FALSE,'bool');
 		$cmethod = $this->dbtype.str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$cmethod($method,$property,$params,$extra_params,$log);
 	}//END public function ExecuteQuery

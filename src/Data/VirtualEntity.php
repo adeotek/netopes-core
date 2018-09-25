@@ -80,7 +80,7 @@ class VirtualEntity {
 	public function __call($name,array $arguments) {
 		if(strtolower(substr($name,0,3))==='get') {
 			$prop_name = substr($name,3);
-			$strict = is_array($arguments) ? get_array_param($arguments,2,FALSE,'bool') : $this->strict_mode;
+			$strict = is_array($arguments) ? get_array_value($arguments,2,FALSE,'bool') : $this->strict_mode;
 		} elseif(strtolower(substr($name,0,7))==='safeget') {
 			$prop_name = substr($name,7);
 			$strict = FALSE;
@@ -93,8 +93,8 @@ class VirtualEntity {
 			throw new AppException('Undefined method ['.$name.']!',E_ERROR,1);
 		}//if(strtolower(substr($name,0,3))==='get')
 		if(!strlen($prop_name)) { throw new AppException('Invalid method ['.$name.']!',E_ERROR,1); }
-		$default_value = get_array_param($arguments,0,NULL,'isset');
-		$validation = get_array_param($arguments,1,NULL,'is_string');
+		$default_value = get_array_value($arguments,0,NULL,'isset');
+		$validation = get_array_value($arguments,1,NULL,'is_string');
 		return $this->GetPropertyValue($prop_name,$strict,$default_value,$validation);
 	}//END public function __call
 	/**
@@ -127,7 +127,7 @@ class VirtualEntity {
 		if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
 			throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
 		}//if(is_array($this->data) && array_key_exists($key,$this->data))
-		return get_array_param($this->data,$key,$default_value,$validation);
+		return get_array_value($this->data,$key,$default_value,$validation);
 	}//END protected function GetPropertyValue
 	/**
 	 * VirtualEntity dynamic setter method

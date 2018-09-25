@@ -98,8 +98,8 @@ class Module {
 	 */
 	public function __call($name,$arguments) {
 		if(strpos($name,'DRights')===FALSE) { throw new \PAF\AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
-		$method = get_array_param($arguments,0,call_back_trace(),'is_notempty_string');
-		$module = get_array_param($arguments,1,get_called_class(),'is_notempty_string');
+		$method = get_array_value($arguments,0,call_back_trace(),'is_notempty_string');
+		$module = get_array_value($arguments,1,get_called_class(),'is_notempty_string');
 		return self::GetDRights($module,$method,str_replace('DRights','',$name));
 	}//END public function __call
 	/**
@@ -114,8 +114,8 @@ class Module {
 	 */
 	public static function __callStatic($name,$arguments) {
 		if(strpos($name,'DRights')===FALSE) { throw new \PAF\AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
-		$method = get_array_param($arguments,0,'','is_notempty_string');
-		$module = get_array_param($arguments,1,get_called_class(),'is_notempty_string');
+		$method = get_array_value($arguments,0,'','is_notempty_string');
+		$module = get_array_value($arguments,1,get_called_class(),'is_notempty_string');
 		return self::GetDRights($module,$method,str_replace('DRights','',$name));
 	}//END public static function __callStatic
 	/**
@@ -136,13 +136,13 @@ class Module {
 		if(is_null($module) || is_null($method) || !strlen($type)) { return NULL; }
 		$module = $module=='Module' ? '' : $module;
 		$rights = NApp::_GetParam('user_rights_revoked');
-		$rights = get_array_param($rights,$module,NULL,'is_array',$method);
+		$rights = get_array_value($rights,[$module,$method],NULL,'is_array');
 		// NApp::_Dlog($rights,'$rights');
 		if(is_null($rights)) { return NULL; }
-		if(get_array_param($rights,'state',0,'is_numeric')!=1 || (get_array_param($rights,'sadmin',0,'is_numeric')==1 && NApp::_GetParam('sadmin')!=1)) { return TRUE; }
+		if(get_array_value($rights,'state',0,'is_numeric')!=1 || (get_array_value($rights,'sadmin',0,'is_numeric')==1 && NApp::_GetParam('sadmin')!=1)) { return TRUE; }
 		if(strtolower($type)=='all') { return $rights; }
-		// NApp::_Dlog(get_array_param($rights,strtolower('d'.$type),NULL,'bool'),'dright');
-		return get_array_param($rights,strtolower('d'.$type),NULL,'bool');
+		// NApp::_Dlog(get_array_value($rights,strtolower('d'.$type),NULL,'bool'),'dright');
+		return get_array_value($rights,strtolower('d'.$type),NULL,'bool');
 	}//END public static function GetDRights
 	/**
 	 * description
@@ -385,7 +385,7 @@ class Module {
 			if(file_exists($basedir.$m_path.$fname)) { return $basedir.$m_path.$fname; }
 			if($parents) {
 				foreach($parents as $parent) {
-					$p_path = get_array_param($parent,'path','','is_string');
+					$p_path = get_array_value($parent,'path','','is_string');
 					if(file_exists($basedir.$p_path.$fname)) { return $basedir.$parent.$fname; }
 				}//END foreach
 			}//if($parents)
@@ -403,7 +403,7 @@ class Module {
 		if($parents) {
 			foreach($parents as $parent) {
 				// NApp::_Dlog($parent,'$parent');
-				$p_path = get_array_param($parent,'path','','is_string');
+				$p_path = get_array_value($parent,'path','','is_string');
 				$p_full_path = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$p_path;
 				// Get from parent theme dir
 				if($themedir && !$basedir) {

@@ -67,7 +67,7 @@ class TabControl {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
+		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }
@@ -86,52 +86,52 @@ class TabControl {
 		$result = '';
 		$ct_result = '';
 		$ct_data = '';
-		switch(get_array_param($tab,'content_type','content','is_notempty_string')) {
+		switch(get_array_value($tab,'content_type','content','is_notempty_string')) {
 		    case 'file':
-				$tcontent = get_array_param($tab,'content',NULL,'is_notempty_string');
+				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
 				if($tcontent && file_exists($tcontent)) {
 					ob_start();
-					$data = get_array_param($tab,'data',NULL,'is_notempty_array');
+					$data = get_array_value($tab,'data',NULL,'is_notempty_array');
 					require($tcontent);
 					$ct_result .= ob_get_contents();
 					ob_end_clean();
 				}//if($tcontent && file_exists($tcontent))
 				break;
 			case 'ajax':
-				$tcontent = get_array_param($tab,'content',NULL,'is_notempty_string');
+				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
 				if(!$tcontent) { $ct_result .= '&nbsp;'; break; }
-				$reload_onchange = get_array_param($tab,'reload_onchange',FALSE,'bool');
+				$reload_onchange = get_array_value($tab,'reload_onchange',FALSE,'bool');
 				$ct_data .= $reload_onchange ? ' data-reload="1"' : '';
 				$tcontent = str_replace('{{t_uid}}',$tab['t_uid'],$tcontent);
 				$tcontent = str_replace('{{t_name}}',$tab['t_name'],$tcontent);
 				$tcontent = str_replace('{{t_target}}',$this->tagid.'-'.$tab['t_uid'],$tcontent);
-				$tscript = get_array_param($tab,'load_script','','is_string');
+				$tscript = get_array_value($tab,'load_script','','is_string');
 				$js_command = NApp::arequest()->Prepare($tcontent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
-				if(get_array_param($tab,'autoload',TRUE,'bool')) {
+				if(get_array_value($tab,'autoload',TRUE,'bool')) {
 					NApp::_ExecJs($js_command);
-				}//if(get_array_param($tab,'autoload',TRUE,'bool'))
+				}//if(get_array_value($tab,'autoload',TRUE,'bool'))
 				break;
 			case 'control':
-				$tcontent = get_array_param($tab,'content',[],'is_array');
-				$c_type = get_array_param($tcontent,'control_type',NULL,'is_notempty_string');
+				$tcontent = get_array_value($tab,'content',[],'is_array');
+				$c_type = get_array_value($tcontent,'control_type',NULL,'is_notempty_string');
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type)) {
 					NApp::_Elog('Control class ['.$c_type.'] not found!');
 					continue;
 				}//if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type))
-				$c_params = get_array_param($tcontent,'control_params',[],'is_array');
-				$tt_params = get_array_param($tcontent,'template_params',[],'is_array');
+				$c_params = get_array_value($tcontent,'control_params',[],'is_array');
+				$tt_params = get_array_value($tcontent,'template_params',[],'is_array');
 				foreach($tt_params as $ttkey=>$ttparam) {
 					if(array_key_exists($ttkey,$c_params)) { $c_params[$ttkey] = $ttparam; }
 				}//END foreach
 				$control = new $c_type($c_params);
-				if(get_array_param($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
+				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				$ct_result .= $control->Show();
 				break;
 			case 'content':
 			default:
-				$ct_result .= get_array_param($tab,'content','&nbsp;','is_notempty_string');
+				$ct_result .= get_array_value($tab,'content','&nbsp;','is_notempty_string');
 				break;
 		}//END switch
 		$result .= "\t".'<div id="'.$this->tagid.'-'.$tab['t_uid'].'"'.$ct_data.'>'."\n";
@@ -174,19 +174,19 @@ class TabControl {
 	protected function GetTabData($tab) {
 		if(!is_array($tab)) { return $tab; }
 		$result = $tab;
-		$ds_class = get_array_param($tab,'data_source','','is_string');
-		$ds_method = get_array_param($tab,'ds_method','','is_string');
+		$ds_class = get_array_value($tab,'data_source','','is_string');
+		$ds_method = get_array_value($tab,'ds_method','','is_string');
 		if(strlen($ds_class) && strlen($ds_method)) {
-			$ds_params = get_array_param($tab,'ds_params',[],'is_array');
-			$ds_key = get_array_param($tab,'ds_key','','is_string');
+			$ds_params = get_array_value($tab,'ds_params',[],'is_array');
+			$ds_key = get_array_value($tab,'ds_key','','is_string');
 			if(strlen($ds_key)) {
-				$ds_field = get_array_param($tab,'ds_field','','is_string');
+				$ds_field = get_array_value($tab,'ds_field','','is_string');
 				if(strlen($ds_field)) {
 					$ds_items = DataProvider::GetKeyValueArray($ds_class,$ds_method,$ds_params,array('keyfield'=>$ds_key));
 					//NApp::_Dlog($ds_items,'$ds_items1');
 					if(is_array($ds_items) && count($ds_items)) {
 						foreach($ds_items as $k=>$v) {
-							$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',get_array_param($v,$ds_field,'','isset'));
+							$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',get_array_value($v,$ds_field,'','isset'));
 						}//END foreach
 					}//if(is_array($ds_items) && count($ds_items))
 				}//if(strlen($da_field))
@@ -221,20 +221,20 @@ class TabControl {
 		$ltabs = [];
 		foreach($this->tabs as $tab) {
 			if(!is_array($tab) || !count($tab)) { continue; }
-			switch(get_array_param($tab,'type','fixed','is_notempty_string')) {
+			switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
 				case 'template':
-					$tcollection = get_array_param($tab,'source_array',[],'is_array');
+					$tcollection = get_array_value($tab,'source_array',[],'is_array');
 					unset($tab['source_array']);
 					foreach($tcollection as $ctab) {
-						$ct_uid = get_array_param($ctab,get_array_param($tab,'uid_field','id','is_notempty_string'),'','isset');
-						$ct_name = get_array_param($ctab,get_array_param($tab,'name_field','name','is_notempty_string'),'','is_string');
+						$ct_uid = get_array_value($ctab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
+						$ct_name = get_array_value($ctab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
 						$result .= "\t\t".'<li><a href="#'.$this->tagid.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 						$ltabs[] = array_merge($tab,array('t_type'=>'template','t_name'=>$ct_name,'t_uid'=>$ct_uid,'t_row'=>$ctab));
 					}//END foreach
 					break;
 				case 'fixed':
-					$ct_uid = get_array_param($tab,'uid','def','isset');
-					$ct_name = get_array_param($tab,'name','','is_string');
+					$ct_uid = get_array_value($tab,'uid','def','isset');
+					$ct_name = get_array_value($tab,'name','','is_string');
 					$result .= "\t\t".'<li><a href="#'.$this->tagid.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 					$ltabs[] = array_merge($tab,array('t_type'=>'fixed','t_name'=>$ct_name,'t_uid'=>$ct_uid));
 					break;
@@ -243,9 +243,9 @@ class TabControl {
 		$result .= "\t".'</ul>'."\n";
 		// END Set Tab header
 		foreach($ltabs as $tab) {
-			switch(get_array_param($tab,'t_type','','is_string')) {
+			switch(get_array_value($tab,'t_type','','is_string')) {
 				case 'template':
-					$tuid = get_array_param($tab,'t_uid',NULL,'is_string');
+					$tuid = get_array_value($tab,'t_uid',NULL,'is_string');
 					$ttab = $this->ProcessParamsArray($tab,'{{t_uid}}',$tuid);
 					$ttab = $this->GetTabData($ttab);
 					$result .= $this->SetContent($ttab);
@@ -257,7 +257,7 @@ class TabControl {
 			}//END switch
 		}//END foreach
 		$result .= '</div>'."\n";
-		$thtype = get_array_param($tab,'height_type','content','is_notempty_string');
+		$thtype = get_array_value($tab,'height_type','content','is_notempty_string');
 		$js_script = "
 			$('#{$this->tagid}').tabs({
 				heightStyle: '{$thtype}',

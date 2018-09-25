@@ -15,6 +15,7 @@ namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use PAF\AppException;
 use NApp;
+
 /**
   * DataProvider prepares and makes the data requests
   *
@@ -95,12 +96,12 @@ class DataProvider {
 				$conn = self::GetConnectionArray(NApp::default_db_connection());
 			}//if((is_array($connection) && count($connection)))
 			if(!is_array($conn) || count($conn)==0) { throw new AppException('Invalid database connection',E_ERROR,1); }
-			$dbtype = get_array_param($conn,'db_type','','is_string');
+			$dbtype = get_array_value($conn,'db_type','','is_string');
 			if(!strlen($dbtype)) { throw new AppException('Invalid database type',E_ERROR,1); }
 			if(strlen($mode)) {
 				$dbmode = strtolower($mode)=='native' ? $dbtype : $mode;
 			} else {
-				$dbmode = get_array_param($conn,'mode',$dbtype,'is_notempty_string');
+				$dbmode = get_array_value($conn,'mode',$dbtype,'is_notempty_string');
 			}//if(strlen($mode))
 			$ds_full_name = NULL;
 			if($dbmode=='Doctrine') {
@@ -151,7 +152,7 @@ class DataProvider {
 			if((is_array($extra_params['connection']) && count($extra_params['connection'])) || (is_string($extra_params['connection']) && strlen($extra_params['connection']))) { $connection = $extra_params['connection']; }
 			unset($extra_params['connection']);
 		}//if(is_array($extra_params) && array_key_exists('connection',$extra_params))
-		$mode = get_array_param($extra_params,'mode','','is_string');
+		$mode = get_array_value($extra_params,'mode','','is_string');
 		try {
 			$datasource = self::GetDataSource($ds_name,$connection,$mode);
 			if($debug===TRUE) {
@@ -160,7 +161,7 @@ class DataProvider {
 			}//if($debug===TRUE)
 			$result = $datasource->$ds_method($params,$extra_params);
 			if($debug===TRUE) { $datasource->adapter->debug = $org_debug; }
-			$out_params = get_array_param($extra_params,'out_params',[],'is_array');
+			$out_params = get_array_value($extra_params,'out_params',[],'is_array');
 			return $result;
 		} catch(\Exception $e) {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
@@ -182,7 +183,7 @@ class DataProvider {
 	 * @throws \PAF\AppException
 	 */
 	public static function GetKeyValueArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
-		$keyfield = get_array_param($extra_params,'keyfield','id','is_notempty_string');
+		$keyfield = get_array_value($extra_params,'keyfield','id','is_notempty_string');
 		unset($extra_params['keyfield']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
 		return DataSource::ConvertResultsToKeyValue($result,$keyfield);
@@ -202,7 +203,7 @@ class DataProvider {
 	 * @throws \PAF\AppException
 	 */
 	public static function Get(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
-		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
+		$entity = get_array_value($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
 		return DataSource::ConvertResultsToDataSet($result,$entity);
@@ -223,7 +224,7 @@ class DataProvider {
 	 * @throws \PAF\AppException
 	 */
 	public static function GetKeyValue($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
-		$entity = get_array_param($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
+		$entity = get_array_value($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetKeyValueArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
 		return DataSource::ConvertResultsToDataSet($result,$entity);
@@ -334,5 +335,4 @@ class DataProvider {
 		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::app_path(),$conn,$platform);
 		return self::$entity_managers[$emKey];
 	}//END public static function GetEntityManager
-}//class DataProvider
-?>
+}//END class DataProvider

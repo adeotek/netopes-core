@@ -84,11 +84,11 @@ class SmartComboBox extends Control {
 		if(is_array($this->displayfield)) {
 			foreach($this->displayfield as $dk=>$dv) {
 				if(is_array($dv)) {
-					$ov_items = get_array_param($dv,'items',[],'is_notempty_array');
-					$ov_value = get_array_param($dv,'value','','is_string');
-					$ov_mask = get_array_param($dv,'mask','','is_string');
+					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
+					$ov_value = get_array_value($dv,'value','','is_string');
+					$ov_mask = get_array_value($dv,'mask','','is_string');
 					$ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_param($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_param($ov_items[$ltext],$ov_value,$ltext,'isset');
+					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
 				} else {
 				    $ltext = $item->getProperty($dk,'N/A','is_string');
 					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
@@ -162,18 +162,18 @@ class SmartComboBox extends Control {
 				$tagauid = \PAF\AppSession::GetNewUID($this->tagid,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
-				$ac_module = get_array_param($this->data_source,'ds_class','','is_string');
-				$ac_method = get_array_param($this->data_source,'ds_method','','is_string');
+				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
+				$ac_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ac_module) && strlen($ac_method)) {
 					$ac_module = convert_from_camel_case($ac_module);
 					$ac_method = convert_from_camel_case($ac_method);
 					$ac_params = '';
-					$ac_params_arr = get_array_param($this->data_source,'ds_params',[],'is_array');
+					$ac_params_arr = get_array_value($this->data_source,'ds_params',[],'is_array');
 					if(is_array($ac_params_arr) && count($ac_params_arr)) {
 						foreach($ac_params_arr as $acpk=>$acpv) { $ac_params .= '&'.$acpk.'='.rawurlencode($acpv); }
 					}//if(is_array($ac_params_arr) && count($ac_params_arr))
-					$rpp = get_array_param($this->data_source,'rows_limit',20,'is_not0_numeric');
-					$ac_js_params = get_array_param($this->data_source,'ds_js_params',[],'is_array');
+					$rpp = get_array_value($this->data_source,'rows_limit',20,'is_not0_numeric');
+					$ac_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
 					if(is_array($ac_js_params) && count($ac_js_params)) {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp}";
 						foreach($ac_js_params as $acpk=>$acpv) { $ac_data_func .= ', '.$acpk.': '.$acpv; }
@@ -201,11 +201,11 @@ class SmartComboBox extends Control {
 				break;
 			case 'database':
 				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add([''=>''],TRUE); }
-				$ds_name = get_array_param($this->data_source,'ds_class','','is_string');
-				$ds_method = get_array_param($this->data_source,'ds_method','','is_string');
+				$ds_name = get_array_value($this->data_source,'ds_class','','is_string');
+				$ds_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ds_name) && strlen($ds_method)) {
-					$ds_params = get_array_param($this->data_source,'ds_params',[],'is_array');
-					$da_eparams = get_array_param($this->data_source,'ds_extra_params',[],'is_array');
+					$ds_params = get_array_value($this->data_source,'ds_params',[],'is_array');
+					$da_eparams = get_array_value($this->data_source,'ds_extra_params',[],'is_array');
 					$data = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
 					if(is_object($data) && $data->count()) { $litems->merge($data->toArray()); }
 				}//if(strlen($ds_name) && strlen($ds_method))
@@ -239,13 +239,13 @@ class SmartComboBox extends Control {
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
 			if($this->load_type=='ajax') {
-				// $lval = get_array_param($item,$this->valfield,'null','isset');
-				// $ltext = get_array_param($item,is_string($this->displayfield)?$this->displayfield:'_text_','','is_string');
+				// $lval = get_array_value($item,$this->valfield,'null','isset');
+				// $ltext = get_array_value($item,is_string($this->displayfield)?$this->displayfield:'_text_','','is_string');
 				// $lselected = ' selected="selected"';
 				// $o_data = '';
 				// NApp::_Dlog($this->option_data,'$this->option_data');
                 // foreach($this->option_data as $od) {
-                //     $o_data .= ' data-'.$od.'="'.get_array_param($item,$od,'null','is_string').'"';
+                //     $o_data .= ' data-'.$od.'="'.get_array_value($item,$od,'null','is_string').'"';
                 // }//END foreach
 			} else {
 				$lval = $item->getProperty($this->valfield,'null','isset');

@@ -100,21 +100,21 @@ class SqLiteAdapter extends SqlDataAdapter {
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
-			if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE) {
+			if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE) {
 				$filter_prefix = ' where ';
 				$filter_sufix = ' ';
 			} else {
 				$filter_prefix =  ' and (';
 				$filter_sufix = ') ';
-			}//if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE)
+			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtolower($query),' where ')===FALSE)
 			foreach ($filters as $v) {
 				if(is_array($v)) {
 					if(count($v)==4) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$fvalue = get_array_param($v,'value',NULL,'is_notempty_string');
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						$fvalue = get_array_value($v,'value',NULL,'is_notempty_string');
 						if(!$ffield || !$fvalue || strtolower($fvalue)=='null') { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','and','is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','and','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
 							case 'not like':
@@ -131,9 +131,9 @@ class SqLiteAdapter extends SqlDataAdapter {
 								break;
 						}//END switch
 					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','and','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','and','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtolower($sep).' ' : ' ').$cond;
 					}//if(count($v)==4)
 				}else{

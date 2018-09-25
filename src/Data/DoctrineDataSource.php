@@ -44,7 +44,7 @@ class DoctrineDataSource extends DataSource {
             foreach($params as $pn=>$pv) {
                 switch($pn) {
                     case 'for_text':
-                        $fieldsList = get_array_param($extra_params,'qs_fields',[],'is_array');
+                        $fieldsList = get_array_value($extra_params,'qs_fields',[],'is_array');
                         if(is_string($pv) && strlen($pv) && strtolower($pv)!=='null') { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'contains','value'=>$pv]; }
                         break;
                     default:
@@ -75,7 +75,7 @@ class DoctrineDataSource extends DataSource {
 	 */
 	public function GetItem($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-		$id = get_array_param($params,'for_id','null','is_integer');
+		$id = get_array_value($params,'for_id','null','is_integer');
 		if(!$id) { throw new AppException('Invalid record identifier!'); }
 		$obj = $this->adapter->em->getRepository($this->entityName)->find($id);
 		return $obj;
@@ -88,10 +88,10 @@ class DoctrineDataSource extends DataSource {
 	 */
 	public function Search($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-		$term = get_array_param($extra_params,'text','','is_string');
-		$targets = get_array_param($extra_params,'targets',[],'is_array');
-		$filters = get_array_param($extra_params,'filters',[],'is_array');
-		$maxrows = get_array_param($extra_params,'maxrows',NULL,'is_integer');
+		$term = get_array_value($extra_params,'text','','is_string');
+		$targets = get_array_value($extra_params,'targets',[],'is_array');
+		$filters = get_array_value($extra_params,'filters',[],'is_array');
+		$maxrows = get_array_value($extra_params,'maxrows',NULL,'is_integer');
 		$obj = $this->adapter->em->getRepository($this->entityName)->getSearchResults($term,$targets,$filters,$maxrows);
 		return $obj;
 	}//END public function GetItem
@@ -103,7 +103,7 @@ class DoctrineDataSource extends DataSource {
 	 */
 	public function SetItem($params = [],$extra_params = []) {
 		if(!is_object($params)) { throw new AppException('Invalid entity instance!'); }
-		$exceptFlush = get_array_param($extra_params,'transaction',FALSE,'bool');
+		$exceptFlush = get_array_value($extra_params,'transaction',FALSE,'bool');
 		try {
 			$this->adapter->em->persist($params);
 			if(!$exceptFlush) { $this->adapter->em->flush(); }
@@ -130,14 +130,14 @@ class DoctrineDataSource extends DataSource {
 	public function UnsetItem($params = [],$extra_params = []) {
 		if(is_array($params)) {
 			if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-			$id = get_array_param($params,'for_id',0,'is_integer');
+			$id = get_array_value($params,'for_id',0,'is_integer');
 			if(!$id) { throw new AppException('Invalid record identifier!'); }
 			$obj = $this->adapter->em->getRepository($this->entityName)->find($id);
 		} else {
 			$obj = $params;
 		}//if(is_array($params))
 		if(!is_object($obj)) { throw new AppException('Invalid entity instance!'); }
-		$exceptFlush = get_array_param($extra_params,'transaction',FALSE,'bool');
+		$exceptFlush = get_array_value($extra_params,'transaction',FALSE,'bool');
 		try {
             $this->adapter->em->remove($obj);
 			if(!$exceptFlush) { $this->adapter->em->flush(); }

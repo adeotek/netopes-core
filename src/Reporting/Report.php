@@ -94,16 +94,16 @@ class Report extends ExcelExport {
 	//public function __construct(&$layout = [],&$data = [],&$class) {
 	public function __construct(&$params = []) {
 		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
-		$this->report_name = get_array_param($params,'report_name',NULL,'is_notempty_string');
-		$this->export_module = get_array_param($params,'export_module',$this->export_module,'is_string');
-		$this->export_method = get_array_param($params,'export_method',$this->export_method,'is_string');
-		$phash = get_array_param($params,'phash',NULL,'is_notempty_string');
-		$this->excel_export = (strlen($this->export_module) && strlen($this->export_method) && strlen($phash)) ? get_array_param($params,'excel_export',$this->excel_export,'bool') : false;
+		$this->report_name = get_array_value($params,'report_name',NULL,'is_notempty_string');
+		$this->export_module = get_array_value($params,'export_module',$this->export_module,'is_string');
+		$this->export_method = get_array_value($params,'export_method',$this->export_method,'is_string');
+		$phash = get_array_value($params,'phash',NULL,'is_notempty_string');
+		$this->excel_export = (strlen($this->export_module) && strlen($this->export_method) && strlen($phash)) ? get_array_value($params,'excel_export',$this->excel_export,'bool') : false;
 		if($this->excel_export) {
 			$this->dhash = \PAF\AppSession::GetNewUID(get_class_basename($this),'sha1');
 			$this->cached_file = 'cache_'.\PAF\AppSession::GetNewUID(get_class_basename($this).$phash,'sha1',TRUE);
 			$def_fname = str_replace(' ','_',trim($this->report_name)).'_'.date('d.m.Y-H.i').'.xlsx';
-			$this->export_file_name = GibberishAES::enc(get_array_param($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
+			$this->export_file_name = GibberishAES::enc(get_array_value($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
 			$this->excel_export = $this->CreateCacheExcelFile($params);
 		}//if($this->excel_export && $this->report_run_type=='export')
 		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
@@ -114,7 +114,7 @@ class Report extends ExcelExport {
 		$this->result = '';
 		foreach($params['layouts'] as $layout) {
 			$this->r_formats = [];
-			foreach(get_array_param($layout,'css_formats',[],'is_array') as $fkey=>$format) {
+			foreach(get_array_value($layout,'css_formats',[],'is_array') as $fkey=>$format) {
 				$style = '';
 				foreach($format as $frm=>$value) {
 					if($frm=='font')
@@ -131,20 +131,20 @@ class Report extends ExcelExport {
 				$this->r_formats[$fkey] = $style;
 			}//END foreach
 			// add columns
-			$def_cell_format = get_array_param($this->r_formats,get_array_param($layout,'default_cell_format','','is_notempty_string'),NULL,'is_string');
+			$def_cell_format = get_array_value($this->r_formats,get_array_value($layout,'default_cell_format','','is_notempty_string'),NULL,'is_string');
 			$header = "\t\t".'<thead>'."\n";
 			$header .= "\t\t\t".'<tr>'."\n";
             $colnr = 0;
 			$total_row = [];
 			foreach($layout['columns'] as $column) {
-				if(get_array_param($column,'hidden',false,'bool')) { $colnr++; continue; }
-				$tip = get_array_param($column,'htip','','is_string');
+				if(get_array_value($column,'hidden',false,'bool')) { $colnr++; continue; }
+				$tip = get_array_value($column,'htip','','is_string');
 				$hclass = strlen($tip) ? ' class="clsTitleToolTip"' : '';
 				$tip = strlen($tip) ? ' title="'.$column['htip'].'" ' : '';
-				$hstyle = get_array_param($column,'css_width',0,'numeric');
+				$hstyle = get_array_value($column,'css_width',0,'is_numeric');
 				$hstyle = $hstyle>0 ? ' style="width: '.$hstyle.'px;"' : '';
 				$header .= "\t\t\t\t".'<th'.$hclass.$tip.$hstyle.'>'.$column['name'].'</th>'."\n";
-                $tr_val = get_array_param($column,'total_row','','isset');
+                $tr_val = get_array_value($column,'total_row','','isset');
 				if(strlen($tr_val)) { $total_row[$colnr] = array('formula'=>$tr_val,'value'=>0); }
                 $colnr++;
 			}//foreach($layout_item['columns'] as $column)
@@ -152,21 +152,21 @@ class Report extends ExcelExport {
 			$header .= "\t\t".'</thead>'."\n";
 			$body = "\t\t".'<tbody>'."\n";
 			// add data
-			$data = get_array_param($layout,'data',NULL,'is_notempty_array');
+			$data = get_array_value($layout,'data',NULL,'is_notempty_array');
 			if(!is_array($data)) { continue; }
 			foreach($data as $data_row) {
 				$this->records_no++;
-				$format_row_call = get_array_param($layout,'r_format_row_func','','is_string');
+				$format_row_call = get_array_value($layout,'r_format_row_func','','is_string');
 				if(strlen($format_row_call) && method_exists($this,$format_row_call)) {
 					$row_format = $this->$format_row_call($data_row,TRUE);
 				} else {
-					$row_format = get_array_param($this->r_formats,get_array_param($layout,'r_format_row','','is_string'),NULL,'is_string');
+					$row_format = get_array_value($this->r_formats,get_array_value($layout,'r_format_row','','is_string'),NULL,'is_string');
 				}//if(strlen($format_row_call) && method_exists($this,$format_row_call))
 				$body .= "\t\t\t".'<tr'.(strlen($row_format) ? 'style="'.$row_format.'"' : '').'>'."\n";
                 $colnr = 0;
 				foreach($layout['columns'] as $column) {
-					if(get_array_param($column,'hidden',false,'bool')) { continue; }
-					$format_value_call = get_array_param($column,'r_format_value_func','','is_string');
+					if(get_array_value($column,'hidden',false,'bool')) { continue; }
+					$format_value_call = get_array_value($column,'r_format_value_func','','is_string');
 					if(strlen($format_value_call) && method_exists($this,$format_value_call)) {
 						$value = $this->$format_value_call($data_row,$column,TRUE);
 					} else {
@@ -186,18 +186,18 @@ class Report extends ExcelExport {
 								break;
 						}//END switch
 					}//if(array_key_exists($colnr,$total_row) && is_array($total_row[$colnr]) && array_key_exists('formula',$total_row[$colnr]) && $total_row[$colnr]['formula'] && is_string($total_row[$colnr]['formula']))
-					$format_string_call = get_array_param($column,'r_format_string_func','','is_string');
+					$format_string_call = get_array_value($column,'r_format_string_func','','is_string');
 					if(strlen($format_string_call) && method_exists($this,$format_string_call)) { $value = $this->$format_string_call($value); }
 					if(strlen($value)) {
-						$value = $value.get_array_param($column,'sufix','','is_string');
+						$value = $value.get_array_value($column,'sufix','','is_string');
 					} else {
-						$value = get_array_param($column,'defaultvalue','&nbsp;','is_string');
+						$value = get_array_value($column,'defaultvalue','&nbsp;','is_string');
 					}//if(strlen($value))
-					$format_cell_call = get_array_param($column,'r_format_func','','is_string');
+					$format_cell_call = get_array_value($column,'r_format_func','','is_string');
 					if(strlen($format_cell_call) && method_exists($this,$format_cell_call)) {
 						$format_style = $this->$format_cell_call($data_row,$column,TRUE);
 					} else {
-						$format_style = get_array_param($this->r_formats,get_array_param($column,'r_format','','is_string'),$def_cell_format,'is_string');
+						$format_style = get_array_value($this->r_formats,get_array_value($column,'r_format','','is_string'),$def_cell_format,'is_string');
 					}//if(strlen($format_cell_call) && method_exists($this,$format_cell_call))
 					$body .= "\t\t\t\t".'<td'.(strlen($format_style) ? ' style="'.$format_style.'"' : '').'>'.$value.'</td>'."\n";
                     $colnr++;
@@ -211,24 +211,24 @@ class Report extends ExcelExport {
                 $total .= "\t\t\t".'<tr>'."\n";
 				$bc_no = 0;
 				foreach($layout['columns'] as $colnr=>$column) {
-					if(get_array_param($column,'hidden',false,'bool')) { $colnr++; continue; }
+					if(get_array_value($column,'hidden',false,'bool')) { $colnr++; continue; }
 					if(!array_key_exists($colnr,$total_row)) { $bc_no++; continue; }
-					$tr_formula = get_array_param($total_row[$colnr],'formula','','isset');
-					$tr_value = get_array_param($total_row[$colnr],'value',NULL,'is_numeric');
+					$tr_formula = get_array_value($total_row[$colnr],'formula','','isset');
+					$tr_value = get_array_value($total_row[$colnr],'value',NULL,'is_numeric');
 					if(is_string($tr_formula)) {
 						switch($tr_formula) {
 							case 'sum':
 							case 'count':
 								break;
 							case 'average':
-								$tr_value = $tr_value / get_array_param($total_row[$colnr],'rcount',1,'is_not0_numeric');
+								$tr_value = $tr_value / get_array_value($total_row[$colnr],'rcount',1,'is_not0_numeric');
 								break;
 							default:
 								$tr_value = NULL;
 								break;
 						}//END switch
-					} elseif(is_array($tr_formula) && count($tr_formula) && get_array_param($tr_formula,'type')=='method' && check_array_key('method',$tr_formula,'is_notempty_string')) {
-						$tr_method = get_array_param($tr_formula,'method');
+					} elseif(is_array($tr_formula) && count($tr_formula) && get_array_value($tr_formula,'type')=='method' && check_array_key('method',$tr_formula,'is_notempty_string')) {
+						$tr_method = get_array_value($tr_formula,'method');
                     	$tr_value = $this->$tr_method($tr_value,$column);
 					} else {
 						$tr_value = NULL;
@@ -238,10 +238,10 @@ class Report extends ExcelExport {
 						$total .= "\t\t\t\t".'<td class="tcfirst" colspan="'.$bc_no.'">&nbsp;</td>'."\n";
 						$bc_no = 0;
 					}//if($bc_no)
-					$tr_format_string_call = get_array_param($column,'r_format_string_func','','is_string');
+					$tr_format_string_call = get_array_value($column,'r_format_string_func','','is_string');
 					if(strlen($tr_format_string_call) && method_exists($this,$tr_format_string_call)) { $tr_value = $this->$tr_format_string_call($tr_value); }
-					$tr_value = $tr_value.get_array_param($column,'sufix','','is_string');
-					$tr_style = get_array_param($column,'total_row_style',get_array_param($this->r_formats,get_array_param($column,'r_format','','is_string'),$def_cell_format,'is_string'),'is_string');
+					$tr_value = $tr_value.get_array_value($column,'sufix','','is_string');
+					$tr_style = get_array_value($column,'total_row_style',get_array_value($this->r_formats,get_array_value($column,'r_format','','is_string'),$def_cell_format,'is_string'),'is_string');
                     $total .= "\t\t\t\t".'<td class="tcolumn bold"'.(strlen($tr_style) ? ' style="'.$tr_style.'"' : '').'>'.$tr_value.'</td>'."\n";
 				}//END foreach
 				if($bc_no) { $total .= "\t\t\t\t".'<td class="tcfirst" colspan="'.$bc_no.'">&nbsp;</td>'."\n"; }
@@ -264,7 +264,7 @@ class Report extends ExcelExport {
 				$this->result .= "\t".'<div style="height: 20px; margin-bottom: 10px;">'.$ee_button."\n"."\t".'</div>'."\n";
             }//if($this->display_records_no)
             if(strlen($ee_button)) { $this->result .= "\t".'<div id="excelexport_errors"></div>'."\n"; }
-			$table_class = get_array_param($layout,'table_class',$this->baseclass,'is_string');
+			$table_class = get_array_value($layout,'table_class',$this->baseclass,'is_string');
 			$this->result .= "\t".'<table'.(strlen($table_class) ? ' class="'.$table_class.'"' : '').'>'."\n";
 			$this->result .= $header;
 			$this->result .= $body;

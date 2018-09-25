@@ -136,7 +136,7 @@ class BasicForm {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->baseclass = get_array_param($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
+		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		$this->controls_size = is_object(NApp::$theme) ? NApp::$theme->GetControlsDefaultSize() : 'xs';
 		$this->actions_size = is_object(NApp::$theme) ? NApp::$theme->GetButtonsDefaultSize() : 'xs';
@@ -158,13 +158,13 @@ class BasicForm {
 	protected function GetActions($tabindex = 0) {
 		$result = '';
 		foreach($this->actions as $action) {
-			$act_params = get_array_param($action,'params',[],'is_array');
+			$act_params = get_array_value($action,'params',[],'is_array');
 			if(!count($act_params)) { continue; }
-			$a_class = get_array_param($act_params,'class','','is_string');
-			$act_type = get_array_param($action,'type','Button','is_notempty_string');
+			$a_class = get_array_value($act_params,'class','','is_string');
+			$act_type = get_array_value($action,'type','Button','is_notempty_string');
             if($act_type=='CloseModal') {
                 $act_class = 'Button';
-                $act_params['onclick'] = "CloseModalForm('".get_array_param($action,'custom_action','','is_string')."','".get_array_param($action,'targetid','','is_string')."',".intval(get_array_param($action,'dynamic',1,'bool')).")";
+                $act_params['onclick'] = "CloseModalForm('".get_array_value($action,'custom_action','','is_string')."','".get_array_value($action,'targetid','','is_string')."',".intval(get_array_value($action,'dynamic',1,'bool')).")";
                 $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(THEME_BTN_DEFAULT) : 'btn btn-default');
             } else {
                 $act_class = $act_type;
@@ -180,7 +180,7 @@ class BasicForm {
             if(strlen($this->actions_size)) { $act_params['size'] = $this->actions_size; }
 			$act_instance = new $act_class($act_params);
 			if(!Validator::IsValidParam($act_instance->tabindex,'','is_not0_numeric')){ $act_instance->tabindex = $tabindex++; }
-			if(get_array_param($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }
+			if(get_array_value($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }
 			$result .= $act_instance->Show();
 		}//END foreach
 		return $result;
@@ -223,7 +223,7 @@ class BasicForm {
 		$result .= '<table'.($this->tagid ? ' id="'.$this->tagid.'"' : '').' class="'.$lclass.'"'.$lstyle.'>'."\n";
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
-			$sr_type = get_array_param($row,'separator',NULL,'is_notempty_string');
+			$sr_type = get_array_value($row,'separator',NULL,'is_notempty_string');
 			if($sr_type) {
 				$result .= "\t".'<tr>'."\n";
 				$result .= $lsidecolumn;
@@ -233,13 +233,13 @@ class BasicForm {
 						$sr_hr = '&nbsp;';
 						break;
 					case 'title':
-						$sr_hr = get_array_param($row,'value','&nbsp;','is_notempty_string');
-						$sr_c_class = get_array_param($row,'class','','is_string');
+						$sr_hr = get_array_value($row,'value','&nbsp;','is_notempty_string');
+						$sr_c_class = get_array_value($row,'class','','is_string');
 						$sr_class = ' class="clsTRS form-title'.($sr_c_class ? ' '.$sr_c_class : '').'"';
 						break;
 					case 'subtitle':
-						$sr_hr = get_array_param($row,'value','&nbsp;','is_notempty_string');
-						$sr_c_class = get_array_param($row,'class','','is_string');
+						$sr_hr = get_array_value($row,'value','&nbsp;','is_notempty_string');
+						$sr_c_class = get_array_value($row,'class','','is_string');
 						$sr_class = ' class="clsTRS sub-title'.($sr_c_class ? ' '.$sr_c_class : '').'"';
 						break;
 					case 'line':
@@ -254,7 +254,7 @@ class BasicForm {
 				$result .= "\t".'</tr>'."\n";
 				continue;
 			}//if($sr_type)
-			$hidden = get_array_param($row,0,FALSE,'bool','hidden_row');
+			$hidden = get_array_value($row,[0,'hidden_row'],FALSE,'bool');
 			$result .= "\t".'<tr'.($hidden ? ' class="hidden"' : '').'>'."\n";
 			$result .= $lsidecolumn;
 			$first = TRUE;
@@ -264,10 +264,10 @@ class BasicForm {
 				} else {
 					$result .= "\t\t".'<td'.$sc_style.'>&nbsp;</td>'."\n";
 				}//if($first)
-				$c_type = get_array_param($col,'control_type',NULL,'is_notempty_string');
-				$c_width = get_array_param($col,'width',NULL,'is_notempty_string');
+				$c_type = get_array_value($col,'control_type',NULL,'is_notempty_string');
+				$c_width = get_array_value($col,'width',NULL,'is_notempty_string');
 				$cstyle = strlen($c_width)>0 ? ' style="width: '.$c_width.(strpos($c_width,'%')===FALSE ? 'px' : '').';"' : '';
-				$c_span = get_array_param($col,'colspan',1,'is_numeric');
+				$c_span = get_array_value($col,'colspan',1,'is_numeric');
 				$cspan = $c_span>1 ? ' colspan="'.($c_span+($c_span-1)).'"' : '';
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!$c_type || !class_exists($c_type)) {
@@ -276,12 +276,12 @@ class BasicForm {
 					continue;
 				}//if(!$c_type || !class_exists($c_type))
 				$result .= "\t\t".'<td'.$cspan.$cstyle.'>'."\n";
-				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
+				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
 				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 				$control = new $c_type($ctrl_params);
 				if(property_exists($c_type,'tabindex')&& !\NETopes\Core\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
-				if(get_array_param($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
+				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				$result .= $control->Show();
 				$result .= "\t\t".'</td>'."\n";
 			}//END foreach
@@ -331,7 +331,7 @@ class BasicForm {
 		}//if(strlen($this->sub_form_tagid))
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
-			$sr_type = get_array_param($row,'separator',NULL,'is_notempty_string');
+			$sr_type = get_array_value($row,'separator',NULL,'is_notempty_string');
 			if($sr_type) {
 				$result .= "\t".'<div class="row">'."\n";
 				switch(strtolower($sr_type)) {
@@ -340,13 +340,13 @@ class BasicForm {
 						$sr_hr = '&nbsp;';
 						break;
 					case 'title':
-						$sr_hr = get_array_param($row,'value','&nbsp;','is_notempty_string');
-						$sr_c_class = get_array_param($row,'class','','is_string');
+						$sr_hr = get_array_value($row,'value','&nbsp;','is_notempty_string');
+						$sr_c_class = get_array_value($row,'class','','is_string');
 						$sr_class = ' clsTRS form-title'.($sr_c_class ? ' '.$sr_c_class : '');
 						break;
 					case 'subtitle':
-						$sr_hr = get_array_param($row,'value','&nbsp;','is_notempty_string');
-						$sr_c_class = get_array_param($row,'class','','is_string');
+						$sr_hr = get_array_value($row,'value','&nbsp;','is_notempty_string');
+						$sr_c_class = get_array_value($row,'class','','is_string');
 						$sr_class = ' clsTRS sub-title'.($sr_c_class ? ' '.$sr_c_class : '');
 						break;
 					case 'line':
@@ -360,32 +360,32 @@ class BasicForm {
 				continue;
 			}//if($sr_type)
 			$lgs = 12;
-			$hidden = get_array_param($row,0,FALSE,'bool','hidden_row');
+			$hidden = get_array_value($row,[0,'hidden_row'],FALSE,'bool');
 			if($this->colsno>1) {
 				$lgs = round(12/$this->colsno,0,PHP_ROUND_HALF_DOWN);
 				$result .= "\t".'<div class="row'.($hidden ? ' hidden' : '').'">'."\n";
 			}//if($this->colsno>1)
 			$ci = 0;
 			foreach($row as $col) {
-				$c_type = get_array_param($col,'control_type',NULL,'is_notempty_string');
+				$c_type = get_array_value($col,'control_type',NULL,'is_notempty_string');
 				$csi = 0;
 				if($this->colsno>1) {
-					$c_span = get_array_param($col,'colspan',1,'is_numeric');
+					$c_span = get_array_value($col,'colspan',1,'is_numeric');
 					if($c_span==$this->colsno) {
-						$c_class = get_array_param($col,'class','col-md-12','is_notempty_string');
+						$c_class = get_array_value($col,'class','col-md-12','is_notempty_string');
 						$csi = $this->colsno;
 					} else {
-						$c_cols = get_array_param($col,'cols',0,'is_integer');
+						$c_cols = get_array_value($col,'cols',0,'is_integer');
 						if($c_cols>0 && $c_cols<=12) {
 							$c_gs = $c_cols;
 						} else {
 							$c_gs = $c_span>1 ? $lgs*$c_span : $lgs;
 						}//if($c_cols>0 && $c_cols<=12)
-						$c_class = get_array_param($col,'class','col-md-'.$c_gs,    'is_notempty_string');
+						$c_class = get_array_value($col,'class','col-md-'.$c_gs,    'is_notempty_string');
 						$csi += $c_span;
 					}//if($c_span==$this->colsno)
 				} else {
-					$c_class = get_array_param($col,'class','form-group','is_notempty_string');
+					$c_class = get_array_value($col,'class','form-group','is_notempty_string');
 					if($hidden) { $c_class .= ' hidden'; }
 				}//if($this->colsno>1)
 				$ci += $csi;
@@ -400,14 +400,14 @@ class BasicForm {
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 					continue;
 				}//if(strlen($c_type))
-				$ctrl_params = get_array_param($col,'control_params',[],'is_array');
+				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
 				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 				// Label and input CSS columns calculation
-				$ctrl_label_cols = get_array_param($ctrl_params,'label_cols',0,'is_integer');
+				$ctrl_label_cols = get_array_value($ctrl_params,'label_cols',0,'is_integer');
 				if($ctrl_label_cols<1 || $ctrl_label_cols>11) {
-				$c_c_lcols = get_array_param($col,'label_cols',0,'is_integer');
+				$c_c_lcols = get_array_value($col,'label_cols',0,'is_integer');
 				$c_lcols = $c_c_lcols>0 ? $c_c_lcols : $this->label_cols;
 				if(is_numeric($c_lcols) && $c_lcols>0) {
 					if($this->colsno>1 && $c_span!=$this->colsno && $c_c_lcols==0) {
@@ -418,17 +418,17 @@ class BasicForm {
 					}//if($this->colsno>1 && $c_span!=$this->colsno && $c_c_lcols==0)
 				}//if(is_numeric($c_lcols) && $c_lcols>0)
 				}//if($ctrl_label_cols<1 || $ctrl_label_cols>11)
-				$c_cols = get_array_param($col,'control_cols',0,'is_integer');
+				$c_cols = get_array_value($col,'control_cols',0,'is_integer');
 				if($c_cols>0) { $ctrl_params['cols'] = $c_cols; }
 				//$this->controls_size
-				$c_size = get_array_param($col,'control_size','','is_string');
+				$c_size = get_array_value($col,'control_size','','is_string');
 				if(strlen($c_size)) { $ctrl_params['size'] = $c_size; }
-				$c_label_pos = get_array_param($ctrl_params,'labelposition',($this->positioning_type=='vertical' ? 'top' : 'left'),'is_notempty_string');
+				$c_label_pos = get_array_value($ctrl_params,'labelposition',($this->positioning_type=='vertical' ? 'top' : 'left'),'is_notempty_string');
 				$ctrl_params['labelposition'] = $c_label_pos;
 
 				$control = new $c_type($ctrl_params);
 				if(property_exists($c_type,'tabindex')&& !\NETopes\Core\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
-				if(get_array_param($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
+				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				if($this->colsno>1) {
 					$ctrl_params['container'] = FALSE;
 					//form-group
@@ -436,7 +436,7 @@ class BasicForm {
 					$result .= $control->Show();
 					$result .= "\t\t".'</div>'."\n";
 				} else {
-					$ctrl_params['class'] = trim(get_array_param($ctrl_params,'class','','is_string').($hidden ? ' hidden' : ''));
+					$ctrl_params['class'] = trim(get_array_value($ctrl_params,'class','','is_string').($hidden ? ' hidden' : ''));
 					$ctrl_params['container'] = TRUE;
 					$result .= $control->Show();
 				}//if($this->colsno>1)

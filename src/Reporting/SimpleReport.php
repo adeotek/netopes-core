@@ -111,8 +111,8 @@ class SimpleReport {
 							$blankcol = FALSE;
 						}//if($blankcol)
                         $total .= "\t\t\t\t".'<td class="tcolumn bold" '.$cellFormatStyle[$colnr].'>'.$value.'</td>'."\n";
-                    } elseif(is_array($sum) && get_array_param($sum,'type')=='func' && check_array_key('func_name',$sum,'is_notempty_string')) {
-                    	$funcname = get_array_param($sum,'func_name');
+                    } elseif(is_array($sum) && get_array_value($sum,'type')=='func' && check_array_key('func_name',$sum,'is_notempty_string')) {
+                    	$funcname = get_array_value($sum,'func_name');
                     	$value = $this->$funcname($sum,$sum_value);
 						if($blankcol) {
 							$total .= "\t\t\t\t".'<td class="tcfirst" colspan="'.$blankcolspan.'">&nbsp;</td>'."\n";

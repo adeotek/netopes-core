@@ -167,10 +167,10 @@
 			$value_filter = strlen($this->value_da_param) ? $this->value_da_param : 'for_id';
 			$ifilters = [];
 			$s_params = [];
-			$selectedvalue = get_array_param($lparams,'selected_value',NULL,'is_notempty_string');
-			$qsearch = get_array_param($lparams,'qsearch','','is_string');
-			$selectedtext = get_array_param($lparams,'text','','is_string');
-			$dynf = get_array_param($lparams,'dynf',[],'is_array');
+			$selectedvalue = get_array_value($lparams,'selected_value',NULL,'is_notempty_string');
+			$qsearch = get_array_value($lparams,'qsearch','','is_string');
+			$selectedtext = get_array_value($lparams,'text','','is_string');
+			$dynf = get_array_value($lparams,'dynf',[],'is_array');
 			foreach($dynf as $dk=>$dv) {
 				if(!is_array($this->ds_params) || !array_key_exists($dk,$this->ds_params)) { continue; }
 				$this->ds_params[$dk] = $dv;
@@ -183,15 +183,15 @@
 			$ctrl_params = array(
 				'module'=>$this->module,
 				'method'=>$this->method,
-				'persistent_state'=>get_array_param($this->grid_params,'persistent_state',FALSE,'bool'),
-				'exportable'=>get_array_param($this->grid_params,'exportable',FALSE,'bool'),
+				'persistent_state'=>get_array_value($this->grid_params,'persistent_state',FALSE,'bool'),
+				'exportable'=>get_array_value($this->grid_params,'exportable',FALSE,'bool'),
 				'target'=>$this->target,
 				'loader'=>"function(s){ GCBOLoader(s,'{$this->tagid}'); }",
-				'alternate_row_collor'=>get_array_param($this->grid_params,'alternate_row_collor',TRUE,'bool'),
-				'compact_mode'=>get_array_param($this->grid_params,'compact_mode',TRUE,'bool'),
-				'scrollable'=>get_array_param($this->grid_params,'scrollable',FALSE,'bool'),
-				'with_filter'=>get_array_param($this->grid_params,'with_filter',TRUE,'bool'),
-				'with_pagination'=>get_array_param($this->grid_params,'with_pagination',TRUE,'bool'),
+				'alternate_row_collor'=>get_array_value($this->grid_params,'alternate_row_collor',TRUE,'bool'),
+				'compact_mode'=>get_array_value($this->grid_params,'compact_mode',TRUE,'bool'),
+				'scrollable'=>get_array_value($this->grid_params,'scrollable',FALSE,'bool'),
+				'with_filter'=>get_array_value($this->grid_params,'with_filter',TRUE,'bool'),
+				'with_pagination'=>get_array_value($this->grid_params,'with_pagination',TRUE,'bool'),
 				'sortby'=>array('column'=>$this->displayfield,'direction'=>'asc'),
 				'initial_filters'=>$ifilters,
 				'qsearch'=>$qsearch_field,
@@ -199,7 +199,7 @@
 				'ds_method'=>$this->ds_method,
 				'ds_params'=>$this->ds_params,
 				'ds_extra_params'=>$this->ds_extra_params,
-				'auto_load_data'=>get_array_param($this->grid_params,'auto_load_data',TRUE,'bool'),
+				'auto_load_data'=>get_array_value($this->grid_params,'auto_load_data',TRUE,'bool'),
 				'columns'=>array(
 					'actions'=>array(
 						'type'=>'actions',
@@ -215,9 +215,9 @@
 			);
 			$ctrl_params['columns'] = array_merge($ctrl_params['columns'],$this->columns);
 			$datagrid = new TableView($ctrl_params);
-			if(get_array_param($lparams,'return',FALSE,'bool')) { return $datagrid->Show($s_params); }
+			if(get_array_value($lparams,'return',FALSE,'bool')) { return $datagrid->Show($s_params); }
 			echo $datagrid->Show($s_params);
-			if(!get_array_param($lparams,'open',FALSE,'bool')) { return; }
+			if(!get_array_value($lparams,'open',FALSE,'bool')) { return; }
 			NApp::_ExecJs("GCBODDBtnClick('{$this->tagid}',1);");
 		}//END public function ShowDropDown
 	}//END class GridComboBox extends Control

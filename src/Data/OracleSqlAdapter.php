@@ -152,21 +152,21 @@ class OracleSqlAdapter extends SqlDataAdapter {
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
-			if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
+			if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
 				$filter_prefix = ' WHERE ';
 				$filter_sufix = ' ';
 			} else {
 				$filter_prefix =  ' AND (';
 				$filter_sufix = ') ';
-			}//if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
+			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
 			foreach ($filters as $v) {
 				if(is_array($v)) {
 					if(count($v)==4) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$fvalue = get_array_param($v,'value',NULL,'is_notempty_string');
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						$fvalue = get_array_value($v,'value',NULL,'is_notempty_string');
 						if(!$ffield || !$fvalue || strtolower($fvalue)==='null') { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
 							case 'not like':
@@ -183,9 +183,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 								break;
 						}//END switch
 					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').$cond;
 					}//if(count($v)==4)
 				}else{
@@ -318,12 +318,12 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 			foreach($filters as $v) {
 				if(is_array($v)) {
 					if(count($v)>2) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$fvalue = self::OracleEscapeString(get_array_param($v,'value',NULL,'is_notempty_string'));
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						$fvalue = self::OracleEscapeString(get_array_value($v,'value',NULL,'is_notempty_string'));
 						if(!$ffield || is_null($fvalue)) { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
-						$dtype = get_array_param($v,'data_type',NULL,'is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
+						$dtype = get_array_value($v,'data_type',NULL,'is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
 							case 'not like':
@@ -373,7 +373,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' "'.strtoupper($ffield).'" '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " {$fvalue}");
 								break;
 							case '><':
-								$fsvalue = self::OracleEscapeString(get_array_param($v,'svalue',NULL,'is_notempty_string'));
+								$fsvalue = self::OracleEscapeString(get_array_value($v,'svalue',NULL,'is_notempty_string'));
 								if(is_null($fsvalue)) { continue; }
 								$daypart = NULL;
 								$sdaypart = NULL;
@@ -398,9 +398,9 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 								break;
 						}//END switch
 					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').$cond;
 					}//if(count($v)==4)
 				} else {

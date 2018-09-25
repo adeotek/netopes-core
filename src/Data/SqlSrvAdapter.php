@@ -12,9 +12,10 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NApp;
 use NETopes\Core\App\Validator;
 use PAF\AppException;
+use NApp;
+
 /**
  * SqlSrvDatabase is implementing the MS SQL database
  *
@@ -24,6 +25,10 @@ use PAF\AppException;
  * @access   public
  */
 class SqlSrvAdapter extends SqlDataAdapter {
+    /**
+     * Objects names enclosing symbol
+     */
+    const ENCLOSING_SYMBOL = '"';
 	/**
 	 * @var    int Time to wait befor rising deadlock error (in seconds)
 	 * @access protected
@@ -60,7 +65,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @static
 	 */
-	public static function GetStartUpQuery($params = NULL) {
+	public static function GetStartUpQuery($params = NULL): ?string {
 		if(!is_array($params) || !count($params)) { return NULL; }
 		$fields = '';
 		foreach(self::SqlSrvEscapeString($params) as $k=>$v) {
@@ -76,7 +81,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function SqlSrvSetGlobalVariables($params = NULL) {
+	public function SqlSrvSetGlobalVariables($params = NULL): bool {
 		if(!is_array($params) || !count($params)) { return TRUE; }
 		$result = NULL;
 		$time = microtime(TRUE);
@@ -118,18 +123,18 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
-	protected function Init($connection) {
+	protected function Init($connection): void {
 		$dbconnect_options = array(
 			'APP'=>NApp::_GetAppName(),
 			'UID'=>$connection['db_user'],
-			'PWD'=>(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),
+			'PWD'=>get_array_value($connection,'db_password','','is_string'),
 			'Database'=>$this->dbname,
-			'CharacterSet'=>get_array_param($connection,'CharacterSet','UTF-8','is_notempty_string'),
+			'CharacterSet'=>get_array_value($connection,'CharacterSet','UTF-8','is_notempty_string'),
 			'TrustServerCertificate'=>1,
-			'ReturnDatesAsStrings'=>get_array_param($connection,'ReturnDatesAsStrings',TRUE,'bool'),
-			'ConnectionPooling'=>get_array_param($connection,'ConnectionPooling',FALSE,'bool'),
-			'MultipleActiveResultSets'=>get_array_param($connection,'MultipleActiveResultSets',FALSE,'bool'),
-			'TransactionIsolation'=>get_array_param($connection,'TransactionIsolation',SQLSRV_TXN_READ_COMMITTED,'is_numeric'),
+			'ReturnDatesAsStrings'=>get_array_value($connection,'ReturnDatesAsStrings',TRUE,'bool'),
+			'ConnectionPooling'=>get_array_value($connection,'ConnectionPooling',FALSE,'bool'),
+			'MultipleActiveResultSets'=>get_array_value($connection,'MultipleActiveResultSets',FALSE,'bool'),
+			'TransactionIsolation'=>get_array_value($connection,'TransactionIsolation',SQLSRV_TXN_READ_COMMITTED,'is_numeric'),
 		);
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? (strtoupper(substr(PHP_OS,0,3))==='WIN' ? ', ' : ':').$connection['db_port'] : '';
 		try {
@@ -150,7 +155,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 					}//if(!is_resource($this->connection))
 				}//if(count($errors))
 			}//if(!is_resource($this->connection))
-			$WarningsReturnAsErrors = get_array_param($connection,'WarningsReturnAsErrors',NULL,'is_numeric');
+			$WarningsReturnAsErrors = get_array_value($connection,'WarningsReturnAsErrors',NULL,'is_numeric');
 			if(isset($WarningsReturnAsErrors) && is_numeric($WarningsReturnAsErrors)) {
 				sqlsrv_configure('WarningsReturnAsErrors',$WarningsReturnAsErrors);
 			}//if(isset($WarningsReturnAsErrors) && is_numeric($WarningsReturnAsErrors))
@@ -159,16 +164,16 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			throw new  AppException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",8001,1,__FILE__,__LINE__,'sqlsrv',0);
 		}//END try
 	}//END protected function Init
-	/**
-	 * Begins a sqlsrv transaction
-	 *
-	 * @param  string $name Unused!!!
-	 * @param  bool   $log Flag for logging or not the operation
-	 * @param  bool   $overwrite Unused!!!
-	 * @return object Returns the transaction instance
-	 * @access public
-	 * @throws \PAF\AppException
-	 */
+    /**
+     * Begins a sqlsrv transaction
+     *
+     * @param  string $name Unused!!!
+     * @param  bool   $log Flag for logging or not the operation
+     * @param  bool   $overwrite Unused!!!
+     * @param null    $custom_tran_params
+     * @return object Returns the transaction instance
+     * @access public
+     */
 	public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		$lname = strlen($name) ? $name : $this->default_tran;
 		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname] && !$overwrite){ return NULL; }
@@ -228,54 +233,57 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
 		return FALSE;
 	}//END public function SqlSrvCommitTran
-	/**
-	 * Prepares the query string for execution
-	 *
-	 * @param  string $query The query string (by reference)
-	 * @param  array $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applied in WHERE clause
-	 * @param  string $row_query By reference parameter that will store row query string
-	 * @return void
-	 * @access public
-	 */
+    /**
+     * Prepares the query string for execution
+     *
+     * @param  string $query The query string (by reference)
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'lastrow' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'firstrow')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $bind_params
+     * @param null    $transaction
+     * @return void
+     * @access public
+     */
 	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)){
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',self::SqlSrvEscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
-			if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
+			if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
 				$filter_prefix = ' WHERE ';
 				$filter_sufix = ' ';
 			} else {
 				$filter_prefix =  ' AND (';
 				$filter_sufix = ') ';
-			}//if(get_array_param($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
+			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
 			foreach ($filters as $v) {
 				if(is_array($v)) {
 					if(count($v)==4) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$dtype = get_array_param($v,'data_type',NULL,'is_notempty_string');
-						if(strtolower($dtype)=='string') {
-							$fvalue = $this->EscapeString(get_array_param($v,'value',NULL,'is_string'));
-						} else {
-							$fvalue = $this->EscapeString(get_array_param($v,'value',NULL,'is_notempty_string'));
-						}//if(strtolower($dtype)=='string')
-						if(!$ffield || is_null($fvalue)) { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						if(!$ffield) { continue; }
+						$dtype = get_array_value($v,'data_type',NULL,'is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
-							case 'not like':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL' : " '%{$fvalue}%'");
+							    $fvalue = $this->EscapeString(get_array_value($v,'value',NULL,'?is_notempty_string'));
+							    if(is_null($fvalue)) { continue; }
+							    $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] LIKE'." '%{$fvalue}%'";
+								break;
+							case 'notlike':
+							    $fvalue = $this->EscapeString(get_array_value($v,'value',NULL,'?is_notempty_string'));
+							    if(is_null($fvalue)) { continue; }
+								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] NOT LIKE'." '%{$fvalue}%'";
 								break;
 							case '==':
 							case '<>':
@@ -316,7 +324,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
                                 $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.strtoupper($fcond).' '.$fvalue;
                                 break;
                             case '><':
-                                $fsvalue = self::SqlSrvEscapeString(get_array_param($v,'svalue',NULL,'is_notempty_string'));
+                                $fsvalue = self::SqlSrvEscapeString(get_array_value($v,'svalue',NULL,'is_notempty_string'));
                                 if(is_null($fsvalue)) { continue; }
                                 switch(strtolower($dtype)) {
                                     case 'date':
@@ -336,9 +344,9 @@ class SqlSrvAdapter extends SqlDataAdapter {
 								break;
 						}//END switch
 					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').$cond;
 					}//if(count($v)==4)
 				}else{
@@ -492,16 +500,16 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			foreach($filters as $v) {
 				if(is_array($v)) {
 					if(count($v)>2) {
-						$ffield = get_array_param($v,'field',NULL,'is_notempty_string');
-						$dtype = get_array_param($v,'data_type',NULL,'is_notempty_string');
+						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
+						$dtype = get_array_value($v,'data_type',NULL,'is_notempty_string');
 						if(strtolower($dtype)=='string') {
-							$fvalue = self::EscapeString(get_array_param($v,'value',NULL,'is_string'));
+							$fvalue = self::EscapeString(get_array_value($v,'value',NULL,'is_string'));
 						} else {
-							$fvalue = self::EscapeString(get_array_param($v,'value',NULL,'is_notempty_string'));
+							$fvalue = self::EscapeString(get_array_value($v,'value',NULL,'is_notempty_string'));
 						}//if(strtolower($dtype)=='string')
 						if(!$ffield || is_null($fvalue)) { continue; }
-						$fcond = get_array_param($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						switch(strtolower($fcond)) {
 							case 'like':
 							case 'not like':
@@ -551,7 +559,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.strtoupper($fcond).' '.$fvalue.')';
 								break;
 							case '><':
-								$fsvalue = self::SqlSrvEscapeString(get_array_param($v,'svalue',NULL,'is_notempty_string'));
+								$fsvalue = self::SqlSrvEscapeString(get_array_value($v,'svalue',NULL,'is_notempty_string'));
 								if(is_null($fsvalue)) { continue; }
 								switch(strtolower($dtype)) {
 									case 'date':
@@ -571,9 +579,9 @@ class SqlSrvAdapter extends SqlDataAdapter {
 								break;
 						}//END switch
 					} elseif(count($v==2)) {
-						$cond = get_array_param($v,'condition',NULL,'is_notempty_string');
+						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
 						if(!$cond){ continue; }
-						$sep = get_array_param($v,'logical_separator','AND','is_notempty_string');
+						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
 						$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ('.$cond.')';
 					}//if(count($v)==4)
 				} else {
