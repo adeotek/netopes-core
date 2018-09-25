@@ -8,12 +8,15 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.2.7.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataProvider;
 use NApp;
+use NETopes\Core\Data\DataSet;
+use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\VirtualEntity;
 use PAF\AppConfig;
 use PAF\AppException;
 /**
@@ -61,13 +64,22 @@ class SmartComboBox extends Control {
 		if(is_null($this->displayfield) || $this->displayfield=='') { $this->displayfield = 'name'; }
 		// one of the values: value/database/ajax
 		if(!strlen($this->load_type)) { $this->load_type = 'value'; }
+		if(!is_array($this->option_data)) {
+		    if(is_string($this->option_data) && strlen($this->option_data)) {
+		        $this->option_data = [$this->option_data];
+		    } else {
+		        $this->option_data = [];
+		    }//if(is_string($this->option_data) && strlen($this->option_data))
+		}//if(!is_array($this->option_data))
 	}//END public function __construct
 	/**
 	 * @param $item
 	 * @return null|string
+     * @throws \PAF\AppException
 	 */
-	protected function GetDisplayFieldValue($item) {
-		if(!is_array($item) && !count($item)) { return NULL; }
+	protected function GetDisplayFieldValue($item): ?string {
+	    if(!is_object($item) && !is_array($item)) { return NULL; }
+	    if(!is_object($item)) { $item = new VirtualEntity($item); }
 		$ldisplayvalue = '';
 		if(is_array($this->displayfield)) {
 			foreach($this->displayfield as $dk=>$dv) {
@@ -75,24 +87,24 @@ class SmartComboBox extends Control {
 					$ov_items = get_array_param($dv,'items',[],'is_notempty_array');
 					$ov_value = get_array_param($dv,'value','','is_string');
 					$ov_mask = get_array_param($dv,'mask','','is_string');
-					$ltext = get_array_param($item,$dk,'N/A','is_string');
+					$ltext = $item->getProperty($dk,'N/A','is_string');
 					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_param($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_param($ov_items[$ltext],$ov_value,$ltext,'isset');
 				} else {
-					$ltext = get_array_param($item,$dk,'N/A','is_string');
+				    $ltext = $item->getProperty($dk,'N/A','is_string');
 					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
 				}//if(is_array($dv))
 			}//foreach ($this->displayfield as $dk=>$dv)
 		} else {
-			$ltext = get_array_param($item,$this->displayfield,'N/A','is_string');
+		    $ltext = $item->getProperty($this->displayfield,'N/A','is_string');
 			$ldisplayvalue = $this->withtranslate===TRUE ? \Translate::Get($this->translate_prefix.$ltext) : $ltext;
 		}//if(is_array($this->displayfield))
 		return html_entity_decode($ldisplayvalue);
 	}//END protected function GetDisplayFieldValue
 	/**
-	 * @return string|void
+	 * @return string|null
 	 * @throws \PAF\AppException
 	 */
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		$this->ProcessActions();
 		$js_script = "\t\t({\n";
 		$raw_class = $this->GetTagClass(NULL,TRUE);
@@ -114,24 +126,39 @@ class SmartComboBox extends Control {
 		} elseif(is_numeric($this->minimum_input_length) && $this->minimum_input_length>0) {
 			$js_script .= "\t\t\tminimumInputLength: {$this->minimum_input_length},\n";
 		}//if($this->load_type=='ajax')
-		if(is_array($this->extra_items) && count($this->extra_items)) {
-			$litems = $this->extra_items;
-		} else {
-			$litems = [];
-		}//if(is_array($this->extra_items) && count($this->extra_items))
-		$s_values = [];
+		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+
 		if(is_array($this->selectedvalue)) {
 			$s_values = $this->selectedvalue;
 		} elseif(is_scalar($this->selectedvalue) && strlen($this->selectedvalue) && $this->selectedvalue!=='null') {
-			$s_values = [$this->selectedvalue=>$this->selectedtext];
+		    $s_values = [[
+			    $this->valfield=>$this->selectedvalue,
+			    (is_string($this->displayfield)?$this->displayfield:'_text_')=>$this->selectedtext,
+			]];
+        } else {
+            $s_values = [];
 		}//if(is_array($this->selectedvalue))
+        $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
 		switch($this->load_type) {
 			case 'ajax':
-				if(!count($s_values)) {
-					array_unshift($litems,[''=>'']);
+			    $initData = [];
+			    if($s_values->count()) {
+			        foreach($s_values as $sv) {
+                         $s_item = [
+                            'id'=>$sv->getProperty($this->valfield),
+                            'name'=>$this->GetDisplayFieldValue($sv),
+                            'selected'=>TRUE,
+                        ];
+                        if(is_string($this->state_field) && strlen($this->state_field)) {
+                            $s_item['disabled'] = $sv->getProperty($this->state_field,1,'is_numeric')<=0;
+                        }//if(is_string($this->state_field) && strlen($this->state_field))
+                        foreach($this->option_data as $od) { $s_item[$od] = $sv->getProperty($od); }
+                        $initData[] = $s_item;
+                    }//END foreach
 				} else {
-					foreach($s_values as $sv=>$st) { array_unshift($litems,[$this->valfield=>$sv,'_text_'=>$st]); }
-				}//if(!count($s_values))
+			        $initData[] = [''=>''];
+			    }//if($s_values->count())
+			    $initData = json_encode($initData);
 				$tagauid = \PAF\AppSession::GetNewUID($this->tagid,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
@@ -162,6 +189,7 @@ class SmartComboBox extends Control {
 						data: {$ac_data_func},
 				processResults: function(data,params) { return { results: data }; }
 					},
+            data: {$initData},
 			escapeMarkup: function(markup) { return markup; },
 			templateResult: function(item) { return item.name; },\n";
 					if(is_string($this->template_selection) && strlen($this->template_selection)) {
@@ -172,26 +200,26 @@ class SmartComboBox extends Control {
 				}//if(strlen($ac_module) && strlen($ac_method))
 				break;
 			case 'database':
-				if($this->allow_clear && strlen($this->cbo_placeholder)) { array_unshift($litems,[''=>'']); }
-				$dbvalues = [];
+				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add([''=>''],TRUE); }
 				$ds_name = get_array_param($this->data_source,'ds_class','','is_string');
 				$ds_method = get_array_param($this->data_source,'ds_method','','is_string');
 				if(strlen($ds_name) && strlen($ds_method)) {
 					$ds_params = get_array_param($this->data_source,'ds_params',[],'is_array');
 					$da_eparams = get_array_param($this->data_source,'ds_extra_params',[],'is_array');
-					$data = DataProvider::GetArray($ds_name,$ds_method,$ds_params,$da_eparams);
-					if(is_array($data)) {
-						$dbvalues = array_key_exists('data',$data) ? $data['data'] : $data;
-					}//if(is_array($data))
+					$data = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
+					if(is_object($data) && $data->count()) { $litems->merge($data->toArray()); }
 				}//if(strlen($ds_name) && strlen($ds_method))
-				$litems = array_merge($litems,$dbvalues);
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {
 					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
 				}//if(is_string($this->template_selection) && strlen($this->template_selection))
 				break;
 			case 'value':
-				if($this->allow_clear && strlen($this->cbo_placeholder)) { array_unshift($litems,[''=>'']); }
-				if(is_array($this->value) && count($this->value)) { $litems = array_merge($litems,$this->value); }
+				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add([''=>''],TRUE); }
+				if(is_object($this->value) && $this->value->count()) {
+				    $litems->merge($this->value->toArray());
+				} elseif(is_array($this->value) && count($this->value)) {
+				    $litems->merge($this->value);
+				}//if(is_object($this->value) && $this->value->count())
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {
 					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
 				}//if(is_string($this->template_selection) && strlen($this->template_selection))
@@ -201,44 +229,43 @@ class SmartComboBox extends Control {
 		}//END switch
 		$js_script .= "\t\t})";
 		// NApp::_Dlog($this->tagid,'$this->tagid');
-		// NApp::_Dlog($js_script,'$js_script');
+		NApp::_Dlog($js_script,'$js_script');
 		$roptions = '';
 		$def_record = FALSE;
 		$s_multiple = $this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1' ? ' multiple="multiple"' : '';
-		foreach($litems as $i=>$item) {
-			if(!array_key_exists($this->valfield,$item)) {
+		foreach($litems as $item) {
+		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
 				$roptions .= "\t\t\t<option></option>\n";
 				continue;
-			}//if(!array_key_exists($this->valfield,$item))
+			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
 			if($this->load_type=='ajax') {
-				$lval = get_array_param($item,$this->valfield,'null','isset');
-				$ltext = get_array_param($item,'_text_','','is_string');
-				$lselected = ' selected="selected"';
-				$o_data = '';
+				// $lval = get_array_param($item,$this->valfield,'null','isset');
+				// $ltext = get_array_param($item,is_string($this->displayfield)?$this->displayfield:'_text_','','is_string');
+				// $lselected = ' selected="selected"';
+				// $o_data = '';
+				// NApp::_Dlog($this->option_data,'$this->option_data');
+                // foreach($this->option_data as $od) {
+                //     $o_data .= ' data-'.$od.'="'.get_array_param($item,$od,'null','is_string').'"';
+                // }//END foreach
 			} else {
-				$lval = get_array_param($item,$this->valfield,'null','isset');
+				$lval = $item->getProperty($this->valfield,'null','isset');
 				$ltext = $this->GetDisplayFieldValue($item);
 				$lselected = '';
-				if(is_array($s_values) && count($s_values)) {
-					foreach($s_values as $svk=>$svv) {
-						if($lval==$svk && !(($svk==='null' && $lval!=='null') || ($svk!=='null' && $lval==='null'))) {
+				foreach($s_values as $sv) {
+				    $lsval = $sv->getProperty($this->valfield,NULL,'isset');
+				    if($lval==$lsval && !(($lsval==='null' && $lval!=='null') || ($lsval!=='null' && $lval==='null'))) {
 							$lselected = ' selected="selected"';
 							break;
-						}//if($lval==$svk && !(($svk==='null' && $lval!=='null') || ($svk!=='null' && $lval==='null')))
+                    }//if($lval==$lsval && !(($lsval==='null' && $lval!=='null') || ($lsval!=='null' && $lval==='null')))
 					}//END foreach
-				}//if(is_array($s_values) && count($s_values))
-				if((!is_array($s_values) || !count($s_values)) && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && get_array_param($item,$this->default_value_field,0,'is_numeric')==1) {
+				if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
 					$def_record = TRUE;
 					$lselected = ' selected="selected"';
-				}//if((!is_array($s_values) || !count($s_values)) && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && get_array_param($item,$this->default_value_field,0,'is_numeric')==1)
-				$o_data = (is_string($this->state_field) && strlen($this->state_field) && get_array_param($item,$this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
-				if(is_array($this->option_data)) {
-					foreach($this->option_data as $ok=>$ov) {
-						$o_data .= ' data-'.$ok.'="'.get_array_param($item,$ov,'null','is_string').'"';
+				}//if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+				$o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
+                foreach($this->option_data as $od) {
+                    $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'null','is_string').'"';
 					}//END foreach
-				} elseif(is_string($this->option_data) && strlen($this->option_data)) {
-					$o_data .= ' data="'.get_array_param($item,$this->option_data,'null','is_string').'"';
-				}//if(is_array($this->option_data))
 			}//if($this->load_type=='ajax')
 			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
 		}//END foreach

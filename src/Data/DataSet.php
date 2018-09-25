@@ -272,9 +272,12 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function add($element)
-    {
+    public function add($element,bool $first = FALSE): bool {
+        if($first) {
+            array_unshift($this->elements,$element);
+        } else {
         $this->elements[] = $element;
+        }//if($first)
         return true;
     }
     /**
@@ -357,14 +360,40 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function slice($offset, $length = null)
-    {
+    public function slice($offset, $length = null) {
         return array_slice($this->elements, $offset, $length, true);
     }
 
-    public function jsonSerialize()
-    {
+    public function jsonSerialize() {
         return json_encode($this->elements);
     }
+    /**
+	 * Merge an array or a VirtualEntity instance to current instance
+	 *
+	 * @param  array|object $data The data to be merged into this instance
+	 * @param  bool $recursive
+	 * @return bool Returns TRUE on success, FALSE otherwise
+	 * @access public
+	 */
+	public function merge($data,bool $recursive = FALSE) {
+		if(is_object($data) && count($data)) {
+			if(!is_array($this->elements)) { $this->elements = []; }
+			if($recursive) {
+				$this->elements = array_merge_recursive($this->elements,$data->toArray());
+			} else {
+				$this->elements = array_merge($this->elements,$data->toArray());
+			}//if($recursive)
+		} elseif(is_array($data) && count($data)) {
+			if(!is_array($this->elements)) { $this->elements = []; }
+			if($recursive) {
+				$this->elements = array_merge_recursive($this->elements,$data);
+			} else {
+				$this->elements = array_merge($this->elements,$data);
+			}//if($recursive)
+		} else {
+			return FALSE;
+		}//if(is_object($data) && count($data))
+		return TRUE;
+	}//END public function merge
 }//END class DataSet implements Collection
 ?>

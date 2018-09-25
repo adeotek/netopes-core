@@ -107,7 +107,7 @@ class DataSource {
 	 *
 	 * @param  array $data The array to be converted
 	 * @param  string|null $entity_class Name of the entity class
-	 * @return DataSet|null Returns the DataSet or NULL on error
+	 * @return mixed Returns the DataSet or NULL on error
 	 * @access public
 	 * @static
 	 */
