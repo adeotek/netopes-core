@@ -112,7 +112,7 @@ class ApiDataProvider {
 		} else {
 			$singletarget = array_key_exists('single_target',$params) ? $params['single_target'] : FALSE;
 			$ttype = (array_key_exists('target_type',$params) && is_numeric($params['target_type'])) ? $params['target_type'] : 0;
-			$tid = (array_key_exists('id_target_account',$params) && is_numeric($params['id_target_account'])) ? $params['id_target_account'] : 'null';
+			$tid = (array_key_exists('id_target_account',$params) && is_numeric($params['id_target_account'])) ? $params['id_target_account'] : NULL;
 			$targets = DataProvider::GetArray('Api\Native','GetApiTargets',array('for_type'=>$ttype,'for_id'=>$tid));
 			if(!is_array($targets) || count($targets)==0) { return FALSE; }
 			if($singletarget) { $targets = array($targets[0]); }

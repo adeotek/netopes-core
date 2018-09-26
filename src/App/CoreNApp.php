@@ -1079,9 +1079,9 @@ abstract class CoreNApp extends \PAF\App {
                 'for_namespace'=>$this->current_namespace,
                 'for_lang_code'=>$langcode,
                 'for_user_hash'=>$user_hash,
-                'login_namespace'=>(strlen($this->login_namespace) ? $this->login_namespace : 'null'),
-                'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : 'null'),
-                'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : 'null'),
+                'login_namespace'=>(strlen($this->login_namespace) ? $this->login_namespace : NULL),
+                'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : NULL),
+                'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : NULL),
                 'validity'=>$this->GetLoginTimeout(),
                 'keep_alive'=>($this->keep_alive ? 1 : 0),
                 'auto_login'=>$auto_login,
@@ -1202,8 +1202,8 @@ abstract class CoreNApp extends \PAF\App {
 		switch($lnamespace) {
 			case 'web':
 				$userdata = DataProvider::Get('Cms\Users','GetLogin',[
-					'section_id'=>($this->GetParam('id_section') ? $this->GetParam('id_section') : 'null'),
-					'zone_id'=>($this->GetParam('id_zone') ? $this->GetParam('id_zone') : 'null'),
+					'section_id'=>($this->GetParam('id_section') ? $this->GetParam('id_section') : NULL),
+					'zone_id'=>($this->GetParam('id_zone') ? $this->GetParam('id_zone') : NULL),
 					'for_username'=>$username,
 					'allow_null_company'=>intval($allow_null_company),
 					'web_session'=>$this->GetHashFromCookie('websession'),

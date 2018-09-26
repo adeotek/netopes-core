@@ -51,8 +51,8 @@ class Mailer {
 			$id_section = get_array_value($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
 			$id_zone = get_array_value($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
 			$items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
-				'section_id'=>(is_numeric($id_section) ? $id_section : 'null'),
-				'zone_id'=>(is_numeric($id_zone) ? $id_zone : 'null'),
+				'section_id'=>(is_numeric($id_section) ? $id_section : NULL),
+				'zone_id'=>(is_numeric($id_zone) ? $id_zone : NULL),
 				'for_stype'=>get_array_value($params,'nwl_stype',2,'is_numeric'),
 				'for_active'=>1,
 				'for_implicit'=>1,

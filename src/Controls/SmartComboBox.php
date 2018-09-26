@@ -128,17 +128,26 @@ class SmartComboBox extends Control {
 		}//if($this->load_type=='ajax')
 		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
 
-		if(is_array($this->selectedvalue)) {
+        if(is_object($this->selectedvalue)) {
+            if(is_iterable($this->selectedvalue)) {
 			$s_values = $this->selectedvalue;
-		} elseif(is_scalar($this->selectedvalue) && strlen($this->selectedvalue) && $this->selectedvalue!=='null') {
+            } else {
+                $s_values = new DataSet([$this->selectedvalue]);
+            }//if(is_iterable($this->selectedvalue))
+        } elseif(is_array($this->selectedvalue)) {
+            $s_values = DataSource::ConvertArrayToDataSet($this->selectedvalue,VirtualEntity::class);
+        } else {
+            if(is_scalar($this->selectedvalue)) {
 		    $s_values = [[
 			    $this->valfield=>$this->selectedvalue,
 			    (is_string($this->displayfield)?$this->displayfield:'_text_')=>$this->selectedtext,
 			]];
         } else {
             $s_values = [];
-		}//if(is_array($this->selectedvalue))
+            }//if(is_scalar($this->selectedvalue))
         $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
+        }//if(is_object($this->selectedvalue))
+
 		switch($this->load_type) {
 			case 'ajax':
 			    $initData = [];
@@ -229,7 +238,7 @@ class SmartComboBox extends Control {
 		}//END switch
 		$js_script .= "\t\t})";
 		// NApp::_Dlog($this->tagid,'$this->tagid');
-		NApp::_Dlog($js_script,'$js_script');
+		// NApp::_Dlog($js_script,'$js_script');
 		$roptions = '';
 		$def_record = FALSE;
 		$s_multiple = $this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1' ? ' multiple="multiple"' : '';

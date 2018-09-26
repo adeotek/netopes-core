@@ -112,8 +112,8 @@ class Translation {
 			if(AppConfig::auto_insert_missing_translations()) {
 				try {
 					if(NApp::current_namespace()=='web') {
-						$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : 'null';
-						$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : 'null';
+						$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : NULL;
+						$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : NULL;
 						$cnamespace = 'site_strings';
 					} else {
 						$id_section = 'null';
@@ -126,8 +126,8 @@ class Translation {
 						'language_code'=>$llang_code,
 						'section_id'=>$id_section,
 						'zone_id'=>$id_zone,
-						'in_module'=>strlen($lmodule) ? $lmodule : 'null',
-						'in_method'=>strlen($lmethod) ? $lmethod : 'null',
+						'in_module'=>strlen($lmodule) ? $lmodule : NULL,
+						'in_method'=>strlen($lmethod) ? $lmethod : NULL,
 					]);
 				} catch(\PAF\AppException $e) {
 					NApp::_Elog($e->getMessage(),'LanguageInit');
