@@ -150,6 +150,7 @@ class SmartComboBox extends Control {
 
 		switch($this->load_type) {
 			case 'ajax':
+			    $litems->add([''=>''],TRUE);
 			    $initData = [];
 			    if($s_values->count()) {
 			        foreach($s_values as $sv) {
@@ -164,10 +165,7 @@ class SmartComboBox extends Control {
                         foreach($this->option_data as $od) { $s_item[$od] = $sv->getProperty($od); }
                         $initData[] = $s_item;
                     }//END foreach
-				} else {
-			        $initData[] = [''=>''];
 			    }//if($s_values->count())
-			    $initData = json_encode($initData);
 				$tagauid = \PAF\AppSession::GetNewUID($this->tagid,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
@@ -198,7 +196,7 @@ class SmartComboBox extends Control {
 						data: {$ac_data_func},
 				processResults: function(data,params) { return { results: data }; }
 					},
-            data: {$initData},
+            ".(count($initData) ? 'data: '.json_encode($initData).',' : '')."
 			escapeMarkup: function(markup) { return markup; },
 			templateResult: function(item) { return item.name; },\n";
 					if(is_string($this->template_selection) && strlen($this->template_selection)) {
@@ -241,22 +239,14 @@ class SmartComboBox extends Control {
 		// NApp::_Dlog($js_script,'$js_script');
 		$roptions = '';
 		$def_record = FALSE;
-		$s_multiple = $this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1' ? ' multiple="multiple"' : '';
+		$s_multiple = '';
+		if($this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1') { $s_multiple = ' multiple="multiple"'; }
 		foreach($litems as $item) {
 		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
 				$roptions .= "\t\t\t<option></option>\n";
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
-			if($this->load_type=='ajax') {
-				// $lval = get_array_value($item,$this->valfield,'null','isset');
-				// $ltext = get_array_value($item,is_string($this->displayfield)?$this->displayfield:'_text_','','is_string');
-				// $lselected = ' selected="selected"';
-				// $o_data = '';
-				// NApp::_Dlog($this->option_data,'$this->option_data');
-                // foreach($this->option_data as $od) {
-                //     $o_data .= ' data-'.$od.'="'.get_array_value($item,$od,'null','is_string').'"';
-                // }//END foreach
-			} else {
+			if($this->load_type!='ajax') {
 				$lval = $item->getProperty($this->valfield,'null','isset');
 				$ltext = $this->GetDisplayFieldValue($item);
 				$lselected = '';
@@ -275,7 +265,7 @@ class SmartComboBox extends Control {
                 foreach($this->option_data as $od) {
                     $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'null','is_string').'"';
 					}//END foreach
-			}//if($this->load_type=='ajax')
+			}//if($this->load_type!='ajax')
 			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
 		}//END foreach
 		// final result processing

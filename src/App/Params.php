@@ -255,14 +255,24 @@ class Params implements Collection {
     /**
 	 * @param string|int  $key
 	 * @param mixed       $default_value
+     * @param null        $format
 	 * @param string|null $validation
 	 * @param string|null $sub_key
 	 * @return mixed
 	 */
     public function safeGetValue($key,$default_value = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
     {
-        $validation = $validation ? $validation : 'is_string';
+        if(!strlen($validation)) {
+            if(strlen($format)) {
+                $validation = in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;
+            } else {
+                $validation = 'isset';
+            }
+        }
+        if(isset($sub_key)) {
         return get_array_value($this->elements,[$key,$sub_key],$default_value,$validation);
+        }
+        return get_array_value($this->elements,$key,$default_value,$validation);
     }
     /**
      * {@inheritDoc}
