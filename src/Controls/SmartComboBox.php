@@ -229,7 +229,7 @@ class SmartComboBox extends Control {
 		}//END switch
 		$js_script .= "\t\t})";
 		// NApp::_Dlog($this->tagid,'$this->tagid');
-		NApp::_Dlog($js_script,'$js_script');
+		// NApp::_Dlog($js_script,'$js_script');
 		$roptions = '';
 		$def_record = FALSE;
 		$s_multiple = $this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1' ? ' multiple="multiple"' : '';
