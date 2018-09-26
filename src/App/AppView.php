@@ -52,7 +52,7 @@ class AppView {
 	 * @var int View type
 	 * @access protected
 	 */
-	protected $_type = CONTENT_ONLY_VIEW;
+	protected $_type = self::CONTENT_ONLY;
 	/**
 	 * @var string|null View theme
 	 * @access protected
