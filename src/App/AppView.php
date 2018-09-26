@@ -14,40 +14,40 @@ use PAF\AppException;
 use \NApp;
 
 /**
- * Content only (no theme container)
- */
-define('CONTENT_ONLY_VIEW',0);
-/**
- * Main content view type (main content theme container)
- */
-define('MAIN_CONTENT_VIEW',1);
-/**
- * Modal content view type (modal content theme container)
- */
-define('MODAL_CONTENT_VIEW',2);
-/**
- * Secondary content view type (sub-content in main content theme container)
- */
-define('SECONDARY_CONTENT_VIEW',3);
-/**
- * Sub-container content view type
- */
-define('SUB_CONTAINER_CONTENT_VIEW',4);
-/**
- * TableView control view container
- */
-define('TABLE_VIEW_CONTENT',5);
-/**
- * Generic view type (theme generic container)
- */
-define('GENERIC_CONTENT_VIEW',10);
-/**
  * Application BaseView class
  *
  * @package    NETopes\Core\App
  * @abstract
  */
 class AppView {
+    /**
+     * Content only (no theme container)
+     */
+    const CONTENT_ONLY = 0;
+    /**
+     * Main content view type (main content theme container)
+     */
+    const MAIN_CONTENT = 1;
+    /**
+     * Modal content view type (modal content theme container)
+     */
+    const MODAL_CONTENT = 2;
+    /**
+     * Secondary content view type (sub-content in main content theme container)
+     */
+    const SECONDARY_CONTENT = 3;
+    /**
+     * Sub-container content view type
+     */
+    const SUB_CONTAINER_CONTENT = 4;
+    /**
+     * TableView control view container
+     */
+    const TABLE_VIEW_CONTENT = 5;
+    /**
+     * Generic view type (theme generic container)
+     */
+    const GENERIC_CONTENT = 10;
 	/**
 	 * @var int View type
 	 * @access protected
@@ -458,7 +458,7 @@ class AppView {
 		}//if(strlen($this->theme))
 		if(!is_object($themeObj)) { return $main ? implode("\n",$this->_actions)."\n".$content : $content; }
 		switch($type) {
-			case MAIN_CONTENT_VIEW:
+			case self::MAIN_CONTENT:
 				ob_start();
 				if($main) {
 				$themeObj->GetMainContainer($this->HasActions(),$this->HasTitle());
@@ -467,7 +467,7 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
 				break;
-			case MODAL_CONTENT_VIEW:
+			case self::MODAL_CONTENT:
 				ob_start();
 				if($main) {
 				$themeObj->GetModalContainer($this->HasActions(),$this->HasTitle());
@@ -482,7 +482,7 @@ class AppView {
 					$this->AddJsScript($mJsScript);
 				}//if($main && $this->_modalAutoJs)
 				break;
-			case SECONDARY_CONTENT_VIEW:
+			case self::SECONDARY_CONTENT:
 				ob_start();
 				if($main) {
 				$themeObj->GetSecondaryContainer($this->HasActions(),$this->HasTitle());
@@ -491,7 +491,7 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
 				break;
-            case SUB_CONTAINER_CONTENT_VIEW:
+            case self::SUB_CONTAINER_CONTENT:
                 ob_start();
 				if($main) {
 				    $themeObj->GetSubContainer($this->HasActions(),$this->HasTitle());
@@ -500,7 +500,7 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
 				break;
-            case TABLE_VIEW_CONTENT:
+            case self::TABLE_VIEW_CONTENT:
                 ob_start();
 				if($main) {
 				    $themeObj->GetTableViewContainer($this->HasActions(),$this->HasTitle());
@@ -509,7 +509,7 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
                 break;
-			case GENERIC_CONTENT_VIEW:
+			case self::GENERIC_CONTENT:
 				ob_start();
 				if($main) {
 				$themeObj->GetGenericContainer($this->HasActions(),$this->HasTitle());
@@ -518,7 +518,7 @@ class AppView {
 				}//if($main)
 				$container = ob_get_clean();
 				break;
-			case CONTENT_ONLY_VIEW:
+			case self::CONTENT_ONLY:
 				return $content;
 			default:
 				if($this->_debug) { NApp::_Dlog('Invalid view type ['.$type.']!'); }

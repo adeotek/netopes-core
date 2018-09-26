@@ -27,9 +27,13 @@ use NApp;
  */
 class FirebirdSqlAdapter extends SqlDataAdapter {
     /**
-     * Objects names enclosing symbol
+     * Objects names enclosing start symbol
      */
-    const ENCLOSING_SYMBOL = '"';
+    const ENCLOSING_START_SYMBOL = '"';
+    /**
+     * Objects names enclosing end symbol
+     */
+    const ENCLOSING_END_SYMBOL = '"';
 	/**
 	 * Get startup query string
 	 *
@@ -256,6 +260,36 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		return $blob_id;
 	}//END public function AddBlobParam
+	/**
+     * @param mixed $sort
+     * @return string
+     */
+    private function GetOrderBy($sort): string {
+        $result = '';
+		if(is_array($sort)) {
+			foreach ($sort as $k=>$v) { $result .= ($result ? ' ,' : ' ').self::ENCLOSING_START_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_END_SYMBOL.' '.strtoupper($v); }
+			$result = strlen(trim($result)) ? ' ORDER BY'.$result.' ' : '';
+		} elseif(strlen($sort)) {
+			$result = " ORDER BY {$sort} ASC ";
+		}//if(is_array($sort))
+		return $result;
+    }//END private function GetOrderBy
+    /**
+     * @param $firstrow
+     * @param $lastrow
+     * @return string
+     */
+    private function GetOffsetAndLimit($firstrow,$lastrow): string {
+        $result = '';
+        if(is_numeric($firstrow) && $firstrow>0) {
+            if(is_numeric($lastrow) && $lastrow>0) {
+                $result .= ' ROWS '.$firstrow.' TO '.$lastrow;
+            } else {
+                $result .= ' ROWS '.$firstrow;
+            }//if(is_numeric($lastrow) && $lastrow>0)
+        }//if(is_numeric($firstrow) && $firstrow>0)
+		return $result;
+    }//END private function GetOffsetAndLimit
     /**
      * @param array $condition
      * @return string
@@ -339,7 +373,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END switch
         if(!$conditionString || !$filterValue) { return ''; }
 
-		$result = ' '.self::ENCLOSING_SYMBOL.strtoupper($field).self::ENCLOSING_SYMBOL;
+		$result = ' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
 		$result .= ' '.$conditionString.' '.$filterValue;
         return $result;
 	}//END private function GetFilterCondition
@@ -366,17 +400,17 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
-			foreach($params as $k=>$v) {
-				if(strlen($v)>4000) {
-					$bpid = $this->AddBlobParam($this->EscapeString($v),$transaction);
-					if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
+		    foreach($this->EscapeString($params) as $k=>$v) {
+                if(strlen($v)>4000) {
+                    $bpid = $this->AddBlobParam($v,$transaction);
+                    if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
 					if(!is_array($bind_params)) { $bind_params = []; }
 					$bind_params[] = $bpid;
 					$query = str_replace('{{'.$k.'}}','?',$query);
-				} else {
-					$query = str_replace('{{'.$k.'}}',$this->EscapeString($v),$query);
-				}//if(strlen($v)>4000)
-			}//END foreach
+                } else {
+                    $query = str_replace('{{'.$k.'}}',$v,$query);
+                }//if(strlen($v)>4000)
+            }//END foreach
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
@@ -387,7 +421,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 				$filter_prefix =  ' AND (';
 				$filter_sufix = ') ';
 			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
-			foreach ($filters as $v) {
+			foreach($filters as $v) {
 				if(is_array($v)) {
 				    $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
                     $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
@@ -395,27 +429,16 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 					$filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
 				}//if(is_array($v))
 			}//END foreach
-			$filter_str = strlen(trim($filter_str))>0 ? $filter_prefix.$filter_str.$filter_sufix : '';
-		} elseif(strlen($filters)) {
+			$filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+		} elseif(is_string($filters) && strlen($filters)) {
 			$filter_str = " {$filters} ";
 		}//if(is_array($filters))
 		$query .= $filter_str;
 		$raw_query = $query;
 		if($type=='count') { return; }
-		$sort_str = '';
-		if(is_array($sort)) {
-			foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ').self::ENCLOSING_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_SYMBOL.' '.strtoupper($v); }
-			$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
-		} elseif(strlen($sort)>0) {
-			$sort_str = " ORDER BY {$sort} ASC ";
-		}//if(is_array($sort))
-		$query .= $sort_str;
-		if(is_numeric($firstrow) && $firstrow>0 && is_numeric($lastrow) && $lastrow>0) {
-			$query .= ' ROWS '.$firstrow.' TO '.$lastrow;
-		} elseif(is_numeric($firstrow) && $firstrow>0) {
-			$query .= ' ROWS '.$firstrow;
-		}//if(is_numeric($firstrow) && $firstrow>0 && is_numeric($lastrow) && $lastrow>0)
-	}//public function FirebirdSqlPrepareQuery
+		$query .= $this->GetOrderBy($sort);
+		$query .= $this->GetOffsetAndLimit($firstrow,$lastrow);
+	}//END public function FirebirdSqlPrepareQuery
 	/**
 	 * Executes a query against the database
 	 *
@@ -518,48 +541,45 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 */
 	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
-			if(count($params)>0) {
+			if(count($params)) {
 				$parameters = '';
 				foreach($this->EscapeString($params) as $p) {
 					if(strlen($p)>4000) {
 						$bpid = $this->AddBlobParam($p,$transaction);
-						if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) {
-							throw new AppException('Invalid query parameter!',E_USER_ERROR);
-						}
+						if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
 						if(!is_array($bind_params)) { $bind_params = []; }
 						$bind_params[] = $bpid;
-						//
-						$parameters .= (strlen($parameters)>0 ? ',?' : '(?');
+						$parameters .= (strlen($parameters) ? ',?' : '(?');
 					} else {
-						$parameters .= (strlen($parameters)>0 ? ',' : '(').(strtolower($p)=='null' ? 'NULL' : "'{$p}'");
+						$parameters .= (strlen($parameters) ? ',' : '(').(is_null($p) ? 'NULL' : "'{$p}'");
 					}//if(strlen($p)>4000)
 				}//END foreach
 				$parameters .= ')';
-			}else{
+			} else {
 				$parameters = '';
-			}//if(count($params)>0)
+			}//if(count($params))
 		} else {
 			$parameters = $params;
 		}//if(is_array($params))
 		$filter_str = '';
-		if(is_array($filters)) {
-			$filter_prefix = ' WHERE ';
-			$filter_sufix = ' ';
-			foreach ($filters as $v) {
-				if(is_array($v)) {
-				    $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
-                    $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
-				} else {
-					$filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
-				}//if(is_array($v))
-			}//END foreach
-			$filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
-		} elseif(strlen($filters)) {
-			$filter_str = strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
-		}//if(is_array($filters))
 		if(strtolower($type)=='execute') {
 			$raw_query = $procedure.$parameters;
 		} else {
+            if(is_array($filters)) {
+                $filter_prefix = ' WHERE ';
+                $filter_sufix = ' ';
+                foreach($filters as $v) {
+                    if(is_array($v)) {
+                        $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                        $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
+                    } else {
+                        $filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
+                    }//if(is_array($v))
+                }//END foreach
+                $filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+            } elseif(is_string($filters) && strlen($filters)) {
+                $filter_str = strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
+            }//if(is_array($filters))
 			$raw_query = $procedure.$parameters.$filter_str;
 		}//if(strtolower($type)=='execute')
 		switch(strtolower($type)) {
@@ -571,22 +591,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 				break;
 			case 'select':
 			default:
-				$sort_str = '';
-				if(is_array($sort)) {
-				    foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ').self::ENCLOSING_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_SYMBOL.' '.strtoupper($v); }
-					$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
-				} elseif(strlen($sort)) {
-					$sort_str = " ORDER BY {$sort} ASC ";
-				}//if(is_array($sort))
-				if(is_numeric($firstrow) && $firstrow>0) {
-					if(is_numeric($lastrow) && $lastrow>0) {
-						$query = 'SELECT * FROM '.$procedure.$parameters.$filter_str.$sort_str.' ROWS '.$firstrow.' TO '.$lastrow;
-					} else {
-						$query = 'SELECT * FROM '.$procedure.$parameters.$filter_str.$sort_str.' ROWS '.$firstrow;
-					}//if(is_numeric($lastrow) && $lastrow>0)
-				} else {
-					$query = 'SELECT * FROM '.$procedure.$parameters.$filter_str.$sort_str;
-				}//if(is_numeric($firstrow) && $firstrow>0)
+			    $query = 'SELECT * FROM '.$procedure.$parameters.$filter_str;
+			    $query .= $this->GetOrderBy($sort);
+		        $query .= $this->GetOffsetAndLimit($firstrow,$lastrow);
 				break;
 		}//END switch
 		return $query;

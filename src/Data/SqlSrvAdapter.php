@@ -26,9 +26,13 @@ use NApp;
  */
 class SqlSrvAdapter extends SqlDataAdapter {
     /**
-     * Objects names enclosing symbol
+     * Objects names enclosing start symbol
      */
-    const ENCLOSING_SYMBOL = '"';
+    const ENCLOSING_START_SYMBOL = '[';
+    /**
+     * Objects names enclosing end symbol
+     */
+    const ENCLOSING_END_SYMBOL = ']';
 	/**
 	 * @var    int Time to wait befor rising deadlock error (in seconds)
 	 * @access protected
@@ -233,6 +237,123 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
 		return FALSE;
 	}//END public function SqlSrvCommitTran
+	/**
+     * @param mixed $sort
+     * @return string
+     */
+    private function GetOrderBy($sort): string {
+        $result = '';
+		if(is_array($sort)) {
+			foreach ($sort as $k=>$v) { $result .= ($result ? ' ,' : ' ').self::ENCLOSING_START_SYMBOL.strtoupper(trim($k,' "')).self::ENCLOSING_END_SYMBOL.' '.strtoupper($v); }
+			$result = strlen(trim($result)) ? ' ORDER BY'.$result.' ' : '';
+		} elseif(strlen($sort)) {
+			$result = " ORDER BY {$sort} ASC ";
+		}//if(is_array($sort))
+		return $result;
+    }//END private function GetOrderBy
+    /**
+     * @param $firstrow
+     * @param $lastrow
+     * @return string
+     */
+    private function GetOffsetAndLimit($firstrow,$lastrow): string {
+        $result = '';
+        if(is_numeric($firstrow) && $firstrow>0) {
+            if(is_numeric($lastrow) && $lastrow>0) {
+                $result .= ' OFFSET '.($firstrow-1).' ROWS FETCH NEXT '.($lastrow-$firstrow+1).' ROWS ONLY';
+            } else {
+                $result .= ' OFFSET 0 ROWS FETCH NEXT '.$firstrow.' ROWS ONLY';
+            }//if(is_numeric($lastrow) && $lastrow>0)
+        }//if(is_numeric($firstrow) && $firstrow>0)
+		return $result;
+    }//END private function GetOffsetAndLimit
+    /**
+     * @param array $condition
+     * @return string
+     */
+    private function GetFilterCondition(array $condition): string {
+        $cond = get_array_value($condition,'condition',NULL,'is_notempty_string');
+        if($cond) { return $cond; }
+        $field = get_array_value($condition,'field',NULL,'is_notempty_string');
+        if(!$field) { return ''; }
+        $dataType = get_array_value($condition,'data_type',NULL,'is_notempty_string');
+        $conditionType = get_array_value($condition,'condition_type','==','is_notempty_string');
+        $conditionString = NULL;
+        $filterValue = NULL;
+
+        switch(strtolower($conditionType)) {
+            case 'like':
+            case 'notlike':
+                $conditionString = strtolower($conditionType)=='like' ? 'LIKE' : 'NOT LIKE';
+                $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
+                if(isset($filterValue)) { $filterValue = "'%".$filterValue."%'"; }
+                break;
+            case '==':
+            case '<>':
+                $conditionString = $conditionType=='==' ? '=' : $conditionType;
+                $nullConditionString = 'IS '.($conditionType=='<>' ? ' NOT ' : '').'NULL';
+                if(strtolower($dataType)=='string') {
+                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_string'));
+                    $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                } else {
+                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $filterValueS = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,0);
+                        $filterValueE = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,1);
+                        $conditionString = ($conditionType=='<>' ? 'NOT ' : '').'BETWEEN';
+                        $filterValue = "'".$filterValueS."' AND '".$filterValueE."'";
+                    } elseif(in_array(strtolower($dataType),['datetime','datetime_obj'])) {
+                        $filterValue = Validator::ConvertDateTimeToDbFormat($filterValue);
+                        $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                    } else {
+                        $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                    }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                }//if(strtolower($dataType)=='string')
+                break;
+            case '<=':
+            case '>=':
+                $conditionString = $conditionType;
+                $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $daypart = ($conditionType=='<=' ? 1 : 0);
+                    } else {
+                        $daypart = NULL;
+                    }//if(in_array(strtolower($dataType),['date','date_obj']))
+                    $filterValue = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,$daypart);
+                }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                if(isset($filterValue)) { $filterValue = "'".$filterValue."'"; }
+                break;
+            case '><':
+                $conditionString = 'BETWEEN';
+                $filterValueS = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                $filterValueE = $this->EscapeString(get_array_param($condition,'svalue',NULL,'?is_notempty_string'));
+                if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
+                    if(in_array(strtolower($dataType),['date','date_obj'])) {
+                        $daypart = 0;
+                        $sdaypart = 1;
+                    } else {
+                        $daypart = NULL;
+                        $sdaypart = NULL;
+                    }//if(in_array(strtolower($dataType),['date','date_obj']))
+                    $filterValueS = Validator::ConvertDateTimeToDbFormat($filterValueS,NULL,$daypart);
+                    $filterValueE = Validator::ConvertDateTimeToDbFormat($filterValueE,NULL,$sdaypart);
+                }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
+                if(isset($filterValueS) && isset($filterValueE)) { $filterValue = "'".$filterValueS."' AND '".$filterValueE."'"; }
+                break;
+            case 'is':
+            case 'isnot':
+                $conditionString = strtolower($conditionType)=='like' ? 'IS' : 'IS NOT';
+                $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
+                $filterValue = isset($filterValue) ? "'".$filterValue."'" : 'NULL';
+                break;
+		}//END switch
+        if(!$conditionString || !$filterValue) { return ''; }
+
+		$result = ' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
+		$result .= ' '.$conditionString.' '.$filterValue;
+        return $result;
+	}//END private function GetFilterCondition
     /**
      * Prepares the query string for execution
      *
@@ -255,7 +376,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      */
 	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)){
-			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',self::SqlSrvEscapeString($v),$query); }
+			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',$this->EscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
 		if(is_array($filters)) {
@@ -266,133 +387,45 @@ class SqlSrvAdapter extends SqlDataAdapter {
 				$filter_prefix =  ' AND (';
 				$filter_sufix = ') ';
 			}//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
-			foreach ($filters as $v) {
+			foreach($filters as $v) {
 				if(is_array($v)) {
-					if(count($v)==4) {
-						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
-						if(!$ffield) { continue; }
-						$dtype = get_array_value($v,'data_type',NULL,'is_notempty_string');
-						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
-						switch(strtolower($fcond)) {
-							case 'like':
-							    $fvalue = $this->EscapeString(get_array_value($v,'value',NULL,'?is_notempty_string'));
-							    if(is_null($fvalue)) { continue; }
-							    $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] LIKE'." '%{$fvalue}%'";
-								break;
-							case 'notlike':
-							    $fvalue = $this->EscapeString(get_array_value($v,'value',NULL,'?is_notempty_string'));
-							    if(is_null($fvalue)) { continue; }
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] NOT LIKE'." '%{$fvalue}%'";
-								break;
-							case '==':
-							case '<>':
-							case '<=':
-							case '>=':
-                                switch(strtolower($dtype)) {
-                                    case 'date':
-                                    case 'datetime':
-                                    case 'datetime_obj':
-                                        switch(strtolower($fcond)) {
-                                            case '==':
-                                                $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
-                                                $fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,1);
-                                                $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-                                                break;
-                                            case '<>':
-                                                $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
-                                                $fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,1);
-                                                $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] NOT BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-                                                break;
-                                            case '<=':
-                                                $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,1);
-                                                $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.$fcond." '".$fvalue."'";
-                                                break;
-                                            case '>=':
-                                                $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
-                                                $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.$fcond." '".$fvalue."'";
-                                                break;
-                                        }//END switch
-                                        break;
-                                    default:
-                                        $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.$fcond." '".$fvalue."'";
-                                        break;
-                                }//END switch
-                                break;
-                            case 'is':
-                            case 'is not':
-                                $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ['.strtoupper($ffield).'] '.strtoupper($fcond).' '.$fvalue;
-                                break;
-                            case '><':
-                                $fsvalue = self::SqlSrvEscapeString(get_array_value($v,'svalue',NULL,'is_notempty_string'));
-                                if(is_null($fsvalue)) { continue; }
-                                switch(strtolower($dtype)) {
-                                    case 'date':
-                                    case 'datetime':
-                                    case 'datetime_obj':
-                                        $fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
-                                        $fsvalue = Validator::ConvertDateTimeToDbFormat($fsvalue,NULL,1);
-                                        $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-                                        break;
-                                    default:
-                                        $filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-                                        break;
-                                }//END switch
-								break;
-							default:
-								continue;
-								break;
-						}//END switch
-					} elseif(count($v==2)) {
-						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
-						if(!$cond){ continue; }
-						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
-						$filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').$cond;
-					}//if(count($v)==4)
-				}else{
-					$filter_str .= ($filter_str ? ' AND ' : ' ').$v;
+				    $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                    $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
+				} else {
+					$filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
 				}//if(is_array($v))
 			}//END foreach
-			$filter_str = strlen(trim($filter_str))>0 ? $filter_prefix.$filter_str.$filter_sufix : '';
-		} elseif(strlen($filters)>0) {
+			$filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+		} elseif(is_string($filters) && strlen($filters)) {
 			$filter_str = " {$filters} ";
 		}//if(is_array($filters))
 		$query .= $filter_str;
 		$raw_query = $query;
-		if($type=='count'){ return; }
-		$sort_str = '';
-		if(is_array($sort)) {
-			foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ')."{$k} {$v}"; }
-			$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
-		} elseif(strlen($sort)>0) {
-			$sort_str = " ORDER BY {$sort} ASC ";
-		}//if(is_array($sort))
-		$query .= $sort_str;
-		if(is_numeric($firstrow) && $firstrow>0) {
-			if(is_numeric($lastrow) && $lastrow>0) {
-				$query.' OFFSET '.($firstrow-1).' ROWS FETCH NEXT '.($lastrow-$firstrow+1).' ROWS ONLY';
-			} else {
-				$query.' OFFSET 0 ROWS FETCH NEXT '.$firstrow.' ROWS ONLY';
-			}//if(is_numeric($lastrow) && $lastrow>0)
-		}//if(is_numeric($firstrow) && $firstrow>0)
+		if($type=='count') { return; }
+		$query .= $this->GetOrderBy($sort);
+		$query .= $this->GetOffsetAndLimit($firstrow,$lastrow);
 	}//public function SqlSrvPrepareQuery
-	/**
-	 * Executes a query against the database
-	 *
-	 * @param  string $query The query string
-	 * @param  array $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
-	 * @param  string $tran_name Name of transaction in which the query will run
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @return array|bool Returns database request result
-	 * @access public
-	 */
+    /**
+     * Executes a query against the database
+     *
+     * @param  string $query The query string
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $tran_name Name of transaction in which the query will run
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'lastrow' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'firstrow')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param null    $filters
+     * @param bool    $log
+     * @param null    $results_keys_case
+     * @param null    $custom_tran_params
+     * @return array|bool Returns database request result
+     * @access public
+     */
 	public function SqlSrvExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		$raw_query = NULL;
@@ -448,24 +481,26 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		$this->DbDebug($query,'Query',$time);
 		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function SqlSrvExecuteQuery
-	/**
-	 * Prepares the command string to be executed
-	 *
-	 * @param  string $procedure The name of the stored procedure
-	 * @param  array $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
-	 * @param  array $sort An array of fields to compose ORDER BY clause
-	 * @param  array $filters An array of condition to be applied in WHERE clause
-	 * @param  string $row_query By reference parameter that will store row query string
-	 * @return string|resource Returns processed command string or the statement resource
-	 * @access protected
-	 */
+    /**
+     * Prepares the command string to be executed
+     *
+     * @param  string $procedure The name of the stored procedure
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'lastrow' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'firstrow')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $sql_params
+     * @param null    $transaction
+     * @return string|resource Returns processed command string or the statement resource
+     * @access protected
+     */
 	protected function SqlSrvPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$sql_params = NULL,$transaction = NULL) {
 		$parameters = '';
 		// With output parameters
@@ -490,111 +525,28 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		// Without output parameters
 		if(is_array($params) && count($params)) {
 			foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
-				$parameters .= (strlen($parameters)>0 ? ', ' : ' ').(strtolower($type)=='execute' ? '@'.strtoupper($n).' = ' : '').(strtolower($p)==='null' ? 'NULL' : "'{$p}'");
+				$parameters .= (strlen($parameters)>0 ? ', ' : ' ').(strtolower($type)=='execute' ? '@'.strtoupper($n).' = ' : '').(is_null($p) ? 'NULL' : "'{$p}'");
 			}//END foreach
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
-		if(is_array($filters)) {
-			$filter_prefix = ' WHERE ';
-			$filter_sufix = ' ';
-			foreach($filters as $v) {
-				if(is_array($v)) {
-					if(count($v)>2) {
-						$ffield = get_array_value($v,'field',NULL,'is_notempty_string');
-						$dtype = get_array_value($v,'data_type',NULL,'is_notempty_string');
-						if(strtolower($dtype)=='string') {
-							$fvalue = self::EscapeString(get_array_value($v,'value',NULL,'is_string'));
-						} else {
-							$fvalue = self::EscapeString(get_array_value($v,'value',NULL,'is_notempty_string'));
-						}//if(strtolower($dtype)=='string')
-						if(!$ffield || is_null($fvalue)) { continue; }
-						$fcond = get_array_value($v,'condition_type','=','is_notempty_string');
-						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
-						switch(strtolower($fcond)) {
-							case 'like':
-							case 'not like':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.strtoupper($fcond).(strtolower($fvalue)==='null' ? ' NULL)' : " '%{$fvalue}%')");
-								break;
-							case '==':
-							case '<>':
-							case '<=':
-							case '>=':
-								$daypart = NULL;
-								$sdaypart = NULL;
-								switch(strtolower($dtype)) {
-									case 'date':
-									case 'date_obj':
-										$daypart = 0;
-										$sdaypart = 1;
-									case 'datetime':
-									case 'datetime_obj':
-										switch(strtolower($fcond)) {
-											case '==':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart);
-												$fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}')";
-												break;
-											case '<>':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart);
-												$fsvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] NOT BETWEEN '{$fvalue}' AND '{$fsvalue}')";
-												break;
-											case '<=':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$sdaypart);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.$fcond." '".$fvalue."')";
-												break;
-											case '>=':
-												$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,$daypart);
-												$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.$fcond." '".$fvalue."')";
-												break;
-										}//END switch
-										break;
-									default:
-										$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.$fcond." '".$fvalue."'".')';
-										break;
-								}//END switch
-								break;
-							case 'is':
-							case 'is not':
-								$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield).'] '.strtoupper($fcond).' '.$fvalue.')';
-								break;
-							case '><':
-								$fsvalue = self::SqlSrvEscapeString(get_array_value($v,'svalue',NULL,'is_notempty_string'));
-								if(is_null($fsvalue)) { continue; }
-								switch(strtolower($dtype)) {
-									case 'date':
-									case 'datetime':
-									case 'datetime_obj':
-										$fvalue = Validator::ConvertDateTimeToDbFormat($fvalue,NULL,0);
-										$fsvalue = Validator::ConvertDateTimeToDbFormat($fsvalue,NULL,1);
-										$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-										break;
-									default:
-										$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' (['.strtoupper($ffield)."] BETWEEN '{$fvalue}' AND '{$fsvalue}') ";
-										break;
-								}//END switch
-								break;
-							default:
-								continue;
-								break;
-						}//END switch
-					} elseif(count($v==2)) {
-						$cond = get_array_value($v,'condition',NULL,'is_notempty_string');
-						if(!$cond){ continue; }
-						$sep = get_array_value($v,'logical_separator','AND','is_notempty_string');
-						$filter_str .= ($filter_str ? ' '.strtoupper($sep) : '').' ('.$cond.')';
-					}//if(count($v)==4)
-				} else {
-					$filter_str .= ($filter_str ? ' AND' : '').' ('.$v.')';
-				}//if(is_array($v))
-			}//END foreach
-			$filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
-		} elseif(is_string($filters) && strlen($filters)) {
-			$filter_str = strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
-		}//if(is_array($filters))
 		if(strtolower($type)=='execute') {
-			$raw_query = $procedure.$parameters;
-		} else {
+		    $raw_query = $procedure.$parameters;
+        } else {
+            if(is_array($filters)) {
+                $filter_prefix = ' WHERE ';
+                $filter_sufix = ' ';
+                foreach($filters as $v) {
+                    if(is_array($v)) {
+                        $sep = strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                        $filter_str .= ($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
+                    } else {
+                        $filter_str .= ($filter_str ? ' AND ' : ' ').'('.$v.')';
+                    }//if(is_array($v))
+                }//END foreach
+                $filter_str = strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+            } elseif(is_string($filters) && strlen($filters)) {
+                $filter_str = strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
+            }//if(is_array($filters))
 			$raw_query = $procedure.'('.$parameters.')'.$filter_str;
 		}//if(strtolower($type)=='execute')
 		switch(strtolower($type)) {
@@ -606,22 +558,9 @@ class SqlSrvAdapter extends SqlDataAdapter {
 				break;
 			case 'select':
 			default:
-				$sort_str = '';
-				if(is_array($sort)) {
-					foreach ($sort as $k=>$v) { $sort_str .= ($sort_str ? ' ,' : ' ')."{$k} {$v}"; }
-					$sort_str = strlen(trim($sort_str))>0 ? ' ORDER BY'.$sort_str.' ' : '';
-				} elseif(strlen($sort)>0) {
-					$sort_str = " ORDER BY {$sort} ASC ";
-				}//if(is_array($sort))
-				if(is_numeric($firstrow) && $firstrow>0) {
-					if(is_numeric($lastrow) && $lastrow>0) {
-						$query = 'SELECT * FROM '.$procedure.'('.$parameters.')'.$filter_str.$sort_str.' OFFSET '.($firstrow-1).' ROWS FETCH NEXT '.($lastrow-$firstrow+1).' ROWS ONLY';
-					} else {
-						$query = 'SELECT TOP '.$firstrow.' * FROM '.$procedure.'('.$parameters.')'.$filter_str.$sort_str;
-					}//if(is_numeric($lastrow) && $lastrow>0)
-				} else {
-					$query = 'SELECT * FROM '.$procedure.'('.$parameters.')'.$filter_str.$sort_str;
-				}//if(is_numeric($firstrow) && $firstrow>0)
+                $query = 'SELECT * FROM '.$procedure.'('.$parameters.')'.$filter_str;
+			    $query .= $this->GetOrderBy($sort);
+		        $query .= $this->GetOffsetAndLimit($firstrow,$lastrow);
 				break;
 		}//END switch
 		return $query;

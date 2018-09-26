@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\App\ITheme;
 use NETopes\Core\App\Validator;
 use NApp;
 /**
@@ -165,10 +166,10 @@ class BasicForm {
             if($act_type=='CloseModal') {
                 $act_class = 'Button';
                 $act_params['onclick'] = "CloseModalForm('".get_array_value($action,'custom_action','','is_string')."','".get_array_value($action,'targetid','','is_string')."',".intval(get_array_value($action,'dynamic',1,'bool')).")";
-                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(THEME_BTN_DEFAULT) : 'btn btn-default');
+                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(ITheme::BTN_DEFAULT) : 'btn btn-default');
             } else {
                 $act_class = $act_type;
-                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(THEME_BTN_PRIMARY) : 'btn btn-primary');
+                $act_params['class'] = strlen($a_class) ? $a_class : (is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(ITheme::BTN_PRIMARY) : 'btn btn-primary');
             }//if($act_type=='CloseModal')
 			if(!is_string($act_class) || !strlen($act_class)) { continue; }
 			$act_class = '\NETopes\Core\Controls\\'.$act_class;
