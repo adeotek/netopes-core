@@ -706,12 +706,13 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @static
 	 */
 	public static function FirebirdSqlEscapeString($param) {
-		$result = NULL;
 		if(is_array($param)) {
 			$result = [];
-			foreach($param as $k=>$v) { $result[$k] = str_replace("'","''",$v); }
-		} elseif(is_string($param)) { $result = str_replace("'","''",$param); }
+			foreach($param as $k=>$v) { $result[$k] = static::FirebirdSqlEscapeString($v); }
 		return $result;
+		}//if(is_array($param))
+		if(is_scalar($param)) { return str_replace("'","''",$param); }
+		return NULL;
 	}//END public static function FirebirdSqlEscapeString
 	/**
 	 * Escapes single quote character from a string
@@ -722,7 +723,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @access public
 	 */
 	public function EscapeString($param) {
-		return self::FirebirdSqlEscapeString($param);
+		return static::FirebirdSqlEscapeString($param);
 	}//END public function EscapeString
 }//END class FirebirdSqlDbAdapter extends SqlDataAdapter
 ?>

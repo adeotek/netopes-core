@@ -1105,6 +1105,7 @@ abstract class CoreNApp extends \PAF\App {
             $this->SetParam('id_zone',$appdata->getProperty('id_zone'));
             $this->SetParam('zone_code',$appdata->getProperty('zone_code'));
             $this->SetParam('id_account',$appdata->getProperty('id_account'));
+            $this->SetPageParam('id_account',$appdata->getProperty('id_account'));
             $this->SetParam('account_type',$appdata->getProperty('account_type'));
             $this->SetParam('account_name',$appdata->getProperty('account_name'));
             $this->SetParam('access_key',$appdata->getProperty('access_key'));
@@ -1301,17 +1302,18 @@ abstract class CoreNApp extends \PAF\App {
 		return $relative_path;
 	}//END public function GetSectionPath
     /**
-     * @param string   $option
-     * @param string   $section
-     * @param int|null $locationId
+     * @param string      $option
+     * @param string      $section
+     * @param null        $defValue
+     * @param null|string $validation
+     * @param int|null    $contextId
      * @return string|null
      * @access public
-     * @throws \Exception
      */
-    public function GetIOption(string $option,string $section = '',?int $locationId = NULL): ?string {
-        if(is_null($locationId)) { $locationId = $this->GetPageParam('location_id'); }
+    public function GetIOption(string $option,string $section = '',$defValue = NULL,?string $validation = NULL,?int $contextId = NULL): ?string {
+        if(is_null($contextId)) { $contextId = $this->GetPageParam(AppConfig::context_id_field()); }
         if(!AppConfig::IsInstanceConfigLoaded()) { $this->LoadInstanceConfig(); }
-        return AppConfig::GetInstanceOption($option,$section,$locationId);
+        return AppConfig::GetInstanceOption($option,$section,$defValue,$validation,$contextId);
 	}//END public function GetIOption
     /**
      * @param array $data
@@ -1320,7 +1322,7 @@ abstract class CoreNApp extends \PAF\App {
      * @access public
      */
     public function SetInstanceConfigData(array $data,bool $raw): array {
-        return AppConfig::SetInstanceConfigData($data,$raw,'id_location');
+        return AppConfig::SetInstanceConfigData($data,$raw,AppConfig::context_id_field());
 	}//END protected function SetInstanceConfigData
 	/**
 	 * Get theme object

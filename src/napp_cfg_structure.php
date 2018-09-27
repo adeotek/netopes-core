@@ -41,6 +41,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_provider_name'=>['access'=>'readonly','default'=>'AdeoTEK Software SRL','validation'=>'is_string'],
 		// Provider URL
 		'app_provider_url'=>['access'=>'readonly','default'=>'http://www.adeotek.com','validation'=>'is_string'],
+		// Application context ID field (ID account/location/etc)
+		'context_id_field'=>['access'=>'readonly','default'=>'id_account','validation'=>'is_notempty_string'],
 		// Enable multi-account support
 		'app_multi_account'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
 		// Enable documents (invoicing) support

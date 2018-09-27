@@ -230,7 +230,7 @@ class PdfReport {
 
     protected function NumberFormat0($data,$column) {
 		if(is_array($column['dbfield'])) { return NULL; }
-		return number_format($data[$column['dbfield']],0,$this->decimal_separator,$this->group_separator);;
+		return number_format($data[$column['dbfield']],0,$this->decimal_separator,$this->group_separator);
 	}//END protected function NumberFormat0
 
 	protected function NumberFormat2($data,$column) {

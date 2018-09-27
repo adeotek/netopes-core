@@ -436,21 +436,6 @@ class Module {
 		return $result;
 	}//END public function GetViewFile
 	/**
-	 * description
-	 *
-	 * @param string $key
-	 * @param mixed $def_value
-	 * @param string $method
-	 * @param string $module
-	 * @return mixed
-	 * @access public
-	 */
-	public function GetCustomisationsData($key = NULL,$def_value = NULL,$method = NULL,$module = NULL) {
-		$current_module = $module ? $module : get_class($this);
-		$current_method = $method ? $method : call_back_trace();
-		return self::GlobalGetCustomisationsData($current_module,$current_method,$key,$def_value);
-	}//END public function GetCustomisationsData
-	/**
 	 * Converts the rights revoked database array to an nested array
 	 * (on 3 levels - module=>method=>rights_revoked)
 	 *

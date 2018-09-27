@@ -96,8 +96,8 @@ class ComboBox extends Control {
                     foreach($this->option_data as $ok=>$ov) {
                         $o_data .= ' data-'.$ok.'="'.$item->getProperty($ov,'null','is_string').'"';
                     }//END foreach
-                } elseif(is_string($this->option_data) && count($this->option_data)) {
-                    $o_data = ' data="'.$item->getProperty($this->option_data,'null','is_string').'"';
+                } elseif(is_string($this->option_data) && strlen($this->option_data)) {
+                    $o_data = ' data-'.$this->option_data.'="'.$item->getProperty($this->option_data,'null','is_string').'"';
                 }//if(is_array($this->option_data))
                 $tmpresult .= "\t\t\t".'<option value="'.$cValue.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ldisplayfield).'</option>'."\n";
             }//foreach

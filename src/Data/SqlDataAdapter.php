@@ -258,7 +258,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name])) {
 			if($overwrite===TRUE) {
 				try {
-					$this->pdo_transactions[$name] = new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);;
+					$this->pdo_transactions[$name] = new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
 					$this->pdo_transactions[$name]->beginTransaction();
 					return $this->pdo_transactions[$name];
 				}catch(\PDOException $e){
@@ -268,7 +268,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 			return null;
 		}//if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name]))
 		try {
-			$this->pdo_transactions[$name] = new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);;
+			$this->pdo_transactions[$name] = new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
 			$this->pdo_transactions[$name]->beginTransaction();
 			return $this->pdo_transactions[$name];
 		}catch(\PDOException $e){
