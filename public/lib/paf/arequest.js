@@ -501,7 +501,7 @@ var ARequest = {
 		};//_utf8Size = function(str)
 		_getType = function(inp) {
 			var match,key,cons,types,type = typeof inp;
-		    if(type === 'object' && !inp) { return null; }
+		    if(type === 'object' && !inp) { return 'null'; }
 			if(type === 'object') {
       			if(!inp.constructor) { return 'object'; }
       			cons = inp.constructor.toString();
