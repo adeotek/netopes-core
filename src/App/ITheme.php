@@ -56,6 +56,11 @@ interface ITheme {
 	 * @param null|string $extra
 	 * @return string
 	 */
+	public function GetBtnInfoClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
 	public function GetBtnSuccessClass(?string $extra = NULL): string;
 	/**
 	 * @param null|string $extra
