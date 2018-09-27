@@ -118,7 +118,7 @@
 				foreach($this->dynamic_params as $dk=>$dv) { $dparams .= "~'dynf[{$dk}]'|$dv"; }
 			}//if(is_array($this->dynamic_params) && count($this->dynamic_params))
 			$dd_action = NApp::arequest()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tagid}:value~'qsearch'|{$this->tagid}-cbo:value~'text'|{$this->tagid}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tagid}'); }");
-			$isvalue = strlen($this->selectedvalue) && $this->selectedvalue!=='null' ? $this->selectedvalue : NULL;
+			$isvalue = strlen($this->selectedvalue) ? $this->selectedvalue : NULL;
 			$demptyval = strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
 			$result = '<div id="'.$this->tagid.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
 			$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.' data-text="'.($isvalue ? $this->selectedtext : '').'"'.$demptyval.'>'."\n";
@@ -175,11 +175,11 @@
 				if(!is_array($this->ds_params) || !array_key_exists($dk,$this->ds_params)) { continue; }
 				$this->ds_params[$dk] = $dv;
 			}//END foreach
-			if($qsearch && $qsearch!='null' && $qsearch!=$selectedtext) {
+			if($qsearch && $qsearch!=$selectedtext) {
 				$s_params = array('faction'=>'add','sessact'=>'filters','fop'=>'and','ftype'=>0,'fcond'=>'like','fvalue'=>$qsearch,'fsvalue'=>'','fdvalue'=>$qsearch,'data_type'=>'');
 			} else {
-				if($selectedvalue && $selectedvalue!='null') { $ifilters[$value_filter] = $selectedvalue; }
-			}//if($qsearch && $qsearch!='null' && $qsearch!=$selectedtext)
+				if($selectedvalue) { $ifilters[$value_filter] = $selectedvalue; }
+			}//if($qsearch && $qsearch!=$selectedtext)
 			$ctrl_params = array(
 				'module'=>$this->module,
 				'method'=>$this->method,

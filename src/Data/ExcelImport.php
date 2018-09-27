@@ -225,7 +225,7 @@ class ExcelImport {
 			foreach($this->fields as $k=>$v) {
 				$da_param = get_array_value($v,'ds_param','','is_string');
 				if(!strlen($da_param) || !array_key_exists($da_param,$lparams)) { continue; }
-				$lparams[$da_param] = get_array_value($row,$k,'null','isset');
+				$lparams[$da_param] = get_array_value($row,$k,NULL,'isset');
 			}//END foreach
 			$result = DataProvider::GetArray($this->ds_name,$this->ds_method,$lparams);
 			if(get_array_value($result,[0,'inserted_id'],0,'is_numeric')==0) {

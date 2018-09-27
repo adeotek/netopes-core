@@ -34,7 +34,7 @@ class Validator {
 	 * @static
 	 */
 	public static function ConvertNumberToDbFormat($number,$decimal_separator = NULL,$group_separator = NULL) {
-		if(strlen($number)==0 || $number=='null') { return 'null'; }
+		if(!is_scalar($number) || strlen($number)==0) { return NULL; }
 		$decimal_separator = $decimal_separator ? $decimal_separator : NApp::_GetParam('decimal_separator');
 		$group_separator = $group_separator ? $group_separator : NApp::_GetParam('group_separator');
 		return str_replace($decimal_separator,'.',str_replace($group_separator,'',$number));
@@ -50,7 +50,7 @@ class Validator {
 	 * @static
 	 */
 	public static function ConvertDateTimeToObject(?string $date,?string $format = NULL,?string $timezone = NULL): ?\DateTime {
-		if(!strlen($date) || $date=='null') { return NULL; }
+		if(!is_scalar($date) || !strlen($date)) { return NULL; }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if(!strlen($format)) { $format = 'Y-m-d H:i:s'; }
@@ -67,13 +67,12 @@ class Validator {
 	 * @param  int    $daypart If set to 0  time is set to "00:00:00.000",
 	 * if set to 1 time is set to "23:59:59.999", else time is set to original value
 	 * @param  bool   $dateonly If set TRUE eliminates the time
-	 * @param bool    $dbnull Null return type: if TRUE ['null'] is returned
 	 * @return string Returns the datetime in the database format
 	 * @access public
 	 * @static
 	 */
-	public static function ConvertDateTimeToDbFormat($date,$timezone = NULL,$daypart = NULL,$dateonly = FALSE,$dbnull = FALSE) {
-		if(!is_string($date) || !strlen($date) || $date=='null') { return ($dbnull ? 'null' : NULL); }
+	public static function ConvertDateTimeToDbFormat($date,$timezone = NULL,$daypart = NULL,$dateonly = FALSE) {
+		if(!is_scalar($date) || !strlen($date)) { return NULL; }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if($daypart===0) {
@@ -102,7 +101,7 @@ class Validator {
 	 * @static
 	 */
 	public static function ConvertDateTimeToDotNetFormat($date,$timezone = NULL,$daypart = NULL,$dateonly = FALSE) {
-		if(!strlen($date) || $date=='null'){ return 'null'; }
+		if(!is_scalar($date) || !strlen($date)) { return NULL; }
 		$timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 		if($daypart===0) {
@@ -170,7 +169,7 @@ class Validator {
 			case 'numeric':
 				if(is_numeric($value)) {
 					$result = $value;
-				} elseif(is_string($value) && strlen($value) && strtolower($value)!='null') {
+				} elseif(is_string($value) && strlen($value)) {
 					$tmp_val = self::ConvertNumberToDbFormat($value);
 					$tmp_val = filter_var($tmp_val,FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 					$result = is_numeric($tmp_val) ? $tmp_val : NULL;
@@ -180,35 +179,35 @@ class Validator {
 				if(is_object($value)) {
 					$result = $value->format('Y-m-d H:i:s.u');
 				} else {
-					$result = ($value && strtolower($value)!='null') ? $value : NULL;
+					$result = $value;
 				}//if(is_object($value))
 				break;
 			case 'u_date':
-				$result = ($value && (!is_string($value) || strtolower($value)!='null')) ? self::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE) : NULL;
+				$result = $value ? self::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE) : NULL;
 				break;
 			case 'u_datetime':
-				$result = ($value && (!is_string($value) || strtolower($value)!='null')) ? self::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE) : NULL;
+				$result = $value ? self::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE) : NULL;
 				break;
 			case 'db_datetime':
-				$result = ($value && strtolower($value)!='null') ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone')) : NULL;
+				$result = $value ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone')) : NULL;
 				break;
 			case 'db_date':
-				$result = ($value && strtolower($value)!='null') ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),NULL,TRUE) : NULL;
+				$result = $value ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),NULL,TRUE) : NULL;
 				break;
 			case 'db_sod_datetime':
-				$result = ($value && strtolower($value)!='null') ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),0) : NULL;
+				$result = $value ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),0) : NULL;
 				break;
 			case 'db_eod_datetime':
-				$result = ($value && strtolower($value)!='null') ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),1) : NULL;
+				$result = $value ? self::ConvertDateTimeToDbFormat($value,NApp::_GetParam('timezone'),1) : NULL;
 				break;
 			case 'dn_date':
-				$result = ($value && (!is_string($value) || strtolower($value)!='null')) ? self::ConvertDateTimeToDotNetFormat($value,NApp::_GetParam('timezone'),TRUE) : NULL;
+				$result = $value ? self::ConvertDateTimeToDotNetFormat($value,NApp::_GetParam('timezone'),TRUE) : NULL;
 				break;
 			case 'dn_datetime':
-				$result = ($value && (!is_string($value) || strtolower($value)!='null')) ? self::ConvertDateTimeToDotNetFormat($value,NApp::_GetParam('timezone'),FALSE) : NULL;
+				$result = $value ? self::ConvertDateTimeToDotNetFormat($value,NApp::_GetParam('timezone'),FALSE) : NULL;
 				break;
 			case 'bool':
-				$result = (strtolower($value)=='true' ? TRUE : (strtolower($value)=='false' ? FALSE : ($value ? TRUE : FALSE)));
+				$result = boolval($value);
 				break;
 			case 'validated':
 				$result = $value ? $value : NULL;
@@ -427,6 +426,10 @@ class Validator {
 			case 'fsizeMB3':
 				if(!is_numeric($lvalue)) { return $def_value; }
 				$result = number_format($lvalue/1024/1024,3,$decimal_sep,$group_sep).' MB';
+				break;
+			case 'limit_text_255':
+				if(!strlen($lvalue)) { return $def_value; }
+				$result = limit_text($lvalue,255);
 				break;
 			case 'limit_text':
 				if(!strlen($lvalue)) { return $def_value; }

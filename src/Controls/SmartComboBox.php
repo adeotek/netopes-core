@@ -247,15 +247,15 @@ class SmartComboBox extends Control {
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
 			if($this->load_type!='ajax') {
-				$lval = $item->getProperty($this->valfield,'null','isset');
+				$lval = $item->getProperty($this->valfield,NULL,'isset');
 				$ltext = $this->GetDisplayFieldValue($item);
 				$lselected = '';
 				foreach($s_values as $sv) {
 				    $lsval = $sv->getProperty($this->valfield,NULL,'isset');
-				    if($lval==$lsval && !(($lsval==='null' && $lval!=='null') || ($lsval!=='null' && $lval==='null'))) {
+				    if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL))) {
 							$lselected = ' selected="selected"';
 							break;
-                    }//if($lval==$lsval && !(($lsval==='null' && $lval!=='null') || ($lsval!=='null' && $lval==='null')))
+                    }//if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL)))
 					}//END foreach
 				if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
 					$def_record = TRUE;
@@ -263,7 +263,7 @@ class SmartComboBox extends Control {
 				}//if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
 				$o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
                 foreach($this->option_data as $od) {
-                    $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'null','is_string').'"';
+                    $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
 					}//END foreach
 			}//if($this->load_type!='ajax')
 			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
