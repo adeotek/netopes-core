@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.2.7.2
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -16,42 +16,6 @@ namespace NETopes\Core\App;
  * @package    NETopes\Core\App
  */
 interface ITheme {
-    /**
-     * Button type DEFAULT
-     */
-    const BTN_DEFAULT = 'default';
-    /**
-     * Button type PRIMARY
-     */
-    const BTN_PRIMARY = 'primary';
-    /**
-     * Button type INFO
-     */
-    const BTN_INFO = 'info';
-    /**
-     * Button type SUCCESS
-     */
-    const BTN_SUCCESS = 'success';
-    /**
-     * Button type WARNING
-     */
-    const BTN_WARNING = 'warning';
-    /**
-     * Button type DANGER
-     */
-    const BTN_DANGER = 'danger';
-    /**
-     * Button type SPECIAL WARNING
-     */
-    const BTN_SPECIAL_WARNING = 'special-w';
-    /**
-     * Button type SPECIAL DARK
-     */
-    const BTN_SPECIAL_DARK = 'special-d';
-    /**
-     * Button type SPECIAL LIGHT
-     */
-    const BTN_SPECIAL_LIGHT = 'special-l';
 	/**
 	 * Get application theme type
 	 * Values:
@@ -79,11 +43,45 @@ interface ITheme {
 	 */
 	public function GetButtonsDefaultSize(): string;
 	/**
-	 * @param null|string $type
 	 * @param null|string $extra
 	 * @return string
 	 */
-	public function GetButtonClass(?string $type,?string $extra = NULL): string;
+	public function GetBtnDefaultClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnPrimaryClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnSuccessClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnWarningClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnDangerClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnSpecialLightClass(?string $extra = NULL): string;
+	/**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnSpecialDarkClass(?string $extra = NULL): string;
+    /**
+	 * @param null|string $extra
+	 * @return string
+	 */
+	public function GetBtnSpecialWarningClass(?string $extra = NULL): string;
 	/**
 	 * @param int $actionsCount
 	 * @return int
