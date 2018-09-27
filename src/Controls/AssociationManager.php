@@ -201,9 +201,9 @@ abstract class AssociationManager {
 	 */
 	protected function GetAssociatedItemsActions() {
 		$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-		$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(\NETopes\Core\App\ITheme::BTN_INFO,'btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+		$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
 		$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-		$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(\NETopes\Core\App\ITheme::BTN_DEFAULT,'btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+		$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetDeAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
@@ -323,9 +323,9 @@ abstract class AssociationManager {
 	 */
 	protected function GetAssignableItemsActions() {
 		$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-		$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(\NETopes\Core\App\ITheme::BTN_INFO,'btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+		$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
 		$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-		$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetButtonClass(\NETopes\Core\App\ITheme::BTN_DEFAULT,'btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+		$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
