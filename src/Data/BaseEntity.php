@@ -81,7 +81,8 @@ abstract class BaseEntity {
 		if($strict && !property_exists($this,$key)) {
 			throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
 		}//if($strict && !property_exists($this,$key))
-		return validate_param((property_exists($this,$key) ? $this->$key : NULL),$default_value,$validation);
+		if(property_exists($this,$key)) { return validate_param($this->$key,$default_value,$validation); }
+		return $default_value;
 	}//END protected function GetPropertyValue
 	/**
 	 * Check if property exists

@@ -25,8 +25,7 @@ class DoctrineBaseRepository extends EntityRepository {
 
         foreach($targets as $target) { $qb->addOrderBy('e.'.$target,'ASC'); }
         $qb->setMaxResults($rowNum);
-        \NApp::_Dlog($qb->getDQL(),'getDQL');
-        \NApp::_Dlog($qb->getQuery()->getSQL(),'getSQL');
+        $this->DbDebug($qb->getQuery(),'getSearchResults');
         return $qb->getQuery()->getResult();
     }//END public function getSearchResults
 }//END class DoctrineBaseRepository extends EntityRepository
