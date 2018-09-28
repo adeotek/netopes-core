@@ -415,9 +415,9 @@ function GCBOSetValue(elementid,val,title,btnclick) {
 	$(cbo).attr('data-value',val);
 	$(obj).attr('data-text',title);
 	$('#'+elementid+'-dropdown .gcbo-selector').each(function(e) { if($(this).val()==1) { $(this).val('0'); } });
-	if(val && val!='' && val!='null') {
+	if(val && val!='') {
 		$('#'+elementid+'-dropdown #'+elementid+'-'+val+'.gcbo-selector').val('1');
-	}//if(val && val!='' && val!='null')
+	}//if(val && val!='')
 	if(btnclick==true || btnclick==1) { CBODDBtnClick(elementid); }
 	else if(clear) { $('#'+elementid+'-dropdown').hide(); }
 	var onchange = $('#'+elementid).attr('data-onchange');

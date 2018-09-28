@@ -48,8 +48,8 @@ class Translation {
 			$cnamespace = 'site_strings';
 			$lfile = 'lang_'.$langcode.'_'.$id_section.'_'.$id_zone.'.cache';
 		} else {
-			$id_section = 'null';
-			$id_zone = 'null';
+			$id_section = NULL;
+			$id_zone = NULL;
 			$cnamespace = NApp::current_namespace().'_strings';
 			$lfile = 'lang_'.$langcode.'.cache';
 		}//if(NApp::current_namespace=='web')
@@ -116,8 +116,8 @@ class Translation {
 						$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : NULL;
 						$cnamespace = 'site_strings';
 					} else {
-						$id_section = 'null';
-						$id_zone = 'null';
+						$id_section = NULL;
+						$id_zone = NULL;
 						$cnamespace = NApp::current_namespace().'_strings';
 					}//if(NApp::current_namespace()=='web')
 					DataProvider::GetArray('System\Translations','SetBlankTranslationsResource',[
@@ -129,7 +129,7 @@ class Translation {
 						'in_module'=>strlen($lmodule) ? $lmodule : NULL,
 						'in_method'=>strlen($lmethod) ? $lmethod : NULL,
 					]);
-				} catch(\PAF\AppException $e) {
+				} catch(AppException $e) {
 					NApp::_Elog($e->getMessage(),'LanguageInit');
 					NApp::_Write2LogFile($e->getFullMessage(),'error');
 				}//END try

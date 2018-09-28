@@ -45,7 +45,7 @@ class DoctrineDataSource extends DataSource {
                 switch($pn) {
                     case 'for_text':
                         $fieldsList = get_array_value($extra_params,'qs_fields',[],'is_array');
-                        if(is_string($pv) && strlen($pv) && strtolower($pv)!=='null') { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'contains','value'=>$pv]; }
+                        if(is_string($pv) && strlen($pv)) { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'contains','value'=>$pv]; }
                         break;
                     default:
                         if(isset($pv) && is_scalar($pv)) { $extra_params['filters'][] = ['field'=>$pn,'condition_type'=>'==','value'=>$pv]; }
@@ -75,7 +75,7 @@ class DoctrineDataSource extends DataSource {
 	 */
 	public function GetItem($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-		$id = get_array_value($params,'for_id','null','is_integer');
+		$id = get_array_value($params,'for_id',NULL,'is_integer');
 		if(!$id) { throw new AppException('Invalid record identifier!'); }
 		$obj = $this->adapter->em->getRepository($this->entityName)->find($id);
 		return $obj;

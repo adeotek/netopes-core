@@ -99,7 +99,7 @@ class DataSource {
 		if(!is_array($results) || !count($results)) { return $results; }
 		$temp_results = [];
 		$key = strlen($keyfield) ? $keyfield : 'id';
-		foreach($results as $v) { $temp_results[(is_null($v[$key]) ? 'null' : $v[$key])] = $v; }
+		foreach($results as $v) { $temp_results[$v[$key]] = $v; }
 		return $temp_results;
 	}//END public static function ConvertResultsToKeyValue
 	/**

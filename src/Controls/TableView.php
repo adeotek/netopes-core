@@ -1477,7 +1477,7 @@ class TableView {
 				if($ci_def_index && is_null($ci_value)) {
 					$ci_value = $ci_def_index;
 				} else {
-					$ci_value = is_null($ci_value) ? 'null' : $ci_value;
+					$ci_value = is_null($ci_value) ? '' : $ci_value;
 				}//if($ci_def_value && is_null($ci_value))
 				$ci_values = get_array_value($v,'values_collection',[],'is_array');
 				$i_field = get_array_value($v,'index_field','name','is_notempty_string');

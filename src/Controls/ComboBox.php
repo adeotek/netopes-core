@@ -67,10 +67,10 @@ class ComboBox extends Control {
                 }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
                 $lselected = '';
                 $cValue = $item->getProperty($this->valfield,NULL,'isset');
-                if($cValue==$this->selectedvalue && !(($this->selectedvalue==='null' && $cValue!=='null') || ($this->selectedvalue!=='null' && $cValue==='null'))) {
+                if($cValue==$this->selectedvalue && !(($this->selectedvalue===NULL && $cValue!==NULL) || ($this->selectedvalue!==NULL && $cValue===NULL))) {
                     $lselected = ' selected="selected"';
                     $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
-                }//if($cValue==$this->selectedvalue && !(($this->selectedvalue==='null' && $cValue!=='null') || ($this->selectedvalue!=='null' && $cValue==='null')))
+                }//if($cValue==$this->selectedvalue && !(($this->selectedvalue===NULL && $cValue!==NULL) || ($this->selectedvalue!==NULL && $cValue===NULL)))
                 if(!$implicit && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
                     $implicit = TRUE;
                     $lselected = ' selected="selected"';
@@ -94,10 +94,10 @@ class ComboBox extends Control {
                 $o_data = '';
                 if(is_array($this->option_data)) {
                     foreach($this->option_data as $ok=>$ov) {
-                        $o_data .= ' data-'.$ok.'="'.$item->getProperty($ov,'null','is_string').'"';
+                        $o_data .= ' data-'.$ok.'="'.$item->getProperty($ov,'','is_string').'"';
                     }//END foreach
                 } elseif(is_string($this->option_data) && strlen($this->option_data)) {
-                    $o_data = ' data-'.$this->option_data.'="'.$item->getProperty($this->option_data,'null','is_string').'"';
+                    $o_data = ' data-'.$this->option_data.'="'.$item->getProperty($this->option_data,'','is_string').'"';
                 }//if(is_array($this->option_data))
                 $tmpresult .= "\t\t\t".'<option value="'.$cValue.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ldisplayfield).'</option>'."\n";
             }//foreach

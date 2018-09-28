@@ -179,20 +179,20 @@ var ARequest = {
 		req.onreadystatechange = function() {
 			if(req.readyState==4) {
 				if(req.status==200) {
-				actions = req.responseText.split(ARequest.actSeparator);
-				var content = actions[0]+(actions[2] ? actions[2] : '');
-				if(id) { ARequest.put(content,id,act,property); }
-				if(actions[1]) { eval(actions[1]); }
-				if(js_script && js_script!='') { ARequest.runScript(js_script); }
-				ARequest.updateProcOn(-1,loader);
-				if(ARequest.onARequestCompleteEvent) { $.event.trigger({ type: 'onARequestComplete', callType: call_type }); }
-				if(callback) {
-					if(callback instanceof Function) {
-						callback();
-					} else if(typeof(callback)=='string') {
-						eval(callback);
-					}//if(callback instanceof Function)
-				}//if(callback)
+                    var actions = req.responseText.split(ARequest.actSeparator);
+                    var content = actions[0]+(actions[2] ? actions[2] : '');
+                    if(id) { ARequest.put(content,id,act,property); }
+                    if(actions[1]) { eval(actions[1]); }
+                    if(js_script && js_script!='') { ARequest.runScript(js_script); }
+                    ARequest.updateProcOn(-1,loader);
+                    if(ARequest.onARequestCompleteEvent) { $.event.trigger({ type: 'onARequestComplete', callType: call_type }); }
+                    if(callback) {
+                        if(callback instanceof Function) {
+                            callback();
+                        } else if(typeof(callback)=='string') {
+                            eval(callback);
+                        }//if(callback instanceof Function)
+                    }//if(callback)
 				} else {
 					console.log(req);
 				}//if(req.status==200)
@@ -347,7 +347,7 @@ var ARequest = {
 				if(typeof(obj.type)=='string' && obj.type=='radio' && property=='value') {
 					val = ARequest.getRadioValueFromObject(obj,null,null);
 				} else {
-					val = obj[property];
+				val = obj[property];
 				}//if(typeof(obj.type)=='string' && obj.type=='radio')
 				break;
 		}//END switch
