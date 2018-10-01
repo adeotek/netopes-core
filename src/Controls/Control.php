@@ -774,7 +774,7 @@ abstract class Control {
 			if(is_string($params_prefix) && strlen($params_prefix)) {
 				$result = str_replace('{'.$params_prefix.'{','{{',$params);
 			} else {
-			$result = $params;
+			    $result = $params;
 			}//if(is_string($params_prefix) && strlen($params_prefix))
 			$rv_arr = [];
 			preg_match_all('/{{[^}]*}}/i',$result,$rv_arr);

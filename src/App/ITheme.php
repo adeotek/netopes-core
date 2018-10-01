@@ -119,41 +119,6 @@ interface ITheme {
 	 * @return void
 	 * @access public
 	 */
-	public function GetMainContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
-	/**
-	 * @param bool $hasActions
-	 * @param bool $hasTitle
-	 * @return void
-	 * @access public
-	 */
-	public function GetModalContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
-	/**
-	 * @param bool $hasActions
-	 * @param bool $hasTitle
-	 * @return void
-	 * @access public
-	 */
-	public function GetSecondaryContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
-	/**
-	 * @param bool $hasActions
-	 * @param bool $hasTitle
-	 * @return void
-	 * @access public
-	 */
-	public function GetSubContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
-	/**
-	 * @param bool $hasActions
-	 * @param bool $hasTitle
-	 * @return void
-	 * @access public
-	 */
-	public function GetTableViewContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
-	/**
-	 * @param bool $hasActions
-	 * @param bool $hasTitle
-	 * @return void
-	 * @access public
-	 */
-	public function GetGenericContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
+	public function GetDefaultContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
 }//END interface ITheme
 ?>
