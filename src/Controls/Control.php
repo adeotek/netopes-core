@@ -15,10 +15,10 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
+use PAF\AppSession;
 use PAF\AppException;
 use NApp;
 use GibberishAES;
-use PAF\AppSession;
 
 /**
  * Control abstract class file
@@ -738,16 +738,17 @@ abstract class Control {
 		}//END forach
 		return $result;
 	}//END protected function CheckConditions
-	/**
-	 * Generate parameters URL hash
-	 *
-	 * @param  array $params An array of parameters
-	 * @param  bool $encrypted Encrypt or not the parameters
-	 * @param  string $hash_separator Separator for the hash parameters
-	 * @return string Returns the computed hash
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Generate parameters URL hash
+     *
+     * @param  array  $params An array of parameters
+     * @param  bool   $encrypt Encrypt or not the parameters
+     * @param  string $hash_separator Separator for the hash parameters
+     * @param string  $epass
+     * @return string Returns the computed hash
+     * @access public
+     * @static
+     */
 	 public static function GetUrlHash($params = [],$encrypt = TRUE,$hash_separator = '|',$epass = 'eUrlHash') {
 		if(!is_array($params) || !count($params)) { return NULL; }
 		$result = '';
