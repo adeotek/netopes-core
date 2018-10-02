@@ -130,7 +130,7 @@ class SmartComboBox extends Control {
 
         if(is_object($this->selectedvalue)) {
             if(is_iterable($this->selectedvalue)) {
-			$s_values = $this->selectedvalue;
+			    $s_values = $this->selectedvalue;
             } else {
                 $s_values = new DataSet([$this->selectedvalue]);
             }//if(is_iterable($this->selectedvalue))
@@ -138,14 +138,14 @@ class SmartComboBox extends Control {
             $s_values = DataSource::ConvertArrayToDataSet($this->selectedvalue,VirtualEntity::class);
         } else {
             if(is_scalar($this->selectedvalue)) {
-		    $s_values = [[
-			    $this->valfield=>$this->selectedvalue,
-			    (is_string($this->displayfield)?$this->displayfield:'_text_')=>$this->selectedtext,
-			]];
-        } else {
-            $s_values = [];
+                $s_values = [[
+                    $this->valfield=>$this->selectedvalue,
+                    (is_string($this->displayfield)?$this->displayfield:'_text_')=>$this->selectedtext,
+                ]];
+            } else {
+                $s_values = [];
             }//if(is_scalar($this->selectedvalue))
-        $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
+            $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
         }//if(is_object($this->selectedvalue))
 
 		switch($this->load_type) {
@@ -264,7 +264,7 @@ class SmartComboBox extends Control {
 				$o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
                 foreach($this->option_data as $od) {
                     $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
-					}//END foreach
+				}//END foreach
 			}//if($this->load_type!='ajax')
 			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
 		}//END foreach

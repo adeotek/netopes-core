@@ -45,7 +45,7 @@ class DoctrineDataSource extends DataSource {
                 switch($pn) {
                     case 'for_text':
                         $fieldsList = get_array_value($extra_params,'qs_fields',[],'is_array');
-                        if(is_string($pv) && strlen($pv)) { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'contains','value'=>$pv]; }
+                        if(is_string($pv) && strlen($pv)) { $extra_params['filters'][] = ['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'like','value'=>$pv]; }
                         break;
                     default:
                         if(isset($pv) && is_scalar($pv)) { $extra_params['filters'][] = ['field'=>$pn,'condition_type'=>'==','value'=>$pv]; }

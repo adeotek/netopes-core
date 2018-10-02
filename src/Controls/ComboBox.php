@@ -13,6 +13,7 @@
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\VirtualEntity;
 
 /**
  * ComboBox control
@@ -53,6 +54,13 @@ class ComboBox extends Control {
             $t_required = ' required="required"';
             $tmpresult .= "\t\t\t".'<option value="" disabled="disabled" selected="selected" hidden="hidden">'.$this->placeholder.'</option>'."\n";
         }//if(strlen($this->pleaseselectvalue))
+        if(is_object($this->selectedvalue)) {
+            $selectedValue = $this->selectedvalue->getProperty($this->valfield,NULL,'isset');
+        } elseif(is_array($this->selectedvalue)) {
+            $selectedValue = get_array_value($this->selectedvalue,$this->valfield,NULL,'isset');
+        } else {
+            $selectedValue = $this->selectedvalue;
+        }//if(is_object($this->selectedvalue))
         $lselclass = $this->GetTagClass($ph_class);
         if(is_object($this->value) && $this->value->count()) {
             $implicit = FALSE;
@@ -67,10 +75,10 @@ class ComboBox extends Control {
                 }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
                 $lselected = '';
                 $cValue = $item->getProperty($this->valfield,NULL,'isset');
-                if($cValue==$this->selectedvalue && !(($this->selectedvalue===NULL && $cValue!==NULL) || ($this->selectedvalue!==NULL && $cValue===NULL))) {
+                if($cValue==$selectedValue && !(($selectedValue===NULL && $cValue!==NULL) || ($selectedValue!==NULL && $cValue===NULL))) {
                     $lselected = ' selected="selected"';
                     $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
-                }//if($cValue==$this->selectedvalue && !(($this->selectedvalue===NULL && $cValue!==NULL) || ($this->selectedvalue!==NULL && $cValue===NULL)))
+                }//if($cValue==$selectedValue && !(($selectedValue===NULL && $cValue!==NULL) || ($selectedValue!==NULL && $cValue===NULL)))
                 if(!$implicit && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
                     $implicit = TRUE;
                     $lselected = ' selected="selected"';
