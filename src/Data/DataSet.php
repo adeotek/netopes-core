@@ -395,4 +395,3 @@ class DataSet implements Collection {
 		return TRUE;
 	}//END public function merge
 }//END class DataSet implements Collection
-?>

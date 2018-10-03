@@ -179,10 +179,10 @@ class AppView {
 		return $this->_jsScripts;
 	}//END public function GetJsScripts
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function GetJsScript(): string {
-		if(!count($this->_jsScripts)) { return ''; }
+	public function GetJsScript(): ?string {
+		if(!count($this->_jsScripts)) { return NULL; }
 		$result = '';
 		foreach($this->_jsScripts as $js) {
 			$js = trim($js);
@@ -190,12 +190,18 @@ class AppView {
 		}//END foreach
 		return $result;
 	}//END public function GetJsScript
-	/**
-	 * @param string $script
-	 * @return void
-	 */
-	public function AddJsScript(string $script): void {
-		if(strlen(trim($script))) { $this->_jsScripts[] = $script; }
+    /**
+     * @param string $script
+     * @param bool   $first
+     * @return void
+     */
+	public function AddJsScript(string $script,bool $first = FALSE): void {
+	    if(!strlen(trim($script))) { return; }
+	    if($first) {
+	        array_unshift($this->_jsScripts,$script);
+	    } else {
+	        $this->_jsScripts[] = $script;
+	    }//if($first)
 	}//END public function GetJsScripts
 	/**
 	 * @return void
@@ -411,7 +417,7 @@ class AppView {
             $mJsScript = strlen($this->_targetId) ? "ShowDynamicModalForm('{$this->_targetId}'," : "ShowModalForm(";
             $mJsScript .= is_numeric($this->_modalWidth) && $this->_modalWidth>0 ? $this->_modalWidth : (is_string($this->_modalWidth) && strlen($this->_modalWidth) ? "'{$this->_modalWidth}'" : 300);
             $mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '')."));" : ",'{$this->_title}');";
-            $this->AddJsScript($mJsScript);
+            $this->AddJsScript($mJsScript,TRUE);
         }//if($this->_isModal && $this->_modalAutoJs)
 		if(strlen($mainContainer)) {
 		    if(strpos($mainContainer,'{{CONTENT}}')===FALSE) {
@@ -445,7 +451,9 @@ class AppView {
 		require($_v_file);
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
-		return $_control->Show();
+		$result = $_control->Show();
+		if(method_exists($_control,'GetJsScript')) { $this->AddJsScript($_control->GetJsScript()); }
+		return $result;
 	}//END protected function GetControlContent
 	/**
 	 * @param string $_v_file

@@ -82,39 +82,62 @@ class DataSource {
 		}//if (!array_key_exists($ikey,self::$DataSourcesInstances) || is_null(self::$DataSourcesInstances[$ikey]))
 		return self::$DataSourcesInstances[$ikey];
 	}//END public static function GetInstance
-	/**
-	 * Replaces the keys (first level only) of the $results array
-	 * with the values of a specified key in the second level of the array
-	 * Obs. The $results array is usualy an results array from a database query.
-	 *
-	 * @param  array $results The array to be converted
-	 * @param  string $keyfield The key for the second level value to be
-	 * set as the new main key.
-	 * If $keyfield is empty or NULL, the 'id' key will be used.
-	 * @return array Returns the converted array
-	 * @access public
-	 * @static
-	 */
-	public static function ConvertResultsToKeyValue($results = [],$keyfield = '') {
-		if(!is_array($results) || !count($results)) { return $results; }
-		$temp_results = [];
-		$key = strlen($keyfield) ? $keyfield : 'id';
-		foreach($results as $v) { $temp_results[$v[$key]] = $v; }
-		return $temp_results;
+    /**
+     * Replaces the keys (first level only) of the $results array
+     * with the values of a specified key in the second level of the array
+     * Obs. The $results array is usualy an results array from a database query.
+     *
+     * @param  array  $results The array to be converted
+     * @param  string $keyField The key for the second level value to be
+     * set as the new main key.
+     * If $keyfield is empty or NULL, the 'id' key will be used.
+     * @param bool    $convertToDataSet
+     * @return array Returns the converted array
+     * @access public
+     * @static
+     */
+	public static function ConvertResultsToKeyValue($results,?string $keyField = NULL,bool $convertToDataSet = FALSE) {
+	    if(!is_iterable($results)) { return $results; }
+	    $key = strlen($keyField) ? $keyField : 'id';
+	    if(is_object($results)) {
+            $tempResults = new DataSet();
+            foreach($results as $v) {
+                if(is_object($v)) {
+                    $tempResults->set($v->getProperty($key),$v);
+                } else {
+                    $tempResults->set(get_array_value($v,$key,NULL,'isset'),$v);
+                }//if(is_object($v))
+            }//END foreach
+	    } else {
+	        $tempResults = [];
+            foreach($results as $v) {
+                if(is_object($v)) {
+                    $tempResults[$v->getProperty($key)] = $v;
+                } else {
+                    $tempResults[get_array_value($v,$key,NULL,'isset')] = $v;
+                }//if(is_object($v))
+            }//END foreach
+            if($convertToDataSet) { $tempResults = new DataSet($tempResults); }
+	    }//if(is_object($results))
+		return $tempResults;
 	}//END public static function ConvertResultsToKeyValue
-	/**
-	 * Convert array to a DataSet of entities or row arrays
-	 *
-	 * @param  array $data The array to be converted
-	 * @param  string|null $entity_class Name of the entity class
-	 * @return mixed Returns the DataSet or NULL on error
-	 * @access public
-	 * @static
-	 */
-	public static function ConvertArrayToDataSet($data = [],$entity_class = NULL) {
-		if(!is_array($data)) { return $data; }
+    /**
+     * Convert array to a DataSet of entities or row arrays
+     *
+     * @param  array       $data The array to be converted
+     * @param  string|null $entity_class Name of the entity class
+     * @param null|string  $fieldToUseAsKey
+     * @return mixed Returns the DataSet or NULL on error
+     * @access public
+     * @static
+     */
+	public static function ConvertArrayToDataSet($data = [],$entity_class = NULL,?string $fieldToUseAsKey = NULL) {
+		if(!is_array($data)) {
+		    if($fieldToUseAsKey===NULL) { return $data; }
+		    return static::ConvertResultsToKeyValue($data,$fieldToUseAsKey);
+		}//if(!is_array($data))
 		if(!is_string($entity_class) || !strlen($entity_class) || !class_exists($entity_class)) {
-			$result = new DataSet($data);
+		    $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
 		} else {
 			if(count($data)) {
 			    $fElement = reset($data);
@@ -122,10 +145,16 @@ class DataSource {
                     $result = new $entity_class($data);
                 } else {
 					if(is_object($fElement)) {
-				        $result = new DataSet($data);
+				        $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
 			        } else {
 				        $result = new DataSet();
-				        foreach($data as $v) { $result->add(new $entity_class($v)); }
+				        foreach($data as $v) {
+				            if(strlen($fieldToUseAsKey)) {
+				                $result->set(get_array_value($v,$fieldToUseAsKey,NULL,'isset'),new $entity_class($v));
+				            } else {
+				                $result->add(new $entity_class($v));
+				            }//if(strlen($fieldToUseAsKey))
+				        }//END foreach
 					}//if(is_object($fElement))
 				}//if(is_scalar($fElement))
 			} else {

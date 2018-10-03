@@ -212,6 +212,17 @@ class Module {
 		if($reset_session_params) { $this->SetSessionParamValue(NULL,$method); }
 		return $this->$method($o_params);
 	}//END public function Exec
+    /**
+     * Add JavaScript code to execution queue
+     *
+     * @param string $script
+     * @param bool   $first
+     * @return void
+     * @access public
+     */
+	public function AddJsScript(string $script,bool $first = FALSE): void {
+		NApp::_ExecJs($script);
+	}//END public function AddJsScript
 	/**
 	 * description
 	 *
@@ -219,7 +230,7 @@ class Module {
 	 * @param  type $method = '',$module = '' param description
 	 * @param null  $page_hash
 	 * @param null  $key
-	 * @return void
+	 * @return mixed
 	 * @access public
 	 */
 	public function GetSessionParamValue($def_value = NULL,$method = NULL,$page_hash = NULL,$key = NULL) {
