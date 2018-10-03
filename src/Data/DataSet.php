@@ -60,8 +60,7 @@ class DataSet implements Collection {
 	 * @param array $elements
 	 * @param int|null  $count
 	 */
-    public function __construct(?array $elements = [],int $count = NULL)
-    {
+    public function __construct(?array $elements = [],int $count = NULL) {
         $this->elements = $elements ?? [];
         $this->total_count = $count;
     }

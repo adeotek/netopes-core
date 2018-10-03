@@ -150,7 +150,7 @@ class SmartComboBox extends Control {
 
 		switch($this->load_type) {
 			case 'ajax':
-			    $litems->add([''=>''],TRUE);
+			    $litems->add(new VirtualEntity(),TRUE);
 			    $initData = [];
 			    if($s_values->count()) {
 			        foreach($s_values as $sv) {
@@ -207,7 +207,7 @@ class SmartComboBox extends Control {
 				}//if(strlen($ac_module) && strlen($ac_method))
 				break;
 			case 'database':
-				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add([''=>''],TRUE); }
+				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add(new VirtualEntity(),TRUE); }
 				$ds_name = get_array_value($this->data_source,'ds_class','','is_string');
 				$ds_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ds_name) && strlen($ds_method)) {
@@ -221,11 +221,12 @@ class SmartComboBox extends Control {
 				}//if(is_string($this->template_selection) && strlen($this->template_selection))
 				break;
 			case 'value':
-				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add([''=>''],TRUE); }
+				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add(new VirtualEntity(),TRUE); }
 				if(is_object($this->value) && $this->value->count()) {
 				    $litems->merge($this->value->toArray());
 				} elseif(is_array($this->value) && count($this->value)) {
-				    $litems->merge($this->value);
+				    $lValue = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+				    $litems->merge($lValue->toArray());
 				}//if(is_object($this->value) && $this->value->count())
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {
 					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
