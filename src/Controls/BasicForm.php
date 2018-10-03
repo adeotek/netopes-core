@@ -122,6 +122,11 @@ class BasicForm {
 	 */
 	public $field_conditions = NULL;
 	/**
+	 * @var    bool Filter for mandatory fields only
+	 * @access public
+	 */
+	public $mandatory_fields_only = FALSE;
+	/**
 	 * @var    string Fields conditions field name property
 	 * @access public
 	 */
@@ -184,7 +189,7 @@ class BasicForm {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if(!is_numeric($this->colsno) || $this->colsno<=0) { $this->colsno = 1; }
-		if(!is_object($this->field_conditions)) { $this->field_conditions = DataSource::ConvertArrayToDataSet(is_array($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property); }
+		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property);
 	}//END public function __construct
     /**
      * @param array $action
@@ -295,10 +300,12 @@ class BasicForm {
         if(isset($this->field_name_property_case)) { $fieldName = $this->field_name_property_case==CASE_UPPER ? strtoupper($fieldName) : strtolower($fieldName); }
 	    if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) { return TRUE; }
 	    $condition = $this->field_conditions->get($fieldName);
-	    if(!$condition->getProperty($this->visible_field_property,TRUE,'bool')) {
+	    if($this->mandatory_fields_only && !$condition->getProperty($this->mandatory_field_property,FALSE,'bool')) {
+	        return FALSE;
+	    } elseif(!$condition->getProperty($this->visible_field_property,TRUE,'bool')) {
 	        if(!$condition->getProperty($this->mandatory_field_property,FALSE,'bool')) { return FALSE; }
 	        $control['hidden'] = TRUE;
-	    }//if(!$condition->getProperty($this->visible_field_property,TRUE,'bool'))
+	    }//if($this->mandatory_fields_only && !$condition->getProperty($this->mandatory_field_property,FALSE,'bool'))
         $control['required'] = $condition->getProperty($this->required_field_property,isset($control['required']) ? $control['required'] : NULL,'bool');
         return TRUE;
 	}//END protected function CheckFieldConditions
@@ -484,7 +491,11 @@ class BasicForm {
 			}//if($this->colsno>1)
 			$ci = 0;
 			foreach($row as $col) {
-				$c_type = get_array_value($col,'control_type',NULL,'is_notempty_string');
+				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
+				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tagname'])) {  $ctrl_params['tagname'] .= $this->tags_names_sufix; }
+                if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string'))) { continue; }
+				$hiddenControl = get_array_value($ctrl_params,'hidden',FALSE,'bool');
+                $c_type = get_array_value($col,'control_type',NULL,'?is_notempty_string');
 				$csi = 0;
 				if($this->colsno>1) {
 					$c_span = get_array_value($col,'colspan',1,'is_numeric');
@@ -503,7 +514,7 @@ class BasicForm {
 					}//if($c_span==$this->colsno)
 				} else {
 					$c_class = get_array_value($col,'class','form-group','is_notempty_string');
-					if($hidden) { $c_class .= ' hidden'; }
+					if($hidden || $hiddenControl) { $c_class .= ' hidden'; }
 				}//if($this->colsno>1)
 				$ci += $csi;
 				if(strlen($c_type)) {
@@ -517,10 +528,8 @@ class BasicForm {
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 					continue;
 				}//if(strlen($c_type))
-				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
-				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tagname'])) {  $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 				// Label and input CSS columns calculation
 				$ctrl_label_cols = get_array_value($ctrl_params,'label_cols',0,'is_integer');
 				if($ctrl_label_cols<1 || $ctrl_label_cols>11) {
@@ -542,10 +551,6 @@ class BasicForm {
 				if(strlen($c_size)) { $ctrl_params['size'] = $c_size; }
 				$c_label_pos = get_array_value($ctrl_params,'labelposition',($this->positioning_type=='vertical' ? 'top' : 'left'),'is_notempty_string');
 				$ctrl_params['labelposition'] = $c_label_pos;
-				if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string'))) {
-				    $result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
-					continue;
-				}//if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string')))
 				$jsScript = trim(get_array_value($col,'js_script','','is_string'));
 				if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
 				$control = new $c_type($ctrl_params);
@@ -609,7 +614,6 @@ class BasicForm {
 	 * @access public
 	 */
 	public function Show() {
-	    if(is_null($this->output_buffer)) { $this->output_buffer = $this->SetControl(); }
-		return $this->output_buffer;
+		return $this->SetControl();
 	}//END public function Show
 }//END class BasicForm
