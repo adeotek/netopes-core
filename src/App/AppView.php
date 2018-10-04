@@ -473,7 +473,8 @@ class AppView {
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
 		$result = $_control->Show();
-		if(method_exists($_control,'GetJsScript')) { $this->AddJsScript($_control->GetJsScript()); }
+		$jsScript = $_control->GetJsScript();
+		if(strlen(trim($jsScript)) && method_exists($_control,'GetJsScript')) { $this->AddJsScript($jsScript); }
 		return $result;
 	}//END protected function GetControlContent
 	/**
