@@ -15,6 +15,8 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\App\ITheme;
 use NETopes\Core\App\Validator;
 use NApp;
+use NETopes\Core\Data\DataSource;
+
 /**
  * BasicForm control class
  *
@@ -115,6 +117,41 @@ class BasicForm {
 	 */
 	public $sub_form_class = NULL;
 	/**
+	 * @var    \NETopes\Core\Data\DataSet|null Fields conditions data
+	 * @access public
+	 */
+	public $field_conditions = NULL;
+	/**
+	 * @var    bool Filter for mandatory fields only
+	 * @access public
+	 */
+	public $mandatory_fields_only = FALSE;
+	/**
+	 * @var    string Fields conditions field name property
+	 * @access public
+	 */
+	public $field_name_property = 'name';
+	/**
+	 * @var    int|null Fields conditions field name case
+	 * @access public
+	 */
+	public $field_name_property_case = NULL;
+	/**
+	 * @var    string Fields conditions visibility property
+	 * @access public
+	 */
+	public $visible_field_property = 'is_visible';
+	/**
+	 * @var    string Fields conditions mandatory property
+	 * @access public
+	 */
+	public $mandatory_field_property = 'is_mandatory';
+	/**
+	 * @var    string Fields conditions required property
+	 * @access public
+	 */
+	public $required_field_property = 'is_required';
+	/**
 	 * @var    string Sub-form tag extra attributes
 	 * @access public
 	 */
@@ -129,6 +166,11 @@ class BasicForm {
 	 * @access protected
 	 */
 	protected $output_buffer = NULL;
+	/**
+	 * @var    array Javascript code execution queue
+	 * @access protected
+	 */
+	protected $js_scripts = [];
 	/**
 	 * BasicForm class constructor method
 	 *
@@ -147,8 +189,70 @@ class BasicForm {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if(!is_numeric($this->colsno) || $this->colsno<=0) { $this->colsno = 1; }
-		$this->output_buffer = $this->SetControl();
+		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property);
 	}//END public function __construct
+    /**
+     * @param array $action
+     * @param bool  $first
+     */
+    public function AddAction(array $action,bool $first = FALSE): void {
+	    if(!is_array($this->actions)) { $this->actions = []; }
+	    if($first) {
+	        array_unshift($this->actions,$action);
+	    } else {
+	        $this->actions[] = $action;
+	    }//if($first)
+	}//END public function AddAction
+	/**
+     * @param array $row
+     * @param bool  $first
+     */
+    public function AddRow(array $row,bool $first = FALSE): void {
+	    if(!is_array($this->content)) { $this->content = []; }
+	    if($first) {
+	        array_unshift($this->content,$row);
+	    } else {
+	        $this->content[] = $row;
+	    }//if($first)
+	}//END public function AddRow
+    /**
+     * @param array    $control
+     * @param int|null $row
+     * @param int|null $column
+     * @param bool     $overwrite
+     */
+    public function AddControl(array $control,?int $row = NULL,?int $column = NULL,bool $overwrite = FALSE): void {
+        if(!is_array($this->content)) { $this->content = []; }
+        if($row!==NULL) {
+            if(!isset($this->content[$row]) || !is_array($this->content[$row])) { $this->content[$row] = []; }
+            if($column!==NULL) {
+                if(isset($this->content[$row][$column]) && is_array($this->content[$row][$column]) && !$overwrite) { throw new AppException("Form element already set [{$row}:{$column}]!"); }
+                $this->content[$row][$column] = $control;
+            } else {
+                $this->content[$row][] = $control;
+            }//if($column!==NULL)
+        } else {
+            $this->content[] = [$control];
+        }//if($row!==NULL)
+	}//END public function AddRow
+    /**
+     * @return array
+     */
+    public function GetJsScripts(): array {
+        return $this->js_scripts;
+    }//END public function GetJsScripts
+    /**
+     * @return null|string
+     */
+    public function GetJsScript(): ?string {
+        if(!count($this->js_scripts)) { return NULL; }
+		$result = '';
+		foreach($this->js_scripts as $js) {
+			$js = trim($js);
+			$result .= (strlen($result) ? "\n" : '').(substr($js,-1)=='}' ? $js : rtrim($js,';').';');
+		}//END foreach
+		return $result;
+    }//END public function GetJsScript
 	/**
 	 * Gets the form actions string
 	 *
@@ -186,13 +290,32 @@ class BasicForm {
 		}//END foreach
 		return $result;
 	}//END protected function GetActions
+    /**
+     * @param array       $control
+     * @param null|string $fieldName
+     * @return bool
+     */
+    protected function CheckFieldConditions(array &$control,?string $fieldName = NULL): bool {
+        if(!strlen($fieldName)) { $fieldName = get_array_value($control,'tagname',NULL,'?is_notempty_string'); }
+        if(isset($this->field_name_property_case)) { $fieldName = $this->field_name_property_case==CASE_UPPER ? strtoupper($fieldName) : strtolower($fieldName); }
+	    if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) { return TRUE; }
+	    $condition = $this->field_conditions->get($fieldName);
+	    if($this->mandatory_fields_only && !$condition->getProperty($this->mandatory_field_property,FALSE,'bool')) {
+	        return FALSE;
+	    } elseif(!$condition->getProperty($this->visible_field_property,TRUE,'bool')) {
+	        if(!$condition->getProperty($this->mandatory_field_property,FALSE,'bool')) { return FALSE; }
+	        $control['hidden'] = TRUE;
+	    }//if($this->mandatory_fields_only && !$condition->getProperty($this->mandatory_field_property,FALSE,'bool'))
+        $control['required'] = $condition->getProperty($this->required_field_property,isset($control['required']) ? $control['required'] : NULL,'bool');
+        return TRUE;
+	}//END protected function CheckFieldConditions
 	/**
 	 * Gets the form content as table
 	 *
-	 * @return void
+	 * @return string
 	 * @access protected
 	 */
-	protected function GetTableControl() {
+	protected function GetTableControl(): string {
 		$ltabindex = 101;
 		$lclass = trim($this->baseclass.' '.$this->class);
 		$lstyle = strlen($this->width)>0 ? ' style="width: '.$this->width.(strpos($this->width,'%')===FALSE ? 'px' : '').';"' : '';
@@ -313,10 +436,10 @@ class BasicForm {
 	/**
 	 * Gets the form content as bootstrap3 form
 	 *
-	 * @return void
+	 * @return string
 	 * @access protected
 	 */
-	protected function GetBootstrap3Control() {
+	protected function GetBootstrap3Control(): string {
 		$ltabindex = 101;
 		$lclass = trim($this->baseclass.' '.$this->class);
 		if($this->positioning_type!='vertical') { $lclass .= ' form-horizontal'; }
@@ -368,7 +491,11 @@ class BasicForm {
 			}//if($this->colsno>1)
 			$ci = 0;
 			foreach($row as $col) {
-				$c_type = get_array_value($col,'control_type',NULL,'is_notempty_string');
+				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
+				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tagname'])) {  $ctrl_params['tagname'] .= $this->tags_names_sufix; }
+                if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string'))) { continue; }
+				$hiddenControl = get_array_value($ctrl_params,'hidden',FALSE,'bool');
+                $c_type = get_array_value($col,'control_type',NULL,'?is_notempty_string');
 				$csi = 0;
 				if($this->colsno>1) {
 					$c_span = get_array_value($col,'colspan',1,'is_numeric');
@@ -387,7 +514,7 @@ class BasicForm {
 					}//if($c_span==$this->colsno)
 				} else {
 					$c_class = get_array_value($col,'class','form-group','is_notempty_string');
-					if($hidden) { $c_class .= ' hidden'; }
+					if($hidden || $hiddenControl) { $c_class .= ' hidden'; }
 				}//if($this->colsno>1)
 				$ci += $csi;
 				if(strlen($c_type)) {
@@ -401,10 +528,8 @@ class BasicForm {
 					$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 					continue;
 				}//if(strlen($c_type))
-				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
 				$ctrl_params['theme_type'] = $this->theme_type;
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
-				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
 				// Label and input CSS columns calculation
 				$ctrl_label_cols = get_array_value($ctrl_params,'label_cols',0,'is_integer');
 				if($ctrl_label_cols<1 || $ctrl_label_cols>11) {
@@ -426,9 +551,10 @@ class BasicForm {
 				if(strlen($c_size)) { $ctrl_params['size'] = $c_size; }
 				$c_label_pos = get_array_value($ctrl_params,'labelposition',($this->positioning_type=='vertical' ? 'top' : 'left'),'is_notempty_string');
 				$ctrl_params['labelposition'] = $c_label_pos;
-
+				$jsScript = trim(get_array_value($col,'js_script','','is_string'));
+				if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
 				$control = new $c_type($ctrl_params);
-				if(property_exists($c_type,'tabindex')&& !\NETopes\Core\App\Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
+				if(property_exists($c_type,'tabindex')&& !Validator::IsValidParam($control->tabindex,'','is_not0_numeric')){ $control->tabindex = $ltabindex++; }
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				if($this->colsno>1) {
 					$ctrl_params['container'] = FALSE;
@@ -465,10 +591,10 @@ class BasicForm {
 	/**
 	 * Sets the output buffer value
 	 *
-	 * @return void
+	 * @return string
 	 * @access protected
 	 */
-	protected function SetControl() {
+	protected function SetControl(): string {
 		if(!is_array($this->content) || !count($this->content)) { return NULL; }
 		switch($this->theme_type) {
 			case 'bootstrap3':
@@ -488,7 +614,6 @@ class BasicForm {
 	 * @access public
 	 */
 	public function Show() {
-		return $this->output_buffer;
+		return $this->SetControl();
 	}//END public function Show
 }//END class BasicForm
-?>
