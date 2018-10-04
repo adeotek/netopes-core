@@ -1024,7 +1024,7 @@ class TableView {
 			$ch_w_type = NULL;
 			if(strtolower(get_array_value($v,'type','','is_string'))=='actions') {
 				if(is_null($ch_width) && is_object(NApp::$theme)) {
-					$ch_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'count',0,'is_integer'));
+					$ch_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'visual_count',0,'is_integer'));
 				}//if(is_null($ac_width) && is_object(NApp::$theme))
 				$ch_width = is_numeric($ch_width) && $ch_width>0 ? $ch_width.'px' : $ch_width;
 				$ch_style .= $ch_width ? ($ch_style ? '' : ' style="').'width: '.$ch_width.';' : '';
@@ -1735,7 +1735,7 @@ class TableView {
 			case 'actions':
 				$ac_width = get_array_value($v,'width',NULL,'is_notempty_string');
 				if(is_null($ac_width) && is_object(NApp::$theme)) {
-					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'count',0,'is_integer'));
+					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'visual_count',0,'is_integer'));
 				}//if(is_null($ac_width) && is_object(NApp::$theme))
 				$ac_width = is_numeric($ac_width) && $ac_width>0 ? $ac_width.'px' : $ac_width;
 				$c_style .= $ac_width ? ($c_style ? '' : ' style="').'width: '.$ac_width.';' : '';
