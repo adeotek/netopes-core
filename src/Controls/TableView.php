@@ -364,13 +364,13 @@ class TableView {
 		if($encrypted){ return GibberishAES::enc(serialize($this),$this->chash); }
 		return serialize($this);
 	}//END protected function GetThis
-
 	/**
 	 * Apply format to a cell value
 	 *
 	 * @param  mixed  $value Cell value
 	 * @param  mixed  $format The format to be applied
-	 * @return string Return formated value as string
+     * @param null   $def_value
+     * @return string Return formatted value as string
 	 * @access protected
 	 */
 	protected function FormatValue($value,$format,$def_value = NULL) {
@@ -2107,6 +2107,7 @@ class TableView {
 					break;
 				case 'filters':
 					$this->currentpage = $params->safeGet('page',1,'is_numeric');
+					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
@@ -2154,11 +2155,11 @@ class TableView {
 	 * Sets the output buffer value
 	 *
 	 * @param null $params
-	 * @return void
+	 * @return string|null
 	 * @throws \PAF\AppException
 	 * @access protected
 	 */
-	protected function SetControl($params = NULL) {
+	protected function SetControl($params = NULL): ?string {
 		// NApp::_Dlog($params,'SetControl>>$params');
 		$this->LoadState($params);
 		// NApp::_Dlog($this->filters,'SetControl>>$this->filters');
@@ -2273,25 +2274,77 @@ class TableView {
 		}//END switch
 		return $result;
 	}//END private function SetControl
-	/**
+    /**
+     * @param string $name
+     * @param array  $config
+     * @param bool   $overwrite
+     * @return void
+     * @throws \PAF\AppException
+     */
+	public function SetColumn(string $name,array $config,bool $overwrite = FALSE): void {
+        if(array_key_exists($name,$this->columns) && !$overwrite) { throw new AppException('Column already set!'); }
+        $this->columns[$name] = $config;
+    }//END public function SetColumn
+    /**
+     * @param string $name
+     * @return void
+     */
+	public function RemoveColumn(string $name): void {
+        if(array_key_exists($name,$this->columns)) { unset($this->columns[$name]); }
+    }//END public function RemoveColumn
+    /**
+     * @param string   $name
+     * @param array    $action
+     * @param bool     $updateVisibleCount
+     * @param int|null $index
+     * @param bool     $overwrite
+     * @return void
+     * @throws \PAF\AppException
+     */
+	public function AddAction(string $name,array $action,bool $updateVisibleCount = TRUE,?int $index = NULL,bool $overwrite = FALSE): void {
+	    if(!array_key_exists($name,$this->columns) || !is_array($this->columns[$name])) { $this->columns[$name] = []; }
+        if($index!==NULL && array_key_exists($index,$this->columns[$name]) && !$overwrite) { throw new AppException('Action already set!'); }
+        $this->columns[$name][$index] = $action;
+        if($updateVisibleCount) { $this->columns[$name]['visible_count'] = get_array_value($this->columns[$name],'visible_count',0,'is_integer') + 1; }
+    }//END public function AddAction
+    /**
+     * @param string $name
+     * @param int $index
+     * @param bool   $updateVisibleCount
+     * @return void
+     */
+	public function RemoveAction(string $name,int $index,bool $updateVisibleCount = TRUE): void {
+	    if(!array_key_exists($name,$this->columns) || !is_array($this->columns[$name]) || !count($this->columns[$name]) || array_key_exists($index,$this->columns[$name])) { return; }
+        unset($this->columns[$name][$index]);
+        if($updateVisibleCount) { $this->columns[$name]['visible_count'] = get_array_value($this->columns[$name],'visible_count',1,'is_not0_integer') - 1; }
+    }//END public function RemoveAction
+    /**
+     * @param string $name
+     * @return void
+     */
+	public function ClearActions(string $name): void {
+	    if(!array_key_exists($name,$this->columns) || !is_array($this->columns[$name]) || !count($this->columns[$name])) { return; }
+        $this->columns[$name] = [];
+    }//END public function ClearActions
+    /**
 	 * Gets the control's content (html)
 	 *
 	 * @param  array $params An array of parameters
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
-	 * * other passthru params
+	 * * other passthrough params
 	 * @return string Returns the control's content (html)
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function Show($params = NULL) {
+	public function Show($params = NULL): ?string {
 		// NApp::_Dlog($params,'TableView>>Show');
 		$o_params = is_object($params) ? $params : new Params($params);
-		$phash = $o_params->safeGet('phash',NULL,'is_notempty_string');
+		$phash = $o_params->safeGet('phash',NULL,'?is_notempty_string');
 		$output = $o_params->safeGet('output',FALSE,'bool');
-		if($phash){ $this->phash = $phash; }
-		if(!$output){ return $this->SetControl($o_params); }
+		if($phash) { $this->phash = $phash; }
+		if(!$output) { return $this->SetControl($o_params); }
 		echo $this->SetControl($o_params);
 	}//END public function Show
 	/**
@@ -2301,7 +2354,7 @@ class TableView {
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
-	 * * other passthru params
+	 * * other passthrough params
 	 * @return string Returns the control's filters box content
 	 * @access public
 	 * @throws \PAF\AppException
@@ -2327,10 +2380,10 @@ class TableView {
 	/**
 	 * Sets new value for base class property
 	 *
-	 * @param  string $value The new value to be set as base class
+     * @param null $params
 	 * @return void
-	 * @access public
 	 * @throws \PAF\AppException
+     * @access public
 	 */
 	public function ExportAll($params = NULL) {
 		// NApp::_Dlog($params,'ExportAll');
@@ -2377,8 +2430,10 @@ class TableView {
 	 *
 	 * @param  array $params An array of parameters
 	 * @return string|bool Returns file content or FALSE on error
-	 * @access public
 	 * @throws \PAF\AppException
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     * @access public
 	 */
 	public static function ExportData(array $params = []) {
 		$chash = get_array_value($params,'chash',NULL,'is_notempty_string');
@@ -2403,4 +2458,3 @@ class TableView {
 		}//END try
 	}//END public static function ExportData
 }//END class TableView
-?>

@@ -304,6 +304,18 @@ class AppView {
 		$this->_content[] = ['type'=>'file','value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddContent
 	/**
+     * @param object      $object
+     * @param string      $method
+     * @param null|string $containerType
+     * @param null|string $containerId
+     * @param null|string $tag
+     * @return void
+     * @access public
+     */
+	public function AddObjectContent(object $object, string $method,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
+		$this->_content[] = ['type'=>'object','object'=>$object,'method'=>$method,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	}//END public function AddContent
+	/**
 	 * @param string $module
 	 * @param string $method
 	 * @param null   $params
@@ -392,6 +404,15 @@ class AppView {
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
 					$params = get_array_value($c,'params',NULL,'isset');
 					$cContent = $this->GetModuleContent($module,$method,$params);
+					break;
+				case 'object':
+				    $object = get_array_value($c,'object',NULL,'?is_object');
+				    $method = get_array_value($c,'method','','is_string');
+					if(!$object || !strlen($method) || !method_exists($object,$method)) {
+						if($this->_debug) { NApp::_Dlog('Invalid content class/value [object:method:'.$method.']!'); }
+						continue;
+					}//if(!$object || !strlen($method) || !method_exists($object,$method))
+				    $cContent = $object->$method();
 					break;
 				case 'string':
 				    $cContent = $value;
