@@ -860,8 +860,11 @@ function DestroyCkEditor(phash,e,multi) {
 		window.ckei_list = new Array();
 	}//if(e)
 }//function DestroyCkEditor
-
+/**
+ * @return {string}
+ */
 function GetCkEditorData(e) {
+	if(typeof(e)==='object') { e = e.getAttribute('id'); }
 	var editor = CKEDITOR.instances[e];
     if(editor) { return editor.getData(); }
     return '';

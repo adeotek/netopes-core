@@ -257,17 +257,17 @@ var ARequest = {
 	},//END getRadioValueFromObject
 	getFromObject : function(obj,property,attribute) {
 		var val = '';
-		if(typeof(obj)!='object' || obj==null || !property) { return val; }
+		if(typeof(obj)!=='object' || obj==null || !property) { return val; }
 		switch(property) {
 			case 'option':
-				if(typeof(attribute)=='string' && attribute.length>0) {
+				if(typeof(attribute)==='string' && attribute.length>0) {
 					val = obj.options[obj.selectedIndex].getAttribute(attribute);
 				} else {
 					val = obj.options[obj.selectedIndex].text;
 				}//if(typeof(attribute)=='string' && attribute.length>0)
 				break;
 			case 'radio':
-				if(typeof(attribute)=='string' && attribute.length>0) {
+				if(typeof(attribute)==='string' && attribute.length>0) {
 					val = ARequest.getRadioValueFromObject(null,obj,attribute);
 				} else {
 					val = null;
@@ -336,33 +336,42 @@ var ARequest = {
 				}//if(dformat)
 				break;
 			case 'attr':
-				if(typeof(attribute)=='string' && attribute.length>0) {
+				if(typeof(attribute)==='string' && attribute.length>0) {
 					val = obj.getAttribute(attribute);
 				} else {
 					val = obj[property];
 				}//if(typeof(attribute)=='string' && attribute.length>0)
 				break;
+			case 'function':
+				if(typeof(attribute)==='string' && attribute.length>0) {
+				    if(window.hasOwnProperty(attribute)) {
+				        val = window[attribute](obj);
+				    } else {
+				        console.log('PAF Error: Unable to find method [' + attribute + ']!');
+				    }//if(window.hasOwnProperty(attribute))
+				}//if(typeof(attribute)==='string' && attribute.length>0)
+                break;
 			default:
 				// Removed call "attr--" (replaced by "attr:")
-				if(typeof(obj.type)=='string' && obj.type=='radio' && property=='value') {
+				if(typeof(obj.type)==='string' && obj.type==='radio' && property==='value') {
 					val = ARequest.getRadioValueFromObject(obj,null,null);
 				} else {
 				val = obj[property];
 				}//if(typeof(obj.type)=='string' && obj.type=='radio')
 				break;
 		}//END switch
-		if(val && typeof(val)=='string') { val = val.split(ARequest.actSeparator).join(''); }
+		if(val && typeof(val)==='string') { val = val.split(ARequest.actSeparator).join(''); }
 		return val;
 	},//END getFromObject
 	getToArray : function(obj,initial) {
-		if(typeof(obj)!='object' || obj==null) { return initial; }
+		if(typeof(obj)!=='object' || obj==null) { return initial; }
 		var aresult;
 		var nName = obj.nodeName.toLowerCase();
 		var objName = obj.getAttribute('name');
 		if(!objName || objName.length<=0) { objName = obj.getAttribute('data-name'); }
 		if(objName) {
 			var names = objName.replace(/^[\w|\-|_]+/,"$&]").replace(/]$/,"").split("][");
-			if(nName=='input' || nName=='select' || nName=='textarea') {
+			if(nName==='input' || nName==='select' || nName==='textarea') {
 				switch(obj.getAttribute('type')) {
 					case 'checkbox':
 						if(obj.checked===true) {
