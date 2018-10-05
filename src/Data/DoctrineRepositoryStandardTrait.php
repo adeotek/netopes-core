@@ -97,7 +97,7 @@ trait DoctrineRepositoryStandardTrait {
 	        if(count($sort)) {
 	            $first = TRUE;
 				foreach($sort as $c=>$d) {
-					$field = 'e.'.strtolower(str_replace(['"',"'",'`','[',']'],'',$c));
+					$field = 'e.'.str_replace(['"',"'",'`','[',']'],'',$c);
 					if($first) {
 						$first = FALSE;
 						$qb->orderBy($field,strtoupper($d));
@@ -131,7 +131,7 @@ trait DoctrineRepositoryStandardTrait {
 			if(get_array_value($params,'collection',FALSE,'bool')) { return $data; }
 			return ['data'=>$data,'count'=>$tcount];
 		} catch(\Doctrine\ORM\Query\QueryException $qe) {
-			// NApp::_Dlog($qe->getTrace());
+			// \NApp::_Dlog($qe->getTrace());
 			throw new AppException('#'.get_class($qe).'# '.$qe->getMessage(),$qe->getCode(),1);
 		} catch(\Doctrine\ORM\ORMException $oe) {
 			throw new AppException('#'.get_class($oe).'# '.$oe->getMessage(),$oe->getCode(),1);

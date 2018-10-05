@@ -14,6 +14,7 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
+use NETopes\Core\App\Validator;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\DataSet;
@@ -375,9 +376,9 @@ class TableView {
 	 */
 	protected function FormatValue($value,$format,$def_value = NULL) {
 		if(is_string($format) && strlen($format)) {
-			$result = \NETopes\Core\App\Validator::FormatValue($value,$format);
+			$result = Validator::FormatValue($value,$format);
 		} elseif(is_array($format) && count($format)) {
-			$result = \NETopes\Core\App\Validator::FormatValue($value,get_array_value($format,'mode','','is_string'),get_array_value($format,'html_entities',FALSE,'bool'),get_array_value($format,'prefix','','is_string'),get_array_value($format,'sufix','','is_string'),get_array_value($format,'def_value','','is_string'),get_array_value($format,'format','','is_string'),get_array_value($format,'validation','','is_string'));
+			$result = Validator::FormatValue($value,get_array_value($format,'mode','','is_string'),get_array_value($format,'html_entities',FALSE,'bool'),get_array_value($format,'prefix','','is_string'),get_array_value($format,'sufix','','is_string'),get_array_value($format,'def_value','','is_string'),get_array_value($format,'format','','is_string'),get_array_value($format,'validation','','is_string'));
 		} else {
 			$result = $value;
 		}//if(is_string($format) && strlen($format))
@@ -550,7 +551,11 @@ class TableView {
 		$extra_params['sort'] = [];
 		if($this->tree) { $extra_params['sort']['"LVL"'] = 'ASC'; }
 		if(strlen($sortcolumn)) {
-			$extra_params['sort']['"'.strtoupper($sortcolumn).'"'] = strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+		    if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
+		        $extra_params['sort'][$sortcolumn] = strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+		    } else {
+		        $extra_params['sort'][strtoupper($sortcolumn)] = strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+		    }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
 		}//if(strlen($sortcolumn))
 	}//END protected function ProcessDataCallParams
 	/**
@@ -735,6 +740,7 @@ class TableView {
 		}//if($this->qsearch && !$is_qsearch_active)
 		$selectedv = NULL;
 		$cfctype = '';
+		$isDSParam = 0;
 		foreach($this->columns as $k=>$v) {
 			if(!get_array_value($v,'filterable',FALSE,'bool')) { continue; }
 			$isDSParam = intval(strlen(get_array_value($v,'ds_param','','is_string'))>0);
@@ -1352,7 +1358,7 @@ class TableView {
 					$c_value = NULL;
 				} else {
 					$c_value = $row->getProperty($v['db_field']);
-					if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value))) {
+					if(!is_scalar($c_value)) {
 						$c_value = is_object($c_value) ? $c_value : NULL;
 					} else {
 						$c_value = strlen($c_value) ? $c_value : NULL;
@@ -1970,18 +1976,18 @@ class TableView {
 				}//if($c_sumtype=='average')
 				if($c_sumtype=='count') {
 					$c_format = 'decimal0';
-					$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
+					$c_value = Validator::FormatValue($c_value,$c_format);
 				} elseif(get_array_value($v,'data_type','','is_string')!='numeric') {
 					$c_format = 'decimal2';
-					$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
+					$c_value = Validator::FormatValue($c_value,$c_format);
 				} else {
 					$c_format = get_array_value($v,'format',NULL,'is_notempty_string');
 					if($c_format) {
-						$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,$c_format);
+						$c_value = Validator::FormatValue($c_value,$c_format);
 					} else {
 						$c_format = get_array_value($v,'format',NULL,'is_notempty_array');
 						if($c_format) {
-							$c_value = \NETopes\Core\App\Validator::FormatValue($c_value,get_array_value($c_format,'mode','','is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'),get_array_value($c_format,'prefix','','is_string'),get_array_value($c_format,'sufix','','is_string'),get_array_value($c_format,'def_value','','is_string'),get_array_value($c_format,'format','','is_string'),get_array_value($c_format,'validation','','is_string'));
+							$c_value = Validator::FormatValue($c_value,get_array_value($c_format,'mode','','is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'),get_array_value($c_format,'prefix','','is_string'),get_array_value($c_format,'sufix','','is_string'),get_array_value($c_format,'def_value','','is_string'),get_array_value($c_format,'format','','is_string'),get_array_value($c_format,'validation','','is_string'));
 						}//if($c_format)
 					}//if($c_format)
 				}//if($c_sumtype=='count')
