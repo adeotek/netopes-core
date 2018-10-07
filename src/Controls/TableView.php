@@ -2095,6 +2095,7 @@ class TableView {
 	 */
 	protected function LoadState($params = NULL) {
 		// NApp::_Dlog($params,'LoadState>>$params');
+		// NApp::_Dlog($this->sessionHash,'$this->sessionHash');
 		if($this->persistent_state) {
 			$sessact = $params->safeGet('sessact','','is_string');
 			switch($sessact) {
