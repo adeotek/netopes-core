@@ -557,22 +557,29 @@ function GetSmartCBOText(element,asObject) {
 	}//END for
 	return lval;
 }//END function GetSmartCBOText
-
+/**
+ * @return {boolean}
+ */
 function SetSmartCBOValue(element,new_val) {
 	if(!element) { return false; }
 	var lelement = element;
-	if(typeof(element)!='object') { lelement = $('#'+element); }
+	if(typeof(element)!=='object') { lelement = $('#'+element); }
 	if(!$(lelement).length) { return false; }
-	$(lelement).val(new_val).trigger('change');
+	if(typeof(new_val)==='object') {
+	    var sOption = new Option(new_val.id, new_val.name, true, true);
+	    $(lelement).append(sOption).trigger('change');
+	} else {
+	    $(lelement).val(new_val).trigger('change');
+	}//if(typeof(new_val)==='object')
 	return true;
 }//function SetSmartCBOValue
 
 function GetSelect2Val(element,org) {
 	if(!element) { return undefined; }
 	var lelement = element;
-	if(typeof(element)!='object') { lelement = $('#'+element); }
+	if(typeof(element)!=='object') { lelement = $('#'+element); }
 	var lval = $(lelement).val() || '';
-	if(org!=true && org!=1 && typeof(lval)=='object') { lval = lval.join(','); }
+	if(org!==true && org!==1 && typeof(lval)==='object') { lval = lval.join(','); }
 	return lval;
 }//function GetSelect2Val
 /*** END For Select2 and SmartComboBox ***/
