@@ -1489,7 +1489,7 @@ class TableView {
 				$ci_values = get_array_value($v,'values_collection',[],'is_array');
 				$i_field = get_array_value($v,'index_field','name','is_notempty_string');
 				$ci_def_value = get_array_value($v,'default_value',NULL,'is_string');
-				$c_value = get_array_value($ci_values,$ci_value,$ci_def_value,'is_string',$i_field);
+				$c_value = get_array_value($ci_values,[$ci_value,$i_field],$ci_def_value,'is_string');
 				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$c_value,'count');
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))

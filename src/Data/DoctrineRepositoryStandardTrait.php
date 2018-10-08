@@ -25,6 +25,12 @@ trait DoctrineRepositoryStandardTrait {
 	        $filters = get_array_value($params,'filters',[],'is_array');
 			$tcount = 0;
 			$qb = $this->createQueryBuilder('e');
+			if(count($relations)) {
+			    foreach($relations as $k=>$r) {
+			        if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
+			        $qb->leftJoin('e.'.$r,$k);
+                }//END foreach
+			}//if(count($relations))
 			if(count($filters)) {
 				foreach($filters as $k=>$f) {
 					$field = get_array_value($f,'field',NULL,'isset');
@@ -36,31 +42,39 @@ trait DoctrineRepositoryStandardTrait {
                     $logical_operator = get_array_value($f,'logical_separator','and','is_notempty_string');
                     if(is_array($field) && count($field)) {
                         $expression = $qb->expr()->orX();
-                        foreach($field as $mfi) { $expression->add($qb->expr()->$operator('e.'.$mfi,':in'.$k.'_'.$mfi)); }
+                        $fieldParams = [];
+                        foreach($field as $mfi) {
+                            if(strpos($mfi,'.')===FALSE) { $mfi = 'e.'.$mfi; }
+                            $paramName = 'in'.$k.'_'.str_replace('.','_',$mfi);
+                            $expression->add($qb->expr()->$operator($mfi,':'.$paramName));
+                            $fieldParams[] = $paramName;
+                        }//END foreach
 						if(strtolower($logical_operator)=='or') {
 							$qb->orWhere($expression);
 	                    } else {
 							$qb->andWhere($expression);
 	                    }//if($first)
-	                    foreach($field as $mfi) {
+	                    foreach($fieldParams as $paramName) {
 							switch($operator) {
 			                    case 'like':
 			                    case 'notlike':
-			                        $qb->setParameter('in'.$k.'_'.$mfi,'%'.$value.'%');
+			                        $qb->setParameter($paramName,'%'.$value.'%');
 			                        break;
 			                    case 'startsWith':
-			                        $qb->setParameter('in'.$k.'_'.$mfi,$value.'%');
+			                        $qb->setParameter($paramName,$value.'%');
 			                        break;
 			                    case 'endWith':
-			                        $qb->setParameter('in'.$k.'_'.$mfi,'%'.$value);
+			                        $qb->setParameter($paramName,'%'.$value);
 			                        break;
 			                    default:
-			                        $qb->setParameter('in'.$k.'_'.$mfi,$value);
+			                        $qb->setParameter($paramName,$value);
 			                        break;
 		                    }//END switch
 	                    }//END foreach
                     } elseif(is_string($field) && strlen($field)) {
-						$expression = $qb->expr()->$operator('e.'.$field,':in'.$k.'_'.$field);
+                        if(strpos($field,'.')===FALSE) { $field = 'e.'.$field; }
+                        $paramName = 'in'.$k.'_'.str_replace('.','_',$field);
+						$expression = $qb->expr()->$operator($field,':'.$paramName);
 	                    if(strtolower($logical_operator)=='or') {
 							$qb->orWhere($expression);
 	                    } else {
@@ -69,16 +83,16 @@ trait DoctrineRepositoryStandardTrait {
 	                    switch($operator) {
 		                    case 'like':
 		                    case 'notlike':
-		                        $qb->setParameter('in'.$k.'_'.$field,'%'.$value.'%');
+		                        $qb->setParameter($paramName,'%'.$value.'%');
 		                        break;
 		                    case 'startsWith':
-		                        $qb->setParameter('in'.$k.'_'.$field,$value.'%');
+		                        $qb->setParameter($paramName,$value.'%');
 		                        break;
 		                    case 'endWith':
-		                        $qb->setParameter('in'.$k.'_'.$field,'%'.$value);
+		                        $qb->setParameter($paramName,'%'.$value);
 		                        break;
 		                    default:
-		                        $qb->setParameter('in'.$k.'_'.$field,$value);
+		                        $qb->setParameter($paramName,$value);
 		                        break;
 	                    }//END switch
                     } else {
@@ -120,7 +134,6 @@ trait DoctrineRepositoryStandardTrait {
 			if(count($relations)) {
 			    foreach($relations as $k=>$r) {
 			        if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
-			        $qb->leftJoin('e.'.$r,$k);
                     $qb->addSelect($k);
                 }//END foreach
 			}//if(count($relations))

@@ -543,11 +543,11 @@ class Validator {
 	 * description
 	 *
 	 * @param bool $forPhp
-	 * @return void
+	 * @return string|null
 	 * @access public
 	 * @static
 	 */
-	public static function GetDateTimeFormat($forPhp = FALSE) {
+	public static function GetDateTimeFormat($forPhp = FALSE): ?string {
 		return self::GetDateFormat($forPhp).' '.self::GetTimeFormat($forPhp);
 	}//END public static function GetTimeFormat
 }//END class Validator
