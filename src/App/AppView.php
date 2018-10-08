@@ -210,6 +210,15 @@ class AppView {
 		$this->_jsScripts = [];
 	}//END public function GetJsScripts
 	/**
+     * Get module current method
+     *
+     * @return string
+     * @access public
+     */
+	public function GetCurrentMethod(): string {
+		return call_back_trace(4);
+	}//END public function GetCurrentMethod
+	/**
 	 * @param bool $debug
 	 * @return void
 	 * @access public

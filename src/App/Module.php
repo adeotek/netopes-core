@@ -224,6 +224,15 @@ class Module {
 		NApp::_ExecJs($script);
 	}//END public function AddJsScript
 	/**
+     * Get module current method
+     *
+     * @return string
+     * @access public
+     */
+	public function GetCurrentMethod(): string {
+		return call_back_trace(2);
+	}//END public function GetCurrentMethod
+	/**
 	 * description
 	 *
 	 * @param null  $def_value

@@ -19,6 +19,8 @@ use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use PAF\AppConfig;
 use PAF\AppException;
+use Translate;
+
 /**
  * ComboBox control
  *
@@ -81,8 +83,9 @@ class SmartComboBox extends Control {
 	    if(!is_object($item) && !is_array($item)) { return NULL; }
 	    if(!is_object($item)) { $item = new VirtualEntity($item); }
 		$ldisplayvalue = '';
-		if(is_array($this->displayfield)) {
-			foreach($this->displayfield as $dk=>$dv) {
+		$ldisplayfield = is_string($this->selectedtextfield) && strlen($this->selectedtextfield) ? $this->selectedtextfield : $this->displayfield;
+		if(is_array($ldisplayfield)) {
+			foreach($ldisplayfield as $dk=>$dv) {
 				if(is_array($dv)) {
 					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
 					$ov_value = get_array_value($dv,'value','','is_string');
@@ -95,8 +98,8 @@ class SmartComboBox extends Control {
 				}//if(is_array($dv))
 			}//foreach ($this->displayfield as $dk=>$dv)
 		} else {
-		    $ltext = $item->getProperty($this->displayfield,'N/A','is_string');
-			$ldisplayvalue = $this->withtranslate===TRUE ? \Translate::Get($this->translate_prefix.$ltext) : $ltext;
+		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
+			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
 		}//if(is_array($this->displayfield))
 		return html_entity_decode($ldisplayvalue);
 	}//END protected function GetDisplayFieldValue

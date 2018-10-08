@@ -39,6 +39,11 @@ class TableView {
 	 */
 	protected $chash = NULL;
 	/**
+	 * @var    string Control instance session hash
+	 * @access protected
+	 */
+	protected $sessionHash = NULL;
+	/**
 	 * @var    string Control base class
 	 * @access protected
 	 */
@@ -343,14 +348,10 @@ class TableView {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if($this->persistent_state) {
-			$this->tagid = $this->tagid ? $this->tagid : get_class_basename($this->module).$this->method;
-			if(!strlen($this->tagid)) {
-				$this->persistent_state = FALSE;
-				$this->tagid = $this->chash;
-			}//if(!strlen($this->tagid))
-		} else {
-			$this->tagid = $this->tagid ? $this->tagid : $this->chash;
+			$this->sessionHash = $this->tagid ? $this->tagid : trim($this->module.'::'.$this->method,': ');
+			if(!strlen($this->sessionHash)) { $this->persistent_state = FALSE; }
 		}//if($this->persistent_state)
+		$this->tagid = $this->tagid ? $this->tagid : $this->chash;
 		if(Module::GetDRights($this->module,$this->method,'export')) { $this->exportable = FALSE; }
 		if(!is_array($this->sortby) || !count($this->sortby) || !array_key_exists('column',$this->sortby) || !array_key_exists('direction',$this->sortby)) { $this->sortby = array('column'=>'','direction'=>''); }
 	}//END public function __construct
@@ -2094,14 +2095,15 @@ class TableView {
 	 */
 	protected function LoadState($params = NULL) {
 		// NApp::_Dlog($params,'LoadState>>$params');
+		// NApp::_Dlog($this->sessionHash,'$this->sessionHash');
 		if($this->persistent_state) {
 			$sessact = $params->safeGet('sessact','','is_string');
 			switch($sessact) {
 				case 'page':
 					$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
-					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
+					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
-					$this->filters = NApp::_GetPageParam($this->tagid.'#filters');
+					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'sort':
 					$this->currentpage = $params->safeGet('page',1,'is_numeric');
@@ -2109,11 +2111,11 @@ class TableView {
 						'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 						'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
 					);
-					$this->filters = NApp::_GetPageParam($this->tagid.'#filters');
+					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'filters':
 					$this->currentpage = $params->safeGet('page',1,'is_numeric');
-					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
+					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
@@ -2126,11 +2128,11 @@ class TableView {
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
 				default:
-					$this->currentpage = NApp::_GetPageParam($this->tagid.'#currentpage');
+					$this->currentpage = NApp::_GetPageParam($this->sessionHash.'#currentpage');
 					if(!$this->currentpage) {
 						$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
 					}//if(!$this->currentpage)
-					$ssortby = NApp::_GetPageParam($this->tagid.'#sortby');
+					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					if(!get_array_value($ssortby,'column',NULL,'is_notempty_string')) {
 						$this->sortby = array(
 							'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
@@ -2139,15 +2141,15 @@ class TableView {
 					} else {
 						$this->sortby = $ssortby;
 					}//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
-					$this->filters = NApp::_GetPageParam($this->tagid.'#filters');
+					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
 					if(!$this->filters) {
 						$this->filters = $this->ProcessActiveFilters($params);
 					}//if(!$this->filters)
 					break;
 			}//END switch
-			NApp::_SetPageParam($this->tagid.'#currentpage',$this->currentpage);
-			NApp::_SetPageParam($this->tagid.'#sortby',$this->sortby);
-			NApp::_SetPageParam($this->tagid.'#filters',$this->filters);
+			NApp::_SetPageParam($this->sessionHash.'#currentpage',$this->currentpage);
+			NApp::_SetPageParam($this->sessionHash.'#sortby',$this->sortby);
+			NApp::_SetPageParam($this->sessionHash.'#filters',$this->filters);
 		} else {
 			$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
 			$this->sortby = array(
@@ -2352,6 +2354,7 @@ class TableView {
 		if($phash) { $this->phash = $phash; }
 		if(!$output) { return $this->SetControl($o_params); }
 		echo $this->SetControl($o_params);
+		return NULL;
 	}//END public function Show
 	/**
 	 * Gets (shows) the control's filters box content
