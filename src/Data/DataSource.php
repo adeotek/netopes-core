@@ -382,6 +382,39 @@ class DataSource {
 		return $result;
 	}//END public function GetProcedureData
 	/**
+     * @param string $connectionName
+     * @return null|\Redis
+     */
+    public static function GetRedisInstance(string $connectionName) {
+	    $redis = NULL;
+	    if(!strlen($connectionName) || !class_exists('\Redis',FALSE)) { return $redis; }
+        global $$connectionName;
+        $redisConnection = $$connectionName;
+        $rdb_server = get_array_value($redisConnection,'db_server','','is_string');
+        $rdb_port = get_array_value($redisConnection,'db_port',0,'is_integer');
+        if(strlen($rdb_server) && $rdb_port>0) {
+            $rdb_index = get_array_value($redisConnection,'db_index',1,'is_integer');
+            $rdb_timeout = get_array_value($redisConnection,'timeout',2,'is_integer');
+            $rdb_password = get_array_value($redisConnection,'db_password','','is_string');
+            try {
+                $redis = new \Redis();
+                if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) { throw new AppException('Unable to connect to Redis server!'); }
+                if(strlen($rdb_password)) { $redis->auth($rdb_password); }
+                if(!$redis->select($rdb_index)) { throw new AppException('Unable to select Redis database[1]!'); }
+            } catch(\RedisException $re) {
+                NApp::_Elog($re->getMessage(),'RedisException');
+                $redis = NULL;
+            } catch(AppException $xe) {
+                NApp::_Elog($xe->getMessage(),'PAF\AppException');
+                $redis = NULL;
+            } catch(\Exception $e) {
+                NApp::_Elog($e->getMessage(), 'Exception');
+                $redis = NULL;
+            }//END try
+        }//if(strlen($rdb_server) && $rdb_port>0)
+        return $redis;
+    }//END public static function GetRedisInstance
+	/**
 	 * Prepares and executes the database stored procedure call
 	 *
 	 * @param  string $query The query string
@@ -439,22 +472,9 @@ class DataSource {
 		$result = FALSE;
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
-			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
-			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
-					$redis = new Redis();
-					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
-						throw new AppException('Unable to connect to Redis server!');
-					}//if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout))
-					if(strlen($rdb_password)) { $redis->auth($rdb_password); }
-					if(!$redis->select($rdb_index)) {
-						throw new AppException('Unable to select Redis database[1]!');
-					}//if(!$redis->select($rdb_index))
+                $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
+                if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
 					try {
 						$result = $redis->get($lkey);
 						// NApp::_Dlog($result,'$result[raw]');
@@ -470,7 +490,6 @@ class DataSource {
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
-			}//if(strlen($rdb_server) && $rdb_port>0)
 		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
@@ -507,22 +526,9 @@ class DataSource {
 		}//if(is_string($tag) && strlen($tag))
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
-			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
-			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
-					$redis = new Redis();
-					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
-						throw new AppException('Unable to connect to Redis server!');
-					}//if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout))
-					if(strlen($rdb_password)) { $redis->auth($rdb_password); }
-					if(!$redis->select($rdb_index)) {
-						throw new AppException('Unable to select Redis database[1]!');
-					}//if(!$redis->select($rdb_index))
+                $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
+                if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
 					try {
 						if(is_null($data)) {
 							$result = $redis->delete($tag.':'.$key);
@@ -545,7 +551,6 @@ class DataSource {
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
-			}//if(strlen($rdb_server) && $rdb_port>0)
 		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
@@ -580,22 +585,9 @@ class DataSource {
 		if(!is_string($tag) || !strlen($tag)) { return FALSE; }
 		$handled = FALSE;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
-			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
-			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
-					$redis = new Redis();
-					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
-						throw new AppException('Unable to connect to Redis server!');
-					}//if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout))
-					if(strlen($rdb_password)) { $redis->auth($rdb_password); }
-					if(!$redis->select($rdb_index)) {
-						throw new AppException('Unable to select Redis database[1]!');
-					}//if(!$redis->select($rdb_index))
+                $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
+                if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
 					try {
 						if(strlen($key)) {
 							$result = $redis->delete($tag.':'.$key);
@@ -617,7 +609,6 @@ class DataSource {
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
-			}//if(strlen($rdb_server) && $rdb_port>0)
 		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			if(file_exists(NApp::_GetCachePath().'dataadapters/')) {
@@ -641,22 +632,9 @@ class DataSource {
 	public static function ClearAllCache() {
 		$result = NULL;
 		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
-			global $REDIS_CACHE_DB_CONNECTION;
-			$rdb_server = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_server','','is_string');
-			$rdb_port = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_port',0,'is_integer');
-			if(strlen($rdb_server) && $rdb_port>0) {
-				$rdb_index = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_index',1,'is_integer');
-				$rdb_timeout = get_array_value($REDIS_CACHE_DB_CONNECTION,'timeout',2,'is_integer');
-				$rdb_password = get_array_value($REDIS_CACHE_DB_CONNECTION,'db_password','','is_string');
 				try {
-					$redis = new Redis();
-					if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
-						throw new AppException('Unable to connect to Redis server!');
-					}//if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout))
-					if(strlen($rdb_password)) { $redis->auth($rdb_password); }
-					if(!$redis->select($rdb_index)) {
-						throw new AppException('Unable to select Redis database[1]!');
-					}//if(!$redis->select($rdb_index))
+                $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
+                if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
 					try {
 						$result = $redis->flushDb();
 					} catch(\Exception $e) {
@@ -672,7 +650,6 @@ class DataSource {
 					NApp::_Elog($e->getMessage(),'Exception');
 					$result = FALSE;
 				}//END try
-			}//if(strlen($rdb_server) && $rdb_port>0)
 		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
 		try {
 			if(file_exists(NApp::_GetCachePath().'dataadapters')) {

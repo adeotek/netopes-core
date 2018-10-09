@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use NApp;
+use PAF\AppConfig;
 use PAF\AppException;
 
 /**
@@ -57,7 +58,21 @@ class DoctrineAdapter extends DataAdapter {
 		if(!is_array($connection) || !count($connection) || !strlen($dbtype) || !strlen($dbdriver)) { return NULL; }
 		try {
 			$platform = NULL;
-			$cache = new \Doctrine\Common\Cache\ArrayCache;
+			$cache = NULL;
+			$cacheDriverName = AppConfig::doctrine_cache_driver();
+			if(strlen($cacheDriverName) && class_exists('\Redis',FALSE)) {
+			    $cacheDriver = '\Doctrine\Common\Cache\\'.$cacheDriverName;
+			    $cache = new $cacheDriver();
+			    if($cacheDriverName=='RedisCache') {
+			        $redis = DataSource::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
+			        if($redis) {
+                        $cache->setRedis($redis);
+			        } else {
+			            $cache = NULL;
+			        }//if($redis->connect('redis_host', 6379))
+			    }//if($cacheDriverName=='Redis')
+			}//if(strlen($cacheDriverName) && class_exists('\Redis',FALSE))
+			if($cache==NULL) { $cache = new \Doctrine\Common\Cache\ArrayCache; }
 			// Create a simple "default" Doctrine ORM configuration for Annotations
 			$config = Setup::createAnnotationMetadataConfiguration([$entities_path],$is_dev_mode,$proxy_dir,$cache);
 			$anno_reader = new AnnotationReader();
