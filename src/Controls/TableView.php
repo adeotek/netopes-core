@@ -1506,15 +1506,24 @@ class TableView {
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				$c_data_type = get_array_value($v,'data_type','','is_string');
-				$c_relation = get_array_value($v,'relation','','is_string');
-				if(strlen($c_relation) && is_object($row)) {
+				if(is_object($row)) {
+				    $c_relations = explode('.',get_array_value($v,'relation','','is_string'));
+                    $rObj = NULL;
+                    foreach($c_relations as $i=>$c_relation) {
+                        if(!strlen($c_relation)) { continue; }
+                        if($i>0 && $rObj==NULL) { break; }
 				    $rGetter = 'get'.ucfirst($c_relation);
+                        $rObj = $i==0 ? $row->$rGetter() : $rObj->$rGetter();
+                    }//END foreach
+                    if($rObj) {
 				    $pGetter = 'get'.ucfirst($v['db_field']);
-				    $rObj = $row->$rGetter();
-                    $c_value = is_object($rObj) ? $rObj->$pGetter() : NULL;
+                        $c_value = $rObj->$pGetter();
 				} else {
 				    $c_value = NULL;
-				}//if(strlen($c_relation) && is_object($row))
+                    }//if($rObj)
+				} else {
+				    $c_value = NULL;
+				}//if(is_object($row))
 				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					if($c_data_type=='numeric') {
 						$c_summarize_type = get_array_value($v,'summarize_type','sum','is_notempty_string');
