@@ -104,6 +104,8 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'app_cache'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
   		// Use database internal cache system
 		'app_db_cache'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+		// Doctrine cache driver (empty for default ArrayCache)
+		'doctrine_cache_driver'=>['access'=>'readonly','default'=>'','validation'=>'string'],
   		// Use Redis storage for internal cache system
 		'app_cache_redis'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
   		// Cache files path (absolute)
