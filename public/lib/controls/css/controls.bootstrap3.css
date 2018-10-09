@@ -109,7 +109,8 @@
 .ui-dialog.ui-modal-dlg > .ui-dialog-content input,
 .ui-dialog.ui-modal-dlg > .ui-dialog-content select,
 .ui-dialog.ui-modal-dlg > .ui-dialog-content textarea,
-.ui-dialog.ui-modal-dlg > .ui-dialog-content button {
+.ui-dialog.ui-modal-dlg > .ui-dialog-content button,
+.ui-dialog.ui-modal-dlg > .ui-dialog-content div.clsPreviewBox {
 	font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
 	font-size: 12px;
 }

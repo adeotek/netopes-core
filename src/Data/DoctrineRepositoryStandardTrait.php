@@ -28,7 +28,11 @@ trait DoctrineRepositoryStandardTrait {
 			if(count($relations)) {
 			    foreach($relations as $k=>$r) {
 			        if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
+			        if(strpos($r,'.')!==FALSE) {
+			            $qb->leftJoin($r,$k);
+			        } else {
 			        $qb->leftJoin('e.'.$r,$k);
+			        }//if(strpos($r,'.')!==FALSE)
                 }//END foreach
 			}//if(count($relations))
 			if(count($filters)) {
