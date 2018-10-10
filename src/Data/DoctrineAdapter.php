@@ -50,36 +50,38 @@ class DoctrineAdapter extends DataAdapter {
 	 * @static
 	 */
 	public static function GetEntityManager($base_path,$connection,&$platform) {
-		$entities_path = $base_path.'/DataEntities';
-		$proxy_dir = $base_path.'/DataProxies';
-		$is_dev_mode = TRUE;
+		$entities_path = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::doctrine_entities_path(),'\/');
+		$proxy_dir = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::doctrine_proxies_path(),'\/');
 		$dbtype = array_key_exists('db_type',$connection) && is_string($connection['db_type']) ? $connection['db_type'] : '';
 		$dbdriver = array_key_exists('doctrine_driver',$connection) && is_string($connection['doctrine_driver']) ? $connection['doctrine_driver'] : '';
 		if(!is_array($connection) || !count($connection) || !strlen($dbtype) || !strlen($dbdriver)) { return NULL; }
 		try {
+		    $persistentCache = FALSE;
 			$platform = NULL;
-			$cache = NULL;
+			$cacheDriver = NULL;
 			$cacheDriverName = AppConfig::doctrine_cache_driver();
 			if(strlen($cacheDriverName) && class_exists('\Redis',FALSE)) {
-			    $cacheDriver = '\Doctrine\Common\Cache\\'.$cacheDriverName;
-			    $cache = new $cacheDriver();
+			    $cacheDriverClass = '\Doctrine\Common\Cache\\'.$cacheDriverName;
+			    $cacheDriver = new $cacheDriverClass();
 			    if($cacheDriverName=='RedisCache') {
 			        $redis = DataSource::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
 			        if($redis) {
-                        $cache->setRedis($redis);
+                        $cacheDriver->setRedis($redis);
+                        $persistentCache = TRUE;
 			        } else {
-			            $cache = NULL;
+			            $cacheDriver = NULL;
 			        }//if($redis->connect('redis_host', 6379))
 			    }//if($cacheDriverName=='Redis')
 			}//if(strlen($cacheDriverName) && class_exists('\Redis',FALSE))
-			if($cache==NULL) { $cache = new \Doctrine\Common\Cache\ArrayCache; }
+			if($cacheDriver==NULL) { $cacheDriver = new \Doctrine\Common\Cache\ArrayCache; }
 			// Create a simple "default" Doctrine ORM configuration for Annotations
-			$config = Setup::createAnnotationMetadataConfiguration([$entities_path],$is_dev_mode,$proxy_dir,$cache);
+			$config = Setup::createAnnotationMetadataConfiguration([$entities_path],AppConfig::doctrine_develop_mode(),$proxy_dir,$cacheDriver);
 			$anno_reader = new AnnotationReader();
 			$anno_driver = new AnnotationDriver($anno_reader,[$entities_path]);
 	        $config->setMetadataDriverImpl($anno_driver);
-	        $config->setProxyNamespace('NETopes\DataProxies');
-	        $config->setAutoGenerateProxyClasses(TRUE);
+	        $config->setProxyNamespace(AppConfig::doctrine_proxies_namespace());
+	        $config->setAutoGenerateProxyClasses(AppConfig::doctrine_develop_mode());
+	        if($persistentCache) { $config->setQueryCacheImpl($cacheDriver); }
 			if($dbtype=='FirebirdSql') {
 				$conn_arr = [
 				    'host'=>$connection['db_server'],
