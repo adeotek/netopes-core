@@ -105,7 +105,7 @@ class DataProvider {
 			}//if(strlen($mode))
 			$ds_full_name = NULL;
 			if($dbmode=='Doctrine') {
-				$entity = '\DataEntities\\'.$ds_class;
+				$entity = '\\'.trim(AppConfig::doctrine_entities_namespace(),'\\').'\\'.$ds_class;
 				if(class_exists($entity)) {
 					if(!$entity::$isCustomDS) { $ds_full_name = '\NETopes\Core\Data\DoctrineDataSource'; }
 				}//if(class_exists($entity))
@@ -314,11 +314,11 @@ class DataProvider {
 			throw new AppException($e->getMessage(),$e->getCode(),0,$e->getFile(),$e->getLine());
 		}//END try
 	}//END public static function CloseTransaction
-
 	/**
 	 * @param null $connection
 	 * @param null $platform
 	 * @return \Doctrine\ORM\EntityManager|null|object
+     * @throws \PAF\AppException
 	 */
 	public static function GetEntityManager($connection = NULL,&$platform = NULL) {
 		if((is_array($connection) && count($connection))) {

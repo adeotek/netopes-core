@@ -100,12 +100,22 @@ if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request
 		'request_time_limit'=>['access'=>'readonly','default'=>1800,'validation'=>'is_not0_integer'],
   		// Use output buffering via ob_start/ob_flush
 		'bufferd_output'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
+		// Doctrine entities relative path (relative to application directory)
+		'doctrine_entities_path'=>['access'=>'readonly','default'=>'DataEntities','validation'=>'string'],
+		// Doctrine entities namespace
+		'doctrine_entities_namespace'=>['access'=>'readonly','default'=>'NETopes\DataEntities','validation'=>'string'],
+		// Doctrine proxies relative path (relative to application directory)
+		'doctrine_proxies_path'=>['access'=>'readonly','default'=>'DataProxies','validation'=>'string'],
+		// Doctrine proxies namespace
+		'doctrine_proxies_namespace'=>['access'=>'readonly','default'=>'NETopes\DataProxies','validation'=>'string'],
+        // Doctrine develop mode
+		'doctrine_develop_mode'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+		// Doctrine cache driver (empty for default ArrayCache)
+		'doctrine_cache_driver'=>['access'=>'readonly','default'=>'','validation'=>'string'],
   		// Use internal cache system
 		'app_cache'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
   		// Use database internal cache system
 		'app_db_cache'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
-		// Doctrine cache driver (empty for default ArrayCache)
-		'doctrine_cache_driver'=>['access'=>'readonly','default'=>'','validation'=>'string'],
   		// Use Redis storage for internal cache system
 		'app_cache_redis'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
   		// Cache files path (absolute)
