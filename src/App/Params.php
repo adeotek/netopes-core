@@ -241,11 +241,22 @@ class Params implements Collection {
     {
         return $this->elements[$key] ?? null;
     }
+    /**
+	 * @param string|int  $key
+	 * @param string|null $validation
+	 * @param string|null $failMessage
+	 * @return mixed
+	 */
+    public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
+    {
+        $result = get_array_value($this->elements,$key,NULL,$validation);
+        if(is_null($result)) { throw new AppException($failMessage??'Invalid value for: '.print_r($key)); }
+        return $result;
+    }
 	/**
 	 * @param string|int  $key
 	 * @param mixed       $default_value
 	 * @param string|null $validation
-	 * @param string|null $sub_key
 	 * @return mixed
 	 */
     public function safeGet($key,$default_value = NULL,$validation = NULL)
@@ -262,6 +273,7 @@ class Params implements Collection {
 	 */
     public function safeGetValue($key,$default_value = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
     {
+        \NApp::_Wlog('Deprecated method!');
         if(!strlen($validation)) {
             if(strlen($format)) {
                 $validation = in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;
@@ -269,9 +281,7 @@ class Params implements Collection {
                 $validation = 'isset';
             }
         }
-        if(isset($sub_key)) {
-        return get_array_value($this->elements,[$key,$sub_key],$default_value,$validation);
-        }
+        if(isset($sub_key)) { return get_array_value($this->elements,[$key,$sub_key],$default_value,$validation); }
         return get_array_value($this->elements,$key,$default_value,$validation);
     }
     /**
