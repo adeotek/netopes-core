@@ -242,11 +242,11 @@ abstract class Control {
 	 * Check if control has actions or not
 	 *
 	 * @return bool Returns TRUE if the control has actions or FALSE otherwise
-	 * @access protected
+	 * @access public
 	 */
-	protected function HasActions() {
+	public function HasActions(): bool {
 		return (is_array($this->ctrl_actions) && count($this->ctrl_actions));
-	}//END protected function HasActions
+	}//END public function HasActions
 	/**
 	 * Get the actions html string
 	 *
@@ -255,7 +255,7 @@ abstract class Control {
 	 */
 	protected function GetActions() {
 		if(!$this->HasActions()) { return NULL; }
-		$result = '';
+		$result = "\t\t\t\t".'<span class="input-group-btn">'."\n";
 		if(strlen($this->dynamic_target)) {
 			if(NApp::ajax() && is_object(NApp::arequest())) {
 				NApp::arequest()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
@@ -268,10 +268,12 @@ abstract class Control {
 			$act_params['action_params'] = get_array_value($act,'action_params',NULL,'is_notempty_array');
 			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tagid.'\').val(); '.get_array_value($act_params,'onclick','','is_string');
 			$act_params['disabled'] = $this->disabled;
-			$act_params['style'] = 'display: inline-block; '.get_array_value($act,'style','','is_string');
+			$act_params['style'] = get_array_value($act,'style','','is_string');
 			$act_button = new Button($act_params);
+			$act_button->ClearBaseClass();
 			$result .= $act_button->Show();
 		}//END foreach
+		$result .= "\t\t\t\t".'</span>'."\n";
 		return $result;
 	}//END protected function GetActions
 	/**
@@ -375,9 +377,7 @@ abstract class Control {
 					}//if(is_numeric($f_width))
 				}//if(isset($f_width) && strlen($f_width))
 				if(!$fwidth) {
-					$wo = is_numeric($this->width_offset) ? $this->width_offset : 0;
-					$a_width = $this->GetActionsWidth();
-					if($a_width>0) { $lstyle .= ' display: inline-block; width: calc(100% - '.($a_width+$wo).'px);'; }
+					$lstyle .= ' display: inline-block;';
 				}//if(!$fwidth)
 				break;
 			default:
