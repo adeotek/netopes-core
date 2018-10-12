@@ -144,7 +144,7 @@ function ShowMessageDialog(message,title,encrypted,targetid) {
 /* END For modal dialogs */
 /*** For showing and closing the modal form ***/
 function ShowModalForm(width,title,close_callback,targetid) {
-	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'modal'; }
+	if(!targetid || typeof(targetid)!=='string' || targetid.length<=0) { targetid = 'modal'; }
 	// console.log('ShowModalForm>>');
 	// console.log('targetid: '+targetid);
 	// console.log($('#'+targetid));
@@ -174,7 +174,7 @@ function ShowModalForm(width,title,close_callback,targetid) {
 				var d_close_callback = $(this).attr('data-close-callback');
 				if(d_close_callback) { eval (d_close_callback); }
             }
-            if(targetid!='modal') {
+            if(targetid!=='modal') {
             	$('#'+targetid).dialog('destroy');
             	$('#'+targetid).html('');
             }

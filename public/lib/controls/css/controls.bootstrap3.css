@@ -474,6 +474,7 @@ select.input-sm { padding: 5px 2px; }
 	margin-left: 5px;
 	margin-right: 0;
 }
+
 /*.form-xxs .form-group > .btn,*/
 .btn-group-xxs > .btn,
 .btn-xxs {
@@ -483,14 +484,11 @@ select.input-sm { padding: 5px 2px; }
     border-radius: 2px;
 }
 .btn > i { margin-right: 7px; }
-.btn.ionly {
-	padding: 0;
-	text-align: center;
-}
-.btn.ionly > i {
-	width: 20px;
-	margin: 0;
-}
+.btn.io { text-align: center; }
+.btn.io > i { margin: 0; }
+.btn-xxs.io { padding: 0; }
+.btn-xxs.io > i { width: 20px; }
+
 .link {
 	color: #2196F3;
 	text-decoration: none;

@@ -69,7 +69,12 @@ class ContainerBootstrap3 implements IControlContainer {
             $result .= $c_label;
             // if($this->control->labelposition!='top') { }
             $result .= "\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
-            $result .= "\t\t\t".$content."\n";
+            if($this->control->hasActions()) {
+                $content = "\t\t\t".'<div class="input-group">'."\n\t\t\t\t".$content."\n\t\t\t".'</div>';
+            } else {
+                $content = "\t\t\t".$content."\n";
+            }//if($this->control->hasActions())
+            $result .= $content;
             if(is_string($this->control->field_hint) && strlen($this->control->field_hint)) {
                 $result .= "\t\t\t".'<p'.(strlen($this->control->tagid) ? ' id="'.$this->control->tagid.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))
