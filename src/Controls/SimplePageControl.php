@@ -53,13 +53,13 @@ class SimplePageControl extends Control {
 		$result .= "\t".'<span class="pag-label">'.Translate::Get('label_page').'</span>'."\n";
 		if($pages_no>1) {
 		    if($cpage==1 || $cpage<0) {
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs ionly') : 'btn btn-default btn-xxs ionly').'"><i class="fa fa-angle-double-left"></i></div>'."\n";
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs ionly') : 'btn btn-default btn-xxs ionly').'"><i class="fa fa-angle-left"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs').'"><i class="fa fa-angle-double-left"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs').'"><i class="fa fa-angle-left"></i></div>'."\n";
             } else {
                 $lonclick = $this->AreqRun('{{page}}',1);
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs ionly') : 'btn btn-info btn-xxs ionly').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-left"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-left"></i></div>'."\n";
                 $lonclick = $this->AreqRun('{{page}}',($cpage-1));
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs ionly') : 'btn btn-info btn-xxs ionly').'" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
             }//if($cpage==1 || $cpage<0)
             $psid = \PAF\AppSession::GetNewUID(NULL,'md5');
             $lonclick = $this->AreqRun('{{page}}',$psid.':value');
@@ -74,13 +74,13 @@ class SimplePageControl extends Control {
             $result .= "\t".'<span class="pag-part-label">'.Translate::Get('label_of').'</span>'."\n";
             $result .= "\t".'<span class="pag-no">'.$pages_no.'</span>'."\n";
             if($cpage==$pages_no || $cpage<0) {
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs ionly') : 'btn btn-default btn-xxs ionly').'"><i class="fa fa-angle-right"></i></div>'."\n";
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs ionly') : 'btn btn-default btn-xxs ionly').'"><i class="fa fa-angle-double-right"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs').'"><i class="fa fa-angle-right"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs').'"><i class="fa fa-angle-double-right"></i></div>'."\n";
             } else {
                 $lonclick = $this->AreqRun('{{page}}',($cpage+1));
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs ionly') : 'btn btn-info btn-xxs ionly').'" onclick="'.$lonclick.'"><i class="fa fa-angle-right"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-right"></i></div>'."\n";
                 $lonclick = $this->AreqRun('{{page}}',$pages_no);
-                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs ionly') : 'btn btn-info btn-xxs ionly').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-right"></i></div>'."\n";
+                $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-right"></i></div>'."\n";
             }//if($cpage==$pages_no || $cpage<0)
 		} else {
 			$result .= "\t".'<span class="cpag">1</span>'."\n";
