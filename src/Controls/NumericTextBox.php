@@ -46,15 +46,19 @@ class NumericTextBox extends Control {
             if(is_string($this->jsvalidation) && strlen(trim($this->jsvalidation))) { $nclass .= ' '.trim($this->jsvalidation); }
             elseif($this->jsvalidation===TRUE) { $nclass .= ' clsSetNumericValidation'; }
         }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
-        if($this->allownull && (is_null($this->value) || !is_numeric($this->value))) {
+        if($this->allownull && !strlen($this->value)) {
             $lvalue = '';
         } else {
-            $lvalue = is_numeric($this->value) ? $this->value : 0;
-            if($this->numberformat!==FALSE && strlen($this->numberformat)) {
-                $format_arr = explode('|',$this->numberformat);
-                $lvalue = number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
-            }//if($this->numberformat!==FALSE && strlen($this->numberformat))
-        }//if($this->allownull && (is_null($this->value) || !is_numeric($this->value)))
+           if($this->numberformat===FALSE) {
+               $lvalue = $this->value;
+           } else {
+               $lvalue = is_numeric($this->value) ? $this->value : 0;
+               if(strlen($this->numberformat)) {
+                   $format_arr = explode('|',$this->numberformat);
+                   $lvalue = number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
+               }//if(strlen($this->numberformat))
+           }//if($this->numberformat===FALSE)
+        }//if($this->allownull && !strlen($this->value))
         $baseact = [];
         if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
         $ldata = '';
