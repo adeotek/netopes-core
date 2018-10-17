@@ -143,6 +143,7 @@ abstract class Control {
 		}//if(is_array($params) && count($params))
 		$this->tagid = $this->tagid=='__auto' ? AppSession::GetNewUID() : $this->tagid;
 		if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
+		if(is_null($this->label)) { $this->no_label = TRUE; }
 		switch($this->theme_type) {
 			case 'bootstrap2':
 			case 'bootstrap3':
@@ -255,7 +256,8 @@ abstract class Control {
 	 */
 	protected function GetActions() {
 		if(!$this->HasActions()) { return NULL; }
-		$result = "\t\t\t\t".'<span class="input-group-btn">'."\n";
+		$result = '';
+		if($this->container) { $result .= "\t\t\t\t".'<span class="input-group-btn">'."\n"; }
 		if(strlen($this->dynamic_target)) {
 			if(NApp::ajax() && is_object(NApp::arequest())) {
 				NApp::arequest()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
@@ -273,7 +275,7 @@ abstract class Control {
 			$act_button->ClearBaseClass();
 			$result .= $act_button->Show();
 		}//END foreach
-		$result .= "\t\t\t\t".'</span>'."\n";
+		if($this->container) { $result .= "\t\t\t\t".'</span>'."\n"; }
 		return $result;
 	}//END protected function GetActions
 	/**
@@ -377,7 +379,13 @@ abstract class Control {
 					}//if(is_numeric($f_width))
 				}//if(isset($f_width) && strlen($f_width))
 				if(!$fwidth) {
-					$lstyle .= ' display: inline-block;';
+				    if($this->container) {
+				        $lstyle .= ' display: inline-block;';
+				    } else {
+				        $wo = is_numeric($this->width_offset) ? $this->width_offset : 0;
+                        $a_width = $this->GetActionsWidth();
+                        if($a_width>0) { $lstyle .= ' display: inline-block; width: calc(100% - '.($a_width+$wo).'px);'; }
+				    }//if($this->container)
 				}//if(!$fwidth)
 				break;
 			default:

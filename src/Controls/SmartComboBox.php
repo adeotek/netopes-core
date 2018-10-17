@@ -111,6 +111,7 @@ class SmartComboBox extends Control {
 		$this->ProcessActions();
 		$js_script = "\t\t({\n";
 		$raw_class = $this->GetTagClass(NULL,TRUE);
+		if(is_string($this->theme) && strlen($this->theme)) { $js_script .= "\t\t\ttheme: '{$this->theme}',\n"; }
 		if(strlen($raw_class)) { $js_script .= "\t\t\tcontainerCssClass: '{$raw_class}',\n"; }
 		if(is_string($this->dropdown_class) && strlen($this->dropdown_class)) {
 			$js_script .= "\t\t\tdropdownCssClass: '{$this->dropdown_class}',\n";
