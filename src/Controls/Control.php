@@ -143,6 +143,7 @@ abstract class Control {
 		}//if(is_array($params) && count($params))
 		$this->tagid = $this->tagid=='__auto' ? AppSession::GetNewUID() : $this->tagid;
 		if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
+		if(is_null($this->label)) { $this->no_label = TRUE; }
 		switch($this->theme_type) {
 			case 'bootstrap2':
 			case 'bootstrap3':
