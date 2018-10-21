@@ -246,6 +246,7 @@ class Params implements Collection {
 	 * @param string|null $validation
 	 * @param string|null $failMessage
 	 * @return mixed
+     * @throws \PAF\AppException
 	 */
     public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
     {

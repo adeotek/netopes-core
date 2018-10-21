@@ -494,7 +494,7 @@ class BasicForm {
 				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
 				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tagname'])) {  $ctrl_params['tagname'] .= $this->tags_names_sufix; }
                 if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string'))) { continue; }
-				$hiddenControl = get_array_value($ctrl_params,'hidden',FALSE,'bool');
+				$hiddenControl = get_array_value($ctrl_params,'hidden',get_array_value($col,'hidden',FALSE,'bool'),'bool');
                 $c_type = get_array_value($col,'control_type',NULL,'?is_notempty_string');
 				$csi = 0;
 				if($this->colsno>1) {
