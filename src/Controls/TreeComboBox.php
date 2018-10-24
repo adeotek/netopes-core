@@ -99,6 +99,8 @@ class TreeComboBox extends Control {
 			$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
 			$result .= '</div>'."\n";
 			return $result;
+		} else {
+		    $lclass = trim($lclass.' stdro');
 		}//if($this->disabled || $this->readonly)
 		$cbtnclass = $this->baseclass.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
 		$lddcclass = $this->baseclass.' ctrl-ctree'.(strlen($this->class)>0 ? ' '.$this->class : '');
