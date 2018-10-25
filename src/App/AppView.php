@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use PAF\AppConfig;
 use PAF\AppException;
 use \NApp;
 
@@ -122,6 +123,7 @@ class AppView {
 	 * @access public
 	 */
 	public function __construct(array $params,$parent = NULL,?string $containerType = NULL) {
+	    $this->_debug = AppConfig::debug();
 		$this->_params = $params;
 		if(is_object($parent)) {
 			$this->parent = $parent;
@@ -392,14 +394,14 @@ class AppView {
 				case 'control':
 					$class = get_array_value($c,'class','','is_string');
 					if(!strlen($class) || !strlen($value)) {
-						if($this->_debug) { NApp::_Dlog('Invalid content class/value [control:index:'.$k.']!'); }
+						if($this->_debug) { NApp::_Wlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !strlen($value))
 					$cContent = $this->GetControlContent($value,$class);
 					break;
 				case 'file':
 					if(!strlen($value)) {
-						if($this->_debug) { NApp::_Dlog('Invalid content value [file:index:'.$k.']!'); }
+						if($this->_debug) { NApp::_Wlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($value))
 					$cContent = $this->GetFileContent($value);
@@ -408,7 +410,7 @@ class AppView {
 					$module = get_array_value($c,'module','','is_string');
 					$method = get_array_value($c,'method','','is_string');
 					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
-						if($this->_debug) { NApp::_Dlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
+						if($this->_debug) { NApp::_Wlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
 						continue;
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
 					$params = get_array_value($c,'params',NULL,'isset');
@@ -418,7 +420,7 @@ class AppView {
 				    $object = get_array_value($c,'object',NULL,'?is_object');
 				    $method = get_array_value($c,'method','','is_string');
 					if(!$object || !strlen($method) || !method_exists($object,$method)) {
-						if($this->_debug) { NApp::_Dlog('Invalid content class/value [object:method:'.$method.']!'); }
+						if($this->_debug) { NApp::_Wlog('Invalid content class/value [object:method:'.$method.']!'); }
 						continue;
 					}//if(!$object || !strlen($method) || !method_exists($object,$method))
 				    $cContent = $object->$method();
@@ -427,7 +429,7 @@ class AppView {
 				    $cContent = $value;
 					break;
 				default:
-					if($this->_debug) { NApp::_Dlog('Invalid content type [index:'.$k.']!'); }
+					if($this->_debug) { NApp::_Wlog('Invalid content type [index:'.$k.']!'); }
 					break;
 			}//END switch
 			$processed = FALSE;
@@ -435,9 +437,11 @@ class AppView {
             if(!$processed && strlen($cTag)) {
                 $placeholder = '{{'.trim($cTag,'{}').'}}';
                 if(strpos($mainContainer,$placeholder)===FALSE) {
-                    if($this->_debug) { NApp::_Dlog($placeholder.' placeholder is missing for view container ['.$cContainerType.']!'); }
+                    if($this->_debug) { NApp::_Wlog($placeholder.' placeholder is missing for view container ['.$cContainerType.']!'); }
                 } else {
                     $mainContainer = str_replace($placeholder,$cContent,$mainContainer);
+                    $placeholder = '{{'.trim($cTag,'{}').'_ID}}';
+                    $mainContainer = str_replace($placeholder,$cContainerId,$mainContainer);
                     $processed = TRUE;
                 }//if(strpos($mainContainer,$placeholder)===FALSE)
             }//if(!$processed && strlen($cTag))
@@ -450,18 +454,15 @@ class AppView {
             $this->AddJsScript($mJsScript,TRUE);
         }//if($this->_isModal && $this->_modalAutoJs)
 		if(strlen($mainContainer)) {
-		    if(strpos($mainContainer,'{{CONTENT}}')===FALSE) {
-		        if($this->_debug) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-		    } else {
-		        if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-                if($this->_debug && count($this->_actions) && strpos($mainContainer,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-                if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-                $mainContainer = str_replace('{{TITLE}}',$this->_title,$mainContainer);
-                $mainContainer = str_replace('{{TARGETID}}',$this->_targetId,$mainContainer);
-                $mainContainer = str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$mainContainer);
-                $content = str_replace('{{CONTENT}}',$content,$mainContainer);
-                $content = $this->ReplaceEmptyPlaceholders($content);
-		    }//if(strpos($mainContainer,'{{CONTENT}}')===FALSE)
+		    if($this->_debug && strpos($mainContainer,'{{CONTENT}}')===FALSE) { NApp::_Wlog('{{CONTENT}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+	        if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+            if($this->_debug && count($this->_actions) && strpos($mainContainer,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+            if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+            $mainContainer = str_replace('{{TITLE}}',$this->_title,$mainContainer);
+            $mainContainer = str_replace('{{TARGETID}}',$this->_targetId,$mainContainer);
+            $mainContainer = str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$mainContainer);
+            $content = str_replace('{{CONTENT}}',$content,$mainContainer);
+            $content = $this->ReplaceEmptyPlaceholders($content);
         } else {
 		    $content = implode("\n",$this->_actions)."\n".$content;
 		}//if(strlen($mainContainer))
@@ -527,16 +528,16 @@ class AppView {
 			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
 		}//if(strlen($this->theme))
         if(!is_object($themeObj)) {
-		    if($this->_debug) { NApp::_Dlog('Invalid view object ['.$this->_theme.']!'); }
+		    if($this->_debug) { NApp::_Wlog('Invalid view object ['.$this->_theme.']!'); }
 		    return NULL;
 		}//if(!is_object($themeObj))
 		if(!method_exists($themeObj,$containerMethod)) {
-		    if($this->_debug) { NApp::_Dlog('View container method ['.$containerMethod.'] not found!'); }
+		    if($this->_debug) { NApp::_Wlog('View container method ['.$containerMethod.'] not found!'); }
 		    return NULL;
 		}//if(!method_exists($themeObj,$containerMethod))
-				ob_start();
+		ob_start();
 		$themeObj->$containerMethod($hasActions,$hasTitle);
-				$container = ob_get_clean();
+		$container = ob_get_clean();
 		return $container;
 	}//END protected function GetContainer
     /**
@@ -551,7 +552,7 @@ class AppView {
 	    if(!strlen($container)) { return FALSE; }
 	    if(strlen($targetId)) {
 	        if(strpos($container,'{{TARGETID}}')===FALSE) {
-	            if($this->_debug) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$containerType.']!'); }
+	            if($this->_debug) { NApp::_Wlog('{{TARGETID}} placeholder is missing for view container ['.$containerType.']!'); }
 		} else {
             $container = str_replace('{{TARGETID}}',$targetId,$container);
 	        }//if(strpos($container,'{{TARGETID}}')===FALSE)
@@ -559,7 +560,7 @@ class AppView {
 	    if(strlen($tag)) {
 	        $placeholder = '{{'.trim($tag,'{}').'}}';
 	        if(strpos($container,$placeholder)===FALSE) {
-	            if($this->_debug) { NApp::_Dlog($placeholder.' placeholder is missing for view container ['.$containerType.']!'); }
+	            if($this->_debug) { NApp::_Wlog($placeholder.' placeholder is missing for view container ['.$containerType.']!'); }
 	            return FALSE;
             }//if(strpos($container,$placeholder)===FALSE)
             $content = str_replace($placeholder,$content,$container);
@@ -567,7 +568,7 @@ class AppView {
             return TRUE;
 	    }//if(strlen($tag))
         if(strpos($container,'{{CONTENT}}')===FALSE) {
-            if($this->_debug) { NApp::_Dlog('{{CONTENT}} placeholder is missing for view container ['.$containerType.']!'); }
+            if($this->_debug) { NApp::_Wlog('{{CONTENT}} placeholder is missing for view container ['.$containerType.']!'); }
             return FALSE;
         }//if(strpos($container,'{{CONTENT}}')===FALSE)
         $content = str_replace('{{CONTENT}}',$content,$container);
