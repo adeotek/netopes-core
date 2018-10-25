@@ -2027,29 +2027,25 @@ class TableView {
 		if(!is_object($data) || !count($data)) { return NULL; }
 		$result = '';
 		if($this->tree) {
-			if(is_null($lvl)) { $this->tree_top_lvl = $lvl = $data->first()->safeGetLvl(1,'is_integer'); }
-			$ldata = new DataSet();
-			$odata = new DataSet();
+
 			$has_parent = is_numeric($id_parent) && $id_parent>0;
+			if(is_null($lvl)) { $this->tree_top_lvl = $lvl = $data->first()->getProperty('lvl',1,'is_integer'); }
 			foreach($data as $rowid=>$row) {
+			    if($row->getProperty('lvl',1,'is_integer')!=$lvl || ($has_parent && $row->getProperty('id_parent',1,'is_integer')!=$id_parent)) { continue; }
 				$row->__rowid = $rowid;
 				$row->__rowno = $rowid;
-				if($row->safeGetLvl(1,'is_integer')==$lvl && (!$has_parent || $row->safeGetIdParent(0,'is_integer')==$id_parent)) {
-					$ldata->add($row);
-				} else {
-					$odata->add($row);
-				}//if($row->safeGetLvl(1,'is_integer')==$lvl && (!$has_parent || $row->safeGetIdParent(0,'is_integer')==$id_parent))
-			}//END foreach
-			foreach($ldata as $row) {
+                $data->remove($rowid);
 				if($this->export_only) {
-					if(count($odata)) { $this->IterateData($odata,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer')); }
+                    if($row->getProperty('has_child',0,'is_integer')==1) {
+                        $this->IterateData($data,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
+                    }//if($row->getProperty('has_child',0,'is_integer')==1)
 					$this->SetRow($row,$r_cclass,FALSE);
 				} else {
 					$children = '';
 					$r_cclass = $this->alternate_row_collor ? ($r_cclass ? '' : 'altc') : '';
-					if(count($odata)) {
-						$children = $this->IterateData($odata,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
-					}//if(count($odata))
+					if($row->getProperty('has_child',0,'is_integer')==1) {
+					    $children = $this->IterateData($data,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
+					}//if($row->getProperty('has_child',0,'is_integer')==1)
 					$result .= $this->SetRow($row,$r_cclass,strlen($children) ? TRUE : FALSE);
 					$result .= $children;
 				}//if($this->export_only)

@@ -23,20 +23,10 @@ use NApp;
  */
 class TreeComboBox extends Control {
 	/**
-	 * @var    string Data adapter name
+	 * @var    array|null Data source configuration
 	 * @access public
 	 */
-	public $ajax_module = NULL;
-	/**
-	 * @var    string Data adapter method name
-	 * @access public
-	 */
-	public $ajax_method = NULL;
-	/**
-	 * @var    array Data adapter method params array
-	 * @access public
-	 */
-	public $ajax_params = NULL;
+	public $data_source = NULL;
 	/**
 	 * @var    bool Encrypt url parameters
 	 * @access public
@@ -51,13 +41,11 @@ class TreeComboBox extends Control {
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
-		$this->ajax_module = convert_from_camel_case($this->ajax_module);
-		$this->ajax_method = convert_from_camel_case($this->ajax_method);
 	}//END public function __construct
 	/**
 	 * Set control HTML string
 	 *
-	 * @return string|void
+	 * @return string|null
 	 * @access protected
 	 */
 	protected function SetControl() {
@@ -109,23 +97,32 @@ class TreeComboBox extends Control {
 		$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.'>'."\n";
 		$result .= "\t".'<input type="text" id="'.$this->tagid.'-cbo" value="'.$this->selectedtext.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.' readonly="readonly"'.$ltabindex.$lextratagparam.' data-value="'.$this->selectedvalue.'" data-id="'.$this->tagid.'" onclick="CBODDBtnClick(\''.$this->tagid.'\');">'."\n";
 		$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'" onclick="CBODDBtnClick(\''.$this->tagid.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
-		$result .= "\t".'<div id="'.$this->tagid.'-clear" class="'.$cbtnclass.'" onclick="TCBOSetValue(\''.$this->tagid.'\',\'null\',\'\',true);"></div>'."\n";
+		$result .= "\t".'<div id="'.$this->tagid.'-clear" class="'.$cbtnclass.'" onclick="TCBOSetValue(\''.$this->tagid.'\',\'\',\'\',true);"></div>'."\n";
 		$result .= "\t".'<div id="'.$this->tagid.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.'>';
 		$result .= "\t\t".'<div id="'.$this->tagid.'-ctree" class="'.$lddcclass.'"></div>';
 		$result .= "\t".'</div>'."\n";
 		$result .= '</div>'."\n";
-		$urlparams = '';
-		if(is_array($this->ajax_params)) {
-			foreach($this->ajax_params as $pk=>$pv) { $urlparams .= '&'.$pk.'='.$pv; }
-		}//if(is_array($this->ajax_params))
+
+		$ds_module = get_array_value($this->data_source,'ds_class','','is_string');
+        $ds_method = get_array_value($this->data_source,'ds_method','','is_string');
+        if(strlen($ds_module) && strlen($ds_method)) {
+            $ds_module = convert_from_camel_case($ds_module);
+            $ds_method = convert_from_camel_case($ds_method);
+            $urlParams = '';
+            $ds_params = get_array_value($this->data_source,'ds_params',[],'is_array');
+            if(count($ds_params)) {
+                foreach($ds_params as $pk=>$pv) { $urlParams .= '&'.$pk.'='.$pv; }
+            }//if(count($ds_params))
+            $urlJsParams = strlen($urlParams) ? "urlParams: '".$urlParams."'" : '';
+            $ds_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
+            if(count($ds_js_params)) {
+                foreach($ds_js_params as $acpk=>$acpv) { $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.': '.$acpv; }
+            }//if(count($ds_js_params))
 		$this->encrypted = $this->encrypted ? 1 : 0;
 		$this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		NApp::_SetSessionAcceptedRequest($this->uid);
-		if(NApp::ajax() && is_object(NApp::arequest())) {
-			NApp::arequest()->ExecuteJs("InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$this->ajax_module}','{$this->ajax_method}','{$urlparams}','".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).");");
-		} else {
-			$result .= "\t"."<script type=\"text/javascript\">InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$this->ajax_module}','{$this->ajax_method}','{$urlparams}','".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).");</script>"."\n";
-		}//if(NApp::ajax() && is_object(NApp::arequest()))
+            NApp::_ExecJs("InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).");");
+        }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;
 	}//END protected function SetControl

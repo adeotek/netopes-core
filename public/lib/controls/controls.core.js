@@ -441,16 +441,22 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 }//END function TCBOClear
 
 function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox) {
-	if(!elementid || elementid.length==0) { return; }
+	if(!elementid || elementid.length===0) { return; }
 	var lval = encodeURIComponent(val);
 	var aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
 	var luid = '';
 	var lparams = hide_parents_checkbox ? '&hpc=1' : '';
 	if(uid || uid.length>0) { luid += '&uid='+uid; }
+	var paramsString = '';
+	if(typeof(url_params)==='object') {
+	    for(var pk in url_params) { paramsString += '&' + pk + '=' + url_params[pk]; }
+	} else if(typeof(url_params)==='string') {
+	    paramsString = url_params;
+	}//if(typeof(url_params)==='object')
 	if(encrypt===1 || encrypt===true) {
-		aurl += '&arhash='+encodeURIComponent(GibberishAES.enc('module='+module+'&method='+method+url_params+lparams+luid+'&phash='+window.name,'xJS'));
+		aurl += '&arhash='+encodeURIComponent(GibberishAES.enc('module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name,'xJS'));
 	} else {
-		aurl += '&module='+module+'&method='+method+url_params+lparams+luid+'&phash='+window.name;
+		aurl += '&module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name;
 	}//if(encrypt===1 || encrypt===true)
 	$('#'+elementid+'-ctree').fancytree({
 		checkbox: true,
