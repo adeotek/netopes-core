@@ -372,6 +372,18 @@ class AppView {
 	public function AddTabControl(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
 		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddTabControl
+    /**
+     * @param string      $file
+     * @param string      $controlClass
+     * @param null|string $containerType
+     * @param null|string $containerId
+     * @param null|string $tag
+     * @return void
+     * @access public
+     */
+	public function AddControlContent(string $file,string $controlClass,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
+		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>$controlClass,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	}//END public function AddControlContent
 	/**
 	 * Render view content
 	 *

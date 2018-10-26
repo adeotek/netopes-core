@@ -12,8 +12,12 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\VirtualEntity;
+use PAF\AppSession;
 use NApp;
 use Translate;
+
 /**
  * AssociationManager control class
  *
@@ -164,10 +168,11 @@ abstract class AssociationManager {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->chash = \PAF\AppSession::GetNewUID(get_class_basename($this));
-		$this->uid = \PAF\AppSession::GetNewUID(get_class_basename($this),'md5');
-		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'clsAssociationManager';
+	    $this->chash = AppSession::GetNewUID();
+	    $this->uid = AppSession::GetNewUID('','md5');
+		$this->baseclass = 'cls'.get_class_basename(__CLASS__);
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
+		$this->btn_size = NApp::$theme->GetButtonsDefaultSize() ? 'brn-'.NApp::$theme->GetButtonsDefaultSize() : '';
 		if(is_array($params) && count($params)) {
 			if(!is_array($this->pdata)) { $this->pdata = []; }
 			foreach($params as $k=>$v) {
@@ -179,6 +184,12 @@ abstract class AssociationManager {
 		$this->lis_box_tagid = $this->tagid.'-lis-list';
 		$this->sis_box_tagid = $this->tagid.'-sis-list';
 		$this->ais_box_tagid = $this->tagid.'-ais-list';
+		if(!is_string($this->associated_id_field) || !strlen($this->associated_id_field)) { $this->associated_id_field = 'id'; }
+		if(!is_string($this->associated_name_field) || !strlen($this->associated_name_field)) { $this->associated_name_field = 'id'; }
+		if(!is_string($this->associated_state_field) || !strlen($this->associated_state_field)) { $this->associated_state_field = 'id'; }
+		if(!is_string($this->assignable_id_field) || !strlen($this->assignable_id_field)) { $this->assignable_id_field = 'id'; }
+		if(!is_string($this->assignable_name_field) || !strlen($this->assignable_name_field)) { $this->assignable_name_field = 'id'; }
+        if(!is_string($this->assignable_state_field) || !strlen($this->assignable_state_field)) { $this->assignable_state_field = 'id'; }
 		switch(strtolower($this->layout_type)) {
 			case 'bootstrap2':
 			case 'bootstrap3':
@@ -201,9 +212,9 @@ abstract class AssociationManager {
 	 */
 	protected function GetAssociatedItemsActions() {
 		$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-		$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+		$btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
 		$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-		$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+		$btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetDeAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
@@ -248,7 +259,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItemName($row) {
-		return get_array_value($row,$this->associated_name_field,'N/A','is_string');
+		return $row->getProperty($this->associated_name_field,'N/A','is_string');
 	}//END protected function GetAssociatedItemName
 	/**
 	 * Get associated item
@@ -257,10 +268,10 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItem($row) {
-		$item_id = get_array_value($row,'id','','is_integer');
+		$item_id = $row->getProperty($this->associated_id_field,'','is_integer');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
-		$itclass = get_array_value($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass = $row->getProperty($this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
@@ -299,18 +310,19 @@ abstract class AssociationManager {
 			NApp::_Elog($e->getMessage());
 			$items = [];
 		}//END try
+		$items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
 		$result = "\t\t\t".'<div class="clsBlock clsAssociatedItems">'."\n";
 		$result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->associated_box_title.'</span>'."\n";
 		$result .= $this->GetAssociatedItemsSummary($items);
 		$result .= $this->GetAssociatedItemsActions();
 		$result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tagid.'-sis-errors">&nbsp;</div>'."\n";
 		$result .= "\t\t\t\t".'<ul id="'.$this->sis_box_tagid.'" class="items '.($this->sortable ? ' sortable' : '').'">'."\n";
-		if(is_array($items) && count($items)) {
+		if(is_iterable($items) && count($items)) {
 			foreach($items as $v) { $result .= $this->GetAssociatedItem($v); }
 			$this->SetAssociatedItemsJs();
 		} else {
 			$result .= "\t\t".'<li class="bold ErrorMsg">'.Translate::Get('label_empty_list').'</li>'."\n";
-		}//if(is_array($items) && count($items))
+		}//if(is_iterable($items) && count($items))
 		$result .= "\t\t\t\t".'</ul>'."\n";
 		$result .= "\t\t\t".'</div>'."\n";
 		return $result;
@@ -323,9 +335,9 @@ abstract class AssociationManager {
 	 */
 	protected function GetAssignableItemsActions() {
 		$result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-		$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('btn-xxs') : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+		$btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
 		$result .= "\t\t\t\t".$btn_sel->Show()."\n";
-		$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('btn-xxs') : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+		$btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
@@ -351,15 +363,17 @@ abstract class AssociationManager {
 	/**
 	 * Get associated item display name
 	 *
+     * @param $row
 	 * @return string Returns associated item name
 	 * @access protected
 	 */
 	protected function GetAssignableItemName($row) {
-		return get_array_value($row,$this->assignable_name_field,'N/A','is_string');
+		return $row->getProperty($this->assignable_name_field,'N/A','is_string');
 	}//END protected function GetAssignableItemName
 	/**
 	 * Get assignable item
 	 *
+     * @param $row
 	 * @return string Returns assignable item HTML
 	 * @access protected
 	 */
@@ -370,7 +384,7 @@ abstract class AssociationManager {
 		$item_name = $this->GetAssignableItemName($row);
 		$liclass = strlen($this->assignable_item_class) ? ' '.$this->assignable_item_class : '';
 		$itclass = $is_associated ? ' associated' : '';
-		$itclass .= get_array_value($row,$this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass .= $row->getProperty($this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
@@ -406,18 +420,19 @@ abstract class AssociationManager {
 			NApp::_Elog($e->getMessage());
 			$items = [];
 		}//END try
+		$items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
 		$result = "\t\t\t".'<div class="clsBlock clsAssignableItems">'."\n";
 		$result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->assignable_box_title.'</span>'."\n";
 		$result .= $this->GetAssignableItemsSummary($items);
 		$result .= $this->GetAssignableItemsActions();
 		$result .= "\t\t\t\t".'<div class="subFormMsg msgErrors clearfix" id="'.$this->tagid.'-ais-errors">&nbsp;</div>'."\n";
 		$result .= "\t\t\t\t".'<ul id="'.$this->ais_box_tagid.'" class="items">'."\n";
-		if(is_array($items) && count($items)) {
+		if(is_iterable($items) && count($items)) {
 			foreach($items as $v) { $result .= $this->GetAssignableItem($v); }
 			$result .= $this->SetAssignableItemsJs();
 		} else {
 			$result .= "\t\t\t\t".'<li class="bold ErrorMsg">'.Translate::Get('label_empty_list').'</li>'."\n";
-		}//if(is_array($items) && count($items))
+		}//if(is_iterable($items) && count($items))
 		$result .= "\t\t\t\t".'</ul>'."\n";
 		$result .= "\t\t\t".'</div>'."\n";
 		return $result;
@@ -462,17 +477,18 @@ abstract class AssociationManager {
 			$items = [];
 		}//END try
 		if($items===FALSE) { return NULL; }
+		$items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
 		$result = "\t\t\t".'<div class="clsBlock clsLiveVersionItems">'."\n";
 		$result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->live_version_box_title.'</span>'."\n";
 		$result .= $this->GetLiveVersionItemsSummary($items);
 		$result .= "\t\t\t\t".'<div class="subFormActions empty"></div>'."\n";
 		$result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tagid.'-lis-errors">&nbsp;</div>'."\n";
 		$result .= "\t\t\t\t".'<ul id="'.$this->lis_box_tagid.'" class="items">'."\n";
-		if(is_array($items) && count($items)) {
+		if(is_iterable($items) && count($items)) {
 			foreach($items as $v) { $result .= $this->GetLiveVersionItem($v); }
 		} else {
 			$result .= "\t\t\t\t\t".'<li class="bold ErrorMsg">'.Translate::Get('label_empty_list').'</li>'."\n";
-		}//if(is_array($items) && count($items))
+		}//if(is_iterable($items) && count($items))
 		$result .= "\t\t\t\t".'</ul>'."\n";
 		$result .= "\t\t\t".'</div>'."\n";
 		return $result;
@@ -525,6 +541,7 @@ abstract class AssociationManager {
 	/**
 	 * Gets the output buffer content
 	 *
+     * @param bool $output
 	 * @return string Returns or outputs the content (html)
 	 * @access public
 	 */
@@ -535,7 +552,7 @@ abstract class AssociationManager {
 	/**
 	 * Load live version associated items
 	 *
-	 * @return array Returns live version associated items array
+	 * @return array|bool Returns live version associated items array
 	 * @access protected
 	 */
 	protected function LoadLiveVersionItems() {
@@ -574,4 +591,3 @@ abstract class AssociationManager {
 	 */
 	abstract protected function GetDeAssignItemsAction();
 }//END abstract class AssociationManager
-?>
