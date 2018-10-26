@@ -378,8 +378,8 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItem($row) {
-		$item_id = get_array_value($row,'id','','is_numeric');
-		$is_associated = get_array_value($row,'assoc',0,'is_numeric')==1;
+		$item_id = $row->getProperty('id','','is_numeric');
+		$is_associated = $row->getProperty('assoc',0,'is_numeric')==1;
 		if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
 		$item_name = $this->GetAssignableItemName($row);
 		$liclass = strlen($this->assignable_item_class) ? ' '.$this->assignable_item_class : '';
@@ -444,10 +444,10 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetLiveVersionItem($row) {
-		$item_id = get_array_value($row,'id','','is_numeric');
+		$item_id = $row->getProperty('id','','is_numeric');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
-		$itclass = get_array_value($row,$this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
+		$itclass = $row->getProperty($this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
 		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$result .= "\t\t\t\t\t\t".'<span class="txt'.$itclass.'">'.$item_name.'</span>'."\n";
 		$result .= "\t\t\t\t\t".'</li>'."\n";
