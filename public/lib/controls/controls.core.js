@@ -885,17 +885,18 @@ function GetCkEditorData(e) {
 /*** END For CKEditor ***/
 /*** For FileUploader ***/
 function CreateFileUploader(elementid,multi) {
-	if(multi==1) {
+	if(multi===1) {
 		if(elementid) {
 			$('#'+elementid+' .clsFileUploader').each(function(index) { CreateFileUploader(this,0); });
 		} else {
 			$('.clsFileUploader').each(function(index) { CreateFileUploader(this,0); });
 		}//if(elementid)
 	} else if(elementid) {
-		if(typeof(elementid)=='object') {
-			var element = $(elementid);
+	    var element = null;
+		if(typeof(elementid)==='object') {
+			element = $(elementid);
 		} else {
-			var element = $('#'+elementid);
+			element = $('#'+elementid);
 		}//if(typeof(elementid)=='object')
 		var droparea = false;
 		if($(element).parent().hasClass('clsDropArea')) {
