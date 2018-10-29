@@ -12,7 +12,7 @@
 namespace NETopes\Core\App;
 use PAF\AppConfig;
 use PAF\AppException;
-use \NApp;
+use NApp;
 
 /**
  * Application BaseView class
@@ -86,6 +86,11 @@ class AppView {
 	 * @access protected
 	 */
 	protected $_content = [];
+	/**
+	 * @var array Placeholders values
+	 * @access protected
+	 */
+	protected $_placeholdersValues = [];
 	/**
 	 * @var array View JS scripts to be executed on render
 	 * @access protected
@@ -174,6 +179,21 @@ class AppView {
 	public function SetModalAutoJs(bool $modalAutoJs): void {
 		$this->_modalAutoJs = $modalAutoJs;
 	}//END public function SetModalAutoJs
+	/**
+	 * @param string $placeholder
+     * @param string $value
+	 * @return void
+	 * @access public
+	 */
+	public function SetPlaceholderValue(string $placeholder,string $value): void {
+		$this->_placeholdersValues[trim($placeholder,'{}')] = $value;
+	}//END public function SetPlaceholderValue
+	/**
+	 * @return array
+	 */
+	public function GetPlaceholdersValues(): array {
+		return $this->_placeholdersValues;
+	}//END public function GetPlaceholdersValues
 	/**
 	 * @return array
 	 */
@@ -314,12 +334,12 @@ class AppView {
 	public function AddContent(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
 		$this->_content[] = ['type'=>'file','value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddContent
-	/**
-     * @param object      $object
-     * @param string      $method
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
+    /**
+     * @param object                   $object
+     * @param string                   $method
+     * @param null|string              $containerType
+     * @param null|string              $containerId
+     * @param null|string              $tag
      * @return void
      * @access public
      */
@@ -474,7 +494,7 @@ class AppView {
             $mainContainer = str_replace('{{TARGETID}}',$this->_targetId,$mainContainer);
             $mainContainer = str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$mainContainer);
             $content = str_replace('{{CONTENT}}',$content,$mainContainer);
-            $content = $this->ReplaceEmptyPlaceholders($content);
+            $content = $this->ReplacePlaceholders($content);
         } else {
 		    $content = implode("\n",$this->_actions)."\n".$content;
 		}//if(strlen($mainContainer))
@@ -593,6 +613,19 @@ class AppView {
      */
 	protected function ReplaceEmptyPlaceholders(string $content): string {
 		return preg_replace('/{{[^}]*}}/i','',$content);
+    }//END protected function ReplaceEmptyPlaceholders
+    /**
+     * @param string $content
+     * @return string
+     */
+	protected function ReplacePlaceholders(string $content): string {
+	    $placeholders = [];
+	    if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders)) {
+	        foreach($placeholders[0] as $placeholder) {
+	            $content = str_replace($placeholder,get_array_value($this->_placeholdersValues,trim($placeholder,'{}'),'','is_string'),$content);
+            }//END foreach
+	    }//if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders))
+		return $content;
     }//END protected function ReplaceEmptyPlaceholders
 }//END class AppView
 ?>

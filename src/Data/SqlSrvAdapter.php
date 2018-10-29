@@ -98,22 +98,22 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		$this->DbDebug($query,'Query',$time);
 		/*
 		if($this->debug) {
-						$spid = NULL;
-						if(is_resource($result)) {
-							$spid = [];
-							if(sqlsrv_rows_affected($result)>0) {
-								while(!is_null($next_result = sqlsrv_next_result($result))) {
-									if($next_result && sqlsrv_rows_affected($result)) {
-										while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
-									}//if($next_result && sqlsrv_rows_affected($result))
-								}//END while
-							} else {
-								while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
-							}//if(sqlsrv_rows_affected($result)>0)
-							$spid = $spid[0]['SPID'];
-						}//if(is_resource($result) && ($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)))
-						NApp::_Dlog($spid,'SPID');
-					}//if($this->debug)
+            $spid = NULL;
+            if(is_resource($result)) {
+                $spid = [];
+                if(sqlsrv_rows_affected($result)>0) {
+                    while(!is_null($next_result = sqlsrv_next_result($result))) {
+                        if($next_result && sqlsrv_rows_affected($result)) {
+                            while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
+                        }//if($next_result && sqlsrv_rows_affected($result))
+                    }//END while
+                } else {
+                    while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
+                }//if(sqlsrv_rows_affected($result)>0)
+                $spid = $spid[0]['SPID'];
+            }//if(is_resource($result) && ($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)))
+            NApp::_Dlog($spid,'SPID');
+        }//if($this->debug)
 		*/
 		if(is_resource($result)){ sqlsrv_free_stmt($result); }
 		return ($result!==FALSE);
