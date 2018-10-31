@@ -109,6 +109,7 @@ class SmartComboBox extends Control {
 	 */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();
+		$js_script_prefix = '';
 		$js_script = "\t\t({\n";
 		$raw_class = $this->GetTagClass(NULL,TRUE);
 		if(is_string($this->theme) && strlen($this->theme)) { $js_script .= "\t\t\ttheme: '{$this->theme}',\n"; }
@@ -193,14 +194,20 @@ class SmartComboBox extends Control {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp} }; }";
 					}//if(is_array($ac_js_params) && count($ac_js_params))
 					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
+					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tagid}').data('hasError','0');\n"; }
 					$js_script .= "\t\t\tajax: {
 						url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
 						data: {$ac_data_func},
-						".(strlen($errCallback) ? "error: {$errCallback}," : '')."
-				processResults: function(data,params) { return { results: data }; }
+						error: ".(strlen($errCallback) ? $errCallback : "function(response) {
+                            if($('#{$this->tagid}').data('hasError')==='0' && response.responseText==='Unauthorized access!') {
+                                $('#{$this->tagid}').data('hasError','1');
+                                window.location.reload();
+                            }
+                        }").",
+				        processResults: function(data,params) { return { results: data }; }
 					},
             ".(count($initData) ? 'data: '.json_encode($initData).',' : '')."
 			escapeMarkup: function(markup) { return markup; },
@@ -276,7 +283,7 @@ class SmartComboBox extends Control {
 			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
 		}//END foreach
 		// final result processing
-		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script,$this->tagid)) : '').'">'."\n";
+		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tagid)) : '').'">'."\n";
 		$result .= $roptions;
 		$result .= "\t\t".'</select>'."\n";
 		$result .= $this->GetActions();

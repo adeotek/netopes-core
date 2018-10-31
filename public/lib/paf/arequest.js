@@ -6,10 +6,10 @@
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.1.0
+ * @version    2.3.0
  */
 
-if(AAPP_PHASH && window.name!=AAPP_PHASH) { window.name = AAPP_PHASH; }
+if(AAPP_PHASH && window.name!==AAPP_PHASH) { window.name = AAPP_PHASH; }
 $(window).on('load',function() { setCookie('__aapp_pHash_','',1); });
 $(window).on('beforeunload',function() { setCookie('__aapp_pHash_',window.name,1); });
 
@@ -23,7 +23,7 @@ var ARequest = {
 	escapeStringMode: 'custom',
 	onARequestInitEvent : true,
 	onARequestCompleteEvent : true,
-	timers : new Array(),
+	timers : [],
 	updateProcOn : function(add_val,loader) {
 		if(loader) {
 			var lkey = 'LOADER-'+String(loader).replaceAll(' ','_').replaceAll("'",'-').replaceAll('"','-');
@@ -38,10 +38,10 @@ var ARequest = {
 	},//END updateProcOn
 	updateIndicator : function(loader,new_status) {
 		if(!loader) { return; }
-		if(typeof(loader)=='function') {
+		if(typeof(loader)==='function') {
 			loader(new_status);
 		} else {
-				if(new_status==1) {
+				if(new_status===1) {
 				$.event.trigger({ type: 'onARequestLoaderOn', loader: loader });
 				} else {
 				$.event.trigger({ type: 'onARequestLoaderOff', loader: loader });
@@ -49,39 +49,45 @@ var ARequest = {
 		}//if(typeof(loader)=='function')
 	},//END updateIndicator
 	getRequest : function() {
-		if(window.XMLHttpRequest) {
-			try {
-				return new XMLHttpRequest();
-			} catch (e) {
-			}//try
-		} else if(window.ActiveXObject) {
-			var versions = [
-		        'MSXML2.XmlHttp.5.0',
-		        'MSXML2.XmlHttp.4.0',
-		        'MSXML2.XmlHttp.3.0',
-		        'MSXML2.XmlHttp.2.0',
-		        'Microsoft.XmlHttp'
-		    ];
-		    var xhr;
-		    for(var i=0;i<versions.length;i++) {
-		        try {
-		            xhr = new ActiveXObject(versions[i]);
-		            break;
-		        } catch (e) {
-		        }//END try
-		    }//END for
-		    return xhr;
-		}//if (window.XMLHttpRequest)
+	    try {
+            return new XMLHttpRequest();
+        } catch (e) {
+            console.log(e);
+        }//try
+	    // DEPRECATED: removed since IE8
+		// if(window.XMLHttpRequest) {
+		// 	try {
+		// 		return new XMLHttpRequest();
+		// 	} catch (e) {
+		// 	}//try
+		// } else if(window.ActiveXObject) {
+		// 	var versions = [
+		//         'MSXML2.XmlHttp.5.0',
+		//         'MSXML2.XmlHttp.4.0',
+		//         'MSXML2.XmlHttp.3.0',
+		//         'MSXML2.XmlHttp.2.0',
+		//         'Microsoft.XmlHttp'
+		//     ];
+		//     var xhr;
+		//     for(var i=0;i<versions.length;i++) {
+		//         try {
+		//             xhr = new ActiveXObject(versions[i]);
+		//             break;
+		//         } catch (e) {
+		//         }//END try
+		//     }//END for
+		//     return xhr;
+		// }//if (window.XMLHttpRequest)
 	},//END getRequest
 	run : function(php,encrypted,id,act,property,session_id,request_id,post_params,loader,async,js_script,conf,jparams,callback,run_oninit_event,eparam,call_type) {
 		if(conf) {
 			var cobj = false;
-			if(encrypted==1) {
+			if(encrypted===1) {
 				eval('cobj = '+GibberishAES.dec(conf,request_id));
 			} else {
-				cobj = typeof(conf)=='object' ? conf : { type: 'std', message: conf };
+				cobj = typeof(conf)==='object' ? conf : { type: 'std', message: conf };
 			}//if(encrypted==1)
-			if(cobj && typeof(cobj)=='object') {
+			if(cobj && typeof(cobj)==='object') {
 				switch(cobj.type) {
 					case 'jqui':
 						ARequest.jquiConfirmDialog(cobj,function() {
@@ -89,7 +95,7 @@ var ARequest = {
 						});
 						return;
 					default:
-						if(confirm(decodeURIComponent(cobj.message))!=true) { return; }
+						if(confirm(decodeURIComponent(cobj.message))!==true) { return; }
 						break;
 				}//END switch
 			}//if(cobj && typeof(cobj)=='object')
@@ -101,28 +107,28 @@ var ARequest = {
 			$.event.trigger({ type: 'onARequestInit', callType: call_type, target: id, action: act, property: property });
 		}//if(run_oninit_event && ARequest.onARequestInitEvent)
 		var end_js_script = '';
-		if(js_script && js_script!='') {
+		if(js_script && js_script!=='') {
 			var scripts = js_script.split('~');
 			if(scripts[0]) { ARequest.runScript(scripts[0]); }
 			if(scripts[1]) { end_js_script = scripts[1]; }
 		}//if(js_script && js_script!='')
 		ARequest.updateProcOn(1,loader);
-		if(encrypted==1) {
+		if(encrypted===1) {
 			php = GibberishAES.dec(php,request_id);
-			if(typeof(eparam)=='object') {
+			if(typeof(eparam)==='object') {
 				for(var ep in eparam) { php = php.replace(new RegExp('#'+ep+'#','g'),eparam[ep]); }
 			}//if(typeof(eparam)=='object')
 			var jparams_str = '';
-			if(typeof(jparams)=='object') {
+			if(typeof(jparams)==='object') {
 				for(var pn in jparams) { jparams_str += 'var '+pn+' = '+JSON.stringify(jparams[pn])+'; '; }
 			}//if(typeof(jparams)=='object')
 			php = eval(jparams_str+'\''+php+'\'');
 		}//if(encrypted==1)
-		if(session_id==decodeURIComponent(session_id)) { session_id = encodeURIComponent(session_id); }
+		if(session_id===decodeURIComponent(session_id)) { session_id = encodeURIComponent(session_id); }
 		var requestString = 'req=' + encodeURIComponent((AAPP_UID ? GibberishAES.enc(php,AAPP_UID) : php))
 			+ ARequest.reqSeparator + session_id + ARequest.reqSeparator + (request_id || '');
 		requestString += '&phash='+window.name+post_params;
-		if(encrypted==1 && typeof(callback)=='string') { callback = GibberishAES.dec(callback,request_id); }
+		if(encrypted===1 && typeof(callback)==='string') { callback = GibberishAES.dec(callback,request_id); }
 		var l_call_type = call_type ? call_type : 'run';
 		ARequest.sendRequest(id,act,property,requestString,loader,end_js_script,async,callback,l_call_type);
 	},//END runExec
@@ -172,24 +178,31 @@ var ARequest = {
 	},//END runScript
 	sendRequest : function(id,act,property,requestString,loader,js_script,async,callback,call_type) {
 		var req = ARequest.getRequest();
-		var lasync = typeof(async)!='undefined' ? ((async===0 || async===false) ? false : true) : true;
+		var lasync = typeof(async)!=='undefined' ? ((!(async===0 || async===false || async==='0'))) : true;
 		req.open('POST',AAPP_TARGET,lasync);
 		req.setRequestHeader('Content-type','application/x-www-form-urlencoded');
 		req.send(requestString);
 		req.onreadystatechange = function() {
-			if(req.readyState==4) {
-				if(req.status==200) {
-                    var actions = req.responseText.split(ARequest.actSeparator);
+			if(req.readyState===4) {
+				if(req.status===200) {
+				    var actions = req.responseText.split(ARequest.actSeparator);
                     var content = actions[0]+(actions[2] ? actions[2] : '');
-                    if(id) { ARequest.put(content,id,act,property); }
+					var htmlTarget = req.getResponseHeader('HTMLTargetId');
+                    if(typeof(htmlTarget)==='string' && htmlTarget.length>0) {
+                        ARequest.put(content,htmlTarget,act,property);
+                    } else if(id) {
+                        ARequest.put(content,id,act,property);
+                    } else {
+                        $.event.trigger({ type: 'onARequestDataReceived', responseData: content });
+                    }//if(typeof(htmlTarget)==='string' && htmlTarget.length>0)
                     if(actions[1]) { eval(actions[1]); }
-                    if(js_script && js_script!='') { ARequest.runScript(js_script); }
+                    if(js_script && js_script!=='') { ARequest.runScript(js_script); }
                     ARequest.updateProcOn(-1,loader);
                     if(ARequest.onARequestCompleteEvent) { $.event.trigger({ type: 'onARequestComplete', callType: call_type }); }
                     if(callback) {
                         if(callback instanceof Function) {
                             callback();
-                        } else if(typeof(callback)=='string') {
+                        } else if(typeof(callback)==='string') {
                             eval(callback);
                         }//if(callback instanceof Function)
                     }//if(callback)
