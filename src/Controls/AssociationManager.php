@@ -79,12 +79,17 @@ abstract class AssociationManager {
 	 */
 	public $associated_box_title = 'Associated items';
 	/**
-	 * @var    string Name of display name field in the associated item array
+	 * @var    string Name of ID field in the associated item list
+	 * @access public
+	 */
+	public $associated_id_field = NULL;
+	/**
+	 * @var    string Name of display name field in the associated item list
 	 * @access public
 	 */
 	public $associated_name_field = NULL;
 	/**
-	 * @var    string Name of state field in the associated item array
+	 * @var    string Name of state field in the associated item list
 	 * @access public
 	 */
 	public $associated_state_field = NULL;
@@ -99,12 +104,17 @@ abstract class AssociationManager {
 	 */
 	public $assignable_box_title = 'Assignable items';
 	/**
-	 * @var    string Name of display name field in the assignable item array
+	 * @var    string Name of ID field in the assignable item list
+	 * @access public
+	 */
+	public $assignable_id_field = NULL;
+	/**
+	 * @var    string Name of display name field in the assignable item list
 	 * @access public
 	 */
 	public $assignable_name_field = NULL;
 	/**
-	 * @var    string Name of state field in the assignable item array
+	 * @var    string Name of state field in the assignable item list
 	 * @access public
 	 */
 	public $assignable_state_field = NULL;
@@ -268,7 +278,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItem($row) {
-		$item_id = $row->getProperty($this->associated_id_field,'','is_integer');
+		$item_id = $row->getProperty($this->associated_id_field,'','isset');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
 		$itclass = $row->getProperty($this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
@@ -290,7 +300,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItemsSummary($data,$extra = NULL) {
-		$items_no = is_array($data) ? count($data) : 0;
+		$items_no = is_iterable($data) ? count($data) : 0;
 		$result = "\t\t\t\t".'<div class="subFormSummary">'."\n";
 		$result .= "\t\t\t\t\t".'<span class="count">'.$items_no.'</span>'."\n";
 		$result .= "\t\t\t\t\t".'<label>&nbsp;'.Translate::Get('label_items').'</label>'."\n";
@@ -378,7 +388,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItem($row) {
-		$item_id = $row->getProperty('id','','is_numeric');
+		$item_id = $row->getProperty($this->assignable_id_field,'','isset');
 		$is_associated = $row->getProperty('assoc',0,'is_numeric')==1;
 		if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
 		$item_name = $this->GetAssignableItemName($row);
@@ -400,7 +410,7 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItemsSummary($data,$extra = NULL) {
-		$items_no = is_array($data) ? count($data) : 0;
+		$items_no = is_iterable($data) ? count($data) : 0;
 		$result = "\t\t\t\t".'<div class="subFormSummary">'."\n";
 		$result .= "\t\t\t\t\t".'<span class="count">'.$items_no.'</span>'."\n";
 		$result .= "\t\t\t\t\t".'<label>&nbsp;'.Translate::Get('label_items').'</label>'."\n";

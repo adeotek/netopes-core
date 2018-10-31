@@ -192,12 +192,14 @@ class SmartComboBox extends Control {
 					} else {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp} }; }";
 					}//if(is_array($ac_js_params) && count($ac_js_params))
+					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
 					$js_script .= "\t\t\tajax: {
 						url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
 						data: {$ac_data_func},
+						".(strlen($errCallback) ? "error: {$errCallback}," : '')."
 				processResults: function(data,params) { return { results: data }; }
 					},
             ".(count($initData) ? 'data: '.json_encode($initData).',' : '')."
