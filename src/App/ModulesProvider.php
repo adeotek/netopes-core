@@ -6,12 +6,13 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.9.4
  * @filesource
  */
 namespace NETopes\Core\App;
 use PAF\AppConfig;
 use PAF\AppException;
+
 /**
  * Modules controller (provider) class
  *
@@ -21,10 +22,10 @@ use PAF\AppException;
 class ModulesProvider {
 	/**
 	 * @var    string Module class prefix
-	 * @access private
+	 * @access public
 	 * @static
 	 */
-	private static $ns_path = 'Modules\\';
+	public static $ns_path = 'Modules\\';
 	/**
 	 * Get a module instance
 	 *
@@ -78,23 +79,25 @@ class ModulesProvider {
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
+     * @param null|string $dynamicTargetId
 	 * @param  bool   $reset_session_params If set to TRUE the session parameters for this module method,
 	 * will be deleted
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
+     * @throws \PAF\AppException
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
 	 */
-	public static function Exec($module,$method,$params = NULL,$reset_session_params = FALSE,$before_call = NULL) {
+	public static function Exec(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
 		if(!self::ModuleMethodExists($module,$method)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }
 		try {
 			$module_instance = self::GetModule($module);
-			return $module_instance->Exec($method,$params,$reset_session_params,$before_call);
+			return $module_instance->Exec($method,$params,$dynamicTargetId,$reset_session_params,$before_call);
 		} catch(AppException $e) {
 			if($e->getSeverity()<=0) { throw $e; }
 			\ErrorHandler::AddError($e);
+			return NULL;
 		}//END try
 	}//END public static function Exec
 	/**
@@ -103,19 +106,20 @@ class ModulesProvider {
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
+     * @param null|string $dynamicTargetId
 	 * @param  bool   $reset_session_params If set to TRUE the session parameters for this module method,
 	 * will be deleted
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
+     * @throws \PAF\AppException
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
 	 */
-	public static function ExecUnsafe($module,$method,$params = NULL,$reset_session_params = FALSE,$before_call = NULL) {
+	public static function ExecUnsafe(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
 		if(!self::ModuleMethodExists($module,$method)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }
 		$module_instance = self::GetModule($module);
-		return $module_instance->Exec($method,$params,$reset_session_params,$before_call);
+		return $module_instance->Exec($method,$params,$dynamicTargetId,$reset_session_params,$before_call);
 	}//END public static function ExecUnsafe
 	/**
 	 * Invoke a module method of the base module, not the custom one (if there is one)
@@ -123,24 +127,25 @@ class ModulesProvider {
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
+     * @param null|string $dynamicTargetId
 	 * @param  bool   $reset_session_params If set to TRUE the session parameters for this module method,
 	 * will be deleted
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
+     * @throws \PAF\AppException
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
 	 */
-	public static function ExecNonCustom($module,$method,$params = NULL,$reset_session_params = FALSE,$before_call = NULL) {
+	public static function ExecNonCustom(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
 		if(!self::ModuleMethodExists($module,$method,TRUE)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }
 		try {
 			$module_instance = self::GetModule($module,TRUE);
-			return $module_instance->Exec($method,$params,$reset_session_params,$before_call);
+			return $module_instance->Exec($method,$params,$dynamicTargetId,$reset_session_params,$before_call);
 		} catch(AppException $e) {
 			if($e->getSeverity()<=0) { throw $e; }
 			\ErrorHandler::AddError($e);
+			return NULL;
 		}//END try
 	}//END public static function ExecNonCustom
 }//END class ModulesProvider
-?>

@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.9.4
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -14,6 +14,7 @@ use GibberishAES;
 use NApp;
 use PAF\AppConfig;
 use PAF\AppException;
+
 /**
  * Module class
  *
@@ -199,16 +200,18 @@ class Module {
 	 *
 	 * @param string $method
 	 * @param mixed  $params
+     * @param null|string $dynamicTargetId
 	 * @param bool   $reset_session_params
 	 * @param mixed  $before_call
 	 * @return mixed return description
 	 * @throws \PAF\AppException
 	 * @access public
 	 */
-	public function Exec($method,$params = NULL,$reset_session_params = FALSE,$before_call = NULL) {
+	public function Exec(string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
 		$o_before_call = is_object($before_call) ? $before_call : new Params($before_call);
 		if($o_before_call->count() && !$this->_BeforeExec($before_call)) { return FALSE; }
 		$o_params = is_object($params) ? $params : new Params($params);
+		if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) { NApp::arequest()->SetDynamicTarget($dynamicTargetId); }
 		if($reset_session_params) { $this->SetSessionParamValue(NULL,$method); }
 		return $this->$method($o_params);
 	}//END public function Exec
@@ -216,11 +219,10 @@ class Module {
      * Add JavaScript code to execution queue
      *
      * @param string $script
-     * @param bool   $first
      * @return void
      * @access public
      */
-	public function AddJsScript(string $script,bool $first = FALSE): void {
+	public function AddJsScript(string $script): void {
 		NApp::_ExecJs($script);
 	}//END public function AddJsScript
 	/**
@@ -367,14 +369,14 @@ class Module {
 	 * Gets the view full file name (including absolute path)
 	 *
 	 * @param  string $name View name (without extension)
-	 * @param  string $sub_dir View sub-directory or empty/NULL for none
-	 * @param  string $theme_dir View theme sub-directory
+	 * @param  string|null $sub_dir View sub-directory or empty/NULL for none
+	 * @param  string|null $theme_dir View theme sub-directory
 	 * (if empty/NULL) application configuration will be used
 	 * @return string Returns view full name (including absolute path and extension)
 	 * @throws \PAF\AppException
 	 * @access public
 	 */
-	private function ViewFileProvider($name,$sub_dir = NULL,$theme_dir = NULL) {
+	private function ViewFileProvider(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		$fname = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.AppConfig::app_views_extension();
 		// Get theme directory and theme views base directory
 		$app_theme = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
@@ -441,14 +443,14 @@ class Module {
 	 * Gets the view full file name (including absolute path)
 	 *
 	 * @param  string $name View name (without extension)
-	 * @param  string $sub_dir View sub-directory or empty/NULL for none
-	 * @param  string $theme_dir View theme sub-directory
+	 * @param  string|null $sub_dir View sub-directory or empty/NULL for none
+	 * @param  string|null $theme_dir View theme sub-directory
 	 * (if empty/NULL) application configuration will be used
 	 * @return string Returns view full name (including absolute path and extension)
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function GetViewFile($name,$sub_dir = NULL,$theme_dir = NULL) {
+	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		// NApp::StartTimeTrack('MGetViewFile');
 		$result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
 		// NApp::_Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
@@ -506,4 +508,3 @@ class Module {
 		return $result;
 	}//END public function GetCallDebugData
 }//END class Module
-?>

@@ -53,9 +53,9 @@ class AjaxRequest extends \PAF\AjaxRequest {
 			$o_params->set('target',$target);
 			$o_params->set('phash',$window_name);
 			if($non_custom) {
-				ModulesProvider::ExecNonCustom($module,$method,$o_params,(bool)$reset_session_params);
+				ModulesProvider::ExecNonCustom($module,$method,$o_params,NULL,(bool)$reset_session_params);
 			} else {
-				ModulesProvider::Exec($module,$method,$o_params,(bool)$reset_session_params);
+				ModulesProvider::Exec($module,$method,$o_params,NULL,(bool)$reset_session_params);
 			}//if($non_custom)
 			if(strlen(AppConfig::app_areq_js_callback())) { $this->ExecuteJs(AppConfig::app_areq_js_callback()); }
 		} catch(AppException $e) {
