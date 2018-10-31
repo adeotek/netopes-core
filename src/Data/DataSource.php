@@ -145,7 +145,11 @@ class DataSource {
                     $result = new $entity_class($data);
                 } else {
 					if(is_object($fElement)) {
-				        $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
+					    if(isset($fieldToUseAsKey)) {
+				        	$result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
+					    } else {
+					        $result = new DataSet($data);
+					    }//if(isset($fieldToUseAsKey))
 			        } else {
 				        $result = new DataSet();
 				        foreach($data as $v) {
