@@ -52,5 +52,17 @@ trait DoctrineRepositoryBaseTrait {
 		NApp::_Dlog($lquery,$llabel);
 		if(AppConfig::db_debug2file()) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
+	/**
+     * Finds entities by a set of criteria.
+     *
+     * @param array      $criteria
+     *
+     * @return int The objects.
+     */
+    public function countBy(array $criteria)
+    {
+        $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
+        return $persister->count($criteria);
+    }
 }//END trait DoctrineRepositoryBaseTrait
 ?>
