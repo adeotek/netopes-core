@@ -48,7 +48,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
 			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
-			//NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+			// NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 		} catch(\Exception $e){
 			throw new AppException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
@@ -433,4 +433,3 @@ class MySqlAdapter extends SqlDataAdapter {
 		return $result;
 	}//END public function MySqlEscapeString
 }//END class MySqlAdapter extends SqlDataAdapter
-?>
