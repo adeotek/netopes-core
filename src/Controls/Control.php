@@ -81,6 +81,11 @@ abstract class Control {
 	 */
 	public $no_label = FALSE;
 	/**
+	 * @var    string Tag style base value
+	 * @access protected
+	 */
+	protected $tag_base_style = ''; // Old value: 'display: inline-block;';
+	/**
 	 * @var    bool Output buffer on/off
 	 * @access protected
 	 */
@@ -370,21 +375,21 @@ abstract class Control {
 				if(isset($f_width) && strlen($f_width)) {
 					if(is_numeric($f_width)) {
 						if($f_width>0) {
-							$lstyle .= ' display: inline-block; width: '.$f_width.'px;';
+							$lstyle .= ' '.$this->tag_base_style.' width: '.$f_width.'px;';
 							$fwidth = TRUE;
 						}//if($this->fixed_width>0)
 					} else {
-						$lstyle .= ' display: inline-block; width: '.$f_width.';';
+						$lstyle .= ' '.$this->tag_base_style.' width: '.$f_width.';';
 						$fwidth = TRUE;
 					}//if(is_numeric($f_width))
 				}//if(isset($f_width) && strlen($f_width))
 				if(!$fwidth) {
 				    if($this->container) {
-				        $lstyle .= ' display: inline-block;';
+				        $lstyle .= ' '.$this->tag_base_style;
 				    } else {
 				        $wo = is_numeric($this->width_offset) ? $this->width_offset : 0;
                         $a_width = $this->GetActionsWidth();
-                        if($a_width>0) { $lstyle .= ' display: inline-block; width: calc(100% - '.($a_width+$wo).'px);'; }
+                        if($a_width>0) { $lstyle .= ' '.$this->tag_base_style.' width: calc(100% - '.($a_width+$wo).'px);'; }
 				    }//if($this->container)
 				}//if(!$fwidth)
 				break;
@@ -895,4 +900,3 @@ abstract class Control {
 		return $result;
 	}//END public static function GetTranslationData
 }//END abstract class Control
-?>
