@@ -310,6 +310,12 @@
 			curl_setopt($c_url,CURLOPT_POST,TRUE);
 			curl_setopt($c_url,CURLOPT_POSTFIELDS,$params['post_params']);
 		}//if(isset($params['post_params']) && $params['post_params'])
+
+		if(isset($params['auth_username']) && $params['auth_username']) {
+		    curl_setopt($c_url,CURLOPT_USERPWD,$params['auth_username'].':'.(isset($params['auth_password']) ? $params['auth_password'] : ''));
+            curl_setopt($c_url,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
+		}//if(isset($params['auth_username']) && $params['auth_username'])
+
 		$result = curl_exec($c_url);
 		$error = curl_error($c_url);
 		$info = curl_getinfo($c_url);
