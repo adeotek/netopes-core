@@ -105,7 +105,7 @@ class AppView {
 	 * @var object Parent module object
 	 * @access public
 	 */
-	public $parent = NULL;
+	public $module = NULL;
 	/**
 	 * Pass trough parameters magic getter
 	 *
@@ -123,17 +123,17 @@ class AppView {
 	 *
 	 * @param array $params Pass trough variables array
 	 * Obtained by calling: get_defined_vars()
-	 * @param null|object $parent
+	 * @param null|object $module
      * @param null|string $containerType
 	 * @access public
 	 */
-	public function __construct(array $params,$parent = NULL,?string $containerType = NULL) {
+	public function __construct(array $params,$module = NULL,?string $containerType = NULL) {
 	    $this->_debug = AppConfig::debug();
 		$this->_params = $params;
-		if(is_object($parent)) {
-			$this->parent = $parent;
-			foreach(get_object_vars($parent) as $pn=>$pv) { $this->_passTrough[$pn] = $pv; }
-		}//if(is_object($parent))
+		if(is_object($module)) {
+			$this->module = $module;
+			foreach(get_object_vars($this->module) as $pn=>$pv) { $this->_passTrough[$pn] = $pv; }
+		}//if(is_object($module))
 		if(isset($containerType)) { $this->_containerType = $containerType; }
 	}//END public function __construct
 	/**
