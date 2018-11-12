@@ -1335,9 +1335,15 @@ abstract class CoreNApp extends \PAF\App {
 	/**
 	 * Load instance specific configuration options (into protected $instanceConfig property)
 	 *
-	 * @return array
+	 * @return void
 	 * @access public
 	 */
 	protected abstract function LoadInstanceConfig(): void;
+	/**
+	 * Get current user ID
+	 *
+	 * @return int|null Returns current user ID
+	 * @access public
+	 */
+	public abstract function GetCurrentUserId(): ?int;
 }//END class CoreNApp extends \PAF\App
-?>

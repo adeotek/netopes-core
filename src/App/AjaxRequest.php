@@ -16,6 +16,7 @@ use GibberishAES;
 use PAF\AppConfig;
 use PAF\AppException;
 use NApp;
+
 /**
  * AjaxRequest implementation class
  *

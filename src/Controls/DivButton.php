@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+
 /**
  * ClassName description
  *

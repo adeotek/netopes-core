@@ -12,7 +12,10 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use PAF\AppSession;
 use NApp;
+use GibberishAES;
+
 /**
  * ClassName description
  *
@@ -46,19 +49,20 @@ class Link extends Control {
 	 * @access public
 	 */
 	protected function SetControl() {
-		$ltooltip = '';
+	    $ltooltip = '';
 		$ttclass = '';
 		if(strlen($this->tooltip)) {
 			$ltooltip = ' title="'.$this->tooltip.'"';
 			$ttclass = 'clsTitleSToolTip';
 		}//if(strlen($this->tooltip))
-		$licon = strlen($this->icon) ? '<i class="'.$this->icon.'"></i>' : '';
+        $ttclass .= !strlen($this->value) ? (strlen($ttclass) ? ' ': '').'io' : '';
+        $licon = is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
 		$lsufix = strlen($this->sufix) ? $this->sufix : '';
 		$ltarget = (strlen($this->target) ? ' target="'.$this->target.'"' : '');
 		$epass = is_string($this->encrypted) && strlen($this->encrypted) ? $this->encrypted : 'eUrlHash';
 		$url_params = '';
 		if(is_array($this->session_params) && count($this->session_params)) {
-			$shash = rawurlencode(\PAF\AppSession::GetNewUID($this->tagid.serialize($this->session_params),'sha1',TRUE));
+			$shash = rawurlencode(AppSession::GetNewUID($this->tagid.serialize($this->session_params),'sha1',TRUE));
 			$namespace = get_array_value($this->url_params,'namespace','','is_string');
 			NApp::_SetParam($shash,$this->session_params,FALSE,$namespace);
 			$url_params = 'shash='.$shash;
@@ -68,7 +72,7 @@ class Link extends Control {
 				if(is_array($v)) {
 					$val = '';
 					foreach($v as $hp) { $val .= (strlen($val) ? $this->hash_separator : '').$hp; }
-					if(strlen($val) && $this->encrypted!==FALSE) { $val = \GibberishAES::enc($val,$epass); }
+					if(strlen($val) && $this->encrypted!==FALSE) { $val = GibberishAES::enc($val,$epass); }
 				} else {
 					$val = $v;
 				}//if(is_array($v))
@@ -82,4 +86,3 @@ class Link extends Control {
 		return $result;
 	}//END protected function SetControl
 }//END class Link extends Control
-?>
