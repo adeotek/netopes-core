@@ -293,10 +293,10 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 $conditionString = $conditionType=='==' ? '=' : $conditionType;
                 $nullConditionString = 'IS '.($conditionType=='<>' ? ' NOT ' : '').'NULL';
                 if(strtolower($dataType)=='string') {
-                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_string'));
+                    $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_string'));
                     $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
                 } else {
-                    $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                    $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $filterValueS = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,0);
                         $filterValueE = Validator::ConvertDateTimeToDbFormat($filterValue,NULL,1);
@@ -313,7 +313,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             case '<=':
             case '>=':
                 $conditionString = $conditionType;
-                $filterValue = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
+                $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $daypart = ($conditionType=='<=' ? 1 : 0);
@@ -326,8 +326,8 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 break;
             case '><':
                 $conditionString = 'BETWEEN';
-                $filterValueS = $this->EscapeString(get_array_param($condition,'value',NULL,'?is_notempty_string'));
-                $filterValueE = $this->EscapeString(get_array_param($condition,'svalue',NULL,'?is_notempty_string'));
+                $filterValueS = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
+                $filterValueE = $this->EscapeString(get_array_value($condition,'svalue',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $daypart = 0;
