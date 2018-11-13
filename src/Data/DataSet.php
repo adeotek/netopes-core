@@ -9,7 +9,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.9.8
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -223,6 +223,16 @@ class DataSet implements Collection {
     public function get($key)
     {
         return $this->elements[$key] ?? null;
+    }
+    /**
+	 * @param string|int  $key
+	 * @param mixed       $default_value
+	 * @param string|null $validation
+	 * @return mixed
+	 */
+    public function safeGet($key,$default_value = NULL,$validation = NULL)
+    {
+        return get_array_value($this->elements,$key,$default_value,$validation);
     }
     /**
      * {@inheritDoc}

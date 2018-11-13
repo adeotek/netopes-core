@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.5.5
+ * @version    2.2.9.8
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -71,6 +71,11 @@ class AppView {
 	 * @access protected
 	 */
 	protected $_modalAutoJs = TRUE;
+	/**
+	 * @var string|null Modal view custom close js
+	 * @access protected
+	 */
+	protected $_modalCustomClose = NULL;
 	/**
 	 * @var array View pass trough params
 	 * @access protected
@@ -179,6 +184,20 @@ class AppView {
 	public function SetModalAutoJs(bool $modalAutoJs): void {
 		$this->_modalAutoJs = $modalAutoJs;
 	}//END public function SetModalAutoJs
+	/**
+	 * @return string|null
+	 */
+	public function GetModalCustomClose(): ?string {
+		return $this->_modalCustomClose;
+	}//END public function GetModalCustomClose
+	/**
+	 * @param string|null $modalCustomClose
+	 * @return void
+	 * @access public
+	 */
+	public function SetModalCustomClose(?string $modalCustomClose): void {
+		$this->_modalCustomClose = $modalCustomClose;
+	}//END public function SetModalCustomClose
 	/**
 	 * @param string $placeholder
      * @param string $value
@@ -482,7 +501,9 @@ class AppView {
 		if($this->_isModal && $this->_modalAutoJs) {
             $mJsScript = strlen($this->_targetId) ? "ShowDynamicModalForm('{$this->_targetId}'," : "ShowModalForm(";
             $mJsScript .= is_numeric($this->_modalWidth) && $this->_modalWidth>0 ? $this->_modalWidth : (is_string($this->_modalWidth) && strlen($this->_modalWidth) ? "'{$this->_modalWidth}'" : 300);
-            $mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '')."));" : ",'{$this->_title}');";
+            $mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '')."));" : ",'{$this->_title}'";
+            if(is_String($this->_modalCustomClose) && strlen($this->_modalCustomClose)) { $mJsScript .= ','.$this->_modalCustomClose; }
+            $mJsScript .= ');';
             $this->AddJsScript($mJsScript,TRUE);
         }//if($this->_isModal && $this->_modalAutoJs)
 		if(strlen($mainContainer)) {

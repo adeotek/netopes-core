@@ -9,7 +9,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.2.9.8
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -251,7 +251,10 @@ class Params implements Collection {
     public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
     {
         $result = get_array_value($this->elements,$key,NULL,$validation);
-        if(is_null($result)) { throw new AppException($failMessage??'Invalid value for: '.print_r($key)); }
+        if(is_null($result)) {
+            $dbgTrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
+            throw new AppException($failMessage??'Invalid value for: '.print_r($key),E_ERROR,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
+        }//if(is_null($result))
         return $result;
     }
 	/**

@@ -152,11 +152,11 @@ class DataSource {
 					    }//if(isset($fieldToUseAsKey))
 			        } else {
 				        $result = new DataSet();
-				        foreach($data as $v) {
+				        foreach($data as $k=>$v) {
 				            if(strlen($fieldToUseAsKey)) {
-				                $result->set(get_array_value($v,$fieldToUseAsKey,NULL,'isset'),new $entity_class($v));
+				                $result->set(get_array_value($v,$fieldToUseAsKey,$k,'isset'),new $entity_class($v));
 				            } else {
-				                $result->add(new $entity_class($v));
+				                $result->set($k,new $entity_class($v));
 				            }//if(strlen($fieldToUseAsKey))
 				        }//END foreach
 					}//if(is_object($fElement))
