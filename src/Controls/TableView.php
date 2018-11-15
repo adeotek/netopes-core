@@ -1305,47 +1305,53 @@ class TableView {
 					}//if($c_data_type=='numeric')
 					$this->SetCellSubTotal($name,$c_value,$c_summarize_type);
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-				$c_type_s = get_array_value($v,$params_prefix.'control_type',NULL,'is_notempty_string');
-				$c_type = '\NETopes\Core\Controls\\'.$c_type_s;
-				if(!$c_type_s || !class_exists($c_type)) {
-					\NApp::_Elog('Control class ['.$c_type.'] not found!');
-					continue;
-				}//if(!$c_type_s || !class_exists($c_type))
-				$c_params = Control::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
-					if($is_iterator) {
-					$c_params['value'] = $row->getProperty($c_params['value'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
-					} elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($c_params['value']) && isset($v['db_field'])) {
-					$c_params['value'] = $row->getProperty($v['db_field'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
-					}//if($is_iterator)
-					if(isset($c_params['tagid'])) {
-					$key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
-						$key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
-						$c_params['tagid'] .= '_'.$key_value;
-					}//if(isset($c_params['tagid']))
-					$p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
-					if(is_array($p_pafreq) && count($p_pafreq)) {
-						foreach($p_pafreq as $pr) {
-							if(!isset($c_params[$pr]) || !is_string($c_params[$pr]) || !strlen($c_params[$pr])) { continue; }
-							$c_params[$pr] = NApp::arequest()->Prepare($c_params[$pr],$this->loader);
-						}//END foreach
-					}//if(is_array($p_pafreq) && count($p_pafreq))
-					$c_action_params = NULL;
-					$pp_params = get_array_value($v,$params_prefix.'passtrough_params',NULL,'is_array');
-					if(is_array($pp_params) && count($pp_params)) {
-					$c_action_params = [];
-						foreach($pp_params as $pk=>$pv) {
-						$c_action_params[$pk] = $row->getProperty($pv,NULL,'isset');
-						}//END foreach
-					}//if(is_array($pp_params) && count($pp_params))
-					// Add [action_params] array to each action of the control
-					if($c_action_params && isset($c_params['actions']) && is_array($c_params['actions'])) {
-						foreach($c_params['actions'] as $ak=>$av) {
-							$c_params['actions'][$ak]['action_params'] = $c_action_params;
-						}//END foreach
-					}//if($c_action_params && isset($c_params['actions']) && is_array($c_params['actions']))
-					$control = new $c_type($c_params);
-					if(get_array_value($v,$params_prefix.'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
-					$result = $control->Show();
+				$cValue = $row->getProperty($v['db_field'],NULL,'isset');
+				$defaultDisplayValue = get_array_value($v,'default_display_value',NULL,'is_string');
+				if(is_null($cValue) && isset($defaultDisplayValue)) {
+				    $result = $defaultDisplayValue;
+				} else {
+				    $c_type_s = get_array_value($v,$params_prefix.'control_type',NULL,'is_notempty_string');
+                    $c_type = '\NETopes\Core\Controls\\'.$c_type_s;
+                    if(!$c_type_s || !class_exists($c_type)) {
+                        \NApp::_Elog('Control class ['.$c_type.'] not found!');
+                        continue;
+                    }//if(!$c_type_s || !class_exists($c_type))
+                    $c_params = Control::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
+                    if($is_iterator) {
+                        $c_params['value'] = $row->getProperty($c_params['value'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
+                    } elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($c_params['value']) && isset($v['db_field'])) {
+                        $c_params['value'] = isset($cValue) && $cValue!=='' ? $cValue : get_array_value($v,'default_value','','is_string');
+                    }//if($is_iterator)
+                    if(isset($c_params['tagid'])) {
+                        $key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
+                        $key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
+                        $c_params['tagid'] .= '_'.$key_value;
+                    }//if(isset($c_params['tagid']))
+                    $p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
+                    if(is_array($p_pafreq) && count($p_pafreq)) {
+                        foreach($p_pafreq as $pr) {
+                            if(!isset($c_params[$pr]) || !is_string($c_params[$pr]) || !strlen($c_params[$pr])) { continue; }
+                            $c_params[$pr] = NApp::arequest()->Prepare($c_params[$pr],$this->loader);
+                        }//END foreach
+                    }//if(is_array($p_pafreq) && count($p_pafreq))
+                    $c_action_params = NULL;
+                    $pp_params = get_array_value($v,$params_prefix.'passtrough_params',NULL,'is_array');
+                    if(is_array($pp_params) && count($pp_params)) {
+                        $c_action_params = [];
+                        foreach($pp_params as $pk=>$pv) {
+                            $c_action_params[$pk] = $row->getProperty($pv,NULL,'isset');
+                        }//END foreach
+                    }//if(is_array($pp_params) && count($pp_params))
+                    // Add [action_params] array to each action of the control
+                    if($c_action_params && isset($c_params['actions']) && is_array($c_params['actions'])) {
+                        foreach($c_params['actions'] as $ak=>$av) {
+                            $c_params['actions'][$ak]['action_params'] = $c_action_params;
+                        }//END foreach
+                    }//if($c_action_params && isset($c_params['actions']) && is_array($c_params['actions']))
+                    $control = new $c_type($c_params);
+                    if(get_array_value($v,$params_prefix.'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
+                    $result = $control->Show();
+				}//if(is_null($cValue))
 				break;
 			case 'value':
 				// Check conditions for displaing action

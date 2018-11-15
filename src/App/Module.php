@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.4
+ * @version    2.2.10.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -31,15 +31,15 @@ class Module {
 	 */
 	private static $ModuleInstances = [];
 	/**
-	 * @var    array Module request array
-	 * @access protected
-	 */
-	protected $req_params = [];
-	/**
 	 * @var    array Module instance debug data
 	 * @access protected
 	 */
-	protected $debug_data = NULL;
+	protected $debugData = NULL;
+    /**
+	 * @var    string Views files extension
+	 * @access public
+	 */
+	public $viewsExtension;
 	/**
 	 * @var    string Short class name (called class without base prefix)
 	 * @access public
@@ -86,8 +86,21 @@ class Module {
 	 * @access protected
 	 */
 	protected function __construct() {
+	    $this->viewsExtension = AppConfig::app_views_extension();
 		$this->_Init();
 	}//END protected function __construct
+	/**
+	 * Magic getter for [module] virtual property
+	 *
+	 * @param string $name
+	 * @return mixed Returns $this
+	 * @access public
+	 * @throws \PAF\AppException
+	 */
+	public function __get(string $name) {
+	    if($name==='module') { throw new AppException('Undefined module property ['.$name.']!',E_ERROR,1); }
+		return $this;
+	}//END public function __call
 	/**
 	 * Module class method call
 	 *
@@ -97,8 +110,8 @@ class Module {
 	 * @access public
 	 * @throws \PAF\AppException
 	 */
-	public function __call($name,$arguments) {
-		if(strpos($name,'DRights')===FALSE) { throw new \PAF\AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
+	public function __call(string $name,$arguments) {
+		if(strpos($name,'DRights')===FALSE) { throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
 		$method = get_array_value($arguments,0,call_back_trace(),'is_notempty_string');
 		$module = get_array_value($arguments,1,get_called_class(),'is_notempty_string');
 		return self::GetDRights($module,$method,str_replace('DRights','',$name));
@@ -114,7 +127,7 @@ class Module {
 	 * @static
 	 */
 	public static function __callStatic($name,$arguments) {
-		if(strpos($name,'DRights')===FALSE) { throw new \PAF\AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
+		if(strpos($name,'DRights')===FALSE) { throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
 		$method = get_array_value($arguments,0,'','is_notempty_string');
 		$module = get_array_value($arguments,1,get_called_class(),'is_notempty_string');
 		return self::GetDRights($module,$method,str_replace('DRights','',$name));
@@ -345,111 +358,140 @@ class Module {
 		}//if($params->safeGet('modal',TRUE,'bool'))
 	}//END public function CloseForm
 	/**
-	 * @param string $module Module full qualified name
-	 * @return array|null Returns and array containing parent class name, full class name, path
-	 * or NULL if invalid module is provided
-	 */
+     * @param string $module Module full qualified name
+     * @return array|null Returns and array containing parent class name, full class name, path
+     * or NULL if invalid module is provided
+     * @throws \ReflectionException
+     */
 	public static function GetParents($module) {
 		if(!is_string($module) || !strlen($module) || !class_exists($module)) { return NULL; }
 		$result = [];
-		$m_parent_class = get_parent_class($module);
-		while($m_parent_class) {
-			$m_parent_arr = explode('\\',trim($m_parent_class,'\\'));
-			$m_parent = array_pop($m_parent_arr);
-			if($m_parent=='Module') { break; }
-			array_shift($m_parent_arr);
-			array_shift($m_parent_arr);
-			$m_path = implode(DIRECTORY_SEPARATOR,$m_parent_arr);
-			$result[] = ['name'=>$m_parent,'class'=>$m_parent_class,'path'=>$m_path];
-			$m_parent_class = get_parent_class($m_parent_class);
+		$mParentClass = get_parent_class($module);
+		while($mParentClass) {
+			$mParent = array_pop(explode('\\',trim($mParentClass,'\\')));
+			if($mParent=='Module') { break; }
+			$rc = new \ReflectionClass($mParentClass);
+            $mPath = dirname($rc->getFileName());
+			$result[] = ['name'=>$mParent,'class'=>$mParentClass,'path'=>$mPath];
+			$mParentClass = get_parent_class($mParentClass);
 		}//END while
 		return $result;
 	}//END public static function GetParents
-	/**
-	 * Gets the view full file name (including absolute path)
-	 *
-	 * @param  string $name View name (without extension)
-	 * @param  string|null $sub_dir View sub-directory or empty/NULL for none
-	 * @param  string|null $theme_dir View theme sub-directory
-	 * (if empty/NULL) application configuration will be used
-	 * @return string Returns view full name (including absolute path and extension)
-	 * @throws \PAF\AppException
-	 * @access public
-	 */
+    /**
+     * Gets the view full file name (including absolute path)
+     *
+     * @param  string      $name View name (without extension)
+     * @param  string|null $sub_dir View sub-directory or empty/NULL for none
+     * @param  string|null $theme_dir View theme sub-directory
+     * (if empty/NULL) application configuration will be used
+     * @return string Returns view full name (including absolute path and extension)
+     * @throws \PAF\AppException
+     * @throws \ReflectionException
+     * @access public
+     */
 	private function ViewFileProvider(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
-		$fname = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.AppConfig::app_views_extension();
-		// Get theme directory and theme views base directory
-		$app_theme = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
-		$views_def_dir = AppConfig::app_default_views_dir();
-		$theme_modules_views_path = AppConfig::app_theme_modules_views_path();
-		$defdir = (is_string($views_def_dir) ? (strlen(trim($views_def_dir,'/')) ? '/'.trim($views_def_dir,'/') : '') : '/_default');
-		$themedir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($app_theme) && strlen($app_theme) ? $app_theme : NULL);
-		$basedir = NULL;
-		if(isset($themedir)) {
-			if(is_string($theme_modules_views_path) && strlen($theme_modules_views_path)) {
-				if(!file_exists(NApp::app_path().'/'.trim($theme_modules_views_path,'/\\'))) { throw new AppException('Invalid views theme path!'); }
-				$basedir = NApp::app_path().'/'.trim($theme_modules_views_path,'/\\').DIRECTORY_SEPARATOR;
-			}//if(is_string($theme_modules_views_path) && strlen($theme_modules_views_path))
-		}//if(isset($themedir))
-		// NApp::_Dlog($fname,'$fname');
-		// NApp::_Dlog($theme_dir,'$theme_dir');
-		// NApp::_Dlog($basedir,'$basedir');
-		$parents = self::GetParents($this->class);
-		$m_path_arr = explode('\\',trim($this->class,'\\'));
-		// NApp::_Dlog($this->class,'$this->class');
-		array_shift($m_path_arr);
-		array_shift($m_path_arr);
-		array_pop($m_path_arr);
-		$m_path = implode(DIRECTORY_SEPARATOR,$m_path_arr);
-		// NApp::_Dlog($m_path,'$m_path');
-		// For themed views stored outside "modules" directory (with fallback on "modules" directory)
-		if($basedir) {
-			if(file_exists($basedir.$m_path.$fname)) { return $basedir.$m_path.$fname; }
-			if($parents) {
-				foreach($parents as $parent) {
-					$p_path = get_array_value($parent,'path','','is_string');
-					if(file_exists($basedir.$p_path.$fname)) { return $basedir.$parent.$fname; }
-				}//END foreach
-			}//if($parents)
-		}//if($basedir)
-		// Get theme view file
-		$m_full_path = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$m_path;
-			if($themedir && !$basedir) {
-			// NApp::_Dlog($m_full_path.'/'.$themedir.$fname,'Check[T.C]');
-			if(file_exists($m_full_path.'/'.$themedir.$fname)) { return $m_full_path.'/'.$themedir.$fname; }
-			}//if($themedir && !$basedir)
+        $fName = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.$this->viewsExtension;
+        // Get theme directory and theme views base directory
+		$appTheme = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
+		$viewsDefDir = AppConfig::app_default_views_dir();
+		$themeModulesViewsPath = AppConfig::app_theme_modules_views_path();
+		$defDir = (is_string($viewsDefDir) ? (strlen(trim($viewsDefDir,'/')) ? '/'.trim($viewsDefDir,'/') : '') : '/_default');
+        $themeDir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($appTheme) && strlen($appTheme) ? $appTheme : NULL);
+
+        // NApp::_Dlog($fName,'$fName');
+		// NApp::_Dlog($themeDir,'$themeDir');
+        if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath)) {
+            if(!file_exists(NApp::app_path().'/'.trim($themeModulesViewsPath,'/\\'))) { throw new AppException('Invalid views theme path!'); }
+            $baseDir = NApp::app_path().'/'.trim($themeModulesViewsPath,'/\\').DIRECTORY_SEPARATOR;
+            // NApp::_Dlog($baseDir,'$baseDir');
+            // NApp::_Dlog($this->class,'$this->class');
+            $mPathArr = explode('\\',trim($this->class,'\\'));
+            array_shift($mPathArr);
+            array_shift($mPathArr);
+            array_pop($mPathArr);
+            $mPath = implode(DIRECTORY_SEPARATOR,$mPathArr);
+            // NApp::_Dlog($mPath,'$mPath');
+
+            $parents = self::GetParents($this->class);
+            // NApp::_Dlog($parents,'$parents');
+            // For themed views stored outside "modules" directory (with fallback on "modules" directory)
+            if($baseDir) {
+                if(file_exists($baseDir.$mPath.$fName)) { return $baseDir.$mPath.$fName; }
+                if($parents) {
+                    foreach($parents as $parent) {
+                        $p_path = get_array_value($parent,'path','','is_string');
+                        if(file_exists($baseDir.$p_path.$fName)) { return $baseDir.$parent.$fName; }
+                    }//END foreach
+                }//if($parents)
+            }//if($baseDir)
+            // Get theme view file
+            $mFullPath = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
+
+            if($themeDir && !$baseDir) {
+                // NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
+                if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
+            }//if($themeDir && !$baseDir)
+            // Get default theme view file
+            // NApp::_Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
+            if(file_exists($mFullPath.$defDir.$fName)) { return $mFullPath.$defDir.$fName; }
+            // Get view from parent classes hierarchy
+            if($parents) {
+                foreach($parents as $parent) {
+                    // NApp::_Dlog($parent,'$parent');
+                    $pPath = get_array_value($parent,'path','','is_string');
+                    $pFullPath = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$pPath;
+                    // Get from parent theme dir
+                    if($themeDir && !$baseDir) {
+                        // NApp::_Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
+                        if(file_exists($pFullPath.'/'.$themeDir.$fName)) { return $pFullPath.'/'.$themeDir.$fName; }
+                    }//if($themeDir && !$baseDir)
+                    // Get view from current parent class path
+                    // NApp::_Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
+                    if(file_exists($pFullPath.$defDir.$fName)) { return $pFullPath.$defDir.$fName; }
+                }//END foreach
+            }//if($parents)
+        }//if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath))
+
+        $rc = new \ReflectionClass($this);
+        $mFullPath = dirname($rc->getFileName());
+		if($themeDir) {
+			// NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
+			if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
+		}//if($themeDir)
 		// Get default theme view file
-		// NApp::_Dlog($m_full_path.$defdir.$fname,'Check[D.C]');
-		if(file_exists($m_full_path.$defdir.$fname)) { return $m_full_path.$defdir.$fname; }
-			// Get view from parent classes hierarchy
+		// NApp::_Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
+		if(file_exists($mFullPath.$defDir.$fName)) { return $mFullPath.$defDir.$fName; }
+		$parents = self::GetParents($this->class);
+        // NApp::_Dlog($parents,'$parents');
+        // Get view from parent classes hierarchy
 		if($parents) {
 			foreach($parents as $parent) {
 				// NApp::_Dlog($parent,'$parent');
-				$p_path = get_array_value($parent,'path','','is_string');
-				$p_full_path = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$p_path;
+				$pFullPath = get_array_value($parent,'path','','is_string');
 				// Get from parent theme dir
-				if($themedir && !$basedir) {
-					// NApp::_Dlog($p_full_path.'/'.$themedir.$fname,'Check[T.P]');
-					if(file_exists($p_full_path.'/'.$themedir.$fname)) { return $p_full_path.'/'.$themedir.$fname; }
-					}//if($themedir && !$basedir)
+				if($themeDir) {
+					// NApp::_Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
+					if(file_exists($pFullPath.'/'.$themeDir.$fName)) { return $pFullPath.'/'.$themeDir.$fName; }
+				}//if($themeDir)
 				// Get view from current parent class path
-				// NApp::_Dlog($p_full_path.$defdir.$fname,'Check[D.P]');
-				if(file_exists($p_full_path.$defdir.$fname)) { return $p_full_path.$defdir.$fname; }
+				// NApp::_Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
+				if(file_exists($pFullPath.$defDir.$fName)) { return $pFullPath.$defDir.$fName; }
 			}//END foreach
 		}//if($parents)
-		throw new AppException('View file ['.$fname.'] not found!');
+		throw new AppException('View file ['.$fName.'] for module ['.$this->class.'] not found!');
 	}//private function ViewFileProvider
-	/**
-	 * Gets the view full file name (including absolute path)
-	 *
-	 * @param  string $name View name (without extension)
-	 * @param  string|null $sub_dir View sub-directory or empty/NULL for none
-	 * @param  string|null $theme_dir View theme sub-directory
-	 * (if empty/NULL) application configuration will be used
-	 * @return string Returns view full name (including absolute path and extension)
-	 * @access public
-	 * @throws \PAF\AppException
-	 */
+    /**
+     * Gets the view full file name (including absolute path)
+     *
+     * @param  string      $name View name (without extension)
+     * @param  string|null $sub_dir View sub-directory or empty/NULL for none
+     * @param  string|null $theme_dir View theme sub-directory
+     * (if empty/NULL) application configuration will be used
+     * @return string Returns view full name (including absolute path and extension)
+     * @access public
+     * @throws \PAF\AppException
+     * @throws \ReflectionException
+     */
 	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		// NApp::StartTimeTrack('MGetViewFile');
 		$result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
@@ -478,20 +520,20 @@ class Module {
 
 	protected function SetDebugData($data,$label = NULL,$reset = FALSE,$method = NULL) {
 		$current_method = $method ? $method : call_back_trace();
-		if($reset || !is_array($this->debug_data)) { $this->debug_data = []; }
-		if(!isset($this->debug_data[$current_method]) || !is_array($this->debug_data[$current_method])) { $this->debug_data[$current_method] = []; }
+		if($reset || !is_array($this->debugData)) { $this->debugData = []; }
+		if(!isset($this->debugData[$current_method]) || !is_array($this->debugData[$current_method])) { $this->debugData[$current_method] = []; }
 		if(is_string($label) && strlen($label)) {
-			$this->debug_data[$current_method][$label] = $data;
+			$this->debugData[$current_method][$label] = $data;
 		} else {
-			$this->debug_data[$current_method][] = $data;
+			$this->debugData[$current_method][] = $data;
 		}//if(is_string($label) && strlen($label))
 	}//END protected function SetDebugData
 
 	protected function GetDebugData($label,$method = NULL) {
 		if(!is_string($label) && !is_numeric($label)) { return NULL; }
 		$current_method = $method ? $method : call_back_trace();
-		if(!is_array($this->debug_data) || !isset($this->debug_data[$current_method][$label])) { return NULL; }
-		return $this->debug_data[$current_method][$label];
+		if(!is_array($this->debugData) || !isset($this->debugData[$current_method][$label])) { return NULL; }
+		return $this->debugData[$current_method][$label];
 	}//END protected function GetDebugData
 
 	public function GetCallDebugData($params = NULL) {
@@ -499,11 +541,11 @@ class Module {
 		$method = $params->safeGet('method',NULL,'is_string');
 		$result = NULL;
 		if(is_null($method)) {
-			$result = $this->debug_data;
-			if($clear) { $this->debug_data = NULL; }
-		} elseif(is_string($method) && strlen($method) && isset($this->debug_data[$method])) {
-			$result = $this->debug_data[$method];
-			if($clear) { $this->debug_data[$method] = NULL; }
+			$result = $this->debugData;
+			if($clear) { $this->debugData = NULL; }
+		} elseif(is_string($method) && strlen($method) && isset($this->debugData[$method])) {
+			$result = $this->debugData[$method];
+			if($clear) { $this->debugData[$method] = NULL; }
 		}//if(is_null($method))
 		return $result;
 	}//END public function GetCallDebugData
