@@ -42,7 +42,7 @@ class DataProvider {
 	 * @access private
 	 * @static
 	 */
-	private static $ns_path = 'DataSources\\';
+	private static $nsPath = 'DataSources\\';
 	/**
 	 * Gets the connection array by name from the connections.inc file
 	 *
@@ -78,7 +78,7 @@ class DataProvider {
 	 * @static
 	 */
 	public static function GetDataSource(string $ds_name,$connection = NULL,?string $mode = NULL,bool $existing_only = FALSE) {
-		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$ns_path;
+		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
 		$ds_arr = explode('\\',trim($ds_name,'\\'));
 		$ds_type = array_shift($ds_arr);
 		$ds_class = trim($ds_name,'\\');

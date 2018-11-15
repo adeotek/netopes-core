@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.4
+ * @version    2.2.10.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -25,7 +25,7 @@ class ModulesProvider {
 	 * @access public
 	 * @static
 	 */
-	public static $ns_path = 'Modules\\';
+	public static $nsPath = 'Modules\\';
 	/**
 	 * Get a module instance
 	 *
@@ -36,27 +36,26 @@ class ModulesProvider {
 	 * @static
 	 */
 	public static function GetModule($name,$base = FALSE) {
-		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$ns_path;
-		$mname = trim($name,'\\');
-		$bname = '\\'.(substr($mname,0,16)==$ns_prefix ? '' : $ns_prefix).$mname;
-		if($base) {
-			$cname = $bname;
-			$custom = FALSE;
-		} else {
-			$m_arr = explode('\\','Modules\\'.trim($name,'\\'));
-			$m_name = array_pop($m_arr);
-			$m_dir = array_pop($m_arr);
-			$c_name = ($m_name==$m_dir ? $m_name.'Custom' : $m_dir).'\\'.$m_name.'Custom';
-			$c_path = implode('\\',$m_arr).'\\';
-			if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php')) {
-				$cname = '\NETopes\\'.$c_path.$c_name;
-				$custom = TRUE;
-			} else {
-				$cname = $bname;
-				$custom = FALSE;
-			}//if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php'))
-		}//if($base)
-		return $cname::GetInstance($name,$cname,$custom);
+	    $nsPrefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
+	    if(substr($name,0,1)==='\\' && substr(trim($name,'\\'),0,strlen($nsPrefix)-1)!==$nsPrefix) {
+		    return $name::GetInstance($name,$name,FALSE);
+		}//if(substr($name,0,1)==='\\' && substr(trim($name,'\\'),0,strlen($nsPrefix)-1)!==$nsPrefix)
+        $mName = '\\'.(substr(trim($name,'\\'),0,strlen($nsPrefix)-1)==$nsPrefix ? '' : $nsPrefix).trim($name,'\\');
+        if($base) { return $mName::GetInstance($name,$mName,FALSE); }
+        $mArr = explode('\\',trim($mName,'\\'));
+        $bName = array_pop($mArr);
+        $mDir = array_pop($mArr);
+        $cmName = ($bName==$mDir ? $bName.'Custom' : $mDir).'\\'.$bName.'Custom';
+        array_shift($mArr);
+        $cPath = implode('\\',$mArr).'\\';
+        if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$cPath.$cmName.'.php')) {
+            $cName = AppConfig::app_root_namespace().'\\'.$cPath.$cmName;
+            $custom = TRUE;
+        } else {
+            $cName = $mName;
+            $custom = FALSE;
+        }//if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php'))
+		return $cName::GetInstance($name,$cName,$custom);
 	}//END public static function GetModule
 	/**
 	 * Check if module method exists
