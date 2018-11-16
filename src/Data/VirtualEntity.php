@@ -98,6 +98,12 @@ class VirtualEntity {
 		return $this->GetPropertyValue($prop_name,$strict,$default_value,$validation);
 	}//END public function __call
 	/**
+     * {@inheritDoc}
+     */
+    public function set($key,$value) {
+        $this->data[$key] = $value;
+    }
+	/**
 	 * Get property value by name
 	 *
 	 * @param string $name
@@ -162,9 +168,21 @@ class VirtualEntity {
 	}//END public function hasProperty
 	/**
      * Get data array
+     *
+     * @param bool $recursive
+     * @return array
      */
-    public function toArray(): array {
-        return $this->data;
+    public function toArray(bool $recursive = FALSE): array {
+        if(!$recursive) { return $this->data; }
+        $result = [];
+        foreach($this->data as $k=>$v) {
+            if(is_object($v) && method_exists($v,'toArray')) {
+                $result[$k] = $v->toArray($recursive);
+            } else {
+                $result[$k] = $v;
+            }//if(is_object($v) && method_exists($v,'toArray'))
+        }//END foreach
+        return $result;
     }//END public function toArray
     /**
      * Check if is a new instance

@@ -81,9 +81,18 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function toArray(): array
+    public function toArray(bool $recursive = FALSE): array
     {
-        return $this->elements;
+        if(!$recursive) { return $this->elements; }
+        $result = [];
+        foreach($this->elements as $k=>$v) {
+            if(is_object($v) && method_exists($v,'toArray')) {
+                $result[$k] = $v->toArray($recursive);
+            } else {
+                $result[$k] = $v;
+            }//if(is_object($v) && method_exists($v,'toArray'))
+        }//END foreach
+        return $result;
     }
     /**
      * {@inheritDoc}
