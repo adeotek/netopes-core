@@ -177,6 +177,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $custom_tran_params
      * @return object Returns the transaction instance
      * @access public
+     * @throws \PAF\AppException
      */
 	public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		$lname = strlen($name) ? $name : $this->default_tran;
@@ -286,7 +287,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             case 'notlike':
                 $conditionString = strtolower($conditionType)=='like' ? 'LIKE' : 'NOT LIKE';
                 $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
-                if(isset($filterValue)) { $filterValue = "'%".$filterValue."%'"; }
+                if(isset($filterValue)) { $filterValue = (is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'%".$filterValue."%'"; }
                 break;
             case '==':
             case '<>':
@@ -294,7 +295,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 $nullConditionString = 'IS '.($conditionType=='<>' ? ' NOT ' : '').'NULL';
                 if(strtolower($dataType)=='string') {
                     $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_string'));
-                    $filterValue = isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                    $filterValue = isset($filterValue) ? (is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : $nullConditionString;
                 } else {
                     $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
@@ -345,7 +346,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             case 'isnot':
                 $conditionString = strtolower($conditionType)=='like' ? 'IS' : 'IS NOT';
                 $filterValue = $this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
-                $filterValue = isset($filterValue) ? "'".$filterValue."'" : 'NULL';
+                $filterValue = isset($filterValue) ? (is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : 'NULL';
                 break;
 		}//END switch
         if(!$conditionString || !$filterValue) { return ''; }
@@ -375,7 +376,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @access public
      */
 	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
-		if(is_array($params) && count($params)){
+		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $query = str_replace('{{'.$k.'}}',$this->EscapeString($v),$query); }
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
@@ -425,6 +426,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $custom_tran_params
      * @return array|bool Returns database request result
      * @access public
+     * @throws \PAF\AppException
      */
 	public function SqlSrvExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -509,13 +511,13 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			if(is_array($params) && count($params)) {
 				foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
 					$parameters .= '?,';
-					$sql_params[] = array($p,SQLSRV_PARAM_IN);
+					$sql_params[] = [$p,SQLSRV_PARAM_IN];
 				}//END foreach
 			}//if(is_array($params) && count($params))
 			if(is_array($out_params) && count($out_params)) {
 				foreach(self::SqlSrvEscapeString($out_params) as $n=>$p) {
 					$parameters .= '?,';
-					$sql_params[] = array(&$out_params[$n],SQLSRV_PARAM_OUT);
+					$sql_params[] = [&$out_params[$n],SQLSRV_PARAM_OUT];
 				}//END foreach
 			}//if(is_array($out_params) && count($out_params))
 			$parameters = trim($parameters,',');
@@ -525,7 +527,14 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		// Without output parameters
 		if(is_array($params) && count($params)) {
 			foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
-				$parameters .= (strlen($parameters)>0 ? ', ' : ' ').(strtolower($type)=='execute' ? '@'.strtoupper($n).' = ' : '').(is_null($p) ? 'NULL' : "'{$p}'");
+			    if(is_null($p)) {
+			        $pVal = 'NULL';
+			    } elseif(mb_detect_encoding($p,'ASCII',TRUE)) {
+			        $pVal = "'{$p}'";
+			    } else {
+			        $pVal = "N'{$p}'";
+			    }//if(is_null($p))
+				$parameters .= (strlen($parameters)>0 ? ', ' : ' ').(strtolower($type)=='execute' ? '@'.strtoupper($n).' = ' : '').$pVal;
 			}//END foreach
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
@@ -698,4 +707,3 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		return self::SqlSrvEscapeString($param);
 	}//END public function EscapeString
 }//END class SqlSrvAdapter extends SqlDataAdapter
-?>
