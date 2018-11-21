@@ -16,7 +16,7 @@
 	 *
 	 * @param $parents
 	 * @param $searched
-	 * @return void
+	 * @return mixed
 	 */
 	function multidim_array_search($parents,$searched) {
 		if (empty($searched) || empty($parents)) {
@@ -101,8 +101,10 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param $array
+     * @param $key
+     * @param $value
+     * @return int
 	  */
 	function search_db_array($array,$key,$value) {
 		if(!is_array($array)) return NULL;
@@ -114,8 +116,9 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param $array
+     * @param $value
+     * @return bool|int
 	  */
 	function in_db_array($array,$value) {
 		if(!is_array($array) || count($array)==0) return 0;
@@ -135,8 +138,10 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param      $input
+     * @param bool $recursive
+     * @param int  $case
+     * @return array
 	  */
 	function arr_change_key_case($input,$recursive = FALSE,$case = CASE_LOWER) {
 		if(!is_array($input)) { return $input; }
@@ -188,8 +193,9 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param $text
+     * @param $limitchar
+     * @return string
 	  */
 	function limit_text($text,$limitchar) {
 		if (strlen($text)<=$limitchar){
@@ -201,17 +207,19 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param $path
+     * @return string
 	  */
-	function win2unix_path($path) {
+	function win2unix_path(string $path): string {
 	    return DIRECTORY_SEPARATOR=='\\' ? str_replace('\\','/',$path) : $path;
 	}//END function win2unix_path
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param      $array
+     * @param      $structure
+     * @param null $uppercasekeys
+     * @return array|null
 	  */
 	function convert_db_array_to_tree($array,$structure,$uppercasekeys = NULL) {
 		if(!is_array($array) || count($array)==0) { return NULL; }
@@ -238,29 +246,33 @@
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param      $array
+     * @param bool $return
+     * @return array|null
 	  */
 	function custom_shuffle(&$array,$return = TRUE) {
-		if(!is_array($array)) { if($return) { return $array; } else { return; } }
+		if(!is_array($array)) { if($return) { return $array; } else { return NULL; } }
 		$keys = array_keys($array);
 		shuffle($keys);
 		$random = [];
 		foreach($keys as $key) { $random[$key] = $array[$key]; }
 		if($return) { return $random; }
 		$array = $random;
+		return $array;
 	}//function custom_shuffle
 	/**
 	  * description
 	  *
-	  * @param object|null $params Parameters object (instance of [Params])
-	  * @return void
+     * @param      $file
+     * @param null $ext
+     * @return bool|int
 	  */
 	function check_file_404($file,$ext = NULL) {
 		$file = preg_replace('{ +}','%20',trim($file));
 		if(substr($file,0,7)!=="http://") { $file = "http://".$file; }
 		if($ext) {
-			$file_ext = strtolower(array_pop(explode('.',$file)));
+		    $file_arr = explode('.',$file);
+			$file_ext = strtolower(array_pop($file_arr));
 			if($file_ext!==$ext) { return 1; }
 		}//if($ext)
 		try {
@@ -327,7 +339,7 @@
 	 * description
 	 *
 	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+	 * @return mixed
 	 */
 	function async_curl_call($params = NULL) {
 		if(!is_array($params) || !count($params)) { return FALSE; }
@@ -363,8 +375,10 @@
 	/**
 	 * Emulate ping command
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+     * @param     $host
+     * @param int $port
+     * @param int $timeout
+     * @return string
 	 */
 	function ping($host,$port = 80,$timeout = 10) {
 		$ts = microtime(true);
@@ -377,4 +391,3 @@
 			return 'Exception: '.$e->getMessage();
 		}//END try
 	}//END function ping
-?>
