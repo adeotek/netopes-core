@@ -121,10 +121,9 @@ class TreeComboBox extends Control {
 		$this->encrypted = $this->encrypted ? 1 : 0;
 		$this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).");");
+            NApp::_ExecJs("InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;
 	}//END protected function SetControl
 }//END class TreeComboBox extends Control
-?>
