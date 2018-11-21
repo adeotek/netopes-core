@@ -17,7 +17,6 @@ use NApp;
 /*
  * TCPDF config initialization
  */
-define('K_TCPDF_EXTERNAL_CONFIG',TRUE);
 require_once(NApp::app_path()._AAPP_CONFIG_PATH.'/TcpdfConfig.php');
 /**
  * PdfCreator class
@@ -51,8 +50,8 @@ class PdfCreator extends TCPDF {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return void
+     * @param array $format
+     * @return array
 	 * @access public
 	 */
 	public function SetFormat($format = []) {
@@ -85,7 +84,8 @@ class PdfCreator extends TCPDF {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+     * @param array  $format
+     * @param string $mode
 	 * @return void
 	 * @access public
 	 */
@@ -131,7 +131,7 @@ class PdfCreator extends TCPDF {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+     * @param array $format
 	 * @return void
 	 * @access public
 	 */
@@ -262,8 +262,11 @@ class PdfCreator extends TCPDF {
 	 * @param      $lft_w
 	 * @param      $rgt_w
 	 * @param int  $border
+     * @param int    $x_offset
 	 * @param null $lft_font
 	 * @param null $rgt_font
+     * @param string $lft_align
+     * @param string $rgt_align
 	 */
 	public function DoubleCellRow($lft_txt,$rgt_txt,$lft_w,$rgt_w,$border = 0,$x_offset = 0,$lft_font = NULL,$rgt_font = NULL,$lft_align = 'L',$rgt_align = 'L') {
 		// MultiCell($w, $h, $txt, $border=0, $align='J', $fill=0, $ln=1, $x='', $y='', $reseth=true, $stretch=0)
@@ -300,7 +303,14 @@ class PdfCreator extends TCPDF {
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+     * @param        $x
+     * @param        $y
+     * @param        $width
+     * @param        $height
+     * @param null   $color
+     * @param string $text
+     * @param string $align
+     * @param null   $fillcolor
 	 * @return void
 	 * @access public
 	 */
@@ -368,4 +378,3 @@ class PdfCreator extends TCPDF {
 		}//if(is_array($text))
 	}//END public function RoundCornerBox
 }//END class PdfCreator extends TCPDF
-?>
