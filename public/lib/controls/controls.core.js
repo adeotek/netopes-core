@@ -440,7 +440,7 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function TCBOClear
 
-function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox) {
+function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
 	var lval = encodeURIComponent(val);
 	var aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
@@ -460,6 +460,7 @@ function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,
 	}//if(encrypt===1 || encrypt===true)
 	$('#'+elementid+'-ctree').fancytree({
 		checkbox: true,
+        icon: icon||false,
 		selectMode: 1,
 		clickFolderMode: 1,
 		debugLevel: 0,
