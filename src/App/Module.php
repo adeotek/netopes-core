@@ -368,7 +368,8 @@ class Module {
 		$result = [];
 		$mParentClass = get_parent_class($module);
 		while($mParentClass) {
-			$mParent = array_pop(explode('\\',trim($mParentClass,'\\')));
+		    $mParentArray = explode('\\',trim($mParentClass,'\\'));
+			$mParent = array_pop($mParentArray);
 			if($mParent=='Module') { break; }
 			$rc = new \ReflectionClass($mParentClass);
             $mPath = dirname($rc->getFileName());
@@ -412,6 +413,7 @@ class Module {
             $mPath = implode(DIRECTORY_SEPARATOR,$mPathArr);
             // NApp::_Dlog($mPath,'$mPath');
 
+            // NApp::_Dlog($this->class,'$this->class');
             $parents = self::GetParents($this->class);
             // NApp::_Dlog($parents,'$parents');
             // For themed views stored outside "modules" directory (with fallback on "modules" directory)

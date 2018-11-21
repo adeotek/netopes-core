@@ -42,7 +42,7 @@ trait DoctrineRepositoryBaseTrait {
 		if(is_object($query)) {
 			$lparams = '';
 			foreach($query->getParameters()->toArray() as $p) {
-				$lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.$p->getValue();
+				$lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.(is_object($p->getValue()) ? $p->getValue()->getId() : $p->getValue()) ;
 			}//END foreach
 			$lquery = $query->getSql().' ['.$lparams.']';
 		} else {
