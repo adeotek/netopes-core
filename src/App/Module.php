@@ -393,7 +393,7 @@ class Module {
 	private function ViewFileProvider(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
         $fName = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.$this->viewsExtension;
         // Get theme directory and theme views base directory
-		$appTheme = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
+        $appTheme = strtolower(AppConfig::app_theme());
 		$viewsDefDir = AppConfig::app_default_views_dir();
 		$themeModulesViewsPath = AppConfig::app_theme_modules_views_path();
 		$defDir = (is_string($viewsDefDir) ? (strlen(trim($viewsDefDir,'/')) ? '/'.trim($viewsDefDir,'/') : '') : '/_default');
@@ -456,6 +456,7 @@ class Module {
 
         $rc = new \ReflectionClass($this);
         $mFullPath = dirname($rc->getFileName());
+        // NApp::_Dlog($mFullPath,'$mFullPath');
 		if($themeDir) {
 			// NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
 			if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }

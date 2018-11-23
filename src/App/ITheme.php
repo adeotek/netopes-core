@@ -121,4 +121,3 @@ interface ITheme {
 	 */
 	public function GetDefaultContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
 }//END interface ITheme
-?>

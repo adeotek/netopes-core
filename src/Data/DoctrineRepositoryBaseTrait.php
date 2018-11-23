@@ -42,7 +42,16 @@ trait DoctrineRepositoryBaseTrait {
 		if(is_object($query)) {
 			$lparams = '';
 			foreach($query->getParameters()->toArray() as $p) {
-				$lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.(is_object($p->getValue()) ? $p->getValue()->getId() : $p->getValue()) ;
+			    if(is_object($p->getValue())) {
+                    if($p->getValue() instanceof \DateTime) {
+                        $pValue = $p->getValue()->format('Y-m-d H:i:s');
+                    } else {
+                        $pValue = $p->getValue()->getId();
+                    }//if($p->getValue() instanceof \DateTime)
+                } else {
+			        $pValue = $p->getValue();
+                }//if(is_object($p->getValue()))
+				$lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.$pValue;
 			}//END foreach
 			$lquery = $query->getSql().' ['.$lparams.']';
 		} else {
