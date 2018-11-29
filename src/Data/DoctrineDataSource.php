@@ -20,20 +20,45 @@ use PAF\AppException;
  */
 class DoctrineDataSource extends DataSource {
 	/**
+     * Execute a repository method and get returned data
+     *
+     * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return
+     * @throws \PAF\AppException
+     */
+	public function ExecRepositoryMethod($params = [],$extra_params = []) {
+		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
+        $method = get_array_value($extra_params,'method','','is_string');
+        $repository = $this->adapter->em->getRepository($this->entityName);
+        if(!strlen($method) || !method_exists($repository,$method)) {
+            throw new AppException('Invalid repository name ['.$method.'] for entity ['.$this->entityName.']!');
+        }//if(!strlen($method) || !method_exists($repository,$method))
+		$result = $repository->$method(...$params);
+		return $result;
+	}//END public function CreateItem
+    /**
 	 * Gets new project blank object
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return mixed
 	 * @throws \PAF\AppException
 	 */
 	public function CreateItem($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
-		$project = new $this->entityName();
-		return $project;
+		$item = new $this->entityName();
+		return $item;
 	}//END public function CreateItem
 	/**
 	 * Gets projects list
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return
 	 * @throws \PAF\AppException
 	 */
 	public function GetItems($params = [],$extra_params = []) {
@@ -60,6 +85,9 @@ class DoctrineDataSource extends DataSource {
 	 * Gets projects list
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return
 	 * @throws \PAF\AppException
 	 */
 	public function GetObjects($params = [],$extra_params = []) {
@@ -71,6 +99,9 @@ class DoctrineDataSource extends DataSource {
 	 * Gets projects list
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return
 	 * @throws \PAF\AppException
 	 */
 	public function GetItem($params = [],$extra_params = []) {
@@ -84,6 +115,9 @@ class DoctrineDataSource extends DataSource {
 	 * Gets projects list
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return
 	 * @throws \PAF\AppException
 	 */
 	public function Search($params = [],$extra_params = []) {
@@ -99,6 +133,9 @@ class DoctrineDataSource extends DataSource {
 	 * Sets new project
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return array
 	 * @throws \PAF\AppException
 	 */
 	public function SetItem($params = [],$extra_params = []) {
@@ -116,6 +153,9 @@ class DoctrineDataSource extends DataSource {
 	 * Sets new project
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return array
 	 * @throws \PAF\AppException
 	 */
 	public function SetNewItem($params = [],$extra_params = []) {
@@ -125,6 +165,9 @@ class DoctrineDataSource extends DataSource {
 	 * Unsets a project
 	 *
 	 * @access public
+     * @param array $params
+     * @param array $extra_params
+     * @return bool
 	 * @throws \PAF\AppException
 	 */
 	public function UnsetItem($params = [],$extra_params = []) {
@@ -147,4 +190,3 @@ class DoctrineDataSource extends DataSource {
 		return TRUE;
 	}//END public function UnsetItem
 }//END class System extends DataSource
-?>
