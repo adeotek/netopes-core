@@ -502,7 +502,7 @@ class AppView {
             $mJsScript = strlen($this->_targetId) ? "ShowDynamicModalForm('{$this->_targetId}'," : "ShowModalForm(";
             $mJsScript .= is_numeric($this->_modalWidth) && $this->_modalWidth>0 ? $this->_modalWidth : (is_string($this->_modalWidth) && strlen($this->_modalWidth) ? "'{$this->_modalWidth}'" : 300);
             $mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '')."));" : ",'{$this->_title}'";
-            if(is_String($this->_modalCustomClose) && strlen($this->_modalCustomClose)) { $mJsScript .= ','.$this->_modalCustomClose; }
+            if(is_string($this->_modalCustomClose) && strlen($this->_modalCustomClose)) { $mJsScript .= ','.$this->_modalCustomClose; }
             $mJsScript .= ');';
             $this->AddJsScript($mJsScript,TRUE);
         }//if($this->_isModal && $this->_modalAutoJs)
