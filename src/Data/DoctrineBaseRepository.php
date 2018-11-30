@@ -1,6 +1,5 @@
 <?php
 namespace NETopes\Core\Data;
-
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
@@ -40,4 +39,3 @@ class DoctrineBaseRepository extends EntityRepository {
         return $qb->getQuery()->getResult();
     }//END public function getSearchResults
 }//END class DoctrineBaseRepository extends EntityRepository
-?>

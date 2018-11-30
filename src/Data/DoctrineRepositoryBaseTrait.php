@@ -65,6 +65,7 @@ trait DoctrineRepositoryBaseTrait {
      * Finds entities by a set of criteria.
      *
      * @param array      $criteria
+     * @property $_em
      *
      * @return int The objects.
      */
@@ -74,4 +75,3 @@ trait DoctrineRepositoryBaseTrait {
         return $persister->count($criteria);
     }
 }//END trait DoctrineRepositoryBaseTrait
-?>
