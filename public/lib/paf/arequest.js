@@ -195,7 +195,14 @@ var ARequest = {
                     } else {
                         $.event.trigger({ type: 'onARequestDataReceived', responseData: content });
                     }//if(typeof(htmlTarget)==='string' && htmlTarget.length>0)
-                    if(actions[1]) { eval(actions[1]); }
+                    if(actions[1]) {
+                    	try {
+                    		eval(actions[1]);
+                    	} catch (ee) {
+							console.log(ee);
+							console.log(actions[1]);
+                        }//END try
+                    }//if(actions[1])
                     if(js_script && js_script!=='') { ARequest.runScript(js_script); }
                     ARequest.updateProcOn(-1,loader);
                     if(ARequest.onARequestCompleteEvent) { $.event.trigger({ type: 'onARequestComplete', callType: call_type }); }
