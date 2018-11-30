@@ -157,4 +157,3 @@ trait DoctrineRepositoryStandardTrait {
         }//END try
     }//END public function findFiltered
 }//END trait DoctrineRepositoryStandardTrait
-?>

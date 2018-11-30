@@ -131,4 +131,3 @@ class DoctrineAdapter extends DataAdapter {
 		$this->em = self::GetEntityManager(NApp::app_path(),$connection,$this->platform);
 	}//END protected function Init
 }//END class DoctrineAdapter extends DataSource
-?>
