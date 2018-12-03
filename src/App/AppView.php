@@ -649,4 +649,3 @@ class AppView {
 		return $content;
     }//END protected function ReplaceEmptyPlaceholders
 }//END class AppView
-?>
