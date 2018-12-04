@@ -169,8 +169,9 @@ function ShowModalForm(width,title,close_callback,targetid) {
 		closeOnEscape: false,
 		dragStop: function(event,ui) { $(this).dialog({height:'auto'}); },
 		close: function() {
-			if(close_callback) { eval(close_callback); }
-			else {
+			if(close_callback) {
+				eval(close_callback);
+			} else {
 				var d_close_callback = $(this).attr('data-close-callback');
 				if(d_close_callback) { eval (d_close_callback); }
             }
@@ -204,7 +205,6 @@ function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	if($('#'+targetid).dialog('instance')) {
 		// console.log('dialog: close');
 		$('#'+targetid).dialog('close');
-		if(targetid!='modal') { $('#'+targetid).dialog('destroy'); }
 	} else {
 		// console.log('element: hide');
 		$('#'+targetid).hide();
