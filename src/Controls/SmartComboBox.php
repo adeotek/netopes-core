@@ -120,6 +120,7 @@ class SmartComboBox extends Control {
 			$js_script .= "\t\t\tdropdownCssClass: 'size-{$this->size}',\n";
 		}//if(is_string($this->dropdown_class) && strlen($this->dropdown_class))
 		if(strlen($this->cbo_placeholder)) { $js_script .= "\t\t\tplaceholder: '{$this->cbo_placeholder}',\n"; }
+		if(strlen($this->fixed_width)) { $js_script .= "\t\t\twidth: '{$this->fixed_width}',\n"; }
 		if($this->load_type=='ajax' || $this->allow_clear) { $js_script .= "\t\t\tallowClear: true,\n"; }
 		if($this->load_type!='ajax' && isset($this->minimum_results_for_search) && $this->minimum_results_for_search==0) {
 			$js_script .= "\t\t\tminimumResultsForSearch: Infinity,\n";
