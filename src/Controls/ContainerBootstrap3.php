@@ -66,8 +66,7 @@ class ContainerBootstrap3 implements IControlContainer {
                 $c_cols = is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=(12-$c_label_cols) ? $this->control->cols : (12-$c_label_cols);
             }//if(!$this->control->no_label && $this->control->labelposition=='top')
             if($this->control->container) { $result .= "\t".'<div class="form-group'.(strlen($c_class) ? ' '.$c_class : '').'">'."\n"; }
-            $result .= $c_label;
-            // if($this->control->labelposition!='top') { }
+            if($this->control->labelposition!='right') { $result .= $c_label; }
             $result .= "\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
             if($this->control->hasActions()) {
                 $content = "\t\t\t".'<div class="input-group">'."\n\t\t\t\t".$content."\n\t\t\t".'</div>';
@@ -79,10 +78,9 @@ class ContainerBootstrap3 implements IControlContainer {
                 $result .= "\t\t\t".'<p'.(strlen($this->control->tagid) ? ' id="'.$this->control->tagid.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))
             $result .= "\t\t".'</div>'."\n";
-            // if($this->control->labelposition!='top') { }
+            if($this->control->labelposition=='right') { $result .= $c_label; }
             if($this->control->container) { $result .= "\t".'</div>'."\n"; }
         }//if(!$this->control->container && $this->control->no_label)
         return $result;
     }//END public function GetHtml
 }//END class ContainerBootstrap3 implements IControlContainer
-?>
