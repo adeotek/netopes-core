@@ -41,7 +41,7 @@ class CkEditor extends Control {
     protected function SetControl() {
         if(!strlen($this->tagid)) { throw new AppException('Invalid tag ID!',E_ERROR,1); }
         $lextratagparam = strlen($this->extratagparam)>0 ? ' '.$this->extratagparam : '';
-        $result = "\t\t".'<textarea'.$this->GetTagId().$this->GetTagClass('textarea').$lextratagparam.'>'.$this->value.'</textarea>'."\n";
+        $result = "\t\t".'<textarea'.$this->GetTagId(TRUE).$this->GetTagClass('textarea').$this->GetTagAttributes(FALSE).$lextratagparam.'>'.$this->value.'</textarea>'."\n";
         $lwidth = $this->width ? (is_numeric($this->width) ? ','.$this->width : ',\''.$this->width.'\'') : '';
         $lheight = $this->height ? (is_numeric($this->height) ? ','.$this->height : ',\''.$this->height.'\'') : '';
         $lextraconfig = 'undefined';
