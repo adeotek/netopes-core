@@ -523,7 +523,7 @@ class Validator {
 		$format = NApp::_GetParam('date_format');
 		if(!strlen($format)) { return NULL; }
 		if(!$forPhp) { return $format; }
-		return str_replace(['yyyy','mm','MM','dd','yy'],['Y','m','m','d','y'],$format);
+		return str_replace(['yyyy','mm','MM','dd','yy'],['Y','m','m','d','Y'],$format);
 	}//END public static function GetDateFormat
 	/**
 	 * description
