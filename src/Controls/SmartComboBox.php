@@ -252,43 +252,56 @@ class SmartComboBox extends Control {
 		$js_script .= "\t\t})";
 		// NApp::_Dlog($this->tagid,'$this->tagid');
 		// NApp::_Dlog($js_script,'$js_script');
-		$roptions = '';
+		// NApp::_Dlog($litems,'$litems');
+		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		$s_multiple = '';
 		if($this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1') { $s_multiple = ' multiple="multiple"'; }
 		foreach($litems as $item) {
+		    if($this->load_type=='ajax') { continue; }
 		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
-				$roptions .= "\t\t\t<option></option>\n";
+				$rOptions[''][] = "\t\t\t<option></option>\n";
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
-			if($this->load_type!='ajax') {
-				$lval = $item->getProperty($this->valfield,NULL,'isset');
-				$ltext = $this->GetDisplayFieldValue($item);
-				$lselected = '';
-				foreach($s_values as $sv) {
-				    $lsval = $sv->getProperty($this->valfield,NULL,'isset');
-				    if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL))) {
-							$lselected = ' selected="selected"';
-							break;
-                    }//if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL)))
-					}//END foreach
-				if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
-					$def_record = TRUE;
-					$lselected = ' selected="selected"';
-				}//if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
-				$o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
-                foreach($this->option_data as $od) {
-                    $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
-				}//END foreach
-			}//if($this->load_type!='ajax')
-			$roptions .= "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
+			$lval = $item->getProperty($this->valfield,NULL,'isset');
+			$ltext = $this->GetDisplayFieldValue($item);
+			$lselected = '';
+            foreach($s_values as $sv) {
+                $lsval = $sv->getProperty($this->valfield,NULL,'isset');
+                if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL))) {
+                        $lselected = ' selected="selected"';
+                        break;
+                }//if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL)))
+                }//END foreach
+            if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
+                $def_record = TRUE;
+                $lselected = ' selected="selected"';
+            }//if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+            $o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
+            foreach($this->option_data as $od) {
+                $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
+            }//END foreach
+			if(is_string($this->group_field) && strlen($this->group_field)) {
+                $groupName = $item->getProperty($this->group_field,'','is_string');
+                if(!array_key_exists($groupName,$rOptions)) { $rOptions[$groupName] = []; }
+                $rOptions[$groupName][] = "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
+            } else {
+                $rOptions[''][] = "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
+            }//if(is_string($this->group_field) && strlen($this->group_field))
 		}//END foreach
+		// NApp::_Dlog($rOptions,'$rOptions');
+		$rOptionsStr = '';
+		foreach(array_keys($rOptions) as $group) {
+		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
+            $rOptionsStr .= implode('',$rOptions[$group]);
+            if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
+		}//END foreach
+		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
 		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tagid)) : '').'">'."\n";
-		$result .= $roptions;
+		$result .= $rOptionsStr;
 		$result .= "\t\t".'</select>'."\n";
 		$result .= $this->GetActions();
 		return $result;
 	}//END protected function SetControl
 }//END class SmartComboBox extends Control
-?>
