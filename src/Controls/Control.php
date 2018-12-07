@@ -19,6 +19,7 @@ use PAF\AppSession;
 use PAF\AppException;
 use NApp;
 use GibberishAES;
+use Translate;
 
 /**
  * Control abstract class file
@@ -433,14 +434,14 @@ abstract class Control {
 		$lattr = trim($lattr).(strlen($extra) ? ' '.$extra : '');
 		return $lattr;
 	}//END protected function GetTagAttributes
-	/**
-	 * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
-	 *
-	 * @param  bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
-	 * @param  string $extra Other html attributes to be included
-	 * @return string Returns the html tag attributes
-	 * @access protected
-	 */
+    /**
+     * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
+     *
+     * @param null    $base
+     * @param  string $extra Other html attributes to be included
+     * @return string Returns the html tag attributes
+     * @access protected
+     */
 	protected function GetTagActions($base = NULL,$extra = NULL) {
 		if($this->readonly || $this->disabled) { return ''; }
 		$lactions = [];
@@ -899,4 +900,53 @@ abstract class Control {
 		}//if(strlen($ds_key))
 		return $result;
 	}//END public static function GetTranslationData
+
+    /**
+     * Gets the records from the database
+     *
+     * @param array $params
+     * @return mixed Returns processed tab array
+     * @throws \PAF\AppException
+     * @access public
+     * @static
+     */
+	protected function LoadData(array $params) {
+		if(!is_array($params) || !count($params)) { return NULL; }
+		$ds_name = get_array_value($params,'ds_class','','is_string');
+		$ds_method = get_array_value($params,'ds_method','','is_string');
+		if(!strlen($ds_name) || !strlen($ds_method)) { return NULL; }
+		$ds_params = get_array_value($params,'ds_params',[],'is_array');
+		$da_eparams = get_array_value($params,'ds_extra_params',[],'is_array');
+        $result = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
+		return $result;
+	}//END protected function LoadData
+	/**
+	 * @param $item
+	 * @return null|string
+     * @throws \PAF\AppException
+	 */
+	protected function GetDisplayFieldValue($item): ?string {
+	    if(!is_object($item) && !is_array($item)) { return NULL; }
+	    if(!is_object($item)) { $item = new VirtualEntity($item); }
+		$ldisplayvalue = '';
+		$ldisplayfield = is_string($this->selectedtextfield) && strlen($this->selectedtextfield) ? $this->selectedtextfield : $this->displayfield;
+		if(is_array($ldisplayfield)) {
+			foreach($ldisplayfield as $dk=>$dv) {
+				if(is_array($dv)) {
+					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
+					$ov_value = get_array_value($dv,'value','','is_string');
+					$ov_mask = get_array_value($dv,'mask','','is_string');
+					$ltext = $item->getProperty($dk,'N/A','is_string');
+					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
+				} else {
+				    $ltext = $item->getProperty($dk,'N/A','is_string');
+					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
+				}//if(is_array($dv))
+			}//foreach ($this->displayfield as $dk=>$dv)
+		} else {
+		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
+			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
+		}//if(is_array($this->displayfield))
+		return html_entity_decode($ldisplayvalue);
+	}//END protected function GetDisplayFieldValue
 }//END abstract class Control
