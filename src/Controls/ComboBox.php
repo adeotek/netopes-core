@@ -12,8 +12,11 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
+use PAF\AppException;
+use NApp;
 
 /**
  * ComboBox control
@@ -31,28 +34,38 @@ class ComboBox extends Control {
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
-		if(is_array($this->value)) {
-            $this->value = DataSource::ConvertArrayToDataSet($this->value,'\NETopes\Core\Data\VirtualEntity');
-		} elseif(!is_object($this->value)) {
-            $this->value = DataSource::ConvertArrayToDataSet([],'\NETopes\Core\Data\VirtualEntity');
-		}//if(is_array($this->value))
+		$this->onenter = NULL;
+		$this->onenterbutton = NULL;
+		if(!strlen($this->tagid)) { $this->tagid = $this->uid; }
+		if(!is_string($this->valfield) || !strlen($this->valfield)) { $this->valfield = 'id'; }
+		if(is_null($this->displayfield) || $this->displayfield=='') { $this->displayfield = 'name'; }
+		// one of the values: value/database/ajax
+		if(!strlen($this->load_type)) { $this->load_type = 'value'; }
+		if(!is_array($this->option_data)) {
+		    if(is_string($this->option_data) && strlen($this->option_data)) {
+		        $this->option_data = [$this->option_data];
+		    } else {
+		        $this->option_data = [];
+		    }//if(is_string($this->option_data) && strlen($this->option_data))
+		}//if(!is_array($this->option_data))
 	}//END public function __construct
-    /**
-	 * @return string|void
+	/**
+	 * @return string|null
+	 * @throws \PAF\AppException
 	 */
-    protected function SetControl() {
+	protected function SetControl(): ?string {
         $this->ProcessActions();
-        $tmpresult = '';
+        $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         $ph_class = '';
         $t_required = '';
         if(strlen($this->pleaseselecttext)) {
-            $tmpresult .= "\t\t\t".'<option class="option_std" value="'.$this->pleaseselectvalue.'">'.html_entity_decode($this->pleaseselecttext).'</option>'."\n";
+            $litems->add(new VirtualEntity([$this->valfield=>$this->pleaseselectvalue,$this->displayfield=>html_entity_decode($this->pleaseselecttext)]));
         } elseif($this->pleaseselectvalue=='_blank') {
-            $tmpresult .= "\t\t\t".'<option></option>'."\n";
+            $litems->add(new VirtualEntity([]));
         } elseif(strlen($this->placeholder)) {
             $ph_class = 'clsPlaceholder';
             $t_required = ' required="required"';
-            $tmpresult .= "\t\t\t".'<option value="" disabled="disabled" selected="selected" hidden="hidden">'.$this->placeholder.'</option>'."\n";
+            $litems->add(new VirtualEntity([$this->valfield=>'__is_placeholder__',$this->displayfield=>html_entity_decode($this->placeholder)]));
         }//if(strlen($this->pleaseselectvalue))
         if(is_object($this->selectedvalue)) {
             $selectedValue = $this->selectedvalue->getProperty($this->valfield,NULL,'isset');
@@ -62,59 +75,85 @@ class ComboBox extends Control {
             $selectedValue = $this->selectedvalue;
         }//if(is_object($this->selectedvalue))
         $lselclass = $this->GetTagClass($ph_class);
-        if(is_object($this->value) && $this->value->count()) {
-            $implicit = FALSE;
-            foreach($this->value as $item) {
-                $lcolorfield = strlen($this->colorfield) ? $this->colorfield : 'color';
-                $loptionclass = strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
-                $lcolorcodefield = strlen($this->colorcodefield) ? ' color: '.$this->colorcodefield.';' : '';
-                if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field'])) {
-                    if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition']) {
-                        $loptionclass = $this->option_conditional_class['class'];
-                    }//if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition'])
-                }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
-                $lselected = '';
-                $cValue = $item->getProperty($this->valfield,NULL,'isset');
-                if($cValue==$selectedValue && !(($selectedValue===NULL && $cValue!==NULL) || ($selectedValue!==NULL && $cValue===NULL))) {
-                    $lselected = ' selected="selected"';
-                    $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
-                }//if($cValue==$selectedValue && !(($selectedValue===NULL && $cValue!==NULL) || ($selectedValue!==NULL && $cValue===NULL)))
-                if(!$implicit && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
-                    $implicit = TRUE;
-                    $lselected = ' selected="selected"';
-                    $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
-                }//if(!$implicit && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
-                if(is_array($this->displayfield)) {
-                    $ldisplayfield = '';
-                    foreach($this->displayfield as $dk=>$dv) {
-                        if(is_array($dv)) {
-                            $ov_items = get_array_value($dv,'items',[],'is_notempty_array');
-                            $ov_value = get_array_value($dv,'value','','is_string');
-                            $ov_mask = get_array_value($dv,'mask','','is_string');
-                            $ldisplayfield .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset'),$ov_mask) : get_array_value($ov_items[$item->getProperty($dk,NULL,'isset')],$ov_value,$item->getProperty($dk,NULL,'isset'),'isset');
-                        } else {
-                            $ldisplayfield .= strlen($dv)>0 ? str_replace('~',$item->getProperty($dk,NULL,'isset'),$dv) : $item->getProperty($dk,NULL,'isset');
-                        }//if(is_array($dv))
-                    }//foreach ($this->displayfield as $dk=>$dv)
-                } else {
-                    $ldisplayfield = $this->withtranslate===TRUE ? \Translate::Get($this->translate_prefix.$item->getProperty($this->displayfield,NULL,'isset')) : $item->getProperty($this->displayfield,NULL,'isset');
-                }//if(is_array($this->displayfield))
-                $o_data = '';
-                if(is_array($this->option_data)) {
-                    foreach($this->option_data as $ok=>$ov) {
-                        $o_data .= ' data-'.$ok.'="'.$item->getProperty($ov,'','is_string').'"';
-                    }//END foreach
-                } elseif(is_string($this->option_data) && strlen($this->option_data)) {
-                    $o_data = ' data-'.$this->option_data.'="'.$item->getProperty($this->option_data,'','is_string').'"';
-                }//if(is_array($this->option_data))
-                $tmpresult .= "\t\t\t".'<option value="'.$cValue.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ldisplayfield).'</option>'."\n";
-            }//foreach
-        }//if(is_object($this->value) && $this->value->count())
-        $result = "\t\t".'<select'.$t_required.$this->GetTagId(TRUE).$lselclass.$this->GetTagAttributes().$this->GetTagActions().'>'."\n";
-        $result .= $tmpresult;
+
+		switch($this->load_type) {
+			case 'database':
+				$data = $this->LoadData($this->data_source);
+				if(is_object($data) && $data->count()) { $litems->merge($data->toArray()); }
+				break;
+			case 'value':
+			    if(is_array($this->value)) {
+                    $this->value = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+                } elseif(!is_object($this->value)) {
+                    $this->value = DataSource::ConvertArrayToDataSet([],VirtualEntity::class);
+                }//if(is_array($this->value))
+				if(is_object($this->value) && $this->value->count()) {  $litems->merge($this->value->toArray()); }
+				break;
+			default:
+				throw new AppException('Invalid ComboBox load type!');
+		}//END switch
+		// NApp::_Dlog($this->tagid,'$this->tagid');
+		// NApp::_Dlog($litems,'$litems');
+		$rOptions = [''=>[]];
+		$def_record = FALSE;
+		foreach($litems as $item) {
+		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
+				$rOptions[''][] = "\t\t\t<option></option>\n";
+				continue;
+			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
+			if($item->getProperty($this->valfield)==='__is_placeholder__') {
+			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($this->displayfield)."</option>\n");
+			    continue;
+			}//if($item->getProperty($this->valfield)=='__is_placeholder__')
+
+			$lcolorfield = strlen($this->colorfield) ? $this->colorfield : 'color';
+            $loptionclass = strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
+            $lcolorcodefield = strlen($this->colorcodefield) ? ' color: '.$this->colorcodefield.';' : '';
+            if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field'])) {
+                if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition']) {
+                    $loptionclass = $this->option_conditional_class['class'];
+                }//if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition'])
+            }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
+
+            $lval = $item->getProperty($this->valfield,NULL,'isset');
+			$ltext = $this->GetDisplayFieldValue($item);
+            $lselected = '';
+            if($lval==$selectedValue && !(($selectedValue===NULL && $lval!==NULL) || ($selectedValue!==NULL && $lval===NULL))) {
+                $lselected = ' selected="selected"';
+                $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
+            }//if($lval==$selectedValue && !(($selectedValue===NULL && $lval!==NULL) || ($selectedValue!==NULL && $lval===NULL)))
+            if(!$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
+                $def_record = TRUE;
+                $lselected = ' selected="selected"';
+                $lselclass .= strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
+            }//if(!$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+            $o_data = (is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
+            foreach($this->option_data as $od) {
+                $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
+            }//END foreach
+
+			if(is_string($this->group_field) && strlen($this->group_field)) {
+                $groupName = $item->getProperty($this->group_field,'','is_string');
+                if(!array_key_exists($groupName,$rOptions)) { $rOptions[$groupName] = []; }
+                $rOptions[$groupName][] = "\t\t\t".'<option value="'.$lval.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ltext).'</option>'."\n";
+            } else {
+                $rOptions[''][] = "\t\t\t".'<option value="'.$lval.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ltext).'</option>'."\n";
+            }//if(is_string($this->group_field) && strlen($this->group_field))
+		}//END foreach
+		// NApp::_Dlog($rOptions,'$rOptions');
+		$rOptionsStr = '';
+		foreach(array_keys($rOptions) as $group) {
+		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
+            $rOptionsStr .= implode('',$rOptions[$group]);
+            if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
+		}//END foreach
+		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
+		// final result processing
+        //$this->GetTagClass('SmartCBO')
+		$result = "\t\t".'<select'.$t_required.$this->GetTagId(TRUE).$lselclass.$this->GetTagAttributes().$this->GetTagActions().'>'."\n";
+        $result .= $rOptionsStr;
         $result .= "\t\t".'</select>'."\n";
         $result .= $this->GetActions();
         return $result;
-    }//END protected function SetControl
+	}//END protected function SetControl
 }//END class ComboBox extends Control
-?>

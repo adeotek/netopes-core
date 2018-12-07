@@ -75,35 +75,6 @@ class SmartComboBox extends Control {
 		}//if(!is_array($this->option_data))
 	}//END public function __construct
 	/**
-	 * @param $item
-	 * @return null|string
-     * @throws \PAF\AppException
-	 */
-	protected function GetDisplayFieldValue($item): ?string {
-	    if(!is_object($item) && !is_array($item)) { return NULL; }
-	    if(!is_object($item)) { $item = new VirtualEntity($item); }
-		$ldisplayvalue = '';
-		$ldisplayfield = is_string($this->selectedtextfield) && strlen($this->selectedtextfield) ? $this->selectedtextfield : $this->displayfield;
-		if(is_array($ldisplayfield)) {
-			foreach($ldisplayfield as $dk=>$dv) {
-				if(is_array($dv)) {
-					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
-					$ov_value = get_array_value($dv,'value','','is_string');
-					$ov_mask = get_array_value($dv,'mask','','is_string');
-					$ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
-				} else {
-				    $ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
-				}//if(is_array($dv))
-			}//foreach ($this->displayfield as $dk=>$dv)
-		} else {
-		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
-			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
-		}//if(is_array($this->displayfield))
-		return html_entity_decode($ldisplayvalue);
-	}//END protected function GetDisplayFieldValue
-	/**
 	 * @return string|null
 	 * @throws \PAF\AppException
 	 */
@@ -222,14 +193,8 @@ class SmartComboBox extends Control {
 				break;
 			case 'database':
 				if($this->allow_clear && strlen($this->cbo_placeholder)) { $litems->add(new VirtualEntity(),TRUE); }
-				$ds_name = get_array_value($this->data_source,'ds_class','','is_string');
-				$ds_method = get_array_value($this->data_source,'ds_method','','is_string');
-				if(strlen($ds_name) && strlen($ds_method)) {
-					$ds_params = get_array_value($this->data_source,'ds_params',[],'is_array');
-					$da_eparams = get_array_value($this->data_source,'ds_extra_params',[],'is_array');
-					$data = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
-					if(is_object($data) && $data->count()) { $litems->merge($data->toArray()); }
-				}//if(strlen($ds_name) && strlen($ds_method))
+				$data = $this->LoadData($this->data_source);
+				if(is_object($data) && $data->count()) { $litems->merge($data->toArray()); }
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {
 					$js_script .= "\t\t\ttemplateSelection: {$this->template_selection},\n";
 				}//if(is_string($this->template_selection) && strlen($this->template_selection))
