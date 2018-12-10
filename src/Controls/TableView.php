@@ -20,6 +20,7 @@ use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
+use NETopes\Core\Data\VirtualEntity;
 use PAF\AppException;
 use NApp;
 use Translate;
@@ -1492,10 +1493,15 @@ class TableView {
 				} else {
 					$ci_value = is_null($ci_value) ? '' : $ci_value;
 				}//if($ci_def_value && is_null($ci_value))
-				$ci_values = get_array_value($v,'values_collection',[],'is_array');
+				$ci_values = get_array_value($v,'values_collection',NULL,'isset');
+				if(is_array($ci_values)) {
+                    $ci_values = DataSource::ConvertArrayToDataSet($ci_values,VirtualEntity::class);
+                } elseif(!is_object($ci_values) || !is_iterable($ci_values)) {
+                    $ci_values = DataSource::ConvertArrayToDataSet([],VirtualEntity::class);
+                }//if(is_array($this->value))
 				$i_field = get_array_value($v,'index_field','name','is_notempty_string');
 				$ci_def_value = get_array_value($v,'default_value',NULL,'is_string');
-				$c_value = get_array_value($ci_values,[$ci_value,$i_field],$ci_def_value,'is_string');
+				$c_value = $ci_values->safeGet($ci_value) ? $ci_values->safeGet($ci_value)->getProperty($i_field,$ci_def_value,'is_string') : $ci_def_value;
 				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$c_value,'count');
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
