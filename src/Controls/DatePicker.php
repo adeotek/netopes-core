@@ -160,6 +160,12 @@ class DatePicker extends Control {
 
 		$this->ProcessActions();
 		if($this->button) {
+		    $onChange = '';
+		    if(!$this->readonly && !$this->disabled) {
+		        $onChange = $this->GetOnChangeAction(NULL,TRUE);
+		        $this->onchange = NULL;
+		        $this->onchange_str = NULL;
+		    }//if(!$this->readonly && !$this->disabled)
 		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
@@ -167,6 +173,9 @@ class DatePicker extends Control {
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
+	        if(strlen($onChange)) {
+	            NApp::_ExecJs("$('#{$this->tagid}_control').on('dp.change',function(e) { {$onChange} });");
+	        }//if(strlen($onChange))
 	    } else {
 	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
 	    }//if($this->button)
@@ -175,4 +184,3 @@ class DatePicker extends Control {
 		return $result;
 	}//END protected function SetBootstrap3Control
 }//END class DatePicker extends Control
-?>
