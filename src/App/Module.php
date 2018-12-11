@@ -493,11 +493,14 @@ class Module {
      * @return string Returns view full name (including absolute path and extension)
      * @access public
      * @throws \PAF\AppException
-     * @throws \ReflectionException
      */
 	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		// NApp::StartTimeTrack('MGetViewFile');
-		$result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
+		try {
+		    $result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
+		} catch(\ReflectionException $re) {
+		    throw AppException::GetInstance($re);
+		}//END try
 		// NApp::_Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
 		// NApp::_Dlog($result,'GetViewFile::'.$name);
 		return $result;
