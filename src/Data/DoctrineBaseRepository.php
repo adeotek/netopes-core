@@ -9,7 +9,6 @@ class DoctrineBaseRepository extends EntityRepository {
 
 	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10) {
         $qb = $this->createQueryBuilder('e');
-		$words = str_word_count($term, 1, '1234567890');
 
 		foreach($params as $pn=>$pv) {
             if(is_array($pv)) {
@@ -24,14 +23,7 @@ class DoctrineBaseRepository extends EntityRepository {
            }//if(is_array($pv))
         }//END foreach
 
-        foreach($words as $k=>$word) {
-            $xor = $qb->expr()->orX();
-            foreach($targets as $target) {
-                $xor->add($qb->expr()->like('e.'.$target,':in_'.$k));
-            }//END foreach
-            $qb->andWhere($xor);
-            $qb->setParameter('in_'.$k,'%'.$word.'%');
-        }//END foreach
+        $qb = $this->wordsSearchConditionsGenerator($qb,$term,$targets);
 
         foreach($targets as $target) { $qb->addOrderBy('e.'.$target,'ASC'); }
         $qb->setMaxResults($rowNum);

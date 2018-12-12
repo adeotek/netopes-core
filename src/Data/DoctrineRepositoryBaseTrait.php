@@ -2,6 +2,8 @@
 namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use NApp;
+use Doctrine\ORM\Query;
+
 /**
  * Trait DoctrineRepositoryBaseTrait
  *
@@ -69,9 +71,27 @@ trait DoctrineRepositoryBaseTrait {
      *
      * @return int The objects.
      */
-    public function countBy(array $criteria)
-    {
+    public function countBy(array $criteria) {
         $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
         return $persister->count($criteria);
-    }
+    }//END public function countBy
+
+    /**
+     * Adds where conditions to the Query for searching all words in $searchTerm
+     *
+     * @param \Doctrine\ORM\Query $qb
+     * @param string              $searchTerm
+     * @param array               $searchFields
+     * @return \Doctrine\ORM\Query The objects.
+     */
+    public function wordsSearchConditionsGenerator(Query $qb,string $searchTerm,array $searchFields): Query {
+        $words = str_word_count($searchTerm,1,'1234567890');
+        foreach($words as $k=>$word) {
+            $xor = $qb->expr()->orX();
+            foreach($searchFields as $target) { $xor->add($qb->expr()->like('e.'.$target,':in_'.$k)); }
+            $qb->andWhere($xor);
+            $qb->setParameter('in_'.$k,'%'.$word.'%');
+        }//END foreach
+        return $qb;
+    }//END public function countBy
 }//END trait DoctrineRepositoryBaseTrait
