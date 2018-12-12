@@ -23,7 +23,7 @@ class DoctrineBaseRepository extends EntityRepository {
            }//if(is_array($pv))
         }//END foreach
 
-        $qb = $this->wordsSearchConditionsGenerator($qb,$term,$targets);
+        $qb = $this->wordsSearchConditionsGenerator($qb,$term,array_map(function($v){return 'e.'.$v;},$targets));
 
         foreach($targets as $target) { $qb->addOrderBy('e.'.$target,'ASC'); }
         $qb->setMaxResults($rowNum);

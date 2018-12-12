@@ -159,8 +159,8 @@ class DatePicker extends Control {
 		// NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();
+		$onChange = '';
 		if($this->button) {
-		    $onChange = '';
 		    if(!$this->readonly && !$this->disabled) {
 		        $onChange = $this->GetOnChangeAction(NULL,TRUE);
 		        $this->onchange = NULL;
@@ -173,14 +173,14 @@ class DatePicker extends Control {
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
-	        if(strlen($onChange)) {
-	            NApp::_ExecJs("$('#{$this->tagid}_control').on('dp.change',function(e) { {$onChange} });");
-	        }//if(strlen($onChange))
 	    } else {
 	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
 	    }//if($this->button)
 		$result .= $this->GetActions();
-		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tagid}_control').{$this->plugin}({$jsparams});"); }
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
+			NApp::_ExecJs("$('#{$this->tagid}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tagid}_control').on('dp.change',function(e) { {$onChange} });"); }
+		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
 }//END class DatePicker extends Control
