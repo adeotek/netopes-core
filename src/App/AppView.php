@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.8
+ * @version    2.3.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -359,97 +359,84 @@ class AppView {
 	public function AddContent(array $content): void {
 		$this->_content[] = $content;
 	}//END public function AddContent
-	/**
-	 * @param string $content
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddHtmlContent(string $content,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::STRING_CONTENT,'value'=>$content,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $content
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddHtmlContent(string $content,?array $extraParams = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::STRING_CONTENT,'value'=>$content]);
 	}//END public function AddHtmlContent
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddFileContent(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::FILE_CONTENT,'value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddFileContent(string $file,?array $extraParams = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::FILE_CONTENT,'value'=>$file]);
 	}//END public function AddFileContent
     /**
-     * @param object                   $object
-     * @param string                   $method
-     * @param null|string              $containerType
-     * @param null|string              $containerId
-     * @param null|string              $tag
+     * @param object        $object $object
+     * @param string        $method
+     * @param array|null    $extraParams
+     * @param array|null    $args
      * @return void
      * @access public
      */
-	public function AddObjectContent(object $object, string $method,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::OBJECT_CONTENT,'object'=>$object,'method'=>$method,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
-	}//END public function AddContent
-	/**
-	 * @param string $module
-	 * @param string $method
-	 * @param null   $params
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddModuleContent(string $module,string $method,$params = NULL,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::MODULE_CONTENT,'module'=>$module,'method'=>$method,'params'=>$params,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	public function AddObjectContent(object $object,string $method,?array $extraParams = NULL,?array $args = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::OBJECT_CONTENT,'object'=>$object,'method'=>$method,'args'=>$args]);
+	}//END public function AddObjectContent
+    /**
+     * @param string     $module
+     * @param string     $method
+     * @param null       $params
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddModuleContent(string $module,string $method,$params = NULL,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::MODULE_CONTENT,'module'=>$module,'method'=>$method,'params'=>$params]);
 	}//END public function AddModuleContent
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddTableView(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @param array|null $args
+     * @return void
+     * @access public
+     */
+	public function AddTableView(string $file,?array $extraParams = NULL,?array $args = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args]);
 	}//END public function AddTableView
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddBasicForm(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddBasicForm(string $file,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm']);
 	}//END public function AddBasicForm
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddTabControl(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddTabControl(string $file,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl']);
 	}//END public function AddTabControl
     /**
-     * @param string      $file
-     * @param string      $controlClass
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
+     * @param string     $file
+     * @param string     $controlClass
+     * @param array|null $extraParams
+     * @param array|null $args
      * @return void
      * @access public
      */
-	public function AddControlContent(string $file,string $controlClass,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	public function AddControlContent(string $file,string $controlClass,?array $extraParams = NULL,?array $args = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'args'=>$args]);
 	}//END public function AddControlContent
 	/**
 	 * Render view content
@@ -477,7 +464,8 @@ class AppView {
 						if($this->_debug) { NApp::_Wlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !strlen($value))
-					$cContent = $this->GetControlContent($value,$class);
+					$args = get_array_value($c,'args',NULL,'?is_array');
+					$cContent = $this->GetControlContent($value,$class,$args);
 					break;
 				case self::FILE_CONTENT:
 					if(!strlen($value)) {
@@ -503,7 +491,12 @@ class AppView {
 						if($this->_debug) { NApp::_Wlog('Invalid content class/value [object:method:'.$method.']!'); }
 						continue;
 					}//if(!$object || !strlen($method) || !method_exists($object,$method))
-				    $cContent = $object->$method();
+					$args = get_array_value($c,'args',NULL,'?is_array');
+					if(is_array($args) && count($args)) {
+					    $cContent = $object->$method(...$args);
+					} else {
+					    $cContent = $object->$method();
+					}//if(is_array($args) && count($args))
 					break;
 				case self::STRING_CONTENT:
 				    $cContent = $value;
@@ -561,18 +554,23 @@ class AppView {
 		if(count($this->_jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
 		return NULL;
 	}//END public function Render
-	/**
-	 * @param string $_v_file File full name (including absolute path)
-	 * @param string $_c_class Control class fully qualified name
-	 * @return string
-	 * @throws \PAF\AppException
-	 */
-	protected function GetControlContent(string $_v_file,string $_c_class): string {
+    /**
+     * @param string     $_v_file File full name (including absolute path)
+     * @param string     $_c_class Control class fully qualified name
+     * @param array|null $args
+     * @return string
+     * @throws \PAF\AppException
+     */
+	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
 		if(count($this->_params)) { extract($this->_params); }
 		require($_v_file);
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
-		$result = $_control->Show();
+		if(is_array($args) && count($args)) {
+		    $result = $_control->Show(...$args);
+		} else {
+		    $result = $_control->Show();
+		}//if(is_array($args) && count($args))
 		if(!method_exists($_control,'GetJsScript')) { return $result; }
         $jsScript = $_control->GetJsScript();
         if(strlen(trim($jsScript))) { $this->AddJsScript($jsScript); }
