@@ -2,7 +2,7 @@
 namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use NApp;
-use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Trait DoctrineRepositoryBaseTrait
@@ -79,16 +79,16 @@ trait DoctrineRepositoryBaseTrait {
     /**
      * Adds where conditions to the Query for searching all words in $searchTerm
      *
-     * @param \Doctrine\ORM\Query $qb
+     * @param \Doctrine\ORM\QueryBuilder $qb
      * @param string              $searchTerm
      * @param array               $searchFields
-     * @return \Doctrine\ORM\Query The objects.
+     * @return \Doctrine\ORM\QueryBuilder The objects.
      */
-    public function wordsSearchConditionsGenerator(Query $qb,string $searchTerm,array $searchFields): Query {
+    public function wordsSearchConditionsGenerator(QueryBuilder $qb,string $searchTerm,array $searchFields): QueryBuilder {
         $words = str_word_count($searchTerm,1,'1234567890');
         foreach($words as $k=>$word) {
             $xor = $qb->expr()->orX();
-            foreach($searchFields as $target) { $xor->add($qb->expr()->like('e.'.$target,':in_'.$k)); }
+            foreach($searchFields as $target) { $xor->add($qb->expr()->like($target,':in_'.$k)); }
             $qb->andWhere($xor);
             $qb->setParameter('in_'.$k,'%'.$word.'%');
         }//END foreach

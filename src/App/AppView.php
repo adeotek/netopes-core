@@ -22,6 +22,26 @@ use NApp;
  */
 class AppView {
     /**
+     * Control content constant
+     */
+    const STRING_CONTENT = 'string';
+    /**
+     * Control content constant
+     */
+    const CONTROL_CONTENT = 'control';
+    /**
+     * File content constant
+     */
+    const FILE_CONTENT = 'file';
+    /**
+     * Object content constant
+     */
+    const OBJECT_CONTENT = 'object';
+    /**
+     * Module content contant
+     */
+    const MODULE_CONTENT = 'module';
+    /**
 	 * @var string|null View container type
 	 * @access protected
 	 */
@@ -332,6 +352,14 @@ class AppView {
 		return strlen($this->_title)>0;
 	}//END public function HasTitle
 	/**
+	 * @param array $content
+	 * @return void
+	 * @access public
+	 */
+	public function AddContent(array $content): void {
+		$this->_content[] = $content;
+	}//END public function AddContent
+	/**
 	 * @param string $content
      * @param null|string $containerType
      * @param null|string $containerId
@@ -340,7 +368,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddHtmlContent(string $content,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'string','value'=>$content,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::STRING_CONTENT,'value'=>$content,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddHtmlContent
 	/**
 	 * @param string $file
@@ -350,9 +378,9 @@ class AppView {
 	 * @return void
 	 * @access public
 	 */
-	public function AddContent(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'file','value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
-	}//END public function AddContent
+	public function AddFileContent(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
+		$this->_content[] = ['type'=>self::FILE_CONTENT,'value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	}//END public function AddFileContent
     /**
      * @param object                   $object
      * @param string                   $method
@@ -363,7 +391,7 @@ class AppView {
      * @access public
      */
 	public function AddObjectContent(object $object, string $method,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'object','object'=>$object,'method'=>$method,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::OBJECT_CONTENT,'object'=>$object,'method'=>$method,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddContent
 	/**
 	 * @param string $module
@@ -376,7 +404,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddModuleContent(string $module,string $method,$params = NULL,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'module','module'=>$module,'method'=>$method,'params'=>$params,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::MODULE_CONTENT,'module'=>$module,'method'=>$method,'params'=>$params,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddModuleContent
 	/**
 	 * @param string $file
@@ -387,7 +415,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddTableView(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddTableView
 	/**
 	 * @param string $file
@@ -398,7 +426,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddBasicForm(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddBasicForm
 	/**
 	 * @param string $file
@@ -409,7 +437,7 @@ class AppView {
 	 * @access public
 	 */
 	public function AddTabControl(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddTabControl
     /**
      * @param string      $file
@@ -421,7 +449,7 @@ class AppView {
      * @access public
      */
 	public function AddControlContent(string $file,string $controlClass,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>$controlClass,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+		$this->_content[] = ['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
 	}//END public function AddControlContent
 	/**
 	 * Render view content
@@ -439,10 +467,11 @@ class AppView {
 			$value = get_array_value($c,'value','','is_string');
 			$cContainerType = get_array_value($c,'container_type',NULL,'?is_string');
 			$cContainerId = get_array_value($c,'container_id',NULL,'?is_string');
+			$cContainerClass = get_array_value($c,'container_class',NULL,'?is_string');
 			$cTag = get_array_value($c,'tag',NULL,'?is_string');
 			$cContent = '';
 			switch($type) {
-				case 'control':
+                case self::CONTROL_CONTENT:
 					$class = get_array_value($c,'class','','is_string');
 					if(!strlen($class) || !strlen($value)) {
 						if($this->_debug) { NApp::_Wlog('Invalid content class/value [control:index:'.$k.']!'); }
@@ -450,14 +479,14 @@ class AppView {
 					}//if(!strlen($class) || !strlen($value))
 					$cContent = $this->GetControlContent($value,$class);
 					break;
-				case 'file':
+				case self::FILE_CONTENT:
 					if(!strlen($value)) {
 						if($this->_debug) { NApp::_Wlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($value))
 					$cContent = $this->GetFileContent($value);
 					break;
-				case 'module':
+				case self::MODULE_CONTENT:
 					$module = get_array_value($c,'module','','is_string');
 					$method = get_array_value($c,'method','','is_string');
 					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
@@ -467,7 +496,7 @@ class AppView {
 					$params = get_array_value($c,'params',NULL,'isset');
 					$cContent = $this->GetModuleContent($module,$method,$params);
 					break;
-				case 'object':
+				case self::OBJECT_CONTENT:
 				    $object = get_array_value($c,'object',NULL,'?is_object');
 				    $method = get_array_value($c,'method','','is_string');
 					if(!$object || !strlen($method) || !method_exists($object,$method)) {
@@ -476,7 +505,7 @@ class AppView {
 					}//if(!$object || !strlen($method) || !method_exists($object,$method))
 				    $cContent = $object->$method();
 					break;
-				case 'string':
+				case self::STRING_CONTENT:
 				    $cContent = $value;
 					break;
 				default:
@@ -484,7 +513,7 @@ class AppView {
 					break;
 			}//END switch
 			$processed = FALSE;
-            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cTag); }
+            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cContainerClass,$cTag); }
             if(!$processed && strlen($cTag)) {
                 $placeholder = '{{'.trim($cTag,'{}').'}}';
                 if(strpos($mainContainer,$placeholder)===FALSE) {
@@ -608,7 +637,7 @@ class AppView {
      * @param null|string $tag
      * @return bool
      */
-	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $tag = NULL): bool {
+	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL): bool {
 	    $container = $this->GetContainer($containerType);
 	    if(!strlen($container)) { return FALSE; }
 	    if(strlen($targetId)) {
@@ -618,6 +647,13 @@ class AppView {
             $container = str_replace('{{TARGETID}}',$targetId,$container);
 	        }//if(strpos($container,'{{TARGETID}}')===FALSE)
 	    }//if(strlen($targetId))
+	    if(strlen(trim($containerClass))) {
+	        if(strpos($container,'{{CSSCLASS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{CSSCLASS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
+	        }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
+	    }//if(strlen(trim($containerClass)))
 	    if(strlen($tag)) {
 	        $placeholder = '{{'.trim($tag,'{}').'}}';
 	        if(strpos($container,$placeholder)===FALSE) {
