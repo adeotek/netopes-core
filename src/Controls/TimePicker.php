@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.3.0.1
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -80,9 +80,14 @@ class TimePicker extends Control {
 			$ldata .= ' data-jqdpparams="'.$ljqdpparams.'"';
 		}//if(strlen($this->jqdpparams))
 		$this->ProcessActions();
-		$result = "\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'">'."\n";
 		if($this->button) {
-			$result .= "\t\t".'<div id="'.$this->tagid.'_btn" class="'.$this->baseclass.' dp_button" onclick="$(\'#'.$this->tagid.'\').focus();"><i class="fa fa-clock"></i></div>'."\n";
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
+			$result = "\t\t".'<div class="control-set">'."\n";
+			$result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'" onclick="$(\'#'.$this->tagid.'\').focus();"><i class="fa fa-clock"></i></span>'."\n";
+			$result .= "\t\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'"autocomplete="off">'."\n";
+			$result .= "\t\t".'</div>'."\n";
+		} else {
+			$result = "\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'"autocomplete="off">'."\n";
 		}//if($this->button)
 		$result .= $this->GetActions();
 		return $result;
@@ -107,20 +112,28 @@ class TimePicker extends Control {
 		// NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();
+		$onChange = '';
 		if($this->button) {
+		    if(!$this->readonly && !$this->disabled) {
+		        $onChange = $this->GetOnChangeAction(NULL,TRUE);
+		        $this->onchange = NULL;
+		        $this->onchange_str = NULL;
+		    }//if(!$this->readonly && !$this->disabled)
 		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
-	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
+	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
 	    } else {
-	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
+	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
 	    }//if($this->button)
 		$result .= $this->GetActions();
-		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tagid}_control').{$this->plugin}({$jsparams});"); }
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
+			NApp::_ExecJs("$('#{$this->tagid}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tagid}_control').on('dp.change',function(e) { {$onChange} });"); }
+		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
 }//END class TimePicker extends Control
-?>

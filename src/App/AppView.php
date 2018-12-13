@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.0.0
+ * @version    2.3.0.1
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -455,6 +455,8 @@ class AppView {
 			$cContainerType = get_array_value($c,'container_type',NULL,'?is_string');
 			$cContainerId = get_array_value($c,'container_id',NULL,'?is_string');
 			$cContainerClass = get_array_value($c,'container_class',NULL,'?is_string');
+			$cContainerTitle = get_array_value($c,'title',NULL,'?is_string');
+			$cContainerActions = get_array_value($c,'actions',NULL,'?is_array');
 			$cTag = get_array_value($c,'tag',NULL,'?is_string');
 			$cContent = '';
 			switch($type) {
@@ -506,7 +508,7 @@ class AppView {
 					break;
 			}//END switch
 			$processed = FALSE;
-            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cContainerClass,$cTag); }
+            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cContainerClass,$cTag,$cContainerTitle,$cContainerActions); }
             if(!$processed && strlen($cTag)) {
                 $placeholder = '{{'.trim($cTag,'{}').'}}';
                 if(strpos($mainContainer,$placeholder)===FALSE) {
@@ -632,10 +634,13 @@ class AppView {
      * @param string      $content
      * @param string      $containerType
      * @param null|string $targetId
+     * @param string|null $containerClass
      * @param null|string $tag
+     * @param string|null $title
+     * @param array|null  $actions
      * @return bool
      */
-	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL): bool {
+	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
 	    $container = $this->GetContainer($containerType);
 	    if(!strlen($container)) { return FALSE; }
 	    if(strlen($targetId)) {
@@ -652,6 +657,20 @@ class AppView {
                 $container = str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
 	        }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
 	    }//if(strlen(trim($containerClass)))
+	    if(strlen($title)) {
+	        if(strpos($container,'{{TITLE}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{TITLE}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{TITLE}}',' '.$title,$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(strlen($title))
+	    if(is_array($actions) && count($actions)) {
+	        if(strpos($container,'{{ACTIONS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{ACTIONS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{ACTIONS}}',implode("\n",$actions),$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(is_array($actions) && count($actions))
 	    if(strlen($tag)) {
 	        $placeholder = '{{'.trim($tag,'{}').'}}';
 	        if(strpos($container,$placeholder)===FALSE) {
