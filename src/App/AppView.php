@@ -641,7 +641,7 @@ class AppView {
      * @return bool
      */
 	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
-	    $container = $this->GetContainer($containerType);
+	    $container = $this->GetContainer($containerType,(is_array($actions) && count($actions)),(bool)strlen($title));
 	    if(!strlen($container)) { return FALSE; }
 	    if(strlen($targetId)) {
 	        if(strpos($container,'{{TARGETID}}')===FALSE) {
