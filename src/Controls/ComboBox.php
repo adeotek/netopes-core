@@ -12,7 +12,6 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use PAF\AppException;
