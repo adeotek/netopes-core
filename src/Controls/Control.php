@@ -19,6 +19,7 @@ use PAF\AppSession;
 use PAF\AppException;
 use NApp;
 use GibberishAES;
+use Translate;
 
 /**
  * Control abstract class file
@@ -433,22 +434,43 @@ abstract class Control {
 		$lattr = trim($lattr).(strlen($extra) ? ' '.$extra : '');
 		return $lattr;
 	}//END protected function GetTagAttributes
-	/**
-	 * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
-	 *
-	 * @param  bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
-	 * @param  string $extra Other html attributes to be included
-	 * @return string Returns the html tag attributes
-	 * @access protected
-	 */
-	protected function GetTagActions($base = NULL,$extra = NULL) {
+    /**
+     * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
+     *
+     * @param array|null    $base
+     * @param  string|null $extra Other html attributes to be included
+     * @return string Returns the html tag attributes
+     * @access protected
+     */
+	protected function GetTagActions(?array $base = NULL,?string $extra = NULL): string {
 		if($this->readonly || $this->disabled) { return ''; }
-		$lactions = [];
-		if(is_array($base)) {
-			foreach($base as $ak=>$av) { if(strlen($av)) { $lactions[$ak] = trim($av); } }
-		}//if(is_array($base))
+		$lActions = [];
+		if(is_array($base)) { foreach($base as $ak=>$av) { if(strlen($av)) { $lActions[$ak] = trim($av); } } }
 		// OnClick
-		$lonclick = (isset($lactions['onclick']) && strlen($lactions['onclick']) ? $lactions['onclick'] : '').((strlen($this->onclick) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE)) ? ' '.trim(trim($this->onclick),';').';' : '');
+		$onClickBase = get_array_value($lActions,'onclick',NULL,'is_string');
+        $lActions['onclick'] = $this->GetOnClickAction($onClickBase);
+		// OnChange
+        $onChangeBase = get_array_value($lActions,'onchange',NULL,'is_string');
+        $lActions['onchange'] = $this->GetOnChangeAction($onChangeBase);
+		// OnKeyPress
+		$onKeyPress = get_array_value($lActions,'onkeypress',NULL,'is_string');
+        $lActions['onkeypress'] = $this->GetOnKeyPressAction($onKeyPress);
+		$actionsString = implode(' ',$lActions).(strlen($extra) ? ' '.$extra : '');
+		return $actionsString;
+	}//END protected function GetTagActions
+    /**
+     * Gets the html tag onclick attributes string
+     *
+     * @param null    $base
+     * @return string Returns the html tag attribute
+     * @access protected
+     */
+	protected function GetOnClickAction(?string $base = NULL,bool $actOnly = FALSE): string {
+		$action = '';
+		if($base) { $action .= $base; }
+		if(is_string($this->onclick) && strlen($this->onclick) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE)) {
+		    $action .= ' '.trim($this->onclick,' ;').';';
+		}//if(is_string($this->onclick) && strlen($this->onclick) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onclick_str,'#action_params#')!==FALSE) {
 				$act_params = '';
@@ -462,20 +484,31 @@ abstract class Control {
 				$lonclick_scr = $this->onclick_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
 			if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func)) {
-				$lonclick .= ($lonclick ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
+				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
 			} else {
-				$lonclick .= ($lonclick ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr);
+				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr);
 			}//if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func))
 		}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
-		if(strlen(trim($lonclick))) {
+		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-				$lactions['onclick'] = ($this->data_onclick===TRUE ? 'data-' : '').'onclick="var cCB=function(){'.trim($lonclick).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
-			} else {
-				$lactions['onclick'] = ($this->data_onclick===TRUE ? 'data-' : '').'onclick="'.trim($lonclick).'"';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
-		}//if(strlen(trim($lonclick)))
-		// OnChange
-		$lonchange = (isset($lactions['onchange']) && strlen($lactions['onchange']) ? $lactions['onchange'] : '').((strlen($this->onchange) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE)) ? ' '.trim(trim($this->onchange),';').';' : '');
+		if($actOnly) { return $action; }
+		return ($this->data_onclick===TRUE ? 'data-' : '').'onclick="'.trim($action).'"';
+	}//END protected function GetOnClickAction
+	/**
+     * Gets the html tag onchange attributes string
+     *
+     * @param null    $base
+     * @return string Returns the html tag attribute
+     * @access protected
+     */
+	protected function GetOnChangeAction(?string $base = NULL,bool $actOnly = FALSE): string {
+		$action = '';
+		if($base) { $action .= $base; }
+		if(is_string($this->onchange) && strlen($this->onchange) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE)) {
+		    $action .= ' '.trim($this->onchange,' ;').';';
+		}//if(is_string($this->onchange) && strlen($this->onchange) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onchange_str,'#action_params#')!==FALSE) {
 				$act_params = '';
@@ -488,17 +521,28 @@ abstract class Control {
 			} else {
 				$onchange_str = $this->onchange_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$lonchange .= ($lonchange ? ' ' : '').NApp::arequest()->Prepare($onchange_str);
+			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onchange_str);
 		}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
-		if(strlen(trim($lonchange))) {
+		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-				$lactions['onchange'] = ($this->data_onclick===TRUE ? 'data-' : '').'onchange="var cCB=function(){'.trim($lonchange).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
-			} else {
-				$lactions['onchange'] = ($this->data_onclick===TRUE ? 'data-' : '').'onchange="'.trim($lonchange).'"';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
-		}//if(strlen(trim($lonchange)))
-		// OnKeyPress
-		$lonkeypress = (isset($lactions['onkeypress']) && strlen($lactions['onkeypress']) ? $lactions['onkeypress'] : '').((strlen($this->onkeypress) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE)) ? ' '.trim(trim($this->onkeypress),';').';' : '');
+		if($actOnly) { return $action; }
+		return ($this->data_onclick===TRUE ? 'data-' : '').'onchange="'.trim($action).'"';
+	}//END protected function GetOnChangeAction
+	/**
+     * Gets the html tag onkeypress attributes string
+     *
+     * @param null    $base
+     * @return string Returns the html tag attribute
+     * @access protected
+     */
+	protected function GetOnKeyPressAction(?string $base = NULL,bool $actOnly = FALSE): string {
+		$action = '';
+		if($base) { $action .= $base; }
+        if(is_string($this->onkeypress) && strlen($this->onkeypress) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE)) {
+		    $action .= ' '.trim($this->onkeypress,' ;').';';
+		}//if(is_string($this->onkeypress) && strlen($this->onkeypress) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onkeypress_str,'#action_params#')!==FALSE) {
 				$act_params = '';
@@ -511,18 +555,15 @@ abstract class Control {
 			} else {
 				$onkeypress_str = $this->onkeypress_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$lonkeypress .= ($lonkeypress ? ' ' : '').NApp::arequest()->Prepare($onkeypress_str);
+			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onkeypress_str);
 		}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
-		if(strlen(trim($lonkeypress))) {
+		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-				$lactions['onkeypress'] = ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="var cCB=function(){'.trim($lonkeypress).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});"';
-			} else {
-				$lactions['onkeypress'] = ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="'.trim($lonkeypress).'"';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
-		}//if(strlen(trim($lonkeypress)))
-		$lactions = implode(' ',$lactions).(strlen($extra) ? ' '.$extra : '');
-		return $lactions;
-	}//END protected function GetTagActions
+		if($actOnly) { return $action; }
+		return ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="'.trim($action).'"';
+	}//END protected function GetOnKeyPressAction
 	/**
 	 * Convert Ncol width to standard
 	 *
@@ -899,4 +940,53 @@ abstract class Control {
 		}//if(strlen($ds_key))
 		return $result;
 	}//END public static function GetTranslationData
+
+    /**
+     * Gets the records from the database
+     *
+     * @param array $params
+     * @return mixed Returns processed tab array
+     * @throws \PAF\AppException
+     * @access public
+     * @static
+     */
+	protected function LoadData(array $params) {
+		if(!is_array($params) || !count($params)) { return NULL; }
+		$ds_name = get_array_value($params,'ds_class','','is_string');
+		$ds_method = get_array_value($params,'ds_method','','is_string');
+		if(!strlen($ds_name) || !strlen($ds_method)) { return NULL; }
+		$ds_params = get_array_value($params,'ds_params',[],'is_array');
+		$da_eparams = get_array_value($params,'ds_extra_params',[],'is_array');
+        $result = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
+		return $result;
+	}//END protected function LoadData
+	/**
+	 * @param $item
+	 * @return null|string
+     * @throws \PAF\AppException
+	 */
+	protected function GetDisplayFieldValue($item): ?string {
+	    if(!is_object($item) && !is_array($item)) { return NULL; }
+	    if(!is_object($item)) { $item = new VirtualEntity($item); }
+		$ldisplayvalue = '';
+		$ldisplayfield = is_string($this->selectedtextfield) && strlen($this->selectedtextfield) ? $this->selectedtextfield : $this->displayfield;
+		if(is_array($ldisplayfield)) {
+			foreach($ldisplayfield as $dk=>$dv) {
+				if(is_array($dv)) {
+					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
+					$ov_value = get_array_value($dv,'value','','is_string');
+					$ov_mask = get_array_value($dv,'mask','','is_string');
+					$ltext = $item->getProperty($dk,'N/A','is_string');
+					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
+				} else {
+				    $ltext = $item->getProperty($dk,'N/A','is_string');
+					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
+				}//if(is_array($dv))
+			}//foreach ($this->displayfield as $dk=>$dv)
+		} else {
+		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
+			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
+		}//if(is_array($this->displayfield))
+		return html_entity_decode($ldisplayvalue);
+	}//END protected function GetDisplayFieldValue
 }//END abstract class Control

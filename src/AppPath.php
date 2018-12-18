@@ -38,4 +38,3 @@ class AppPath {
 		return __DIR__.'/boot.php';
 	}//END public static function GetBootFile
 }//END class AppPath
-?>

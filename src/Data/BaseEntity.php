@@ -134,16 +134,15 @@ abstract class BaseEntity {
         }//if(method_exists($this,'getId'))
         return FALSE;
     }//END public function isNew
-	/**
-	 * @param array $params
-	 * @return $this
-	 */
-	public function setBulkAttributes(array $params) {
-        foreach($params as $k=>$v) {
-            $mv = 'set'.ucfirst($v);
-            $this->$mv($v);
-        }//END foreach
-        return $this;
-    }//END public function setBulkAttributes
+    /**
+     * @param array $params
+     * @return $this
+     */
+    public function setBulkAttributes(array $params) {
+       foreach($params as $k=>$v) {
+           $mv = 'set'.convert_to_camel_case($k);
+           $this->$mv($v);
+       }//END foreach
+       return $this;
+   }//END public function setBulkAttributes
 }//END abstract class BaseEntity
-?>

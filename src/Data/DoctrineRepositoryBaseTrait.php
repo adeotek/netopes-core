@@ -2,6 +2,8 @@
 namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use NApp;
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * Trait DoctrineRepositoryBaseTrait
  *
@@ -65,13 +67,31 @@ trait DoctrineRepositoryBaseTrait {
      * Finds entities by a set of criteria.
      *
      * @param array      $criteria
+     * @property $_em
      *
      * @return int The objects.
      */
-    public function countBy(array $criteria)
-    {
+    public function countBy(array $criteria) {
         $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
         return $persister->count($criteria);
-    }
+    }//END public function countBy
+
+    /**
+     * Adds where conditions to the Query for searching all words in $searchTerm
+     *
+     * @param \Doctrine\ORM\QueryBuilder $qb
+     * @param string              $searchTerm
+     * @param array               $searchFields
+     * @return \Doctrine\ORM\QueryBuilder The objects.
+     */
+    public function wordsSearchConditionsGenerator(QueryBuilder $qb,string $searchTerm,array $searchFields): QueryBuilder {
+        $words = str_word_count($searchTerm,1,'1234567890');
+        foreach($words as $k=>$word) {
+            $xor = $qb->expr()->orX();
+            foreach($searchFields as $target) { $xor->add($qb->expr()->like($target,':in_'.$k)); }
+            $qb->andWhere($xor);
+            $qb->setParameter('in_'.$k,'%'.$word.'%');
+        }//END foreach
+        return $qb;
+    }//END public function countBy
 }//END trait DoctrineRepositoryBaseTrait
-?>

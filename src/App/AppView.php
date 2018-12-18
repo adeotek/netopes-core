@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.8
+ * @version    2.3.0.1
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -21,6 +21,26 @@ use NApp;
  * @abstract
  */
 class AppView {
+    /**
+     * Control content constant
+     */
+    const STRING_CONTENT = 'string';
+    /**
+     * Control content constant
+     */
+    const CONTROL_CONTENT = 'control';
+    /**
+     * File content constant
+     */
+    const FILE_CONTENT = 'file';
+    /**
+     * Object content constant
+     */
+    const OBJECT_CONTENT = 'object';
+    /**
+     * Module content contant
+     */
+    const MODULE_CONTENT = 'module';
     /**
 	 * @var string|null View container type
 	 * @access protected
@@ -332,96 +352,91 @@ class AppView {
 		return strlen($this->_title)>0;
 	}//END public function HasTitle
 	/**
-	 * @param string $content
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
+	 * @param array $content
 	 * @return void
 	 * @access public
 	 */
-	public function AddHtmlContent(string $content,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'string','value'=>$content,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
-	}//END public function AddHtmlContent
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddContent(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'file','value'=>$file,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	public function AddContent(array $content): void {
+		$this->_content[] = $content;
 	}//END public function AddContent
     /**
-     * @param object                   $object
-     * @param string                   $method
-     * @param null|string              $containerType
-     * @param null|string              $containerId
-     * @param null|string              $tag
+     * @param string     $content
+     * @param array|null $extraParams
      * @return void
      * @access public
      */
-	public function AddObjectContent(object $object, string $method,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'object','object'=>$object,'method'=>$method,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
-	}//END public function AddContent
-	/**
-	 * @param string $module
-	 * @param string $method
-	 * @param null   $params
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddModuleContent(string $module,string $method,$params = NULL,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'module','module'=>$module,'method'=>$method,'params'=>$params,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	public function AddHtmlContent(string $content,?array $extraParams = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::STRING_CONTENT,'value'=>$content]);
+	}//END public function AddHtmlContent
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddFileContent(string $file,?array $extraParams = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::FILE_CONTENT,'value'=>$file]);
+	}//END public function AddFileContent
+    /**
+     * @param object        $object $object
+     * @param string        $method
+     * @param array|null    $extraParams
+     * @param array|null    $args
+     * @return void
+     * @access public
+     */
+	public function AddObjectContent(object $object,string $method,?array $extraParams = NULL,?array $args = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::OBJECT_CONTENT,'object'=>$object,'method'=>$method,'args'=>$args]);
+	}//END public function AddObjectContent
+    /**
+     * @param string     $module
+     * @param string     $method
+     * @param null       $params
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddModuleContent(string $module,string $method,$params = NULL,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::MODULE_CONTENT,'module'=>$module,'method'=>$method,'params'=>$params]);
 	}//END public function AddModuleContent
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddTableView(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @param array|null $args
+     * @return void
+     * @access public
+     */
+	public function AddTableView(string $file,?array $extraParams = NULL,?array $args = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args]);
 	}//END public function AddTableView
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddBasicForm(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddBasicForm(string $file,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm']);
 	}//END public function AddBasicForm
-	/**
-	 * @param string $file
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
-	 * @return void
-	 * @access public
-	 */
-	public function AddTabControl(string $file,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl','container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @return void
+     * @access public
+     */
+	public function AddTabControl(string $file,?array $extraParams = NULL): void {
+	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl']);
 	}//END public function AddTabControl
     /**
-     * @param string      $file
-     * @param string      $controlClass
-     * @param null|string $containerType
-     * @param null|string $containerId
-     * @param null|string $tag
+     * @param string     $file
+     * @param string     $controlClass
+     * @param array|null $extraParams
+     * @param array|null $args
      * @return void
      * @access public
      */
-	public function AddControlContent(string $file,string $controlClass,?string $containerType = NULL,?string $containerId = NULL,?string $tag = NULL): void {
-		$this->_content[] = ['type'=>'control','value'=>$file,'class'=>$controlClass,'container_type'=>$containerType,'container_id'=>$containerId,'tag'=>$tag];
+	public function AddControlContent(string $file,string $controlClass,?array $extraParams = NULL,?array $args = NULL): void {
+		$this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'args'=>$args]);
 	}//END public function AddControlContent
 	/**
 	 * Render view content
@@ -439,25 +454,29 @@ class AppView {
 			$value = get_array_value($c,'value','','is_string');
 			$cContainerType = get_array_value($c,'container_type',NULL,'?is_string');
 			$cContainerId = get_array_value($c,'container_id',NULL,'?is_string');
+			$cContainerClass = get_array_value($c,'container_class',NULL,'?is_string');
+			$cContainerTitle = get_array_value($c,'title',NULL,'?is_string');
+			$cContainerActions = get_array_value($c,'actions',NULL,'?is_array');
 			$cTag = get_array_value($c,'tag',NULL,'?is_string');
 			$cContent = '';
 			switch($type) {
-				case 'control':
+                case self::CONTROL_CONTENT:
 					$class = get_array_value($c,'class','','is_string');
 					if(!strlen($class) || !strlen($value)) {
 						if($this->_debug) { NApp::_Wlog('Invalid content class/value [control:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($class) || !strlen($value))
-					$cContent = $this->GetControlContent($value,$class);
+					$args = get_array_value($c,'args',NULL,'?is_array');
+					$cContent = $this->GetControlContent($value,$class,$args);
 					break;
-				case 'file':
+				case self::FILE_CONTENT:
 					if(!strlen($value)) {
 						if($this->_debug) { NApp::_Wlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($value))
 					$cContent = $this->GetFileContent($value);
 					break;
-				case 'module':
+				case self::MODULE_CONTENT:
 					$module = get_array_value($c,'module','','is_string');
 					$method = get_array_value($c,'method','','is_string');
 					if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
@@ -467,16 +486,21 @@ class AppView {
 					$params = get_array_value($c,'params',NULL,'isset');
 					$cContent = $this->GetModuleContent($module,$method,$params);
 					break;
-				case 'object':
+				case self::OBJECT_CONTENT:
 				    $object = get_array_value($c,'object',NULL,'?is_object');
 				    $method = get_array_value($c,'method','','is_string');
 					if(!$object || !strlen($method) || !method_exists($object,$method)) {
 						if($this->_debug) { NApp::_Wlog('Invalid content class/value [object:method:'.$method.']!'); }
 						continue;
 					}//if(!$object || !strlen($method) || !method_exists($object,$method))
-				    $cContent = $object->$method();
+					$args = get_array_value($c,'args',NULL,'?is_array');
+					if(is_array($args) && count($args)) {
+					    $cContent = $object->$method(...$args);
+					} else {
+					    $cContent = $object->$method();
+					}//if(is_array($args) && count($args))
 					break;
-				case 'string':
+				case self::STRING_CONTENT:
 				    $cContent = $value;
 					break;
 				default:
@@ -484,7 +508,7 @@ class AppView {
 					break;
 			}//END switch
 			$processed = FALSE;
-            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cTag); }
+            if(strlen($cContainerType)) { $processed = $this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cContainerClass,$cTag,$cContainerTitle,$cContainerActions); }
             if(!$processed && strlen($cTag)) {
                 $placeholder = '{{'.trim($cTag,'{}').'}}';
                 if(strpos($mainContainer,$placeholder)===FALSE) {
@@ -501,7 +525,15 @@ class AppView {
 		if($this->_isModal && $this->_modalAutoJs) {
             $mJsScript = strlen($this->_targetId) ? "ShowDynamicModalForm('{$this->_targetId}'," : "ShowModalForm(";
             $mJsScript .= is_numeric($this->_modalWidth) && $this->_modalWidth>0 ? $this->_modalWidth : (is_string($this->_modalWidth) && strlen($this->_modalWidth) ? "'{$this->_modalWidth}'" : 300);
-            $mJsScript .= strlen($this->_titleTagId) ? ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '')."));" : ",'{$this->_title}'";
+            if(strlen($this->_titleTagId) || strlen($this->_title)) {
+                if(strlen($this->_titleTagId)) {
+                    $mJsScript .= ",($('#{$this->_titleTagId}').html()".(strlen($this->_title) ? "+': {$this->_title}'" : '').")";
+                } elseif(strlen($this->_title)) {
+                    $mJsScript .= ",'{$this->_title}'";
+                }//if(strlen($this->_titleTagId))
+            } else {
+                $mJsScript .= ",''";
+            }//if(strlen($this->_titleTagId) || strlen($this->_title))
             if(is_string($this->_modalCustomClose) && strlen($this->_modalCustomClose)) { $mJsScript .= ','.$this->_modalCustomClose; }
             $mJsScript .= ');';
             $this->AddJsScript($mJsScript,TRUE);
@@ -524,18 +556,23 @@ class AppView {
 		if(count($this->_jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
 		return NULL;
 	}//END public function Render
-	/**
-	 * @param string $_v_file File full name (including absolute path)
-	 * @param string $_c_class Control class fully qualified name
-	 * @return string
-	 * @throws \PAF\AppException
-	 */
-	protected function GetControlContent(string $_v_file,string $_c_class): string {
+    /**
+     * @param string     $_v_file File full name (including absolute path)
+     * @param string     $_c_class Control class fully qualified name
+     * @param array|null $args
+     * @return string
+     * @throws \PAF\AppException
+     */
+	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
 		if(count($this->_params)) { extract($this->_params); }
 		require($_v_file);
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
-		$result = $_control->Show();
+		if(is_array($args) && count($args)) {
+		    $result = $_control->Show(...$args);
+		} else {
+		    $result = $_control->Show();
+		}//if(is_array($args) && count($args))
 		if(!method_exists($_control,'GetJsScript')) { return $result; }
         $jsScript = $_control->GetJsScript();
         if(strlen(trim($jsScript))) { $this->AddJsScript($jsScript); }
@@ -597,11 +634,14 @@ class AppView {
      * @param string      $content
      * @param string      $containerType
      * @param null|string $targetId
+     * @param string|null $containerClass
      * @param null|string $tag
+     * @param string|null $title
+     * @param array|null  $actions
      * @return bool
      */
-	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $tag = NULL): bool {
-	    $container = $this->GetContainer($containerType);
+	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
+	    $container = $this->GetContainer($containerType,(is_array($actions) && count($actions)),(bool)strlen($title));
 	    if(!strlen($container)) { return FALSE; }
 	    if(strlen($targetId)) {
 	        if(strpos($container,'{{TARGETID}}')===FALSE) {
@@ -610,6 +650,27 @@ class AppView {
             $container = str_replace('{{TARGETID}}',$targetId,$container);
 	        }//if(strpos($container,'{{TARGETID}}')===FALSE)
 	    }//if(strlen($targetId))
+	    if(strlen(trim($containerClass))) {
+	        if(strpos($container,'{{CSSCLASS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{CSSCLASS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
+	        }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
+	    }//if(strlen(trim($containerClass)))
+	    if(strlen($title)) {
+	        if(strpos($container,'{{TITLE}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{TITLE}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{TITLE}}',' '.$title,$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(strlen($title))
+	    if(is_array($actions) && count($actions)) {
+	        if(strpos($container,'{{ACTIONS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{ACTIONS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{ACTIONS}}',implode("\n",$actions),$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(is_array($actions) && count($actions))
 	    if(strlen($tag)) {
 	        $placeholder = '{{'.trim($tag,'{}').'}}';
 	        if(strpos($container,$placeholder)===FALSE) {
@@ -649,4 +710,3 @@ class AppView {
 		return $content;
     }//END protected function ReplaceEmptyPlaceholders
 }//END class AppView
-?>

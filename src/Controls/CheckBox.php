@@ -66,4 +66,3 @@ class CheckBox extends Control {
         return $result;
     }//END protected function SetControl
 }//END class CheckBox extends Control
-?>

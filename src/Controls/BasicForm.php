@@ -591,10 +591,10 @@ class BasicForm {
 	/**
 	 * Sets the output buffer value
 	 *
-	 * @return string
+	 * @return string|null
 	 * @access protected
 	 */
-	protected function SetControl(): string {
+	protected function SetControl(): ?string {
 		if(!is_array($this->content) || !count($this->content)) { return NULL; }
 		switch($this->theme_type) {
 			case 'bootstrap3':

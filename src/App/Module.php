@@ -112,7 +112,7 @@ class Module {
 	 */
 	public function __call(string $name,$arguments) {
 		if(strpos($name,'DRights')===FALSE) { throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
-		$method = get_array_value($arguments,0,call_back_trace(),'is_notempty_string');
+		$method = get_array_value($arguments,0,$this->name,'is_notempty_string');
 		$module = get_array_value($arguments,1,get_called_class(),'is_notempty_string');
 		return self::GetDRights($module,$method,str_replace('DRights','',$name));
 	}//END public function __call
@@ -493,11 +493,14 @@ class Module {
      * @return string Returns view full name (including absolute path and extension)
      * @access public
      * @throws \PAF\AppException
-     * @throws \ReflectionException
      */
 	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		// NApp::StartTimeTrack('MGetViewFile');
-		$result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
+		try {
+		    $result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
+		} catch(\ReflectionException $re) {
+		    throw AppException::GetInstance($re);
+		}//END try
 		// NApp::_Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
 		// NApp::_Dlog($result,'GetViewFile::'.$name);
 		return $result;
