@@ -1438,7 +1438,7 @@ table.clsBasicForm > tbody > tr > td {
 	font-weight: bold;
 	color: #303064;
 }
-/* Adding style for associations manager  filters */
+/* Adding style for associations manager filters */
 .filter-input-holder {
 	margin: 0;
 	padding: 25px 25px 0 0;
@@ -1490,9 +1490,9 @@ table.clsBasicForm > tbody > tr > td {
 	background-repeat: no-repeat;
 	background-position: center;
 }
-
 /* End style for associations manager filters */
 /*** END AssociationManager ***/
+
 /*** Generic Rules ***/
 .clsDivTable {
     display: table;
