@@ -148,6 +148,11 @@ abstract class AssociationManager {
 	 * @access public
 	 */
 	public $live_version_box_title = 'Live version';
+    /**
+     * @var bool Sets if this control should have filters
+     * @access public
+     */
+	public $with_filter = false;
 	/**
 	 * Control class dynamic getter method
 	 *
@@ -214,6 +219,47 @@ abstract class AssociationManager {
 		}//END switch
 		if(!strlen($this->sort_module) || !strlen($this->sort_method)) { $this->sortable = FALSE; }
 	}//END public function __construct
+    /**
+     * @param array|NULL $params
+     * @access protected
+     */
+    protected function GetFilterJs(array $params = NULL) {
+	    $js = <<<JS
+            $('#filter-{$params['filter_type']}').keydown(function(){
+                var thisFilterValue = $(this).val();
+                if(!thisFilterValue) {
+                   showAll{$params['filter_type']}();
+                } else {
+                    hideAll{$params['filter_type']}();
+                    $('li[class*="filtrable-{$params['filter_type']}-'+thisFilterValue+'"]').show();
+                }
+            });
+            function hideAll{$params['filter_type']}() {
+                $('li[class*="filtrable-{$params['filter_type']}"]').hide();
+            }
+            function showAll{$params['filter_type']}() {
+                $('li[class*="filtrable-{$params['filter_type']}"]').show();
+            }
+JS;
+        NApp::_ExecJs($js);
+    }//END protected function GetFilterJs
+    /**
+     * @param array|NULL $params
+     * @return string
+     */
+    protected function GetFilterHtml(array $params = NULL):string {
+	    if(is_null($params)) {
+            trigger_error("Invalid GetFilterHtml params sent [1]", E_ERROR );
+        }
+	    $placeholder = Translate::Get('filter_items');
+        $html = <<<HTML
+        <div class="filter-input-holder">
+            <input id="filter-{$params['filter_type']}" type="text" placeholder="{$placeholder}" value="" />
+        </div>
+HTML;
+        $this->GetFilterJs($params);
+        return $html;
+    }//END protected function GetFilterHtml
 	/**
 	 * Get associated items actions HTML
 	 *
@@ -228,6 +274,9 @@ abstract class AssociationManager {
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetDeAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
+        if($this->with_filter) {
+            $result .= $this->GetFilterHtml(['filter_type' => 'associated']);
+        }
 		return $result;
 	}//END protected function GetAssociatedItemsActions
 	/**
@@ -239,10 +288,17 @@ abstract class AssociationManager {
 	protected function SetAssociatedItemsJs() {
 		$sis_js = "
 			$('#{$this->tagid}-sis-sel-all').on('click',function() {
-				$('#{$this->sis_box_tagid} input[type=image].clsCheckBox').val('1');
+			    $('#{$this->sis_box_tagid}').find('li').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(0);
+				});
+				$('#{$this->sis_box_tagid}').find('li:visible').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(1);
+				});
 			});
 			$('#{$this->tagid}-sis-desel-all').on('click',function() {
-				$('#{$this->sis_box_tagid} input[type=image].clsCheckBox').val('0');
+				$('#{$this->sis_box_tagid}').find('li').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(0);
+				});
 			});
 		";
 		if($this->sortable) {
@@ -278,11 +334,15 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssociatedItem($row) {
+	    $filtrableClass = "";
+	    if($this->with_filter) {
+	        $filtrableClass = " filtrable-associated-" . self::GetSlugForString($this->GetAssociatedItemName($row)) . " ";
+        }
 		$item_id = $row->getProperty($this->associated_id_field,'','isset');
 		$item_name = $this->GetAssociatedItemName($row);
 		$liclass = strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '';
 		$itclass = $row->getProperty($this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
-		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
+		$result = "\t\t\t\t\t".'<li class="' . $filtrableClass . 'ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
 		if($this->sortable) {
@@ -351,6 +411,9 @@ abstract class AssociationManager {
 		$result .= "\t\t\t\t".$btn_desel->Show()."\n";
 		$result .= $this->GetAssignItemsAction();
 		$result .= "\t\t\t".'</div>'."\n";
+        if($this->with_filter) {
+            $result .= $this->GetFilterHtml(['filter_type' => 'assignable']);
+        }
 		return $result;
 	}//END protected function GetAssignableItemsActions
 	/**
@@ -360,12 +423,19 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function SetAssignableItemsJs() {
-		$ais_js = "
+        $ais_js = "
 			$('#{$this->tagid}-ais-sel-all').on('click',function() {
-				$('#{$this->ais_box_tagid} input[type=image].clsCheckBox').val('1');
+			    $('#{$this->ais_box_tagid}').find('li').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(0);
+				});
+				$('#{$this->ais_box_tagid}').find('li:visible').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(1);
+				});
 			});
 			$('#{$this->tagid}-ais-desel-all').on('click',function() {
-				$('#{$this->ais_box_tagid} input[type=image].clsCheckBox').val('0');
+				$('#{$this->ais_box_tagid}').find('li').each(function(){
+				    $(this).find('input[type=image].clsCheckBox').val(0);
+				});
 			});
 		";
 		NApp::_ExecJs($ais_js);
@@ -388,6 +458,10 @@ abstract class AssociationManager {
 	 * @access protected
 	 */
 	protected function GetAssignableItem($row) {
+        $filtrableClass = "";
+        if($this->with_filter) {
+            $filtrableClass = " filtrable-assignable-" . self::GetSlugForString($this->GetAssignableItemName($row)) . " ";
+        }
 		$item_id = $row->getProperty($this->assignable_id_field,'','isset');
 		$is_associated = $row->getProperty('assoc',0,'is_numeric')==1;
 		if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
@@ -395,7 +469,7 @@ abstract class AssociationManager {
 		$liclass = strlen($this->assignable_item_class) ? ' '.$this->assignable_item_class : '';
 		$itclass = $is_associated ? ' associated' : '';
 		$itclass .= $row->getProperty($this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
-		$result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
+		$result = "\t\t\t\t\t".'<li class="'.$filtrableClass.'ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
 		$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
 		$result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
 		$result .= "\t\t\t\t\t\t".'<span class="txt'.$itclass.'">'.$item_name.'</span>'."\n";
@@ -559,6 +633,54 @@ abstract class AssociationManager {
 		if(!$output) { return $this->SetControl(); }
 		echo $this->SetControl();
 	}//END public function Show
+    /**
+     * Method used to gather the helper js function used by filters
+     * @param bool $return
+     * @return bool
+     * @access protected
+     */
+    protected function GetFilterHelperJs(bool $return = false) {
+	    $js = <<<JS
+        function GetSlug(text) {
+          return text.toString().toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+            .replace(/^-+/, '')             // Trim - from start of text
+            .replace(/-+$/, '');            // Trim - from end of text
+        }
+JS;
+	    if($return) {
+	        return $return;
+        } else {
+	        NApp::_ExecJs($js);
+        }
+    }
+    /**
+     * Helper method used to generate valid url slug
+     * @param string $text
+     * @return string
+     * @access protected
+     */
+    protected static function GetSlugForString(string $text):string  {
+        // replace non letter or digits by -
+        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+        // trim
+        $text = trim($text, '-');
+        // remove duplicate -
+        $text = preg_replace('~-+~', '-', $text);
+        // lowercase
+        $text = strtolower($text);
+        if (empty($text)) {
+            return 'n-a';
+        }
+
+        return $text;
+    }//END protected function GetSlugForString
 	/**
 	 * Load live version associated items
 	 *
