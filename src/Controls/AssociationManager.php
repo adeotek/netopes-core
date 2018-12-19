@@ -234,12 +234,11 @@ abstract class AssociationManager {
         $js = <<<JS
             var assocManagerFilterElements = function(t) {
                 var thisFilterValue = GetSlug($(t).val());
-                console.log('thisFilterValue:'+thisFilterValue+'|');
                 if(!thisFilterValue) {
-                    $('#{$this->ais_box_tagid} li.am-element').show();
+                    $('#{$tagId} li.am-element').show();
                 } else {
-                    $('#{$this->ais_box_tagid} li.am-element').hide();
-                    $('#{$this->ais_box_tagid} li.am-element.is-filterable[data-search*="'+thisFilterValue+'"]').show();
+                    $('#{$tagId} li.am-element').hide();
+                    $('#{$tagId} li.am-element.is-filterable[data-search*="'+thisFilterValue+'"]').show();
                 }
             }
             $('#filter-{$tagId}').on('keyup',function(){
@@ -481,7 +480,6 @@ JS;
 
         $itclass = 'txt'.($is_associated ? ' associated' : '');
         $filterData = '';
-
         if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0) {
             $itclass .= (strlen($itclass) ? ' ' : '').'inactive';
 			$ckbTag = "\t\t\t\t\t\t".'<span class="blank-checkbox"></span>'."\n";
