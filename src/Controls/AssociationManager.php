@@ -424,21 +424,21 @@ JS;
      * @access protected
      */
     protected function SetAssignableItemsJs() {
-        $ais_js = "
+        $ais_js = <<<JS
 			$('#{$this->tagid}-ais-sel-all').on('click',function() {
-			    $('#{$this->ais_box_tagid}').find('li').each(function(){
-				    $(this).find('input[type=image].clsCheckBox').val(0);
+				$('#{$this->ais_box_tagid}').find('li').each(function(){
+					$(this).find('input[type=image].clsCheckBox').val(0);
 				});
 				$('#{$this->ais_box_tagid}').find('li:visible').each(function(){
-				    $(this).find('input[type=image].clsCheckBox').val(1);
+					$(this).find('input[type=image].clsCheckBox').val(1);
 				});
 			});
 			$('#{$this->tagid}-ais-desel-all').on('click',function() {
 				$('#{$this->ais_box_tagid}').find('li').each(function(){
-				    $(this).find('input[type=image].clsCheckBox').val(0);
+					$(this).find('input[type=image].clsCheckBox').val(0);
 				});
 			});
-		";
+JS;
         NApp::_ExecJs($ais_js);
     }//END protected function SetAssignableItemsJs
     /**
