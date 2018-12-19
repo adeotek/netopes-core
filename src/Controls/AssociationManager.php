@@ -45,6 +45,11 @@ abstract class AssociationManager {
      */
     protected $uid = NULL;
     /**
+     * @var bool
+     * @access protected
+     */
+    protected $jsInitialized = FALSE;
+    /**
      * @var    bool Page hash (window.name)
      * @access public
      */
@@ -221,49 +226,46 @@ abstract class AssociationManager {
         if(!strlen($this->sort_module) || !strlen($this->sort_method)) { $this->sortable = FALSE; }
     }//END public function __construct
     /**
-     * @param array|NULL $params
+     * @param string $tagId
      * @access protected
      */
-    protected function GetFilterJs(array $params = NULL) {
+    protected function GetFilterJs(string $tagId) {
+        $this->GetFilterHelperJs();
         $js = <<<JS
-            $('#filter-{$params['filter_type']}').focusout(function(){
-                $('#filter-{$params['filter_type']}').trigger('keydown');
-            });
-            $('#filter-{$params['filter_type']}').keydown(function(){
-                var thisFilterValue = $(this).val();
+            var assocManagerFilterElements = function(t) {
+                var thisFilterValue = GetSlug($(t).val());
+                console.log('thisFilterValue:'+thisFilterValue+'|');
                 if(!thisFilterValue) {
-                   showAll{$params['filter_type']}();
+                    $('#{$this->ais_box_tagid} li.am-element').show();
                 } else {
-                    hideAll{$params['filter_type']}();
-                    $('li[class*="filtrable-{$params['filter_type']}-'+thisFilterValue+'"]').show();
+                    $('#{$this->ais_box_tagid} li.am-element').hide();
+                    $('#{$this->ais_box_tagid} li.am-element.is-filterable[data-search*="'+thisFilterValue+'"]').show();
                 }
+            }
+            $('#filter-{$tagId}').on('keyup',function(){
+                assocManagerFilterElements(this);
             });
-            function hideAll{$params['filter_type']}() {
-                $('li[class*="filtrable-{$params['filter_type']}"]').hide();
-            }
-            function showAll{$params['filter_type']}() {
-                $('li[class*="filtrable-{$params['filter_type']}"]').show();
-            }
+            $('#filter-{$tagId}').focusout(function(){
+                assocManagerFilterElements(this);
+            });
 JS;
         NApp::_ExecJs($js);
     }//END protected function GetFilterJs
     /**
-     * @param array|NULL $params
+     * @param string $tagId
      * @return string
-     * @throws \PAF\AppException
      */
-    protected function GetFilterHtml(array $params = NULL):string {
-        if(is_null($params)) { throw new AppException('Invalid GetFilterHtml params sent [1]'); }
+    protected function GetItemsFilter(string $tagId):string {
         $placeholder = Translate::Get('filter_items');
         $html = <<<HTML
         <div class="filter-input-holder">
-            <input id="filter-{$params['filter_type']}" type="text" placeholder="{$placeholder}" value="" />
+            <input id="filter-{$tagId}" type="text" placeholder="{$placeholder}" value="" />
             <label alt="{$placeholder}" placeholder="{$placeholder}"></label>
         </div>
 HTML;
-        $this->GetFilterJs($params);
+        $this->GetFilterJs($tagId);
         return $html;
-    }//END protected function GetFilterHtml
+    }//END protected function GetItemsFilter
     /**
      * Get associated items actions HTML
      *
@@ -279,7 +281,6 @@ HTML;
         $result .= "\t\t\t\t".$btn_desel->Show()."\n";
         $result .= $this->GetDeAssignItemsAction();
         $result .= "\t\t\t".'</div>'."\n";
-        if($this->with_filter) { $result .= $this->GetFilterHtml(['filter_type' => 'associated']); }
         return $result;
     }//END protected function GetAssociatedItemsActions
     /**
@@ -337,15 +338,28 @@ JS;
      * @access protected
      */
     protected function GetAssociatedItem($row) {
-        $liclass = '';
-        if($this->with_filter) { $liclass .= 'filtrable-associated-'.self::GetSlugForString($this->GetAssociatedItemName($row)); }
+        $liclass = 'ui-state-default am-element';
         $item_id = $row->getProperty($this->associated_id_field,'','isset');
         $item_name = $this->GetAssociatedItemName($row);
-        $liclass .= (strlen($liclass) ? ' ' : '').(strlen($this->associated_item_class) ? ' '.$this->associated_item_class : '');
-        $itclass = $row->getProperty($this->associated_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
-        $result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
+
+        $itclass = '';
+        $filterData = '';
+        $ckbTag = '';
+        if($row->getProperty($this->associated_state_field,0,'is_integer')<=0) {
+            $itclass = 'inactive';
+			$ckbTag = "\t\t\t\t\t\t".'<span class="blank-checkbox"></span>'."\n";
+        } else {
+            $liclass .= (strlen($this->associated_item_class) ? (strlen($liclass) ? ' ' : '').$this->associated_item_class : '');
+            if($this->with_filter) {
+                $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
+                $filterData = $this->GetItemFilterData($item_name);
+            }//if($this->with_filter)
         $ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
-        $result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
+            $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
+        }//if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
+
+        $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
+        $result .= $ckbTag;
         if($this->sortable) {
             $result .= "\t\t\t\t\t".'<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>'."\n";
         }//if($this->sortable)
@@ -387,6 +401,7 @@ JS;
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->associated_box_title.'</span>'."\n";
         $result .= $this->GetAssociatedItemsSummary($items);
         $result .= $this->GetAssociatedItemsActions();
+        if($this->with_filter) { $result .= $this->GetItemsFilter($this->sis_box_tagid);}
         $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tagid.'-sis-errors">&nbsp;</div>'."\n";
         $result .= "\t\t\t\t".'<ul id="'.$this->sis_box_tagid.'" class="items '.($this->sortable ? ' sortable' : '').'">'."\n";
         if(is_iterable($items) && count($items)) {
@@ -414,7 +429,6 @@ JS;
         $result .= "\t\t\t\t".$btn_desel->Show()."\n";
         $result .= $this->GetAssignItemsAction();
         $result .= "\t\t\t".'</div>'."\n";
-        if($this->with_filter) { $result .= $this->GetFilterHtml(['filter_type' => 'assignable']); }
         return $result;
     }//END protected function GetAssignableItemsActions
     /**
@@ -459,19 +473,31 @@ JS;
      * @access protected
      */
     protected function GetAssignableItem($row) {
-        $liclass = '';
-        if($this->with_filter) { $liclass = 'filtrable-assignable-'.self::GetSlugForString($this->GetAssignableItemName($row)); }
+        $liclass = 'ui-state-default am-element';
         $item_id = $row->getProperty($this->assignable_id_field,'','isset');
         $is_associated = $row->getProperty('assoc',0,'is_numeric')==1;
         if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
         $item_name = $this->GetAssignableItemName($row);
-        $liclass .= (strlen($liclass) ? ' ' : '').(strlen($this->assignable_item_class) ? ' '.$this->assignable_item_class : '');
-        $itclass = $is_associated ? ' associated' : '';
-        $itclass .= $row->getProperty($this->assignable_state_field,0,'is_numeric')<=0 ? ' inactive' : '';
-        $result = "\t\t\t\t\t".'<li class="ui-state-default'.$liclass.'" id="'.$item_id.'">'."\n";
+
+        $itclass = 'txt'.($is_associated ? ' associated' : '');
+        $filterData = '';
+
+        if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0) {
+            $itclass .= (strlen($itclass) ? ' ' : '').'inactive';
+			$ckbTag = "\t\t\t\t\t\t".'<span class="blank-checkbox"></span>'."\n";
+        } else {
+            $liclass .= (strlen($this->assignable_item_class) ? (strlen($liclass) ? ' ' : '').$this->assignable_item_class : '');
+            if($this->with_filter) {
+                $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
+                $filterData = $this->GetItemFilterData($item_name);
+            }//if($this->with_filter)
         $ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
-        $result .= "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
-        $result .= "\t\t\t\t\t\t".'<span class="txt'.$itclass.'">'.$item_name.'</span>'."\n";
+            $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
+        }//if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
+
+        $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
+        $result .= $ckbTag;
+        $result .= "\t\t\t\t\t\t".'<span class="'.$itclass.'">'.$item_name.'</span>'."\n";
         $result .= "\t\t\t\t\t".'</li>'."\n";
         return $result;
     }//END protected function GetAssignableItem
@@ -509,11 +535,12 @@ JS;
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->assignable_box_title.'</span>'."\n";
         $result .= $this->GetAssignableItemsSummary($items);
         $result .= $this->GetAssignableItemsActions();
+        if($this->with_filter) { $result .= $this->GetItemsFilter($this->ais_box_tagid);}
         $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors clearfix" id="'.$this->tagid.'-ais-errors">&nbsp;</div>'."\n";
         $result .= "\t\t\t\t".'<ul id="'.$this->ais_box_tagid.'" class="items">'."\n";
         if(is_iterable($items) && count($items)) {
             foreach($items as $v) { $result .= $this->GetAssignableItem($v); }
-            $result .= $this->SetAssignableItemsJs();
+            $this->SetAssignableItemsJs();
         } else {
             $result .= "\t\t\t\t".'<li class="bold ErrorMsg">'.Translate::Get('label_empty_list').'</li>'."\n";
         }//if(is_iterable($items) && count($items))
@@ -637,12 +664,21 @@ JS;
         return NULL;
     }//END public function Show
     /**
+     * @param string $itemName
+     * @return string
+     */
+    protected function GetItemFilterData(string $itemName): string {
+        if(!$this->with_filter) { return ''; }
+        return ' data-search="'.self::GetSlugForString($itemName).'"';
+    }//END protected function GetItemFilterData
+    /**
      * Method used to gather the helper js function used by filters
      * @param bool $return
-     * @return bool
+     * @return string|null
      * @access protected
      */
-    protected function GetFilterHelperJs(bool $return = false) {
+    protected function GetFilterHelperJs(bool $return = false): ?string {
+        if($this->jsInitialized) { return NULL; }
         $js = <<<JS
         function GetSlug(text) {
           return text.toString().toLowerCase()
@@ -653,11 +689,10 @@ JS;
             .replace(/-+$/, '');            // Trim - from end of text
         }
 JS;
-        if($return) {
-            return $return;
-        } else {
+        if($return) { return $return; }
             NApp::_ExecJs($js);
-        }//if($return)
+        $this->jsInitialized = TRUE;
+        return NULL;
     }//END protected function GetFilterHelperJs
     /**
      * Helper method used to generate valid url slug
@@ -666,6 +701,8 @@ JS;
      * @access protected
      */
     protected static function GetSlugForString(string $text):string  {
+        // remove html tags
+        $text = strip_tags($text);
         // replace non letter or digits by -
         $text = preg_replace('~[^\pL\d]+~u', '-', $text);
         // transliterate

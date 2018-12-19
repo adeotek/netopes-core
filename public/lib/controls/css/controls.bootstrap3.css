@@ -1445,15 +1445,16 @@ table.clsBasicForm > tbody > tr > td {
 }
 .filter-input-holder input[type="text"] {
 	box-sizing: border-box;
+	min-width: 100px;
 	width: 33%;
-	height: calc(2em + 2px);
+	height: calc(3em + 2px);
 	margin: 0;
-	padding: 0;
+	padding: 0 3px;
 	border: 1px solid #ccc;
-	border-radius: 1.5em;
 	background: #fff;
 	resize: none;
 	outline: none;
+	text-align: center;
 }
 .filter-input-holder input[type="text"][required]:focus {
 	border-color: #00bafa;
@@ -1686,6 +1687,14 @@ table.clsBasicForm > tbody > tr > td {
   .col-lg-offset-right-0 {
     margin-right: 0;
   }
+}
+
+.blank-checkbox {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	margin: 0 10px 0 0;
 }
 
 .span-cent { width: 100%; }
