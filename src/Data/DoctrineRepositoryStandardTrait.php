@@ -48,7 +48,7 @@ trait DoctrineRepositoryStandardTrait {
                         $expression = $qb->expr()->orX();
                         $fieldParams = [];
                         foreach($field as $mfi) {
-                            if(strpos($mfi,'.')===FALSE) { $mfi = 'e.'.$mfi; }
+                            $mfi = $this->getFieldName($mfi,'e');
                             $paramName = 'in'.$k.'_'.str_replace('.','_',$mfi);
                             $expression->add($qb->expr()->$operator($mfi,':'.$paramName));
                             $fieldParams[] = $paramName;
@@ -76,7 +76,7 @@ trait DoctrineRepositoryStandardTrait {
 		                    }//END switch
 	                    }//END foreach
                     } elseif(is_string($field) && strlen($field)) {
-                        if(strpos($field,'.')===FALSE) { $field = 'e.'.$field; }
+                        $field = $this->getFieldName($field,'e');
                         $paramName = 'in'.$k.'_'.str_replace('.','_',$field);
 						$expression = $qb->expr()->$operator($field,':'.$paramName);
 	                    if(strtolower($logical_operator)=='or') {
@@ -115,7 +115,7 @@ trait DoctrineRepositoryStandardTrait {
 	        if(count($sort)) {
 	            $first = TRUE;
 				foreach($sort as $c=>$d) {
-					$field = 'e.'.str_replace(['"',"'",'`','[',']'],'',$c);
+					$field = $this->getFieldName($c,'e');
 					if($first) {
 						$first = FALSE;
 						$qb->orderBy($field,strtoupper($d));

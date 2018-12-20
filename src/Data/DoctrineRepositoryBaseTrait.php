@@ -3,6 +3,7 @@ namespace NETopes\Core\Data;
 use PAF\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
+use PAF\AppException;
 
 /**
  * Trait DoctrineRepositoryBaseTrait
@@ -94,4 +95,21 @@ trait DoctrineRepositoryBaseTrait {
         }//END foreach
         return $qb;
     }//END public function countBy
+    /**
+     * @param string      $rawName
+     * @param string|null $alias
+     * @return string
+     * @throws \PAF\AppException
+     */
+    public function getFieldName(string $rawName,?string $alias = NULL): string {
+        if(!strlen($rawName)) { throw new AppException('Invalid field name!'); }
+        $rawName = str_replace(['"',"'",'`','[',']'],'',$rawName);
+        if(strpos($rawName,'.')===FALSE) {
+            $name = (strlen($alias) ? trim($alias,'. ').'.' : '').convert_to_camel_case($rawName,TRUE);
+        } else {
+            $nameArr = explode('.',$rawName);
+            $name = trim($nameArr[0],'. ').'.'.convert_to_camel_case($nameArr[1],TRUE);
+        }//if(strpos($rawName,'.')===FALSE)
+        return $name;
+    }//END public function getFieldName
 }//END trait DoctrineRepositoryBaseTrait
