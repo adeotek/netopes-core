@@ -529,9 +529,15 @@ class TableView {
 					if(strlen($fkey) && array_key_exists($fkey,$params)) {
 						$params[$fkey] = $a['value'];
 					} else {
+					    $fField = get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string');
+                        $fcRelations = get_array_value($this->columns[$a['type']],'relation',[],'is_array');
+                        if(count($fcRelations)) {
+                            end($fcRelations);
+                            $fField = key($fcRelations).'.'.$fField;
+                        }//if(count($fcRelations))
+                        // NApp::_Dlog($fField,'field');
 						$extra_params['filters'][] = array(
-							//'field'=>$a['type'],
-							'field'=>get_array_value($this->columns,[$a['type'],'db_field'],$a['type'],'is_notempty_string'),
+							'field'=>$fField,
 							'condition_type'=>$a['condition_type'],
 							'value'=>$a['value'],
 							'svalue'=>$a['svalue'],
@@ -765,13 +771,13 @@ class TableView {
 			$filter_cts = '';
 			$filter_ct_onchange = '';
 			$p_fctype = strtolower(strlen($cfctype) ? $cfctype : $fdtype);
-			$f_conditions = DataProvider::GetArray('_Custom\Offline','FilterConditionsTypes',array('type'=>$p_fctype));
-			foreach($f_conditions as $c) {
-				$fct_selected = $fc_type==$c['value'] ? ' selected="selected"' : '';
-				$filter_cts .= "\t\t\t\t".'<option value="'.$c['value'].'"'.$fct_selected.'>'.$c['name'].'</option>'."\n";
-				if(!strlen($filter_ct_onchange) && $c['value']=='><') {
+			$fConditions = DataProvider::Get('_Custom\Offline','FilterConditionsTypes',['type'=>$p_fctype]);
+			foreach($fConditions as $c) {
+				$fct_selected = $fc_type==$c->getProperty('value') ? ' selected="selected"' : '';
+				$filter_cts .= "\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$fct_selected.'>'.$c->getProperty('name').'</option>'."\n";
+				if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><') {
 					$filter_ct_onchange = ' onchange="'.$this->GetActionCommand('update_filter',array('fctype'=>$this->tagid.'-f-cond-type:value')).'"';
-				}//if(!strlen($filter_ct_onchange) && $c['value']=='><')
+				}//if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><')
 			}//END foreach
 			$filters .= "\t\t\t".'<select id="'.$this->tagid.'-f-cond-type" class="f-cond-type"'.$filter_ct_onchange.'>'."\n";
 			$filters .= $filter_cts;
@@ -944,7 +950,6 @@ class TableView {
 							$sdvalue = $this->tagid.'-f-svalue:value';
 							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
 						}//if($fc_type=='><')
-						//$aoc_check = "if(\$('#".$this->tagid."-f-value').val()!=''){ ";
 						break;
 				}//END switch
 				$dvalue = $this->tagid.'-f-value:value';
@@ -960,7 +965,7 @@ class TableView {
 		if(is_array($this->filters) && count($this->filters)) {
 			$filters .= "\t\t\t".'<div class="f-active">'."\n";
 			$first = TRUE;
-			$fctypes = DataProvider::GetKeyValueArray('_Custom\Offline','FilterConditionsTypes',array('type'=>'all'),array('keyfield'=>'value'));
+			$fcTypes = DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
 			foreach($this->filters as $k=>$a) {
 				if($first) {
 					$filters .= "\t\t\t\t".'<span class="f-active-title">'.Translate::Get('label_active_filters').':</span>'."\n";
@@ -970,9 +975,9 @@ class TableView {
 					$af_op = Translate::Get('label_'.$a['operator']).' ';
 				}//if($first)
 				if($a['condition_type']=='><') {
-					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::Get('label_and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
+					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::Get('label_and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
 				} else {
-					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',array('fkey'=>$k)).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fctypes[$a['condition_type']]['name'].'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
+					$filters .= "\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
 				}//if($a['condition_type']=='><')
 			}//END foreach
 			$filters .= "\t\t\t".'</div>'."\n";
@@ -1519,13 +1524,18 @@ class TableView {
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				$c_data_type = get_array_value($v,'data_type','','is_string');
 				if(is_object($row)) {
-				    $c_relations = explode('.',get_array_value($v,'relation','','is_string'));
                     $rObj = NULL;
-                    foreach($c_relations as $i=>$c_relation) {
-                        if(!strlen($c_relation)) { continue; }
-                        if($i>0 && $rObj==NULL) { break; }
-				    $rGetter = 'get'.ucfirst($c_relation);
-                        $rObj = $i==0 ? $row->$rGetter() : $rObj->$rGetter();
+				    $rFirst = TRUE;
+				    $cRelations = get_array_value($v,'relation',[],'is_array');
+                    foreach($cRelations as $rAlias=>$cRelation) {
+                        if($rFirst) {
+                            $rFirst = FALSE;
+                        } elseif($rObj===NULL) {
+                            break;
+                        }//if($rFirst)
+                        if(!strlen($cRelation)) { continue; }
+				        $rGetter = 'get'.ucfirst($cRelation);
+                        $rObj = $rObj===NULL ? $row->$rGetter() : $rObj->$rGetter();
                     }//END foreach
                     if($rObj) {
 				    $pGetter = 'get'.ucfirst($v['db_field']);
