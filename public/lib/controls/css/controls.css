@@ -344,6 +344,7 @@ div.clsRoundBox {
 	border-radius: 5px;
 }
 .clsFieldError { background-color: #FDC9C9 !important; }
+input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeComboBox { background-color: #FDC9C9 !important; }
 
 .clsPreviewBox {
 	display: inline-block;
