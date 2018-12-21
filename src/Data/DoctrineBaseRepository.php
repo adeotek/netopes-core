@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Criteria;
 class DoctrineBaseRepository extends EntityRepository {
 	use DoctrineRepositoryStandardTrait;
 
-	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10) {
+	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10,?array $sort = NULL) {
         $qb = $this->createQueryBuilder('e');
 
 		foreach($params as $pn=>$pv) {
@@ -25,7 +25,19 @@ class DoctrineBaseRepository extends EntityRepository {
 
         $qb = $this->wordsSearchConditionsGenerator($qb,$term,array_map(function($v){return 'e.'.$v;},$targets));
 
-        foreach($targets as $target) { $qb->addOrderBy('e.'.$target,'ASC'); }
+        if(is_array($sort) && count($sort)) {
+            $first = TRUE;
+            foreach($sort as $c=>$d) {
+                $field = $this->getFieldName($c,'e');
+                if($first) {
+                    $first = FALSE;
+                    $qb->orderBy($field,strtoupper($d));
+                } else {
+                    $qb->addOrderBy($field,strtoupper($d));
+                }//if($first)
+            }//END foreach
+        }//if(is_array($sort) && count($sort))
+
         $qb->setMaxResults($rowNum);
         $this->DbDebug($qb->getQuery(),'getSearchResults');
         return $qb->getQuery()->getResult();
