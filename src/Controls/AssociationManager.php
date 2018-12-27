@@ -206,11 +206,11 @@ abstract class AssociationManager {
         $this->sis_box_tagid = $this->tagid.'-sis-list';
         $this->ais_box_tagid = $this->tagid.'-ais-list';
         if(!is_string($this->associated_id_field) || !strlen($this->associated_id_field)) { $this->associated_id_field = 'id'; }
-        if(!is_string($this->associated_name_field) || !strlen($this->associated_name_field)) { $this->associated_name_field = 'id'; }
-        if(!is_string($this->associated_state_field) || !strlen($this->associated_state_field)) { $this->associated_state_field = 'id'; }
+        if(!is_string($this->associated_name_field) || !strlen($this->associated_name_field)) { $this->associated_name_field = 'name'; }
+        if(!is_string($this->associated_state_field) || !strlen($this->associated_state_field)) { $this->associated_state_field = NULL; }
         if(!is_string($this->assignable_id_field) || !strlen($this->assignable_id_field)) { $this->assignable_id_field = 'id'; }
-        if(!is_string($this->assignable_name_field) || !strlen($this->assignable_name_field)) { $this->assignable_name_field = 'id'; }
-        if(!is_string($this->assignable_state_field) || !strlen($this->assignable_state_field)) { $this->assignable_state_field = 'id'; }
+        if(!is_string($this->assignable_name_field) || !strlen($this->assignable_name_field)) { $this->assignable_name_field = 'name'; }
+        if(!is_string($this->assignable_state_field) || !strlen($this->assignable_state_field)) { $this->assignable_state_field = NULL; }
         switch(strtolower($this->layout_type)) {
             case 'bootstrap2':
             case 'bootstrap3':
@@ -231,8 +231,9 @@ abstract class AssociationManager {
      */
     protected function GetFilterJs(string $tagId) {
         $this->GetFilterHelperJs();
+        $funcSufix = '_'.str_replace('-','_',$tagId);
         $js = <<<JS
-            var assocManagerFilterElements = function(t) {
+            var assocManagerFilterElements{$funcSufix} = function(t) {
                 var thisFilterValue = GetSlug($(t).val());
                 if(!thisFilterValue) {
                     $('#{$tagId} li.am-element').show();
@@ -242,10 +243,10 @@ abstract class AssociationManager {
                 }
             }
             $('#filter-{$tagId}').on('keyup',function(){
-                assocManagerFilterElements(this);
+                assocManagerFilterElements{$funcSufix}(this);
             });
             $('#filter-{$tagId}').focusout(function(){
-                assocManagerFilterElements(this);
+                assocManagerFilterElements{$funcSufix}(this);
             });
 JS;
         NApp::_ExecJs($js);
@@ -270,7 +271,6 @@ HTML;
      *
      * @return string
      * @access protected
-     * @throws \PAF\AppException
      */
     protected function GetAssociatedItemsActions() {
         $result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
@@ -343,8 +343,7 @@ JS;
 
         $itclass = '';
         $filterData = '';
-        $ckbTag = '';
-        if($row->getProperty($this->associated_state_field,0,'is_integer')<=0) {
+        if(is_string($this->associated_state_field) && strlen($this->associated_state_field) && $row->getProperty($this->associated_state_field,0,'is_integer')<=0) {
             $itclass = 'inactive';
 			$ckbTag = "\t\t\t\t\t\t".'<span class="blank-checkbox"></span>'."\n";
         } else {
@@ -353,9 +352,9 @@ JS;
                 $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
                 $filterData = $this->GetItemFilterData($item_name);
             }//if($this->with_filter)
-        $ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
+        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
-        }//if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
+        }//if(is_string($this->associated_state_field) && strlen($this->associated_state_field) && $row->getProperty($this->associated_state_field,0,'is_integer')<=0)
 
         $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
         $result .= $ckbTag;
@@ -480,7 +479,7 @@ JS;
 
         $itclass = 'txt'.($is_associated ? ' associated' : '');
         $filterData = '';
-        if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0) {
+        if(is_string($this->assignable_state_field) && strlen($this->assignable_state_field) && $row->getProperty($this->assignable_state_field,0,'is_integer')<=0) {
             $itclass .= (strlen($itclass) ? ' ' : '').'inactive';
 			$ckbTag = "\t\t\t\t\t\t".'<span class="blank-checkbox"></span>'."\n";
         } else {
@@ -489,9 +488,9 @@ JS;
                 $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
                 $filterData = $this->GetItemFilterData($item_name);
             }//if($this->with_filter)
-        $ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
+        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
-        }//if($row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
+        }//if(is_string($this->assignable_state_field) && strlen($this->assignable_state_field) && $row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
 
         $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
         $result .= $ckbTag;
