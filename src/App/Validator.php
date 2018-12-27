@@ -551,4 +551,3 @@ class Validator {
 		return self::GetDateFormat($forPhp).' '.self::GetTimeFormat($forPhp);
 	}//END public static function GetTimeFormat
 }//END class Validator
-?>

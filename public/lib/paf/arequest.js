@@ -154,17 +154,17 @@ var ARequest = {
 		}//if(interval && interval>0)
 	},//END runRepeated
 	runScript : function(scriptString) {
-		if(!scriptString || scriptString=='') { return false; }
+		if(!scriptString || scriptString==='') { return false; }
 		var script_type = 'eval';
 		var script_val = '';
 		var script = scriptString.split('|');
 		if(script[0] && script[1]) {
-			if(script[0]!='') { script_type = script[0]; }
+			if(script[0]!=='') { script_type = script[0]; }
 			script_val = script[1];
 		}else{
 			if(script[0]) { script_val = script[0]; }
 		}//if(script[0] && script[1])
-		if(!script_val || script_val=='' || !script_type || script_type=='') { return false; }
+		if(!script_val || script_val==='' || !script_type || script_type==='') { return false; }
 		switch(script_type){
 			case 'file':
 				$.getScript(script_val);
