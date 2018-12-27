@@ -115,7 +115,7 @@ class AppView {
 	 * @var array Placeholders values
 	 * @access protected
 	 */
-	protected $_placeholdersValues = [];
+	protected $_placeholders = [];
 	/**
 	 * @var array View JS scripts to be executed on render
 	 * @access protected
@@ -225,13 +225,13 @@ class AppView {
 	 * @access public
 	 */
 	public function SetPlaceholderValue(string $placeholder,string $value): void {
-		$this->_placeholdersValues[trim($placeholder,'{}')] = $value;
+		$this->_placeholders[trim($placeholder,'{}')] = $value;
 	}//END public function SetPlaceholderValue
 	/**
 	 * @return array
 	 */
-	public function GetPlaceholdersValues(): array {
-		return $this->_placeholdersValues;
+	public function GetPlaceholders(): array {
+		return $this->_placeholders;
 	}//END public function GetPlaceholdersValues
 	/**
 	 * @return array
@@ -328,6 +328,7 @@ class AppView {
 	 */
 	public function SetTargetId(string $targetId): void {
 		$this->_targetId = $targetId;
+		$this->_placeholders['TARGETID'] = $targetId;
 	}//END public function SetTargetId
 	/**
 	 * @param string $action
@@ -357,6 +358,8 @@ class AppView {
 	 * @access public
 	 */
 	public function AddContent(array $content): void {
+	    $tag = get_array_value($content,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 		$this->_content[] = $content;
 	}//END public function AddContent
     /**
@@ -366,6 +369,8 @@ class AppView {
      * @access public
      */
 	public function AddHtmlContent(string $content,?array $extraParams = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 		$this->_content[] = array_merge($extraParams??[],['type'=>self::STRING_CONTENT,'value'=>$content]);
 	}//END public function AddHtmlContent
     /**
@@ -375,6 +380,8 @@ class AppView {
      * @access public
      */
 	public function AddFileContent(string $file,?array $extraParams = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 		$this->_content[] = array_merge($extraParams??[],['type'=>self::FILE_CONTENT,'value'=>$file]);
 	}//END public function AddFileContent
     /**
@@ -386,6 +393,8 @@ class AppView {
      * @access public
      */
 	public function AddObjectContent(object $object,string $method,?array $extraParams = NULL,?array $args = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 	    $this->_content[] = array_merge($extraParams??[],['type'=>self::OBJECT_CONTENT,'object'=>$object,'method'=>$method,'args'=>$args]);
 	}//END public function AddObjectContent
     /**
@@ -397,6 +406,8 @@ class AppView {
      * @access public
      */
 	public function AddModuleContent(string $module,string $method,$params = NULL,?array $extraParams = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 	    $this->_content[] = array_merge($extraParams??[],['type'=>self::MODULE_CONTENT,'module'=>$module,'method'=>$method,'params'=>$params]);
 	}//END public function AddModuleContent
     /**
@@ -407,6 +418,8 @@ class AppView {
      * @access public
      */
 	public function AddTableView(string $file,?array $extraParams = NULL,?array $args = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args]);
 	}//END public function AddTableView
     /**
@@ -416,6 +429,8 @@ class AppView {
      * @access public
      */
 	public function AddBasicForm(string $file,?array $extraParams = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm']);
 	}//END public function AddBasicForm
     /**
@@ -425,6 +440,8 @@ class AppView {
      * @access public
      */
 	public function AddTabControl(string $file,?array $extraParams = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 	    $this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl']);
 	}//END public function AddTabControl
     /**
@@ -436,9 +453,151 @@ class AppView {
      * @access public
      */
 	public function AddControlContent(string $file,string $controlClass,?array $extraParams = NULL,?array $args = NULL): void {
+	    $tag = get_array_value($extraParams,'tag','','is_string');
+	    if(strlen($tag)) { $this->_placeholders[$tag] = NULL; }
 		$this->_content[] = array_merge($extraParams??[],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'args'=>$args]);
 	}//END public function AddControlContent
 	/**
+     * @param string     $_v_file File full name (including absolute path)
+     * @param string     $_c_class Control class fully qualified name
+     * @param array|null $args
+     * @return string
+     * @throws \PAF\AppException
+     */
+	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
+		if(count($this->_params)) { extract($this->_params); }
+		require($_v_file);
+		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
+		$_control = new $_c_class($ctrl_params);
+		if(is_array($args) && count($args)) {
+		    $result = $_control->Show(...$args);
+		} else {
+		    $result = $_control->Show();
+		}//if(is_array($args) && count($args))
+		if(!method_exists($_control,'GetJsScript')) { return $result; }
+        $jsScript = $_control->GetJsScript();
+        if(strlen(trim($jsScript))) { $this->AddJsScript($jsScript); }
+		return $result;
+	}//END protected function GetControlContent
+	/**
+	 * @param string $_v_file
+	 * @return string
+	 */
+	protected function GetFileContent(string $_v_file): string {
+		if(count($this->_params)) { extract($this->_params); }
+		ob_start();
+		require($_v_file);
+		$result = ob_get_clean();
+		return $result;
+	}//END protected function GetFileContent
+	/**
+	 * @param string $module
+	 * @param string $method
+	 * @param        $params
+	 * @return string
+	 * @throws \PAF\AppException
+	 */
+	protected function GetModuleContent(string $module,string $method,$params): string {
+		ob_start();
+		ModulesProvider::Exec($module,$method,$params);
+		$result = ob_get_clean();
+		return $result;
+	}//END protected function GetModuleContent
+	/**
+     * @param string $containerType
+     * @param array  $tags
+     * @param bool   $hasActions
+     * @param bool   $hasTitle
+     * @return string|null
+     * @throws \PAF\AppException
+	 */
+	protected function GetContainer(?string $containerType,array $tags = [],bool $hasActions = FALSE,bool $hasTitle = FALSE): ?string {
+	    if($containerType===NULL) { return NULL; }
+	    $containerMethod = 'Get'.(strlen($containerType) ? ucfirst($containerType) : 'Default').'Container';
+		if(strlen($this->_theme)) {
+			$themeObj = NApp::_GetTheme($this->_theme);
+		} else {
+			$themeObj = NApp::$theme;
+			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
+		}//if(strlen($this->theme))
+        if(!is_object($themeObj)) {
+		    if($this->_debug) { NApp::_Wlog('Invalid view object ['.$this->_theme.']!'); }
+		    return NULL;
+		}//if(!is_object($themeObj))
+		if(!method_exists($themeObj,$containerMethod)) {
+		    if($this->_debug) { NApp::_Wlog('View container method ['.$containerMethod.'] not found!'); }
+		    return NULL;
+		}//if(!method_exists($themeObj,$containerMethod))
+		ob_start();
+		$themeObj->$containerMethod(new Params($tags),$hasActions,$hasTitle);
+		$container = ob_get_clean();
+		return $container;
+	}//END protected function GetContainer
+    /**
+     * @param string      $content
+     * @param string      $containerType
+     * @param null|string $targetId
+     * @param string|null $containerClass
+     * @param null|string $tag
+     * @param string|null $title
+     * @param array|null  $actions
+     * @return bool
+     * @throws \PAF\AppException
+     */
+	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
+	    $tags = [];
+	    if(strlen($targetId)) { $tags['TARGETID'] = $targetId; }
+	    if(strlen($containerClass)) { $tags['CSSCLASS'] = $containerClass; }
+	    if(strlen($tag)) { $tags[$tag] = NULL; }
+        $container = $this->GetContainer($containerType,$tags,(is_array($actions) && count($actions)),(bool)strlen($title));
+	    if(!strlen($container)) { return FALSE; }
+	    if(strlen($targetId)) {
+	        if(strpos($container,'{{TARGETID}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{TARGETID}} placeholder is missing for view container ['.$containerType.']!'); }
+		} else {
+            $container = str_replace('{{TARGETID}}',$targetId,$container);
+	        }//if(strpos($container,'{{TARGETID}}')===FALSE)
+	    }//if(strlen($targetId))
+	    if(strlen(trim($containerClass))) {
+	        if(strpos($container,'{{CSSCLASS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{CSSCLASS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
+	        }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
+	    }//if(strlen(trim($containerClass)))
+	    if(strlen($title)) {
+	        if(strpos($container,'{{TITLE}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{TITLE}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{TITLE}}',' '.$title,$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(strlen($title))
+	    if(is_array($actions) && count($actions)) {
+	        if(strpos($container,'{{ACTIONS}}')===FALSE) {
+	            if($this->_debug) { NApp::_Wlog('{{ACTIONS}} placeholder is missing for view container ['.$containerType.']!'); }
+		    } else {
+                $container = str_replace('{{ACTIONS}}',implode("\n",$actions),$container);
+	        }//if(strpos($container,'{{TITLE}}')===FALSE)
+	    }//if(is_array($actions) && count($actions))
+	    if(strlen($tag)) {
+	        $placeholder = '{{'.trim($tag,'{}').'}}';
+	        if(strpos($container,$placeholder)===FALSE) {
+	            if($this->_debug) { NApp::_Wlog($placeholder.' placeholder is missing for view container ['.$containerType.']!'); }
+	            return FALSE;
+            }//if(strpos($container,$placeholder)===FALSE)
+            $content = str_replace($placeholder,$content,$container);
+            $content = $this->ReplaceEmptyPlaceholders($content);
+            return TRUE;
+	    }//if(strlen($tag))
+        if(strpos($container,'{{CONTENT}}')===FALSE) {
+            if($this->_debug) { NApp::_Wlog('{{CONTENT}} placeholder is missing for view container ['.$containerType.']!'); }
+            return FALSE;
+        }//if(strpos($container,'{{CONTENT}}')===FALSE)
+        $content = str_replace('{{CONTENT}}',$content,$container);
+        $content = $this->ReplaceEmptyPlaceholders($content);
+		return FALSE;
+	}//END protected function ProcessSubContainer
+    /**
 	 * Render view content
 	 *
 	 * @param bool $return If TRUE view content is returned as string, else is outputted
@@ -448,7 +607,7 @@ class AppView {
 	 */
 	public function Render(bool $return = FALSE): ?string {
 		$content = '';
-		$mainContainer = $this->GetContainer($this->_containerType,$this->HasActions(),$this->HasTitle());
+		$mainContainer = $this->GetContainer($this->_containerType,$this->_placeholders,$this->HasActions(),$this->HasTitle());
 		foreach($this->_content as $k=>$c) {
 			$type = get_array_value($c,'type','','is_string');
 			$value = get_array_value($c,'value','','is_string');
@@ -557,139 +716,6 @@ class AppView {
 		return NULL;
 	}//END public function Render
     /**
-     * @param string     $_v_file File full name (including absolute path)
-     * @param string     $_c_class Control class fully qualified name
-     * @param array|null $args
-     * @return string
-     * @throws \PAF\AppException
-     */
-	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
-		if(count($this->_params)) { extract($this->_params); }
-		require($_v_file);
-		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
-		$_control = new $_c_class($ctrl_params);
-		if(is_array($args) && count($args)) {
-		    $result = $_control->Show(...$args);
-		} else {
-		    $result = $_control->Show();
-		}//if(is_array($args) && count($args))
-		if(!method_exists($_control,'GetJsScript')) { return $result; }
-        $jsScript = $_control->GetJsScript();
-        if(strlen(trim($jsScript))) { $this->AddJsScript($jsScript); }
-		return $result;
-	}//END protected function GetControlContent
-	/**
-	 * @param string $_v_file
-	 * @return string
-	 */
-	protected function GetFileContent(string $_v_file): string {
-		if(count($this->_params)) { extract($this->_params); }
-		ob_start();
-		require($_v_file);
-		$result = ob_get_clean();
-		return $result;
-	}//END protected function GetFileContent
-	/**
-	 * @param string $module
-	 * @param string $method
-	 * @param        $params
-	 * @return string
-	 * @throws \PAF\AppException
-	 */
-	protected function GetModuleContent(string $module,string $method,$params): string {
-		ob_start();
-		ModulesProvider::Exec($module,$method,$params);
-		$result = ob_get_clean();
-		return $result;
-	}//END protected function GetModuleContent
-	/**
-     * @param string $containerType
-     * @param bool   $hasActions
-     * @param bool   $hasTitle
-     * @return string|null
-	 */
-	protected function GetContainer(?string $containerType,bool $hasActions = FALSE,bool $hasTitle = FALSE): ?string {
-	    if($containerType===NULL) { return NULL; }
-	    $containerMethod = 'Get'.(strlen($containerType) ? ucfirst($containerType) : 'Default').'Container';
-		if(strlen($this->_theme)) {
-			$themeObj = NApp::_GetTheme($this->_theme);
-		} else {
-			$themeObj = NApp::$theme;
-			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
-		}//if(strlen($this->theme))
-        if(!is_object($themeObj)) {
-		    if($this->_debug) { NApp::_Wlog('Invalid view object ['.$this->_theme.']!'); }
-		    return NULL;
-		}//if(!is_object($themeObj))
-		if(!method_exists($themeObj,$containerMethod)) {
-		    if($this->_debug) { NApp::_Wlog('View container method ['.$containerMethod.'] not found!'); }
-		    return NULL;
-		}//if(!method_exists($themeObj,$containerMethod))
-		ob_start();
-		$themeObj->$containerMethod($hasActions,$hasTitle);
-		$container = ob_get_clean();
-		return $container;
-	}//END protected function GetContainer
-    /**
-     * @param string      $content
-     * @param string      $containerType
-     * @param null|string $targetId
-     * @param string|null $containerClass
-     * @param null|string $tag
-     * @param string|null $title
-     * @param array|null  $actions
-     * @return bool
-     */
-	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
-	    $container = $this->GetContainer($containerType,(is_array($actions) && count($actions)),(bool)strlen($title));
-	    if(!strlen($container)) { return FALSE; }
-	    if(strlen($targetId)) {
-	        if(strpos($container,'{{TARGETID}}')===FALSE) {
-	            if($this->_debug) { NApp::_Wlog('{{TARGETID}} placeholder is missing for view container ['.$containerType.']!'); }
-		} else {
-            $container = str_replace('{{TARGETID}}',$targetId,$container);
-	        }//if(strpos($container,'{{TARGETID}}')===FALSE)
-	    }//if(strlen($targetId))
-	    if(strlen(trim($containerClass))) {
-	        if(strpos($container,'{{CSSCLASS}}')===FALSE) {
-	            if($this->_debug) { NApp::_Wlog('{{CSSCLASS}} placeholder is missing for view container ['.$containerType.']!'); }
-		    } else {
-                $container = str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
-	        }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
-	    }//if(strlen(trim($containerClass)))
-	    if(strlen($title)) {
-	        if(strpos($container,'{{TITLE}}')===FALSE) {
-	            if($this->_debug) { NApp::_Wlog('{{TITLE}} placeholder is missing for view container ['.$containerType.']!'); }
-		    } else {
-                $container = str_replace('{{TITLE}}',' '.$title,$container);
-	        }//if(strpos($container,'{{TITLE}}')===FALSE)
-	    }//if(strlen($title))
-	    if(is_array($actions) && count($actions)) {
-	        if(strpos($container,'{{ACTIONS}}')===FALSE) {
-	            if($this->_debug) { NApp::_Wlog('{{ACTIONS}} placeholder is missing for view container ['.$containerType.']!'); }
-		    } else {
-                $container = str_replace('{{ACTIONS}}',implode("\n",$actions),$container);
-	        }//if(strpos($container,'{{TITLE}}')===FALSE)
-	    }//if(is_array($actions) && count($actions))
-	    if(strlen($tag)) {
-	        $placeholder = '{{'.trim($tag,'{}').'}}';
-	        if(strpos($container,$placeholder)===FALSE) {
-	            if($this->_debug) { NApp::_Wlog($placeholder.' placeholder is missing for view container ['.$containerType.']!'); }
-	            return FALSE;
-            }//if(strpos($container,$placeholder)===FALSE)
-            $content = str_replace($placeholder,$content,$container);
-            $content = $this->ReplaceEmptyPlaceholders($content);
-            return TRUE;
-	    }//if(strlen($tag))
-        if(strpos($container,'{{CONTENT}}')===FALSE) {
-            if($this->_debug) { NApp::_Wlog('{{CONTENT}} placeholder is missing for view container ['.$containerType.']!'); }
-            return FALSE;
-        }//if(strpos($container,'{{CONTENT}}')===FALSE)
-        $content = str_replace('{{CONTENT}}',$content,$container);
-        $content = $this->ReplaceEmptyPlaceholders($content);
-		return FALSE;
-	}//END protected function ProcessSubContainer
-    /**
      * @param string $content
      * @return string
      */
@@ -704,7 +730,7 @@ class AppView {
 	    $placeholders = [];
 	    if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders)) {
 	        foreach($placeholders[0] as $placeholder) {
-	            $content = str_replace($placeholder,get_array_value($this->_placeholdersValues,trim($placeholder,'{}'),'','is_string'),$content);
+	            $content = str_replace($placeholder,get_array_value($this->_placeholders,trim($placeholder,'{}'),'','is_string'),$content);
             }//END foreach
 	    }//if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders))
 		return $content;

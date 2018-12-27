@@ -114,10 +114,11 @@ interface ITheme {
 	 */
 	public function GetDateTimePickerControlsPlugin(): string;
 	/**
+     * @param Params $tags
 	 * @param bool $hasActions
 	 * @param bool $hasTitle
 	 * @return void
 	 * @access public
 	 */
-	public function GetDefaultContainer(bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
+	public function GetDefaultContainer(Params $tags,bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
 }//END interface ITheme

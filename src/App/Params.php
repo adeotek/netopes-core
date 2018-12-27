@@ -242,6 +242,18 @@ class Params implements Collection {
         return $this->elements[$key] ?? null;
     }
     /**
+	 * Check if property exists
+	 *
+	 * @param  string $name The name of the property
+	 * @param  bool   $not_null
+	 * @return bool Returns TRUE if property exists
+	 * @access public
+	 */
+	public function hasProperty($name,$not_null = FALSE): bool {
+		if($not_null) { return array_key_exists($name,$this->elements) && isset($this->elements[$name]); }
+		return array_key_exists($name,$this->elements);
+	}//END public function hasProperty
+    /**
 	 * @param string|int  $key
 	 * @param string|null $validation
 	 * @param string|null $failMessage
@@ -344,6 +356,7 @@ class Params implements Collection {
      * {@inheritDoc}
      *
      * @return static
+     * @throws \PAF\AppException
      */
     public function map(Closure $func)
     {
@@ -353,6 +366,7 @@ class Params implements Collection {
      * {@inheritDoc}
      *
      * @return static
+     * @throws \PAF\AppException
      */
     public function filter(Closure $p)
     {

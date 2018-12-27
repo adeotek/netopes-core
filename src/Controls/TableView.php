@@ -483,7 +483,9 @@ class TableView {
 	/**
 	 * Gets the processed data call params
 	 *
-	 * @return array Returns data call params array
+     * @param null $params
+     * @param null $extra_params
+     * @return void Returns data call params array
 	 * @access protected
 	 */
 	protected function ProcessDataCallParams(&$params = NULL,&$extra_params = NULL) {
