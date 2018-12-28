@@ -190,19 +190,18 @@
 		}//foreach ($input as $k=>$v)
 		return $result;
 	}//END function arr_change_value_case
-	/**
-	  * description
-	  *
-     * @param $text
-     * @param $limitchar
+    /**
+     * description
+     *
+     * @param mixed       $text
+     * @param int         $maxLength
+     * @param string|null $sufix
      * @return string
-	  */
-	function limit_text($text,$limitchar) {
-		if (strlen($text)<=$limitchar){
-			return substr($text,0,$limitchar);
-		}else{
-			return substr($text,0,$limitchar).'...';
-		}//if (strlen($text)<=$limitchar)
+     */
+	function limit_text($text,int $maxLength,?string $sufix = NULL): ?string {
+	    if(!is_string($text)) { return NULL; }
+		if (strlen($text)<=$maxLength) { return $text; }
+	    return substr($text,0,$maxLength).(isset($sufix) ? $sufix : '');
 	}//END function limit_text
 	/**
 	  * description

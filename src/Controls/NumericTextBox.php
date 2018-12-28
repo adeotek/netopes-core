@@ -12,7 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\App\Validator;
+use NETopes\Core\Validators\Validator;
 use NApp;
 
 /**

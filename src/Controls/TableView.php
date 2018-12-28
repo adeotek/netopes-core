@@ -14,7 +14,7 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
-use NETopes\Core\App\Validator;
+use NETopes\Core\Validators\Validator;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\DataSet;
@@ -2021,7 +2021,7 @@ class TableView {
 					} else {
 						$c_format = get_array_value($v,'format',NULL,'is_notempty_array');
 						if($c_format) {
-							$c_value = Validator::FormatValue($c_value,get_array_value($c_format,'mode','','is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'),get_array_value($c_format,'prefix','','is_string'),get_array_value($c_format,'sufix','','is_string'),get_array_value($c_format,'def_value','','is_string'),get_array_value($c_format,'format','','is_string'),get_array_value($c_format,'validation','','is_string'));
+							$c_value = Validator::FormatValue($c_value,get_array_value($c_format,'mode',NULL,'?is_array'),get_array_value($c_format,'regionals',NULL,'?is_string'),get_array_value($c_format,'prefix',NULL,'?is_string'),get_array_value($c_format,'sufix',NULL,'?is_string'),get_array_value($c_format,'def_value',NULL,'?is_string'),get_array_value($c_format,'validation',NULL,'?is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'));
 						}//if($c_format)
 					}//if($c_format)
 				}//if($c_sumtype=='count')

@@ -40,15 +40,15 @@ class Module {
 	 * @access public
 	 */
 	public $viewsExtension;
-	/**
-	 * @var    string Short class name (called class without base prefix)
-	 * @access public
-	 */
+    /**
+     * @var    string Short class name (called class without base prefix)
+     * @access public
+     */
 	public $name;
-	/**
-	 * @var    string Full qualified class name
-	 * @access public
-	 */
+    /**
+     * @var    string Full qualified class name
+     * @access public
+     */
 	public $class;
 	/**
 	 * @var    bool Is custom class (NameCustom extended class)
@@ -199,7 +199,7 @@ class Module {
 		} else {
 			$lrpp = Validator::ValidateParam(NApp::_GetParam('rows_per_page'),20,'is_not0_numeric');
 		}//if(is_numeric($rpp) && $rpp>0)
-		if(Validator::IsValidParam($firstrow,NULL,'is_not0_numeric')){
+		if(Validator::IsValidParam($firstrow,'is_not0_integer')){
 			$firstrow = $firstrow;
 			$lastrow = $firstrow + $lrpp - 1;
 		} else {

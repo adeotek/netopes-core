@@ -74,10 +74,10 @@ class SmartComboBox extends Control {
 		    }//if(is_string($this->option_data) && strlen($this->option_data))
 		}//if(!is_array($this->option_data))
 	}//END public function __construct
-	/**
-	 * @return string|null
-	 * @throws \PAF\AppException
-	 */
+    /**
+     * @return string|null
+     * @throws \PAF\AppException
+     */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();
 		$js_script_prefix = '';

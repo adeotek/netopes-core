@@ -334,19 +334,18 @@ class Report extends ExcelExport {
 	}//END protected function PercentFormat2
 
 	protected function DateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),TRUE);
 	}//END protected function DateFormat
 
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),FALSE);
 	}//END protected function DateTimeFormat
 
 	protected function NoTimezoneDateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);
 	}//END protected function DateFormat
 
 	protected function NoTimezoneDateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',FALSE);
 	}//END protected function DateTimeFormat
 }//class Report extends ExcelExport
-?>

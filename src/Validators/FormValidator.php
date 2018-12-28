@@ -4,22 +4,21 @@
  *
  * Class for validating forms
  *
- * @package    NETopes\Core\Controls
+ * @package    NETopes\Core\Validators
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    2.3.1.1
  * @filesource
  */
-namespace NETopes\Core\Controls;
-use NETopes\Core\App\Validator;
+namespace NETopes\Core\Validators;
 use NETopes\Core\App\Params;
 use NApp;
 
 /**
  * Class FormValidator
  *
- * @package NETopes\Core\Controls
+ * @package NETopes\Core\Validators
  */
 class FormValidator {
     /**

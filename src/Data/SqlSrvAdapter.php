@@ -12,7 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NETopes\Core\App\Validator;
+use NETopes\Core\Validators\Validator;
 use PAF\AppException;
 use NApp;
 
