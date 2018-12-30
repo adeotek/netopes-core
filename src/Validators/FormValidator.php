@@ -22,10 +22,6 @@ use NApp;
  */
 class FormValidator {
     /**
-     * @var string Form element value validation class
-     */
-    protected $validationClass = Validator::class;
-    /**
      * @var array Form elements array
      */
     protected $formElements = [];
@@ -90,9 +86,14 @@ class FormValidator {
                 NApp::_Dlog('Invalid form element key: '.print_r($element));
                 continue;
             }//if(!strlen($key))
+            $deafultValue = NULL;
             $required = get_array_value($element,'required',FALSE,'bool');
-            $validationType = get_array_value($element,'validation_type','','is_string');
-            if(!call_user_func($this->validationClass.'::IsValidParam')) { // TODO: check IsValidParam
+            $validationType = get_array_value($element,'validation_type','','?is_notempty_string');
+            $sourceFormat = get_array_value($element,'source_format',NULL,'?is_notempty_string');
+            $isValid = FALSE;
+            $value = $this->formData->safeGet($key,$deafultValue,$validationType,$sourceFormat,$isValid);
+            if(!$isValid) {
+
                 $errors[] = [];
             }
         }//END foreach

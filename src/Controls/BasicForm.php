@@ -284,7 +284,7 @@ class BasicForm {
             }//if(strlen($result))
             if(strlen($this->actions_size)) { $act_params['size'] = $this->actions_size; }
 			$act_instance = new $act_class($act_params);
-			if(!Validator::IsValidParam($act_instance->tabindex,'is_not0_integer')){ $act_instance->tabindex = $tabindex++; }
+			if(!Validator::IsValidValue($act_instance->tabindex,'is_not0_integer')){ $act_instance->tabindex = $tabindex++; }
 			if(get_array_value($action,'clear_base_class',FALSE,'bool')){ $act_instance->ClearBaseClass(); }
 			$result .= $act_instance->Show();
 		}//END foreach
@@ -404,7 +404,7 @@ class BasicForm {
 				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tag_id'])) { $ctrl_params['tag_id'] .= $this->tags_ids_sufix; }
 				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tag_name'])) { $ctrl_params['tag_name'] .= $this->tags_names_sufix; }
 				$control = new $c_type($ctrl_params);
-				if(property_exists($c_type,'tabindex')&& !Validator::IsValidParam($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
+				if(property_exists($c_type,'tabindex')&& !Validator::IsValidValue($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				$result .= $control->Show();
 				$result .= "\t\t".'</td>'."\n";
@@ -554,7 +554,7 @@ class BasicForm {
 				$jsScript = trim(get_array_value($col,'js_script','','is_string'));
 				if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
 				$control = new $c_type($ctrl_params);
-				if(property_exists($c_type,'tabindex')&& !Validator::IsValidParam($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
+				if(property_exists($c_type,'tabindex')&& !Validator::IsValidValue($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				if($this->colsno>1) {
 					$ctrl_params['container'] = FALSE;

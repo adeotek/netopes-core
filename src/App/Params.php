@@ -69,8 +69,7 @@ class Params implements Collection {
 	 * @param mixed $params
 	 * @throws \PAF\AppException
 	 */
-    public function __construct($params = NULL)
-    {
+    public function __construct($params = NULL) {
         if(is_null($params)) {
             $this->elements = [];
         } elseif(is_array($params)) {
@@ -263,7 +262,7 @@ class Params implements Collection {
 	 */
     public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
     {
-        $result = Validator::ValidateArrayParam($this->elements,$key,NULL,$validation);
+        $result = Validator::ValidateArrayValue($this->elements,$key,NULL,$validation);
         if(is_null($result)) {
             $dbgTrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
             throw new AppException($failMessage??'Invalid value for: '.print_r($key),E_ERROR,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
@@ -274,12 +273,13 @@ class Params implements Collection {
      * @param string|int  $key
      * @param mixed       $defaultValue
      * @param string|null $validation
+     * @param string|null $sourceFormat
+     * @param bool        $isValid
      * @return mixed
      * @throws \PAF\AppException
      */
-    public function safeGet($key,$defaultValue = NULL,$validation = NULL)
-    {
-        return Validator::ValidateArrayParam($this->elements,$key,$defaultValue,$validation);
+    public function safeGet($key,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = TRUE) {
+        return Validator::ValidateArrayValue($this->elements,$key,$defaultValue,$validation,$sourceFormat,$isValid);
     }
     /**
 	 * @param string|int  $key

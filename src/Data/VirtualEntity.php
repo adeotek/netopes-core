@@ -134,7 +134,7 @@ class VirtualEntity {
 		if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
 			throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
 		}//if(is_array($this->data) && array_key_exists($key,$this->data))
-		return Validator::ValidateArrayParam($this->data,$key,$defaultValue,$validation);
+		return Validator::ValidateArrayValue($this->data,$key,$defaultValue,$validation);
 	}//END protected function GetPropertyValue
 	/**
 	 * VirtualEntity dynamic setter method

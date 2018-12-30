@@ -37,12 +37,16 @@ class Validator {
      * Get converter adapter class
      *
      * @param string|null $method
+     * @param bool        $withCheck
      * @return string|null Converter adapter class
      * @throws \PAF\AppException
      */
-    public static function GetConverterAdapter(?string $method = NULL): string {
+    public static function GetConverterAdapter(?string $method = NULL,bool $withCheck = FALSE): string {
         $class = '\\'.ltrim(static::$converterAdapter??ConverterAdapter::class,'\\');
-        if(!strlen($method)) { return $class; }
+        if(!strlen($method)) {
+            if(!class_exists($class)) { throw new AppException('Invalid converter adapter class ['.$class.']!'); }
+            return $class;
+        }//if(!strlen($method))
         if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid converter adapter class/method ['.$class.'::'.$method.']!'); }
         return $class.'::'.$method;
     }//END public static function GetConverterAdapter
@@ -58,12 +62,16 @@ class Validator {
      * Get validator adapter class
      *
      * @param string|null $method
+     * @param bool        $withCheck
      * @return string|null Validator adapter class
      * @throws \PAF\AppException
      */
-    public static function GetValidatorAdapter(?string $method = NULL): string {
+    public static function GetValidatorAdapter(?string $method = NULL,bool $withCheck = FALSE): string {
         $class = '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\');
-        if(!strlen($method)) { return $class; }
+        if(!strlen($method)) {
+            if(!class_exists($class)) { throw new AppException('Invalid validator adapter class ['.$class.']!'); }
+            return $class;
+        }//if(!strlen($method))
         if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid validator adapter class/method ['.$class.'::'.$method.']!'); }
         return $class.'::'.$method;
     }//END public static function GetValidatorAdapter
@@ -79,12 +87,16 @@ class Validator {
      * Get formatter adapter class
      *
      * @param string|null $method
+     * @param bool        $withCheck
      * @return string|null Formatter adapter class
      * @throws \PAF\AppException
      */
-    public static function GetFormatterAdapter(?string $method = NULL): string {
+    public static function GetFormatterAdapter(?string $method = NULL,bool $withCheck = FALSE): string {
         $class = '\\'.ltrim(static::$formatterAdapter??FormatterAdapter::class,'\\');
-        if(!strlen($method)) { return $class; }
+        if(!strlen($method)) {
+            if(!class_exists($class)) { throw new AppException('Invalid formatter adapter class ['.$class.']!'); }
+            return $class;
+        }//if(!strlen($method))
         if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid formatter adapter class/method ['.$class.'::'.$method.']!'); }
         return $class.'::'.$method;
     }//END public static function GetFormatterAdapter
@@ -120,61 +132,19 @@ class Validator {
      * @param mixed       $value
      * @param mixed|null  $defaultValue
      * @param string|null $validation
-     * @param string|null $format
-     * @param bool        $checkOnly
-     * @return mixed
-     * @throws \Exception
-     * @throws \PAF\AppException
-     * @access public
-     * @static
-     */
-	public static function ValidateParam($value,$defaultValue = NULL,?string $validation = NULL,?string $format = NULL,bool $checkOnly = FALSE) {
-        return call_user_func(static::GetValidatorAdapter('Validate'),$value,$defaultValue,$validation,$format,$checkOnly);
-	}//END public static function ValidateParam
-    /**
-     * Validate array value
-     *
-     * @param mixed       $array
-     * @param mixed       $key
-     * @param mixed|null  $defaultValue
-     * @param string|null $validation
      * @param string|null $sourceFormat
-     * @param bool        $checkOnly
+     * @param bool        $isValid
      * @return mixed
      * @throws \Exception
      * @throws \PAF\AppException
      * @access public
      * @static
      */
-	public static function ValidateArrayParam($array,$key,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool $checkOnly = FALSE) {
-	    if(is_array($key)) {
-	        if(!count($key)) { return $checkOnly ? FALSE : $defaultValue; }
-	        $lKey = array_shift($key);
-	    } else {
-	        $lKey = $key;
-	        $key = [];
-	    }//if(is_array($key))
-	    if(is_null($lKey) || !(is_string($lKey) || is_integer($lKey))) { return $checkOnly ? FALSE : $defaultValue; }
-		if(is_array($array)) {
-			if(!array_key_exists($lKey,$array)) { return $checkOnly ? FALSE : $defaultValue; }
-			if(is_array($key) && count($key)) {
-			    $value = static::ValidateArrayParam($array[$lKey],$key,$defaultValue,$validation,$sourceFormat);
-			} else {
-			    $value = $array[$lKey];
-			}//if(is_array($key) && count($key))
-		} elseif(is_object($array) && method_exists($array,'toArray')) {
-			$lparams = $array->toArray();
-			if(!is_array($lparams) || !array_key_exists($lKey,$lparams)) { return $defaultValue; }
-			if(is_array($key) && count($key)) {
-			    $value = static::ValidateArrayParam($lparams[$lKey],$key,$defaultValue,$validation,$sourceFormat);
-			} else {
-			    $value = $lparams[$lKey];
-			}//if(is_array($key) && count($key))
-		} else {
-			return $defaultValue;
-		}//if(is_array($params))
-		return static::ValidateParam($value,$defaultValue,$validation,$sourceFormat,$checkOnly);
-	}//END public static function ValidateArrayParam
+	public static function ValidateValue($value,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = FALSE) {
+	    $adapter = static::GetValidatorAdapter(NULL,TRUE);
+	    if(!method_exists($adapter,'Validate')) { throw new AppException('Invalid validator adapter method ['.$adapter.'::Validate]!'); }
+        return $adapter::Validate($value,$defaultValue,$validation,$sourceFormat,$isValid);
+	}//END public static function ValidateValue
 	/**
 	 * Check if parameter value is valid
 	 *
@@ -186,9 +156,68 @@ class Validator {
 	 * @access public
 	 * @static
 	 */
-	public static function IsValidParam($value,?string $validation = NULL,?string $sourceFormat = NULL): bool {
-	    return (bool) call_user_func(static::GetValidatorAdapter('Validate'),$value,$validation,$sourceFormat,TRUE);
-	}//END public static function IsValidParam
+	public static function IsValidValue($value,?string $validation = NULL,?string $sourceFormat = NULL): bool {
+	    $isValid = FALSE;
+	    static::ValidateValue($value,NULL,$validation,$sourceFormat,$isValid);
+	    return $isValid;
+	}//END public static function IsValidValue
+    /**
+     * Validate array value
+     *
+     * @param mixed       $array
+     * @param mixed       $key
+     * @param mixed|null  $defaultValue
+     * @param string|null $validation
+     * @param string|null $sourceFormat
+     * @param bool        $isValid
+     * @return mixed
+     * @throws \Exception
+     * @throws \PAF\AppException
+     * @access public
+     * @static
+     */
+	public static function ValidateArrayValue($array,$key,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = FALSE) {
+	    if(is_array($key)) {
+	        if(!count($key)) {
+	            $isValid = FALSE;
+	            return $defaultValue;
+	        }//if(!count($key))
+	        $lKey = array_shift($key);
+	    } else {
+	        $lKey = $key;
+	        $key = [];
+	    }//if(is_array($key))
+	    if(is_null($lKey) || !(is_string($lKey) || is_integer($lKey))) {
+	        $isValid = FALSE;
+	        return $defaultValue;
+	    }//if(is_null($lKey) || !(is_string($lKey) || is_integer($lKey)))
+		if(is_array($array)) {
+			if(!array_key_exists($lKey,$array)) {
+			    $isValid = FALSE;
+	            return $defaultValue;
+			}//if(!array_key_exists($lKey,$array))
+			if(is_array($key) && count($key)) {
+			    $value = static::ValidateArrayValue($array[$lKey],$key,$defaultValue,$validation,$sourceFormat,$isValid);
+			} else {
+			    $value = $array[$lKey];
+			}//if(is_array($key) && count($key))
+		} elseif(is_object($array) && method_exists($array,'toArray')) {
+			$lparams = $array->toArray();
+			if(!is_array($lparams) || !array_key_exists($lKey,$lparams)) {
+			    $isValid = FALSE;
+	            return $defaultValue;
+			}//if(!is_array($lparams) || !array_key_exists($lKey,$lparams))
+			if(is_array($key) && count($key)) {
+			    $value = static::ValidateArrayValue($lparams[$lKey],$key,$defaultValue,$validation,$sourceFormat,$isValid);
+			} else {
+			    $value = $lparams[$lKey];
+			}//if(is_array($key) && count($key))
+		} else {
+			$isValid = FALSE;
+	        return $defaultValue;
+		}//if(is_array($params))
+		return static::ValidateValue($value,$defaultValue,$validation,$sourceFormat,$isValid);
+	}//END public static function ValidateArrayValue
 	/**
 	 * Check if array value is valid
 	 *
@@ -202,8 +231,10 @@ class Validator {
 	 * @static
 	 */
 	public static function IsValidArrayValue($array,$key,?string $validation = NULL,?string $sourceFormat = NULL): bool {
-	    return (bool) static::ValidateArrayParam($array,$key,NULL,$validation,$sourceFormat,TRUE);
-	}//END public static function IsValidArrayParam
+	    $isValid = FALSE;
+	    static::ValidateArrayValue($array,$key,NULL,$validation,$sourceFormat,$isValid);
+	    return $isValid;
+	}//END public static function IsValidArrayValue
 	/**
      * Format value
      *

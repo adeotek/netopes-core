@@ -209,7 +209,7 @@ class ExcelImport {
 		}//if($format_value_func && method_exists($this,$format_value_func))
 	    $format = get_array_value($field,'format',get_array_value($field,'type','','is_string'),'is_string');
 		$validation = get_array_value($field,'validation','isset','is_notempty_string');
-		return Validator::ValidateParam($value,NULL,$validation,$format);
+		return Validator::ValidateValue($value,NULL,$validation,$format);
 	}//END protected function FormatValue
 	/**
 	 * description
