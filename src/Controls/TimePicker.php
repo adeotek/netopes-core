@@ -83,7 +83,7 @@ class TimePicker extends Control {
 		if($this->button) {
 		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
 			$result = "\t\t".'<div class="control-set">'."\n";
-			$result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'" onclick="$(\'#'.$this->tagid.'\').focus();"><i class="fa fa-clock"></i></span>'."\n";
+			$result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'" onclick="$(\'#'.$this->tag_id.'\').focus();"><i class="fa fa-clock"></i></span>'."\n";
 			$result .= "\t\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($dpclass).$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'"autocomplete="off">'."\n";
 			$result .= "\t\t".'</div>'."\n";
 		} else {
@@ -120,7 +120,7 @@ class TimePicker extends Control {
 		        $this->onchange_str = NULL;
 		    }//if(!$this->readonly && !$this->disabled)
 		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
-			$result = "\t\t".'<div class="input-group date" id="'.$this->tagid.'_control">'."\n";
+			$result = "\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
 			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
@@ -131,8 +131,8 @@ class TimePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tagid}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tagid}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control

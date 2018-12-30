@@ -52,7 +52,7 @@ class TabControl {
 	 * @var    string Basic form base class
 	 * @access protected
 	 */
-	protected $baseclass = NULL;
+	protected $base_class = NULL;
 	/**
 	 * @var    string Output (resulting html) buffer
 	 * @access protected
@@ -67,7 +67,7 @@ class TabControl {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
+		$this->base_class = get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
 				if(property_exists($this,$k)) { $this->$k = $v; }
@@ -104,7 +104,7 @@ class TabControl {
 				$ct_data .= $reload_onchange ? ' data-reload="1"' : '';
 				$tcontent = str_replace('{{t_uid}}',$tab['t_uid'],$tcontent);
 				$tcontent = str_replace('{{t_name}}',$tab['t_name'],$tcontent);
-				$tcontent = str_replace('{{t_target}}',$this->tagid.'-'.$tab['t_uid'],$tcontent);
+				$tcontent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tcontent);
 				$tscript = get_array_value($tab,'load_script','','is_string');
 				$js_command = NApp::arequest()->Prepare($tcontent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
@@ -134,7 +134,7 @@ class TabControl {
 				$ct_result .= get_array_value($tab,'content','&nbsp;','is_notempty_string');
 				break;
 		}//END switch
-		$result .= "\t".'<div id="'.$this->tagid.'-'.$tab['t_uid'].'"'.$ct_data.'>'."\n";
+		$result .= "\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ct_data.'>'."\n";
 		$result .= $ct_result;
 		$result .= "\t".'</div>'."\n";
 		return $result;
@@ -213,9 +213,9 @@ class TabControl {
 	 * @throws \PAF\AppException
 	 */
 	protected function SetControl() {
-		if(!strlen($this->tagid) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
-		$lclass = trim($this->baseclass.' '.$this->class);
-		$result = '<div id="'.$this->tagid.'" class="'.$lclass.'">'."\n";
+		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
+		$lclass = trim($this->base_class.' '.$this->class);
+		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
 		// Set Tab header
 		$result .= "\t".'<ul>'."\n";
 		$ltabs = [];
@@ -228,14 +228,14 @@ class TabControl {
 					foreach($tcollection as $ctab) {
 						$ct_uid = get_array_value($ctab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
 						$ct_name = get_array_value($ctab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
-						$result .= "\t\t".'<li><a href="#'.$this->tagid.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
+						$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 						$ltabs[] = array_merge($tab,array('t_type'=>'template','t_name'=>$ct_name,'t_uid'=>$ct_uid,'t_row'=>$ctab));
 					}//END foreach
 					break;
 				case 'fixed':
 					$ct_uid = get_array_value($tab,'uid','def','isset');
 					$ct_name = get_array_value($tab,'name','','is_string');
-					$result .= "\t\t".'<li><a href="#'.$this->tagid.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
+					$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 					$ltabs[] = array_merge($tab,array('t_type'=>'fixed','t_name'=>$ct_name,'t_uid'=>$ct_uid));
 					break;
 			}//END switch
@@ -259,7 +259,7 @@ class TabControl {
 		$result .= '</div>'."\n";
 		$thtype = get_array_value($tab,'height_type','content','is_notempty_string');
 		$js_script = "
-			$('#{$this->tagid}').tabs({
+			$('#{$this->tag_id}').tabs({
 				heightStyle: '{$thtype}',
 				activate: function(event,ui) {
 					var tcr = $(ui.newPanel).attr('data-reload');

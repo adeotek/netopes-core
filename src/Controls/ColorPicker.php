@@ -54,7 +54,7 @@ class ColorPicker extends Control {
 
 		$this->ProcessActions();
 		if($this->preview) {
-			$result = "\t\t".'<div class="input-group" id="'.$this->tagid.'_control">'."\n";
+			$result = "\t\t".'<div class="input-group" id="'.$this->tag_id.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	        // $result .= "\t\t\t".'<span class="input-group-append">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon">'."\n";
@@ -65,7 +65,7 @@ class ColorPicker extends Control {
 	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	    }//if($this->preview)
 		$result .= $this->GetActions();
-		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tagid}_control').colorpicker({$jsparams});"); }
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tag_id}_control').colorpicker({$jsparams});"); }
 		return $result;
 	}//END protected function SetControl
 }//END class ColorPicker extends Control

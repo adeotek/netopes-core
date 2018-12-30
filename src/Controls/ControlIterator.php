@@ -147,7 +147,7 @@ class ControlIterator extends Control {
                     $lsufix = '';
                 } else {
                     $lcontent = "\n";
-                    $lprefix = '<div class="'.$this->baseclass.' clsRow">'."\n";
+                    $lprefix = '<div class="'.$this->base_class.' clsRow">'."\n";
                     $lsufix = '</div>'."\n";
                 }//if($this->container)
                 break;

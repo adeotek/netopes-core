@@ -58,7 +58,7 @@ abstract class AssociationManager {
      * @var    string Control base class
      * @access protected
      */
-    protected $baseclass = '';
+    protected $base_class = '';
     /**
      * @var    string Layout type: native(css grid)/bootstrap
      * @access public
@@ -191,7 +191,7 @@ abstract class AssociationManager {
     public function __construct($params = NULL) {
         $this->chash = AppSession::GetNewUID();
         $this->uid = AppSession::GetNewUID('','md5');
-        $this->baseclass = 'cls'.get_class_basename(__CLASS__);
+        $this->base_class = 'cls'.get_class_basename(__CLASS__);
         $this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
         $this->btn_size = NApp::$theme->GetButtonsDefaultSize() ? 'brn-'.NApp::$theme->GetButtonsDefaultSize() : '';
         if(is_array($params) && count($params)) {
@@ -201,10 +201,10 @@ abstract class AssociationManager {
                 else { $this->pdata[$k] = $v; }
             }//foreach ($params as $k=>$v)
         }//if(is_array($params) && count($params))
-        if(!is_string($this->tagid) || !strlen($this->tagid)) { $this->tagid = date('siHdmY'); }
-        $this->lis_box_tagid = $this->tagid.'-lis-list';
-        $this->sis_box_tagid = $this->tagid.'-sis-list';
-        $this->ais_box_tagid = $this->tagid.'-ais-list';
+        if(!is_string($this->tag_id) || !strlen($this->tag_id)) { $this->tag_id = date('siHdmY'); }
+        $this->lis_box_tagid = $this->tag_id.'-lis-list';
+        $this->sis_box_tagid = $this->tag_id.'-sis-list';
+        $this->ais_box_tagid = $this->tag_id.'-ais-list';
         if(!is_string($this->associated_id_field) || !strlen($this->associated_id_field)) { $this->associated_id_field = 'id'; }
         if(!is_string($this->associated_name_field) || !strlen($this->associated_name_field)) { $this->associated_name_field = 'name'; }
         if(!is_string($this->associated_state_field) || !strlen($this->associated_state_field)) { $this->associated_state_field = NULL; }
@@ -274,9 +274,9 @@ HTML;
      */
     protected function GetAssociatedItemsActions() {
         $result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-        $btn_sel = new Button(['tagid'=>$this->tagid.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+        $btn_sel = new Button(['tag_id'=>$this->tag_id.'-sis-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
         $result .= "\t\t\t\t".$btn_sel->Show()."\n";
-        $btn_desel = new Button(['tagid'=>$this->tagid.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+        $btn_desel = new Button(['tag_id'=>$this->tag_id.'-sis-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
         $result .= "\t\t\t\t".$btn_desel->Show()."\n";
         $result .= $this->GetDeAssignItemsAction();
         $result .= "\t\t\t".'</div>'."\n";
@@ -290,7 +290,7 @@ HTML;
      */
     protected function SetAssociatedItemsJs() {
         $sis_js = <<<JS
-            $('#{$this->tagid}-sis-sel-all').on('click',function() {
+            $('#{$this->tag_id}-sis-sel-all').on('click',function() {
 			    $('#{$this->sis_box_tagid}').find('li').each(function(){
 				    $(this).find('input[type=image].clsCheckBox').val(0);
 				});
@@ -298,7 +298,7 @@ HTML;
 				    $(this).find('input[type=image].clsCheckBox').val(1);
 				});
 			});
-			$('#{$this->tagid}-sis-desel-all').on('click',function() {
+			$('#{$this->tag_id}-sis-desel-all').on('click',function() {
 				$('#{$this->sis_box_tagid}').find('li').each(function(){
 				    $(this).find('input[type=image].clsCheckBox').val(0);
 				});
@@ -352,7 +352,7 @@ JS;
                 $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
                 $filterData = $this->GetItemFilterData($item_name);
             }//if($this->with_filter)
-        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-sis-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
+        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-sis-sel-'.$item_id,'tag_name'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
         }//if(is_string($this->associated_state_field) && strlen($this->associated_state_field) && $row->getProperty($this->associated_state_field,0,'is_integer')<=0)
 
@@ -400,7 +400,7 @@ JS;
         $result .= $this->GetAssociatedItemsSummary($items);
         $result .= $this->GetAssociatedItemsActions();
         if($this->with_filter) { $result .= $this->GetItemsFilter($this->sis_box_tagid);}
-        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tagid.'-sis-errors">&nbsp;</div>'."\n";
+        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tag_id.'-sis-errors">&nbsp;</div>'."\n";
         $result .= "\t\t\t\t".'<ul id="'.$this->sis_box_tagid.'" class="items '.($this->sortable ? ' sortable' : '').'">'."\n";
         if(is_iterable($items) && count($items)) {
             foreach($items as $v) { $result .= $this->GetAssociatedItem($v); }
@@ -421,9 +421,9 @@ JS;
      */
     protected function GetAssignableItemsActions() {
         $result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
-        $btn_sel = new Button(['tagid'=>$this->tagid.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
+        $btn_sel = new Button(['tag_id'=>$this->tag_id.'-ais-sel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass($this->btn_size) : 'btn btn-info btn-xxs'),'value'=>Translate::Get('button_select_all')]);
         $result .= "\t\t\t\t".$btn_sel->Show()."\n";
-        $btn_desel = new Button(['tagid'=>$this->tagid.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
+        $btn_desel = new Button(['tag_id'=>$this->tag_id.'-ais-desel-all','class'=>(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass($this->btn_size) : 'btn btn-default btn-xxs'),'value'=>Translate::Get('button_deselect_all')]);
         $result .= "\t\t\t\t".$btn_desel->Show()."\n";
         $result .= $this->GetAssignItemsAction();
         $result .= "\t\t\t".'</div>'."\n";
@@ -437,7 +437,7 @@ JS;
      */
     protected function SetAssignableItemsJs() {
         $ais_js = <<<JS
-			$('#{$this->tagid}-ais-sel-all').on('click',function() {
+			$('#{$this->tag_id}-ais-sel-all').on('click',function() {
 				$('#{$this->ais_box_tagid}').find('li').each(function(){
 					$(this).find('input[type=image].clsCheckBox').val(0);
 				});
@@ -445,7 +445,7 @@ JS;
 					$(this).find('input[type=image].clsCheckBox').val(1);
 				});
 			});
-			$('#{$this->tagid}-ais-desel-all').on('click',function() {
+			$('#{$this->tag_id}-ais-desel-all').on('click',function() {
 				$('#{$this->ais_box_tagid}').find('li').each(function(){
 					$(this).find('input[type=image].clsCheckBox').val(0);
 				});
@@ -488,7 +488,7 @@ JS;
                 $liclass .= (strlen($liclass) ? ' ' : '').'is-filterable';
                 $filterData = $this->GetItemFilterData($item_name);
             }//if($this->with_filter)
-        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-ais-sel-'.$item_id,'tagname'=>$item_id,'value'=>0,'class'=>'FInLine'));
+        	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-ais-sel-'.$item_id,'tag_name'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
         }//if(is_string($this->assignable_state_field) && strlen($this->assignable_state_field) && $row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
 
@@ -533,7 +533,7 @@ JS;
         $result .= $this->GetAssignableItemsSummary($items);
         $result .= $this->GetAssignableItemsActions();
         if($this->with_filter) { $result .= $this->GetItemsFilter($this->ais_box_tagid);}
-        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors clearfix" id="'.$this->tagid.'-ais-errors">&nbsp;</div>'."\n";
+        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors clearfix" id="'.$this->tag_id.'-ais-errors">&nbsp;</div>'."\n";
         $result .= "\t\t\t\t".'<ul id="'.$this->ais_box_tagid.'" class="items">'."\n";
         if(is_iterable($items) && count($items)) {
             foreach($items as $v) { $result .= $this->GetAssignableItem($v); }
@@ -590,7 +590,7 @@ JS;
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->live_version_box_title.'</span>'."\n";
         $result .= $this->GetLiveVersionItemsSummary($items);
         $result .= "\t\t\t\t".'<div class="subFormActions empty"></div>'."\n";
-        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tagid.'-lis-errors">&nbsp;</div>'."\n";
+        $result .= "\t\t\t\t".'<div class="subFormMsg msgErrors" id="'.$this->tag_id.'-lis-errors">&nbsp;</div>'."\n";
         $result .= "\t\t\t\t".'<ul id="'.$this->lis_box_tagid.'" class="items">'."\n";
         if(is_iterable($items) && count($items)) {
             foreach($items as $v) { $result .= $this->GetLiveVersionItem($v); }
@@ -610,7 +610,7 @@ JS;
      */
     protected function SetControl() {
         $live_box = $this->GetLiveVersionItemsBox();
-        $result = '<div class="'.$this->rowcls.' '.$this->baseclass.' clsPanel">'."\n";
+        $result = '<div class="'.$this->rowcls.' '.$this->base_class.' clsPanel">'."\n";
         $result .= "\t".'<div class="clsDivTable">'."\n";
         if($this->show_live_version && strlen($live_box)) {
             $sis_cols = $ais_cols = $lv_cols = 4;
@@ -619,7 +619,7 @@ JS;
                 $sis_cols = $ais_cols = ceil((12-$lv_cols)/2);
             }//if(is_numeric($this->live_version_box_cols_no) && $this->live_version_box_cols_no>0  && $this->live_version_box_cols_no<=10)
             $fcol_class = ' clsMiddlePanel';
-            $result .= "\t\t".'<div class="'.$this->colcls.$lv_cols.' clsDivTableCell clsLeftPanel" id="'.$this->tagid.'-lis">'."\n";
+            $result .= "\t\t".'<div class="'.$this->colcls.$lv_cols.' clsDivTableCell clsLeftPanel" id="'.$this->tag_id.'-lis">'."\n";
             $result .= $live_box;
             $result .= "\t\t".'</div>'."\n";
         } else {
@@ -637,10 +637,10 @@ JS;
             $ais_cols = $this->assignable_box_cols_no;
             if(!$fixed_sis_cols) { $sis_cols = 12-$lv_cols-$sis_cols; }
         }//if(is_numeric($this->assignable_box_cols_no) && $this->assignable_box_cols_no>0  && $this->assignable_box_cols_no<=10)
-        $result .= "\t\t".'<div class="'.$this->colcls.$sis_cols.' clsDivTableCell'.$fcol_class.'" id="'.$this->tagid.'-sis">'."\n";
+        $result .= "\t\t".'<div class="'.$this->colcls.$sis_cols.' clsDivTableCell'.$fcol_class.'" id="'.$this->tag_id.'-sis">'."\n";
         $result .= $this->GetAssociatedItemsBox();
         $result .= "\t\t".'</div>'."\n";
-        $result .= "\t\t".'<div class="'.$this->colcls.$ais_cols.' clsDivTableCell clsRightPanel" id="'.$this->tagid.'-ais">'."\n";
+        $result .= "\t\t".'<div class="'.$this->colcls.$ais_cols.' clsDivTableCell clsRightPanel" id="'.$this->tag_id.'-ais">'."\n";
         $result .= $this->GetAssignableItemsBox();
         $result .= "\t\t".'</div>'."\n";
         $result .= "\t".'</div>'."\n";

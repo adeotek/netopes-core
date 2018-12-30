@@ -61,14 +61,14 @@ class TreeComboBox extends Control {
 		// NApp::_Dlog($ddstyle,'$ddstyle');
 		$lstyle = strlen($this->style) ? ' style="'.$lalign.' '.$this->style.'"' : '';
 		$ltabindex = (is_numeric($this->tabindex) && $this->tabindex>0) ? ' tabindex="'.$this->tabindex.'"' : '';
-		$lextratagparam = strlen($this->extratagparam)>0 ? ' '.$this->extratagparam : '';
+		$lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
 		$lonchange = strlen($this->onchange)>0 ? ' data-onchange="'.$this->onchange.'"' : '';
 		$lplaceholder = '';
-		if(strlen($this->pleaseselecttext)>0) {
-			$lplaceholder = ' placeholder="'.$this->pleaseselecttext.'"';
-		}//if(strlen($this->pleaseselecttext)>0)
+		if(strlen($this->please_select_text)>0) {
+			$lplaceholder = ' placeholder="'.$this->please_select_text.'"';
+		}//if(strlen($this->please_select_text)>0)
 		$rclass = $this->required===TRUE ? ' clsRequiredField' : '';
-		$lclass = $this->baseclass.(strlen($this->class)>0 ? ' '.$this->class : '').$rclass;
+		$lclass = $this->base_class.(strlen($this->class)>0 ? ' '.$this->class : '').$rclass;
 		switch($this->theme_type) {
 			case 'bootstrap2':
 			case 'bootstrap3':
@@ -78,28 +78,28 @@ class TreeComboBox extends Control {
 			default:
 				break;
 		}//END switch
-		$cclass = $this->baseclass.' ctrl-container'.(strlen($this->class)>0 ? ' '.$this->class : '');
-		$ddbtnclass = $this->baseclass.' ctrl-dd-i-btn'.(strlen($this->class)>0 ? ' '.$this->class : '');
+		$cclass = $this->base_class.' ctrl-container'.(strlen($this->class)>0 ? ' '.$this->class : '');
+		$ddbtnclass = $this->base_class.' ctrl-dd-i-btn'.(strlen($this->class)>0 ? ' '.$this->class : '');
 		if($this->disabled || $this->readonly) {
-			$result = '<div id="'.$this->tagid.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
-			$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'">'."\n";
-			$result .= "\t".'<input type="text" id="'.$this->tagid.'-cbo" value="'.$this->selectedtext.'" data-value="'.$this->selectedvalue.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$ltabindex.$lextratagparam.'>'."\n";
-			$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
+			$result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
+			$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'">'."\n";
+			$result .= "\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" data-value="'.$this->selected_value.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$ltabindex.$lextratagparam.'>'."\n";
+			$result .= "\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
 			$result .= '</div>'."\n";
 			return $result;
 		} else {
 		    $lclass = trim($lclass.' stdro');
 		}//if($this->disabled || $this->readonly)
-		$cbtnclass = $this->baseclass.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
-		$lddcclass = $this->baseclass.' ctrl-ctree'.(strlen($this->class)>0 ? ' '.$this->class : '');
-		$ldivclass = $this->baseclass.' ctrl-dropdown';
-		$result = '<div id="'.$this->tagid.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
-		$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.'>'."\n";
-		$result .= "\t".'<input type="text" id="'.$this->tagid.'-cbo" value="'.$this->selectedtext.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.' readonly="readonly"'.$ltabindex.$lextratagparam.' data-value="'.$this->selectedvalue.'" data-id="'.$this->tagid.'" onclick="CBODDBtnClick(\''.$this->tagid.'\');">'."\n";
-		$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'" onclick="CBODDBtnClick(\''.$this->tagid.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
-		$result .= "\t".'<div id="'.$this->tagid.'-clear" class="'.$cbtnclass.'" onclick="TCBOSetValue(\''.$this->tagid.'\',\'\',\'\',true);"></div>'."\n";
-		$result .= "\t".'<div id="'.$this->tagid.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.'>';
-		$result .= "\t\t".'<div id="'.$this->tagid.'-ctree" class="'.$lddcclass.'"></div>';
+		$cbtnclass = $this->base_class.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
+		$lddcclass = $this->base_class.' ctrl-ctree'.(strlen($this->class)>0 ? ' '.$this->class : '');
+		$ldivclass = $this->base_class.' ctrl-dropdown';
+		$result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
+		$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.'>'."\n";
+		$result .= "\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.' readonly="readonly"'.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-id="'.$this->tag_id.'" onclick="CBODDBtnClick(\''.$this->tag_id.'\');">'."\n";
+		$result .= "\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'" onclick="CBODDBtnClick(\''.$this->tag_id.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
+		$result .= "\t".'<div id="'.$this->tag_id.'-clear" class="'.$cbtnclass.'" onclick="TCBOSetValue(\''.$this->tag_id.'\',\'\',\'\',true);"></div>'."\n";
+		$result .= "\t".'<div id="'.$this->tag_id.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.'>';
+		$result .= "\t\t".'<div id="'.$this->tag_id.'-ctree" class="'.$lddcclass.'"></div>';
 		$result .= "\t".'</div>'."\n";
 		$result .= '</div>'."\n";
 
@@ -121,7 +121,7 @@ class TreeComboBox extends Control {
 		$this->encrypted = $this->encrypted ? 1 : 0;
 		$this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitTCBOFancyTree('{$this->tagid}','{$this->selectedvalue}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+            NApp::_ExecJs("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;

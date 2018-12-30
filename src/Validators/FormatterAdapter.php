@@ -62,7 +62,7 @@ class FormatterAdapter {
                 case 'size':
                     $arguments[] = get_array_param($regionals,'size',100,'is_not0_integer');
                     break;
-                case 'numberformat':
+                case 'number_format':
                     $arguments[] = get_array_param($regionals,'number_format','6|.||','is_string');
                     break;
                 case 'groupseparator':

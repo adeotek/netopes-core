@@ -37,7 +37,7 @@ class JqCheckBox extends Control {
 		$ljqparams = strlen($this->jqparams) ? $this->jqparams : '';
 		$lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
 		$result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions().$lstyle.' value="'.$lvalue.'">'."\n";
-		NApp::_ExecJs("$('#{$this->tagid}').jqCheckBox({$ljqparams});");
+		NApp::_ExecJs("$('#{$this->tag_id}').jqCheckBox({$ljqparams});");
 		return $result;
 	}//END protected function SetControl
 }//END class JqCheckBox extends Control

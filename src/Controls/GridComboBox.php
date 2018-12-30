@@ -76,7 +76,7 @@
 				throw new \PAF\AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
 				return FALSE;
 			}//if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns))
-			$this->target = $this->tagid.'-gcbo-target';
+			$this->target = $this->tag_id.'-gcbo-target';
 		}//END public function __construct
 
 		protected function SetControl() {
@@ -95,40 +95,40 @@
 			}//if($this->dropdown_width)
 			$lstyle = (strlen($this->style) || strlen($lalign)) ? ' style="'.trim($lalign.' '.$this->style).'"' : '';
 			$ltabindex = (is_numeric($this->tabindex) && $this->tabindex>0) ? ' tabindex="'.$this->tabindex.'"' : '';
-			$lextratagparam = strlen($this->extratagparam)>0 ? ' '.$this->extratagparam : '';
+			$lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
 			$lonchange = strlen($this->onchange)>0 ? ' data-onchange="'.$this->onchange.'"' : '';
 			$lplaceholder = '';
-			if(strlen($this->pleaseselecttext)>0) {
-				$lplaceholder = ' placeholder="'.$this->pleaseselecttext.'"';
-			}//if(strlen($this->pleaseselecttext)>0)
-			$cclass = $this->baseclass.' ctrl-container'.(strlen($this->class)>0 ? ' '.$this->class : '');
-			$ddbtnclass = $this->baseclass.' ctrl-dd-i-btn'.(strlen($this->class)>0 ? ' '.$this->class : '');
+			if(strlen($this->please_select_text)>0) {
+				$lplaceholder = ' placeholder="'.$this->please_select_text.'"';
+			}//if(strlen($this->please_select_text)>0)
+			$cclass = $this->base_class.' ctrl-container'.(strlen($this->class)>0 ? ' '.$this->class : '');
+			$ddbtnclass = $this->base_class.' ctrl-dd-i-btn'.(strlen($this->class)>0 ? ' '.$this->class : '');
 			if($this->disabled || $this->readonly) {
-				$result = '<div id="'.$this->tagid.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
-				$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'">'."\n";
-				$result .= "\t".'<input type="text" id="'.$this->tagid.'-cbo" value="'.$this->selectedtext.'" data-value="'.$this->selectedvalue.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$ltabindex.$lextratagparam.'>'."\n";
-				$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
+				$result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
+				$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'">'."\n";
+				$result .= "\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" data-value="'.$this->selected_value.'" class="'.$lclass.'"'.$lstyle.$lplaceholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$ltabindex.$lextratagparam.'>'."\n";
+				$result .= "\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
 				$result .= '</div>'."\n";
 				return $result;
 			}//if($this->disabled || $this->readonly)
-			$cbtnclass = $this->baseclass.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
-			$ldivclass = $this->baseclass.' ctrl-dropdown';
+			$cbtnclass = $this->base_class.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
+			$ldivclass = $this->base_class.' ctrl-dropdown';
 			$dparams = '';
 			if(is_array($this->dynamic_params) && count($this->dynamic_params)) {
 				foreach($this->dynamic_params as $dk=>$dv) { $dparams .= "~'dynf[{$dk}]'|$dv"; }
 			}//if(is_array($this->dynamic_params) && count($this->dynamic_params))
-			$dd_action = NApp::arequest()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tagid}:value~'qsearch'|{$this->tagid}-cbo:value~'text'|{$this->tagid}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tagid}'); }");
-			$isvalue = strlen($this->selectedvalue) ? $this->selectedvalue : NULL;
+			$dd_action = NApp::arequest()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tag_id}:value~'qsearch'|{$this->tag_id}-cbo:value~'text'|{$this->tag_id}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tag_id}'); }");
+			$isvalue = strlen($this->selected_value) ? $this->selected_value : NULL;
 			$demptyval = strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
-			$result = '<div id="'.$this->tagid.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
-			$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selectedvalue.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.' data-text="'.($isvalue ? $this->selectedtext : '').'"'.$demptyval.'>'."\n";
-			$result .= "\t".'<input type="text" id="'.$this->tagid.'-cbo" value="'.($isvalue ? $this->selectedtext : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selectedvalue.'" data-ajax="'.GibberishAES::enc($dd_action,$this->tagid).'" data-id="'.$this->tagid.'">'."\n";
-			$result .= "\t".'<div id="'.$this->tagid.'-ddbtn" class="'.$ddbtnclass.'" onclick="GCBODDBtnClick(\''.$this->tagid.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
-			$result .= "\t".'<div id="'.$this->tagid.'-clear" class="'.$cbtnclass.'" onclick="GCBOSetValue(\''.$this->tagid.'\',null,\'\',false);"></div>'."\n";
+			$result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
+			$result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.' data-text="'.($isvalue ? $this->selected_text : '').'"'.$demptyval.'>'."\n";
+			$result .= "\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.($isvalue ? $this->selected_text : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-ajax="'.GibberishAES::enc($dd_action,$this->tag_id).'" data-id="'.$this->tag_id.'">'."\n";
+			$result .= "\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'" onclick="GCBODDBtnClick(\''.$this->tag_id.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
+			$result .= "\t".'<div id="'.$this->tag_id.'-clear" class="'.$cbtnclass.'" onclick="GCBOSetValue(\''.$this->tag_id.'\',null,\'\',false);"></div>'."\n";
 			if($this->autoload || $isvalue) {
-				$result .= "\t".'<div id="'.$this->tagid.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.' data-reload="0">';
+				$result .= "\t".'<div id="'.$this->tag_id.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.' data-reload="0">';
 				$result .= "\t\t".'<div class="gcbo-loader" style="display: none;"><i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i></div>'."\n";
-				$result .= "\t\t".'<div id="'.$this->tagid.'-gcbo-target" class="gcbo-target">'."\n";
+				$result .= "\t\t".'<div id="'.$this->tag_id.'-gcbo-target" class="gcbo-target">'."\n";
 				if(strlen($dparams)) {
 					if(NApp::ajax() && is_object(NApp::arequest())) {
 						NApp::arequest()->ExecuteJs($dd_action);
@@ -141,9 +141,9 @@
 				$result .= "\t\t".'</div>'."\n";
 				$result .= "\t".'</div>'."\n";
 			} else {
-				$result .= "\t".'<div id="'.$this->tagid.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.' data-reload="1">'."\n";
+				$result .= "\t".'<div id="'.$this->tag_id.'-dropdown" class="'.$ldivclass.'"'.$ddstyle.' data-reload="1">'."\n";
 				$result .= "\t\t".'<div class="gcbo-loader" style="display: none;"><i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i></div>'."\n";
-				$result .= "\t\t".'<div id="'.$this->tagid.'-gcbo-target" class="gcbo-target"></div>'."\n";
+				$result .= "\t\t".'<div id="'.$this->tag_id.'-gcbo-target" class="gcbo-target"></div>'."\n";
 				$result .= "\t".'</div>'."\n";
 			}//if($this->autoload || $isvalue)
 			$result .= '</div>'."\n";
@@ -186,13 +186,13 @@
 				'persistent_state'=>get_array_value($this->grid_params,'persistent_state',FALSE,'bool'),
 				'exportable'=>get_array_value($this->grid_params,'exportable',FALSE,'bool'),
 				'target'=>$this->target,
-				'loader'=>"function(s){ GCBOLoader(s,'{$this->tagid}'); }",
+				'loader'=>"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",
 				'alternate_row_collor'=>get_array_value($this->grid_params,'alternate_row_collor',TRUE,'bool'),
 				'compact_mode'=>get_array_value($this->grid_params,'compact_mode',TRUE,'bool'),
 				'scrollable'=>get_array_value($this->grid_params,'scrollable',FALSE,'bool'),
 				'with_filter'=>get_array_value($this->grid_params,'with_filter',TRUE,'bool'),
 				'with_pagination'=>get_array_value($this->grid_params,'with_pagination',TRUE,'bool'),
-				'sortby'=>array('column'=>$this->displayfield,'direction'=>'asc'),
+				'sortby'=>array('column'=>$this->display_field,'direction'=>'asc'),
 				'initial_filters'=>$ifilters,
 				'qsearch'=>$qsearch_field,
 				'data_source'=>$this->data_source,
@@ -207,7 +207,7 @@
 						'actions'=>array(
 							array(
 								'type'=>'CheckBox',
-								'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tagid'=>$this->tagid.'-{{'.$this->valfield.'}}','tooltip'=>\Translate::Get('button_select'),'class'=>$this->baseclass.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tagid}','{{{$this->valfield}}}','{{{$this->displayfield}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->valfield}}}=='{$selectedvalue}' ? 1 : 0);")),
+								'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-{{'.$this->value_field.'}}','tooltip'=>\Translate::Get('button_select'),'class'=>$this->base_class.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tag_id}','{{{$this->value_field}}}','{{{$this->display_field}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->value_field}}}=='{$selectedvalue}' ? 1 : 0);")),
 							),
 						),
 					),
@@ -218,7 +218,7 @@
 			if(get_array_value($lparams,'return',FALSE,'bool')) { return $datagrid->Show($s_params); }
 			echo $datagrid->Show($s_params);
 			if(!get_array_value($lparams,'open',FALSE,'bool')) { return; }
-			NApp::_ExecJs("GCBODDBtnClick('{$this->tagid}',1);");
+			NApp::_ExecJs("GCBODDBtnClick('{$this->tag_id}',1);");
 		}//END public function ShowDropDown
 	}//END class GridComboBox extends Control
 ?>

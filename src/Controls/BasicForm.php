@@ -160,7 +160,7 @@ class BasicForm {
 	 * @var    string Basic form base class
 	 * @access protected
 	 */
-	protected $baseclass = NULL;
+	protected $base_class = NULL;
 	/**
 	 * @var    string Output (resulting html) buffer
 	 * @access protected
@@ -179,7 +179,7 @@ class BasicForm {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->baseclass = get_array_value($params,'clear_baseclass',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
+		$this->base_class = get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		$this->controls_size = is_object(NApp::$theme) ? NApp::$theme->GetControlsDefaultSize() : 'xs';
 		$this->actions_size = is_object(NApp::$theme) ? NApp::$theme->GetButtonsDefaultSize() : 'xs';
@@ -296,7 +296,7 @@ class BasicForm {
      * @return bool
      */
     protected function CheckFieldConditions(array &$control,?string $fieldName = NULL): bool {
-        if(!strlen($fieldName)) { $fieldName = get_array_value($control,'tagname',NULL,'?is_notempty_string'); }
+        if(!strlen($fieldName)) { $fieldName = get_array_value($control,'tag_name',NULL,'?is_notempty_string'); }
         if(isset($this->field_name_property_case)) { $fieldName = $this->field_name_property_case==CASE_UPPER ? strtoupper($fieldName) : strtolower($fieldName); }
 	    if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) { return TRUE; }
 	    $condition = $this->field_conditions->get($fieldName);
@@ -317,7 +317,7 @@ class BasicForm {
 	 */
 	protected function GetTableControl(): string {
 		$ltabindex = 101;
-		$lclass = trim($this->baseclass.' '.$this->class);
+		$lclass = trim($this->base_class.' '.$this->class);
 		$lstyle = strlen($this->width)>0 ? ' style="width: '.$this->width.(strpos($this->width,'%')===FALSE ? 'px' : '').';"' : '';
 		$sc_style = strlen($this->separator_width)>0 ? ' style="width: '.$this->separator_width.(strpos($this->separator_width,'%')===FALSE ? 'px' : '').';"' : '';
 		if(!$this->width || $this->width='100%') {
@@ -344,7 +344,7 @@ class BasicForm {
 			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
 			$result .= '<div class="'.$sfclass.'" id="'.$this->sub_form_tagid.'"'.$sfextratagparam.'>'."\n";
 		}//if(strlen($this->sub_form_tagid))
-		$result .= '<table'.($this->tagid ? ' id="'.$this->tagid.'"' : '').' class="'.$lclass.'"'.$lstyle.'>'."\n";
+		$result .= '<table'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="'.$lclass.'"'.$lstyle.'>'."\n";
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
 			$sr_type = get_array_value($row,'separator',NULL,'is_notempty_string');
@@ -401,8 +401,8 @@ class BasicForm {
 				}//if(!$c_type || !class_exists($c_type))
 				$result .= "\t\t".'<td'.$cspan.$cstyle.'>'."\n";
 				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
-				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
-				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tagname'])) { $ctrl_params['tagname'] .= $this->tags_names_sufix; }
+				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tag_id'])) { $ctrl_params['tag_id'] .= $this->tags_ids_sufix; }
+				if(strlen($this->tags_names_sufix) && isset($ctrl_params['tag_name'])) { $ctrl_params['tag_name'] .= $this->tags_names_sufix; }
 				$control = new $c_type($ctrl_params);
 				if(property_exists($c_type,'tabindex')&& !Validator::IsValidParam($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
@@ -416,7 +416,7 @@ class BasicForm {
 		if(is_string($this->response_target) && strlen($this->response_target)) {
 			$result .= "\t".'<tr>'."\n";
 			$result .= $lsidecolumn;
-			$result .= "\t\t".'<td'.$lcolspan.' id="'.$this->response_target.'" class="'.($this->baseclass ? $this->baseclass : 'cls').'ErrMsg'.'"></td>'."\n";
+			$result .= "\t\t".'<td'.$lcolspan.' id="'.$this->response_target.'" class="'.($this->base_class ? $this->base_class : 'cls').'ErrMsg'.'"></td>'."\n";
 			$result .= $rsidecolumn;
 			$result .= "\t".'</tr>'."\n";
 		}//if(is_string($this->response_target) && strlen($this->response_target))
@@ -441,7 +441,7 @@ class BasicForm {
 	 */
 	protected function GetBootstrap3Control(): string {
 		$ltabindex = 101;
-		$lclass = trim($this->baseclass.' '.$this->class);
+		$lclass = trim($this->base_class.' '.$this->class);
 		if($this->positioning_type!='vertical') { $lclass .= ' form-horizontal'; }
 		if(strlen($this->controls_size)) { $lclass .= ' form-'.$this->controls_size; }
 		if($this->colsno>1) { $lclass .= ' multi'; }
@@ -449,9 +449,9 @@ class BasicForm {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
 			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
 			$result = '<div class="'.$sfclass.'" id="'.$this->sub_form_tagid.'"'.$sfextratagparam.'>'."\n";
-			$result .= '<div'.($this->tagid ? ' id="'.$this->tagid.'"' : '').' class="clsFormContainer '.$lclass.'">'."\n";
+			$result .= '<div'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="clsFormContainer '.$lclass.'">'."\n";
 		} else {
-			$result = '<div class="row"><div class="col-md-12 '.$lclass.'"'.($this->tagid ? ' id="'.$this->tagid.'"' : '').'>'."\n";
+			$result = '<div class="row"><div class="col-md-12 '.$lclass.'"'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').'>'."\n";
 		}//if(strlen($this->sub_form_tagid))
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
@@ -492,7 +492,7 @@ class BasicForm {
 			$ci = 0;
 			foreach($row as $col) {
 				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
-				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tagname'])) {  $ctrl_params['tagname'] .= $this->tags_names_sufix; }
+				if(strlen($this->tags_names_sufix) && isset( $ctrl_params['tag_name'])) {  $ctrl_params['tag_name'] .= $this->tags_names_sufix; }
                 if(!$this->CheckFieldConditions($ctrl_params,get_array_value($col,'conditions_field_name',NULL,'?is_notempty_string'))) { continue; }
 				$hiddenControl = get_array_value($ctrl_params,'hidden',get_array_value($col,'hidden',FALSE,'bool'),'bool');
                 $c_type = get_array_value($col,'control_type',NULL,'?is_notempty_string');
@@ -529,7 +529,7 @@ class BasicForm {
 					continue;
 				}//if(strlen($c_type))
 				$ctrl_params['theme_type'] = $this->theme_type;
-				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tagid'])) { $ctrl_params['tagid'] .= $this->tags_ids_sufix; }
+				if(strlen($this->tags_ids_sufix) && isset($ctrl_params['tag_id'])) { $ctrl_params['tag_id'] .= $this->tags_ids_sufix; }
 				// Label and input CSS columns calculation
 				$ctrl_label_cols = get_array_value($ctrl_params,'label_cols',0,'is_integer');
 				if($ctrl_label_cols<1 || $ctrl_label_cols>11) {
@@ -575,11 +575,11 @@ class BasicForm {
 		}//END foreach
 		if(is_string($this->response_target) && strlen($this->response_target)) {
 			$result .= "\t".'<div class="row">'."\n";
-			$result .= "\t\t".'<div class="col-md-12 '.($this->baseclass ? $this->baseclass : 'cls').'ErrMsg" id="'.$this->response_target.'">&nbsp;</div>'."\n";
+			$result .= "\t\t".'<div class="col-md-12 '.($this->base_class ? $this->base_class : 'cls').'ErrMsg" id="'.$this->response_target.'">&nbsp;</div>'."\n";
 			$result .= "\t".'</div>'."\n";
 		}//if(is_string($this->response_target) && strlen($this->response_target))
 		if(is_array($this->actions) && count($this->actions)) {
-			$result .= "\t".'<div class="row '.($this->baseclass ? $this->baseclass : 'clsForm').'Footer">'."\n";
+			$result .= "\t".'<div class="row '.($this->base_class ? $this->base_class : 'clsForm').'Footer">'."\n";
 			$result .= "\t\t".'<div class="col-md-12">'."\n";
 			$result .= $this->GetActions($ltabindex);
 			$result .= "\t\t".'</div>'."\n";

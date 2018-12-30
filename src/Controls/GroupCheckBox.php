@@ -63,7 +63,7 @@ class GroupCheckBox extends Control {
     public function __construct($params = NULL) {
         parent::__construct($params);
         if(!is_object($this->items)) { $this->items = DataSource::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
-        if(!strlen($this->tagid)) { $this->tagid = \PAF\AppSession::GetNewUID('GroupCheckBox','md5'); }
+        if(!strlen($this->tag_id)) { $this->tag_id = \PAF\AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
 
     protected function GetItems() {
@@ -85,7 +85,7 @@ class GroupCheckBox extends Control {
         $statefield = is_string($this->state_field) && strlen($this->state_field) ? $this->state_field : NULL;
         $activestate = is_string($this->active_state) && strlen($this->active_state) ? $this->active_state : '1';
         $this->ProcessActions();
-        $result = '<div id="'.$this->tagid.'-container" class='.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
+        $result = '<div id="'.$this->tag_id.'-container" class='.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
         $result .= "\t".'<input type="hidden" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagActions().' value="'.$this->value.'">'."\n";
         $ul_class = 'clsGCKBList '.(strtolower($this->orientation)==='vertical' ? 'oVertical' : 'oHorizontal');
         $result .= "\t".'<ul class="'.$ul_class.'">'."\n";
@@ -115,7 +115,7 @@ class GroupCheckBox extends Control {
                 } else {
                     $i_active = strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
                 }//if($this->disabled || $this->readonly)
-                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tagid.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
+                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
             }//END foreach
         } else {
             $result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";

@@ -50,7 +50,7 @@
 				if(!$this->control->no_label) {
 					$lrequired = $this->control->required===TRUE ? '<span style="color:#cf0000;">&nbsp;*</span>' : '';
 					$llabelclass = strlen($this->control->labelclass) ? ' '.$this->control->labelclass : '';
-					$c_label = "\t\t".'<label class="control-label'.$llabelclass.'" for="'.$this->control->tagid.'">'.$this->control->label.$lrequired.'</label>'."\n";
+					$c_label = "\t\t".'<label class="control-label'.$llabelclass.'" for="'.$this->control->tag_id.'">'.$this->control->label.$lrequired.'</label>'."\n";
 				}//if(!$this->control->no_label)
 				if($this->control->container) {
 					$result .= "\t".'<div class="control-group">'."\n";

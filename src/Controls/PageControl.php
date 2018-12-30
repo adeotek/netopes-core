@@ -34,14 +34,14 @@
 			$rpp = NApp::_GetParam('rows_per_page');
 			$rpp = $rpp>0 ? $rpp : 20;
 			$p_no = ceil($this->totalrows/$rpp);
-			if(!$this->withcount || !$this->currentpage) {
+			if(!$this->withcount || !$this->current_page) {
 				$p_current_arr = NApp::_GetParam($this->module.$this->method.$this->phash);
 				$withcount = get_array_value($p_current_arr,'fullpagination',0,'is_numeric');
 				$p_current = get_array_value($p_current_arr,'currentpage',1,'is_numeric');
 			} else {
 				$withcount = $this->withcount;
-				$p_current = $this->currentpage;
-			}//if(!$this->withcount || !$this->currentpage)
+				$p_current = $this->current_page;
+			}//if(!$this->withcount || !$this->current_page)
 			if(is_numeric($this->width) && $this->width>0) {
 				$c_width = ' style="width: '.$this->width.'px;"';
 				$c_class = '';

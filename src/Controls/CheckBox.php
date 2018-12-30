@@ -28,7 +28,7 @@ class CheckBox extends Control {
     }//END public function __construct
 
     protected function SetControl() {
-        $this->baseclass = (strlen($this->color) && array_key_exists($this->color,$this->colors)) ? $this->colors[$this->color] : $this->baseclass;
+        $this->base_class = (strlen($this->color) && array_key_exists($this->color,$this->colors)) ? $this->colors[$this->color] : $this->base_class;
         if(is_array($this->value)) {
             $lvalue = $this->value;
             switch(get_array_value($lvalue,'type','','is_string')) {

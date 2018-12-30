@@ -27,42 +27,42 @@ class NumericTextBox extends Control {
         $this->maxlength = 255;
         $this->autoselect = TRUE;
         parent::__construct($params);
-        if(strlen($this->numberformat) && is_numeric($this->placeholder)) {
-            $this->placeholder = Validator::FormatNumberValue($this->placeholder,$this->numberformat);
-        }//if(strlen($this->numberformat) && is_numeric($this->placeholder))
+        if(strlen($this->number_format) && is_numeric($this->placeholder)) {
+            $this->placeholder = Validator::FormatNumberValue($this->placeholder,$this->number_format);
+        }//if(strlen($this->number_format) && is_numeric($this->placeholder))
         //Number format settings (decimals_no|decimal_separator|group_separator|sufix)
-        if($this->numberformat!==FALSE && !strlen($this->numberformat)) {
+        if($this->number_format!==FALSE && !strlen($this->number_format)) {
             $def_decno = (is_numeric($this->decimals_no) && $this->decimals_no>=0) ? $this->decimals_no : 2;
             $def_dsep = ($this->decimal_separator || $def_decno!=0) ? NApp::_GetParam('decimal_separator') : '';
             $def_gsep = $this->group_separator ? NApp::_GetParam('group_separator') : '';
-            $this->numberformat = $def_decno.'|'.$def_dsep.'|'.$def_gsep.'|'.$this->sufix;
-        }//if($this->numberformat!==FALSE && !strlen($this->numberformat))
+            $this->number_format = $def_decno.'|'.$def_dsep.'|'.$def_gsep.'|'.$this->sufix;
+        }//if($this->number_format!==FALSE && !strlen($this->number_format))
     }//END public function __construct
 
     protected function SetControl() {
         $nclass = '';
         if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-            if($this->numberformat!==FALSE) { $nclass = 'clsSetNumberFormat'; }
+            if($this->number_format!==FALSE) { $nclass = 'clsSetNumberFormat'; }
             if(is_string($this->jsvalidation) && strlen(trim($this->jsvalidation))) { $nclass .= ' '.trim($this->jsvalidation); }
             elseif($this->jsvalidation===TRUE) { $nclass .= ' clsSetNumericValidation'; }
         }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
         if($this->allownull && !strlen($this->value)) {
             $lvalue = '';
         } else {
-           if($this->numberformat===FALSE) {
+           if($this->number_format===FALSE) {
                $lvalue = $this->value;
            } else {
                $lvalue = is_numeric($this->value) ? $this->value : 0;
-               if(strlen($this->numberformat)) {
-                   $format_arr = explode('|',$this->numberformat);
+               if(strlen($this->number_format)) {
+                   $format_arr = explode('|',$this->number_format);
                    $lvalue = number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
-               }//if(strlen($this->numberformat))
-           }//if($this->numberformat===FALSE)
+               }//if(strlen($this->number_format))
+           }//if($this->number_format===FALSE)
         }//if($this->allownull && !strlen($this->value))
         $baseact = [];
         if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
         $ldata = '';
-        if($this->numberformat!==FALSE && strlen($this->numberformat)) { $ldata .= ' data-format="'.$this->numberformat.'"'; }
+        if($this->number_format!==FALSE && strlen($this->number_format)) { $ldata .= ' data-format="'.$this->number_format.'"'; }
         if($this->allownull===TRUE) { $ldata .= ' data-anull="1"'; }
         $this->ProcessActions();
         $result = "\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($nclass).$this->GetTagAttributes().$this->GetTagActions($baseact).$ldata.' value="'.$lvalue.'">'."\n";

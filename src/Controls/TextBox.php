@@ -47,7 +47,7 @@
 			$this->ProcessActions();
 			if(is_string($this->icon) && strlen($this->icon)) {
 				$result = "\t\t".'<div class="control-set">'."\n";
-				$result .= "\t\t\t".'<span class="input-group-addon" onclick="$(\'#'.$this->tagid.'\').focus();">'.$this->icon.'</span>'."\n";
+				$result .= "\t\t\t".'<span class="input-group-addon" onclick="$(\'#'.$this->tag_id.'\').focus();">'.$this->icon.'</span>'."\n";
 				$result .= "\t\t\t".'<input type="'.$ltype.'"'.$this->GetTagId(TRUE).$this->GetTagClass($fclass).$this->GetTagAttributes().$this->GetTagActions($baseact).$lmaxlength.' value="'.$this->value.'">'."\n";
 				$result .= "\t\t".'</div>'."\n";
 			} else {

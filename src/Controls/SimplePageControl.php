@@ -30,7 +30,7 @@ class SimplePageControl extends Control {
 		$this->container = FALSE;
 		$this->withloader = 1;
 		$this->totalrows = 0;
-		$this->currentpage = 0;
+		$this->current_page = 0;
 		parent::__construct($params);
 	}//END public function __construct
 
@@ -47,7 +47,7 @@ class SimplePageControl extends Control {
 		$limit = NApp::_GetParam('rows_per_page');
 		$limit = (is_numeric($limit)>0 && $limit>0) ? $limit : 20;
 		$pages_no = ($this->totalrows>0 ? ceil($this->totalrows/$limit) : 1);
-		$cpage = (is_numeric($this->currentpage) && $this->currentpage<>0) ? $this->currentpage : 1;
+		$cpage = (is_numeric($this->current_page) && $this->current_page<>0) ? $this->current_page : 1;
 		$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
 		$result = '<div class="pagination-container"'.$lstyle.'>'."\n";
 		$result .= "\t".'<span class="pag-label">'.Translate::Get('label_page').'</span>'."\n";

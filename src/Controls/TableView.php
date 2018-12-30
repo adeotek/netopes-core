@@ -48,12 +48,12 @@ class TableView {
 	 * @var    string Control base class
 	 * @access protected
 	 */
-	protected $baseclass = '';
+	protected $base_class = '';
 	/**
 	 * @var    int Current page (for pagination)
 	 * @access protected
 	 */
-	protected $currentpage = NULL;
+	protected $current_page = NULL;
 	/**
 	 * @var    bool Export only flag
 	 * @access protected
@@ -340,8 +340,8 @@ class TableView {
 	 */
 	public function __construct($params = NULL) {
 		$this->chash = \PAF\AppSession::GetNewUID();
-		$this->baseclass = 'cls'.get_class_basename($this);
-		$this->currentpage = 1;
+		$this->base_class = 'cls'.get_class_basename($this);
+		$this->current_page = 1;
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
@@ -349,10 +349,10 @@ class TableView {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if($this->persistent_state) {
-			$this->sessionHash = $this->tagid ? $this->tagid : trim($this->module.'::'.$this->method,': ');
+			$this->sessionHash = $this->tag_id ? $this->tag_id : trim($this->module.'::'.$this->method,': ');
 			if(!strlen($this->sessionHash)) { $this->persistent_state = FALSE; }
 		}//if($this->persistent_state)
-		$this->tagid = $this->tagid ? $this->tagid : $this->chash;
+		$this->tag_id = $this->tag_id ? $this->tag_id : $this->chash;
 		if(Module::GetDRights($this->module,$this->method,'export')) { $this->exportable = FALSE; }
 		if(!is_array($this->sortby) || !count($this->sortby) || !array_key_exists('column',$this->sortby) || !array_key_exists('direction',$this->sortby)) { $this->sortby = array('column'=>'','direction'=>''); }
 	}//END public function __construct
@@ -367,15 +367,16 @@ class TableView {
 		if($encrypted){ return GibberishAES::enc(serialize($this),$this->chash); }
 		return serialize($this);
 	}//END protected function GetThis
-	/**
-	 * Apply format to a cell value
-	 *
-	 * @param  mixed  $value Cell value
-	 * @param  mixed  $format The format to be applied
+    /**
+     * Apply format to a cell value
+     *
+     * @param  mixed $value Cell value
+     * @param  mixed $format The format to be applied
      * @param null   $def_value
      * @return string Return formatted value as string
-	 * @access protected
-	 */
+     * @access protected
+     * @throws \PAF\AppException
+     */
 	protected function FormatValue($value,$format,$def_value = NULL) {
 		if(is_string($format) && strlen($format)) {
 			$result = Validator::FormatValue($value,$format);
@@ -429,7 +430,7 @@ class TableView {
 		switch($type) {
 			case 'update_filter':
 				$exec_callback = FALSE;
-				$call = "ControlAjaxRequest('{$this->chash}','ShowFiltersBox','fop'|{$this->tagid}-f-operator:value~'type'|{$this->tagid}-f-type:value~'f-cond-type'|".$params->safeGet('fctype',"''",'is_string').",'".$this->GetThis()."',1)->{$this->tagid}-filters";
+				$call = "ControlAjaxRequest('{$this->chash}','ShowFiltersBox','fop'|{$this->tag_id}-f-operator:value~'type'|{$this->tag_id}-f-type:value~'f-cond-type'|".$params->safeGet('fctype',"''",'is_string').",'".$this->GetThis()."',1)->{$this->tag_id}-filters";
 				break;
 			case 'remove_filter':
 				$call = "ControlAjaxRequest('{$this->chash}','Show','faction'|'remove'~'fkey'|'".$params->safeGet('fkey','','is_numeric')."'~'sessact'|'filters','".$this->GetThis()."',1)->{$this->target}";
@@ -440,17 +441,17 @@ class TableView {
 			case 'add_filter':
 				$fdtype = $params->safeGet('data_type','','is_string');
 				//~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
-				//~'fcond'|{$this->tagid}-f-cond-type:value
+				//~'fcond'|{$this->tag_id}-f-cond-type:value
 				$isDSParam = $params->safeGet('is_ds_param',0,'is_numeric');
 				$call = "ControlAjaxRequest('{$this->chash}','Show',
 						'faction'|'add'
 						~'sessact'|'filters'
-						~'fop'|".((is_array($this->filters) && count($this->filters)) ? $this->tagid."-f-operator:value" : "'and'")."
-						~'ftype'|{$this->tagid}-f-type:value
+						~'fop'|".((is_array($this->filters) && count($this->filters)) ? $this->tag_id."-f-operator:value" : "'and'")."
+						~'ftype'|{$this->tag_id}-f-type:value
 						~'fcond'|{$this->filter_cond_val_source}
-						~'fvalue'|".$params->safeGet('fvalue',$this->tagid.'-f-value:value','is_notempty_string')."
+						~'fvalue'|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."
 						~'fsvalue'|".$params->safeGet('fsvalue',"''",'is_notempty_string')."
-						~'fdvalue'|".$params->safeGet('fdvalue',$this->tagid.'-f-value:value','is_notempty_string')."
+						~'fdvalue'|".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."
 						~'fsdvalue'|".$params->safeGet('fsdvalue',"''",'is_notempty_string')."
 						~'data_type'|'{$fdtype}'
 						~'is_ds_param'|'{$isDSParam}'
@@ -553,7 +554,7 @@ class TableView {
 		if($this->with_pagination && !$this->export_only) {
 			$extra_params['type'] = 'count-select';
 			$firstrow = $lastrow = NULL;
-			Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->currentpage);
+			Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->current_page);
 			$extra_params['firstrow'] = $firstrow;
 			$extra_params['lastrow'] = $lastrow;
 		}//if($this->with_pagination && !$this->export_only)
@@ -591,7 +592,7 @@ class TableView {
 		// NApp::_Dlog($daparams,'$daparams');
 		// NApp::_Dlog($daeparams,'$daeparams');
 		$data = DataProvider::Get($this->data_source,$this->ds_method,$daparams,$daeparams,FALSE,$this->ds_out_params);
-		NApp::_SetPageParam($this->tagid.'#ds_out_params',$this->ds_out_params);
+		NApp::_SetPageParam($this->tag_id.'#ds_out_params',$this->ds_out_params);
 		if(!is_object($data)) { return new DataSet(); }
 		return $data;
 	}//END private function GetData
@@ -703,20 +704,21 @@ class TableView {
 	 * Gets the filter box html
 	 *
 	 * @param null $params
-	 * @return string Returns the filter box html
+	 * @return string|null Returns the filter box html
 	 * @throws \PAF\AppException
 	 * @access protected
 	 */
-	protected function GetFilterBox($params = NULL): string {
+	protected function GetFilterBox($params = NULL): ?string {
 		// NApp::_Dlog($params,'GetFilterBox>>$params');
 		// NApp::_Dlog($this->filters,'GetFilterBox>>$this->filters');
+		if(!$this->with_filter && $this->hide_actions_bar) { return NULL; }
 		if(!$this->with_filter) {
-				$filters = '';
+			$filters = '';
 			$filters .= "\t\t".'<div class="f-container">'."\n";
 			$filters .= $this->GetActionsBarControls();
 			$filters .= "\t\t".'</div>'."\n";
 			return $filters;
-		}//if(!$this->with_filter)
+		}//if(!$this->with_filter && !$this->hide_actions_bar)
 		$cftype = $params->safeGet('type','','is_string');
 		if($this->compact_mode) {
 			$filters = '';
@@ -725,16 +727,16 @@ class TableView {
 		}//if($this->compact_mode)
 		$filters .= "\t\t".'<div class="f-container">'."\n";
 		if(is_array($this->filters) && count($this->filters)) {
-			$filters .= "\t\t\t".'<select id="'.$this->tagid.'-f-operator" class="f-operator">'."\n";
+			$filters .= "\t\t\t".'<select id="'.$this->tag_id.'-f-operator" class="f-operator">'."\n";
 			foreach(DataProvider::GetArray('_Custom\Offline','FilterOperators') as $c) {
 				$fo_selected = $params->safeGet('fop','','is_string')==$c['value'] ? ' selected="selected"' : '';
 				$filters .= "\t\t\t\t".'<option value="'.$c['value'].'"'.$fo_selected.'>'.$c['name'].'</option>'."\n";
 			}//END foreach
 			$filters .= "\t\t\t".'</select>'."\n";
 		} else {
-			$filters .= "\t\t\t".'<input id="'.$this->tagid.'-f-operator" type="hidden" value="'.$params->safeGet('fop','','is_string').'">'."\n";
+			$filters .= "\t\t\t".'<input id="'.$this->tag_id.'-f-operator" type="hidden" value="'.$params->safeGet('fop','','is_string').'">'."\n";
 		}//if(is_array($this->filters) && count($this->filters))
-		$filters .= "\t\t\t".'<select id="'.$this->tagid.'-f-type" class="f-type" onchange="'.$this->GetActionCommand('update_filter').'">'."\n";
+		$filters .= "\t\t\t".'<select id="'.$this->tag_id.'-f-type" class="f-type" onchange="'.$this->GetActionCommand('update_filter').'">'."\n";
 		$is_qsearch = FALSE;
 		$is_qsearch_active = $this->CheckIfFilterIsActive(0);
 		if($this->qsearch && !$is_qsearch_active) {
@@ -767,7 +769,7 @@ class TableView {
 		$filters .= "\t\t\t".'</select>'."\n";
 		$fdtype = get_array_value($selectedv,'data_type','','is_string');
 		$fc_type = $params->safeGet('f-cond-type','','is_string');
-		$this->filter_cond_val_source = $this->tagid.'-f-cond-type:value';
+		$this->filter_cond_val_source = $this->tag_id.'-f-cond-type:value';
 		$fc_cond_type = get_array_value($selectedv,'show_filter_cond_type',get_array_value($selectedv,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
 		if($fc_cond_type===TRUE && !$is_qsearch) {
 			$filter_cts = '';
@@ -778,19 +780,19 @@ class TableView {
 				$fct_selected = $fc_type==$c->getProperty('value') ? ' selected="selected"' : '';
 				$filter_cts .= "\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$fct_selected.'>'.$c->getProperty('name').'</option>'."\n";
 				if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><') {
-					$filter_ct_onchange = ' onchange="'.$this->GetActionCommand('update_filter',array('fctype'=>$this->tagid.'-f-cond-type:value')).'"';
+					$filter_ct_onchange = ' onchange="'.$this->GetActionCommand('update_filter',array('fctype'=>$this->tag_id.'-f-cond-type:value')).'"';
 				}//if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><')
 			}//END foreach
-			$filters .= "\t\t\t".'<select id="'.$this->tagid.'-f-cond-type" class="f-cond-type"'.$filter_ct_onchange.'>'."\n";
+			$filters .= "\t\t\t".'<select id="'.$this->tag_id.'-f-cond-type" class="f-cond-type"'.$filter_ct_onchange.'>'."\n";
 			$filters .= $filter_cts;
 			$filters .= "\t\t\t".'</select>'."\n";
 		} elseif($fc_cond_type!=='data') {
-			$filters .= "\t\t\t".'<input type="hidden" id="'.$this->tagid.'-f-cond-type" value="'.($is_qsearch ? 'like' : '==').'"/>'."\n";
+			$filters .= "\t\t\t".'<input type="hidden" id="'.$this->tag_id.'-f-cond-type" value="'.($is_qsearch ? 'like' : '==').'"/>'."\n";
 		} else {
 			$this->filter_cond_val_source = NULL;
 		}//if($fc_cond_type===TRUE && !$is_qsearch)
 		$ctrl_params = get_array_value($selectedv,'filter_params',[],'is_array');
-		$ctrl_params['tagid'] = $this->tagid.'-f-value';
+		$ctrl_params['tag_id'] = $this->tag_id.'-f-value';
 		$ctrl_params['class'] = 'f-value';
 		$ctrl_params['clear_base_class'] = TRUE;
 		$ctrl_params['container'] = FALSE;
@@ -803,14 +805,14 @@ class TableView {
 		switch(strtolower($cfctype)) {
 			case 'smartcombobox':
 				$ctrl_filter_value = new SmartComboBox($ctrl_params);
-				$dvalue = $this->tagid.'-f-value:option';
-				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+				$dvalue = $this->tag_id.'-f-value:option';
+				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'combobox':
@@ -824,39 +826,39 @@ class TableView {
 				}//if($cf_dc)
 				$ctrl_params['value'] = $ctrl_filter_items;
 				$ctrl_filter_value = new ComboBox($ctrl_params);
-				$dvalue = $this->tagid.'-f-value:option';
-				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+				$dvalue = $this->tag_id.'-f-value:option';
+				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'treecombobox':
 				$ctrl_filter_value = new TreeComboBox($ctrl_params);
-				$dvalue = $this->tagid.'-f-value-cbo:value';
-				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+				$dvalue = $this->tag_id.'-f-value-cbo:value';
+				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				// $ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 		  	case 'checkbox':
 				$ctrl_params['value'] = 0;
 				$ctrl_filter_value = new CheckBox($ctrl_params);
-				$dvalue = $this->tagid.'-f-value:value';
-				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+				$dvalue = $this->tag_id.'-f-value:value';
+				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
 				$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam)).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 			case 'datepicker':
@@ -887,7 +889,7 @@ class TableView {
 					case 'DatePicker':
 					    $ctrl_params['size'] = 'xxs';
 						$ctrl_params['value'] = '';
-						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
+						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
 						if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
 							$ctrl_params['timepicker'] = TRUE;
 							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::_GetParam('date_separator').'MM'.NApp::_GetParam('date_separator').'yyyy HH'.NApp::_GetParam('time_separator').'mm'.NApp::_GetParam('time_separator').'ss"';
@@ -899,67 +901,67 @@ class TableView {
 						$ctrl_filter_value = new DatePicker($ctrl_params);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-						$fval = $this->tagid.'-f-value:dvalue';
+						$fval = $this->tag_id.'-f-value:dvalue';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
+							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
 							$ctrl_filter_value = new DatePicker($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-							$fsval = $this->tagid.'-f-svalue:dvalue';
-							$sdvalue = $this->tagid.'-f-svalue:value';
-							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+							$fsval = $this->tag_id.'-f-svalue:dvalue';
+							$sdvalue = $this->tag_id.'-f-svalue:value';
+							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 						}//if($fc_type=='><')
 						break;
 					case 'NumericTextBox':
 					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
-						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
-						$ctrl_params['numberformat'] = get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
+						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
+						$ctrl_params['number_format'] = get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
 						$ctrl_params['align'] = 'center';
 						$ctrl_filter_value = new NumericTextBox($ctrl_params);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-						$fval = $this->tagid.'-f-value:nvalue';
+						$fval = $this->tag_id.'-f-value:nvalue';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
+							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
 							$ctrl_filter_value = new NumericTextBox($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-							$fsval = $this->tagid.'-f-svalue:nvalue';
-							$sdvalue = $this->tagid.'-f-svalue:value';
-							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+							$fsval = $this->tag_id.'-f-svalue:nvalue';
+							$sdvalue = $this->tag_id.'-f-svalue:value';
+							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 						}//if($fc_type=='><')
-						//$aoc_check = "if(\$('#".$this->tagid."-f-value').val()!=0){ ";
+						//$aoc_check = "if(\$('#".$this->tag_id."-f-value').val()!=0){ ";
 						break;
 					case 'TextBox':
 					default:
 					    $ctrl_params['class'] .= ' t-box';
 						$ctrl_params['value'] = '';
-						$ctrl_params['onenterbutton'] = $this->tagid.'-f-add-btn';
+						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
 						$ctrl_filter_value = new TextBox($ctrl_params);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-						$fval = $this->tagid.'-f-value:value';
+						$fval = $this->tag_id.'-f-value:value';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tagid'] = $this->tagid.'-f-svalue';
+							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
 							$ctrl_filter_value = new TextBox($ctrl_params);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
-							$fsval = $this->tagid.'-f-svalue:value';
-							$sdvalue = $this->tagid.'-f-svalue:value';
-							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tagid.'-f-value:option:data-ctype'; }
+							$fsval = $this->tag_id.'-f-svalue:value';
+							$sdvalue = $this->tag_id.'-f-svalue:value';
+							if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 						}//if($fc_type=='><')
 						break;
 				}//END switch
-				$dvalue = $this->tagid.'-f-value:value';
+				$dvalue = $this->tag_id.'-f-value:value';
 				$f_b_params = $fc_type=='><' ? array('fdvalue'=>$dvalue,'fsdvalue'=>$sdvalue,'fvalue'=>$fval,'fsvalue'=>$fsval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam) : array('fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam);
 				if($this->compact_mode) {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
 				} else {
-					$filters .= "\t\t\t".'<button id="'.$this->tagid.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
+					$filters .= "\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
 				}//if($this->compact_mode)
 				break;
 		}//END switch
@@ -1001,13 +1003,13 @@ class TableView {
 		if(!$this->with_pagination) {
 			if($this->hide_status_bar) { return NULL; }
 			//$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
-			$result = "\t".'<div class="'.$this->baseclass.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
+			$result = "\t".'<div class="'.$this->base_class.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
 			$result .= "\t\t".'<div class="pagination-container"><span class="rec-label">'.Translate::Get('label_records').'</span><span class="rec-no">'.number_format($records_no,0).'</span><div class="clearfix"></div></div>';
 			$result .= "\t".'</div>'."\n";
 			return $result;
 		}//if(!$this->with_pagination)
-		$pagination = new SimplePageControl(array('phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','totalrows'=>$records_no,'onclickparams'=>$this->GetActionCommand('gotopage',[],FALSE),'js_callback'=>$this->onchange_js_callback,'currentpage'=>$this->currentpage));
-		$result = "\t".'<div class="'.$this->baseclass.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
+		$pagination = new SimplePageControl(array('phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','totalrows'=>$records_no,'onclickparams'=>$this->GetActionCommand('gotopage',[],FALSE),'js_callback'=>$this->onchange_js_callback,'currentpage'=>$this->current_page));
+		$result = "\t".'<div class="'.$this->base_class.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
 		$result .= $pagination->Show();
 		$result .= "\t".'</div>'."\n";
 		return $result;
@@ -1330,11 +1332,11 @@ class TableView {
                     } elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($c_params['value']) && isset($v['db_field'])) {
                         $c_params['value'] = isset($cValue) && $cValue!=='' ? $cValue : get_array_value($v,'default_value','','is_string');
                     }//if($is_iterator)
-                    if(isset($c_params['tagid'])) {
+                    if(isset($c_params['tag_id'])) {
                         $key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
                         $key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
-                        $c_params['tagid'] .= '_'.$key_value;
-                    }//if(isset($c_params['tagid']))
+                        $c_params['tag_id'] .= '_'.$key_value;
+                    }//if(isset($c_params['tag_id']))
                     $p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
                     if(is_array($p_pafreq) && count($p_pafreq)) {
                         foreach($p_pafreq as $pr) {
@@ -1802,7 +1804,7 @@ class TableView {
 					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
 					if($has_child) {
 						$t_s_val = $r_tree_state ? 1 : 0;
-						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tagid ? $this->tagid : $this->chash).'_table\')" src="'.NApp::app_web_link().'/lib/controls/images/transparent12.gif">';
+						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::app_web_link().'/lib/controls/images/transparent12.gif">';
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
 					}//if($has_child)
@@ -2083,7 +2085,7 @@ class TableView {
 				}//END foreach
 			} else {
 				$firstrow = $lastrow = NULL;
-				Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->currentpage);
+				Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->current_page);
 				$rowid = 0;
 				foreach($data as $row) {
 					$row->__rowid = $rowid;
@@ -2129,13 +2131,13 @@ class TableView {
 			$sessact = $params->safeGet('sessact','','is_string');
 			switch($sessact) {
 				case 'page':
-					$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
+					$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
 					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'sort':
-					$this->currentpage = $params->safeGet('page',1,'is_numeric');
+					$this->current_page = $params->safeGet('page',1,'is_numeric');
 					$this->sortby = array(
 						'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 						'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
@@ -2143,13 +2145,13 @@ class TableView {
 					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'filters':
-					$this->currentpage = $params->safeGet('page',1,'is_numeric');
+					$this->current_page = $params->safeGet('page',1,'is_numeric');
 					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
 				case 'reset':
-					$this->currentpage = $params->safeGet('page',1,'is_numeric');
+					$this->current_page = $params->safeGet('page',1,'is_numeric');
 					$this->sortby = array(
 						'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 						'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
@@ -2157,10 +2159,10 @@ class TableView {
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
 				default:
-					$this->currentpage = NApp::_GetPageParam($this->sessionHash.'#currentpage');
-					if(!$this->currentpage) {
-						$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
-					}//if(!$this->currentpage)
+					$this->current_page = NApp::_GetPageParam($this->sessionHash.'#currentpage');
+					if(!$this->current_page) {
+						$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
+					}//if(!$this->current_page)
 					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
 					if(!get_array_value($ssortby,'column',NULL,'is_notempty_string')) {
 						$this->sortby = array(
@@ -2176,11 +2178,11 @@ class TableView {
 					}//if(!$this->filters)
 					break;
 			}//END switch
-			NApp::_SetPageParam($this->sessionHash.'#currentpage',$this->currentpage);
+			NApp::_SetPageParam($this->sessionHash.'#currentpage',$this->current_page);
 			NApp::_SetPageParam($this->sessionHash.'#sortby',$this->sortby);
 			NApp::_SetPageParam($this->sessionHash.'#filters',$this->filters);
 		} else {
-			$this->currentpage = $params->safeGet('page',$this->currentpage,'is_numeric');
+			$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
 			$this->sortby = array(
 				'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 				'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
@@ -2234,21 +2236,21 @@ class TableView {
 				}//END try
 			}//if($this->exportable && $this->export_data)
 		}//if(isset($items['data']))
-		$lclass = $this->baseclass.(strlen($this->class) ? ' '.$this->class : '').(($this->scrollable || ($this->min_width && !$this->width)) ? ' clsScrollable' : ' clsFixedWidth');
+		$lclass = $this->base_class.(strlen($this->class) ? ' '.$this->class : '').(($this->scrollable || ($this->min_width && !$this->width)) ? ' clsScrollable' : ' clsFixedWidth');
 		switch($this->theme_type) {
 			case 'bootstrap3':
 				$result = '<div class="row">'."\n";
 				if($this->is_panel===TRUE) {
 					$result .= "\t".'<div class="col-md-12">'."\n";
-					$result .= "\t\t".'<div class="panel panel-flat '.$lclass.'" id="'.$this->tagid.'">'."\n";
+					$result .= "\t\t".'<div class="panel panel-flat '.$lclass.'" id="'.$this->tag_id.'">'."\n";
 					$closing_tags = "\t\t".'</div>'."\n";
 					$closing_tags .= "\t".'</div>'."\n";
 				} else {
-					$result .= "\t".'<div class="col-md-12 '.$lclass.'" id="'.$this->tagid.'">'."\n";
+					$result .= "\t".'<div class="col-md-12 '.$lclass.'" id="'.$this->tag_id.'">'."\n";
 					$closing_tags = "\t".'</div>'."\n";
 				}//if($this->is_panel===TRUE)
 				if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
-					$result .= "\t\t\t".'<div id="'.$this->tagid.'-filters" class="'.($this->baseclass.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
+					$result .= "\t\t\t".'<div id="'.$this->tag_id.'-filters" class="'.($this->base_class.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
 					$result .= $this->GetFilterBox(new Params());
 					$result .= "\t\t\t".'</div>'."\n";
 				}//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
@@ -2268,7 +2270,7 @@ class TableView {
 				if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
 					$lclass .= ' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
 				}//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-				$result .= "\t".$tcontainerfull.'<table id="'.($this->tagid ? $this->tagid : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+				$result .= "\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
 				$result .= $th_result;
 				$result .= $table_data;
 				$result .= "\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2278,9 +2280,9 @@ class TableView {
 				$result .= '</div>'."\n";
 				break;
 			default:
-				$result = '<div id="'.$this->tagid.'" class="'.$lclass.'">'."\n";
+				$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
 				if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
-					$result .= "\t".'<div id="'.$this->tagid.'-filters" class="'.($this->baseclass.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
+					$result .= "\t".'<div id="'.$this->tag_id.'-filters" class="'.($this->base_class.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
 					$result .= $this->GetFilterBox(new Params());
 					$result .= "\t".'</div>'."\n";
 				}//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
@@ -2300,7 +2302,7 @@ class TableView {
 				if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
 					$lclass .= ' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
 				}//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-				$result .= "\t".$tcontainerfull.'<table id="'.($this->tagid ? $this->tagid : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+				$result .= "\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
 				$result .= $th_result;
 				$result .= $table_data;
 				$result .= "\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2413,7 +2415,7 @@ class TableView {
 	 * @access public
 	 */
 	public function SetBaseClass($value) {
-		$this->baseclass = strlen($value) ? $value : $this->baseclass;
+		$this->base_class = strlen($value) ? $value : $this->base_class;
 	}//END public function SetBaseClass
 	/**
 	 * Sets new value for base class property

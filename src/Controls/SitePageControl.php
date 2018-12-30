@@ -26,7 +26,7 @@
 			$this->no_label = TRUE;
 			$this->container = FALSE;
 			$this->totalrows = 0;
-			$this->currentpage = 1;
+			$this->current_page = 1;
 			parent::__construct($params);
 		}//END public function __construct
 
@@ -34,7 +34,7 @@
 			$limit = NApp::_GetParam('rows_per_page');
 			$limit = $limit>0 ? $limit : 20; //crapa cu division by zero daca nu are inregistrare in admin_user_options
 			$totalnrofpages = ceil($this->totalrows/$limit);
-			$cpage = (is_numeric($this->currentpage) && $this->currentpage>0) ? $this->currentpage : -1;
+			$cpage = (is_numeric($this->current_page) && $this->current_page>0) ? $this->current_page : -1;
 			$result = '';
 			$result .= "\t".'<div class="paginationcontainer">'."\n";
 			$result .= "\t\t".'<div class="totalrows"><strong>'.$this->totalrows.'</strong> '.\Translate::Get('results_label').'</div>'."\n";

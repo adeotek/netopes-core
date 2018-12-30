@@ -50,7 +50,7 @@ abstract class Control {
 	 * @var    string Control base class
 	 * @access protected
 	 */
-	protected $baseclass = '';
+	protected $base_class = '';
 	/**
 	 * @var    bool Page hash (window.name)
 	 * @access public
@@ -134,20 +134,20 @@ abstract class Control {
 		$this->chash = AppSession::GetNewUID(get_class_basename($this));
 		$this->uid = AppSession::GetNewUID(get_class_basename($this),'md5');
 		$this->required = FALSE;
-		$this->labelposition = 'left';
-		$this->labelwidth = 0;
+		$this->label_position = 'left';
+		$this->label_width = 0;
 		$this->label_cols = 3;
 		$this->width = 0;
 		$this->cols = 0;
 		$this->height = 0;
 		// $this->size = 'xxs';
 		$this->tabindex = NULL;
-		$this->baseclass = 'cls'.get_class_basename($this);
+		$this->base_class = 'cls'.get_class_basename($this);
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) { $this->$k = $v; }
 		}//if(is_array($params) && count($params))
-		$this->tagid = $this->tagid=='__auto' ? AppSession::GetNewUID() : $this->tagid;
+		$this->tag_id = $this->tag_id=='__auto' ? AppSession::GetNewUID() : $this->tag_id;
 		if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
 		if(is_null($this->label)) { $this->no_label = TRUE; }
 		switch($this->theme_type) {
@@ -159,12 +159,12 @@ abstract class Control {
 					case 'bootstrap':
 					case 'bootstrap3':
 						$this->container = TRUE;
-						$this->labelposition = 'left';
+						$this->label_position = 'left';
 						break;
 					case 'bootstrap_horizontal':
 					case 'horizontalbootstrap3':
 						$this->container = TRUE;
-						$this->labelposition = 'left';
+						$this->label_position = 'left';
 						break;
 					case 'table':
 					case 'form':
@@ -216,10 +216,10 @@ abstract class Control {
 	/**
 	 * Process the control actions
 	 *
-	 * @return void
+	 * @return array|null
 	 * @access protected
 	 */
-	protected function ProcessActions() {
+	protected function ProcessActions(): ?array {
 		if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
 			$this->ctrl_actions = [];
 			foreach($this->actions as $av) {
@@ -274,7 +274,7 @@ abstract class Control {
 		foreach($this->ctrl_actions as $act) {
 			$act_params = $act['params'];
 			$act_params['action_params'] = get_array_value($act,'action_params',NULL,'is_notempty_array');
-			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tagid.'\').val(); '.get_array_value($act_params,'onclick','','is_string');
+			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tag_id.'\').val(); '.get_array_value($act_params,'onclick','','is_string');
 			$act_params['disabled'] = $this->disabled;
 			$act_params['style'] = get_array_value($act,'style','','is_string');
 			$act_button = new Button($act_params);
@@ -287,16 +287,16 @@ abstract class Control {
 	/**
 	 * Gets the html tag id string (' id="..."')
 	 *
-	 * @param  bool   $tagname Include the tag name in the result TRUE/FALSE (default FALSE)
+	 * @param  bool   $tagName Include the tag name in the result TRUE/FALSE (default FALSE)
 	 * @param null  $sufix
 	 * @return string Returns the html tag id
 	 * @access protected
 	 */
-	protected function GetTagId($tagname = FALSE,$sufix = NULL) {
-		if(!strlen($this->tagid)) { return ''; }
-		if(!$tagname) { return ' id="'.$this->tagid.(strlen($sufix) ? $sufix : '').'"'; }
-		if($tagname===2) { return ' id="'.$this->tagid.(strlen($sufix) ? $sufix : '').'" data-name="'.(strlen($this->tagname) ? $this->tagname : $this->tagid).(strlen($sufix) ? $sufix : '').'"'; }
-		return ' id="'.$this->tagid.(strlen($sufix) ? $sufix : '').'" name="'.(strlen($this->tagname) ? $this->tagname : $this->tagid).(strlen($sufix) ? $sufix : '').'"';
+	protected function GetTagId($tagName = FALSE,$sufix = NULL) {
+		if(!strlen($this->tag_id)) { return ''; }
+		if(!$tagName) { return ' id="'.$this->tag_id.(strlen($sufix) ? $sufix : '').'"'; }
+		if($tagName===2) { return ' id="'.$this->tag_id.(strlen($sufix) ? $sufix : '').'" data-name="'.(strlen($this->tag_name) ? $this->tag_name : $this->tag_id).(strlen($sufix) ? $sufix : '').'"'; }
+		return ' id="'.$this->tag_id.(strlen($sufix) ? $sufix : '').'" name="'.(strlen($this->tag_name) ? $this->tag_name : $this->tag_id).(strlen($sufix) ? $sufix : '').'"';
 	}//END protected function GetTagId
 	/**
 	 * Gets the html tag class string (' class="..."')
@@ -306,7 +306,7 @@ abstract class Control {
 	 * @access protected
 	 */
 	protected function GetTagClass($extra = NULL,$raw = FALSE) {
-		$lclass = (!$this->clear_base_class ? $this->baseclass : '');
+		$lclass = (!$this->clear_base_class ? $this->base_class : '');
 		if(strlen($this->class)) { $lclass .= ' '.$this->class; }
 		if(!$this->clear_base_class) {
 			switch($this->theme_type) {
@@ -352,7 +352,7 @@ abstract class Control {
 		if($this->required===TRUE || $this->required===1 || $this->required==='1') { $lclass .= ' clsRequiredField'; }
 		if($this->postable) { $lclass .= ' postable'; }
 		if(strlen($this->onenter)) { $lclass .= ' clsOnEnterAction'; }
-		if(strlen($this->onenterbutton)) { $lclass .= ' clsOnEnterActionButton'; }
+		if(strlen($this->onenter_button)) { $lclass .= ' clsOnEnterActionButton'; }
 		if(strlen(trim($lclass))) { return ' class="'.trim($lclass).'"'; }
 		return '';
 	}//END protected function GetTagClass
@@ -428,9 +428,9 @@ abstract class Control {
 		if(strlen($this->placeholder)) { $lattr .= ' placeholder="'.$this->placeholder.'"'; }
 		if(is_numeric($this->tabindex) && $this->tabindex>0) { $lattr .= ' tabindex="'.$this->tabindex.'"'; }
 		if(strlen($this->onenter)) { $lattr .= ' data-onenter="'.$this->onenter.'"'; }
-		if(strlen($this->onenterbutton)) { $lattr .= ' data-onenterbtn="'.$this->onenterbutton.'"'; }
+		if(strlen($this->onenter_button)) { $lattr .= ' data-onenterbtn="'.$this->onenter_button.'"'; }
 		if(strlen($this->paf_property)) { $lattr .= ' data-paf-prop="'.$this->paf_property.'"'; }
-		if(strlen($this->extratagparam)) { $lattr .= ' '.$this->extratagparam; }
+		if(strlen($this->extra_tag_params)) { $lattr .= ' '.$this->extra_tag_params; }
 		$lattr = trim($lattr).(strlen($extra) ? ' '.$extra : '');
 		return $lattr;
 	}//END protected function GetTagAttributes
@@ -461,7 +461,8 @@ abstract class Control {
     /**
      * Gets the html tag onclick attributes string
      *
-     * @param null    $base
+     * @param string|null $base
+     * @param bool        $actOnly
      * @return string Returns the html tag attribute
      * @access protected
      */
@@ -496,10 +497,11 @@ abstract class Control {
 		if($actOnly) { return $action; }
 		return ($this->data_onclick===TRUE ? 'data-' : '').'onclick="'.trim($action).'"';
 	}//END protected function GetOnClickAction
-	/**
+    /**
      * Gets the html tag onchange attributes string
      *
-     * @param null    $base
+     * @param string|null $base
+     * @param bool        $actOnly
      * @return string Returns the html tag attribute
      * @access protected
      */
@@ -573,75 +575,75 @@ abstract class Control {
 	 */
 	protected function ProcessWidth($bootstrap = FALSE) {
 		if($bootstrap) {
-			if(strpos($this->labelwidth,'col')!==FALSE && strpos($this->width,'col')!==FALSE) {
-				$llw = str_replace('col','',$this->labelwidth);
+			if(strpos($this->label_width,'col')!==FALSE && strpos($this->width,'col')!==FALSE) {
+				$llw = str_replace('col','',$this->label_width);
 				$lw = str_replace('col','',$this->width);
 				if(is_numeric($lw) && $lw>0 && $lw<=12) {
-					$this->labelwidth = NULL;
+					$this->label_width = NULL;
 					$this->width = NULL;
 					$this->label_cwidth = (12 - $lw);
 					$this->cwidth = $lw;
 				} elseif(is_numeric($llw) && $llw>0 && $llw<12) {
-					$this->labelwidth = NULL;
+					$this->label_width = NULL;
 					$this->width = NULL;
 					$this->cwidth = (12 - $llw);
 					$this->label_cwidth = $llw;
 				} else {
 					$this->width = $lw;
-					$this->labelwidth = $llw;
+					$this->label_width = $llw;
 				}//if(is_numeric($lw) && $lw>0 && $lw<=12)
-			} elseif(strpos($this->labelwidth,'col')!==FALSE) {
-				$llw = str_replace('col','',$this->labelwidth);
+			} elseif(strpos($this->label_width,'col')!==FALSE) {
+				$llw = str_replace('col','',$this->label_width);
 				if(is_numeric($llw) && $llw>0 && $llw<12) {
-					$this->labelwidth = NULL;
+					$this->label_width = NULL;
 					$this->width = NULL;
 					$this->cwidth = (12 - $llw);
 					$this->label_cwidth = $llw;
 				} else {
-					$this->labelwidth = $llw;
+					$this->label_width = $llw;
 				}//if(is_numeric($llw) && $llw>0 && $llw<12)
 			} elseif(strpos($this->width,'col')!==FALSE) {
 				$lw = str_replace('col','',$this->width);
 				if(is_numeric($lw) && $lw>0 && $lw<=12) {
-					$this->labelwidth = NULL;
+					$this->label_width = NULL;
 					$this->width = NULL;
 					$this->label_cwidth = (12 - $lw);
 					$this->cwidth = $lw;
 				} else {
 					$this->width = $lw;
 				}//if(is_numeric($lw) && $lw>0 && $lw<=12)
-			}//if(strpos($this->labelwidth,'col')!==FALSE && strpos($this->width,'col')!==FALSE)
+			}//if(strpos($this->label_width,'col')!==FALSE && strpos($this->width,'col')!==FALSE)
 		} else {
-			if(strpos($this->labelwidth,'col')!==FALSE && strpos($this->width,'col')!==FALSE) {
-				$llw = str_replace('col','',$this->labelwidth);
+			if(strpos($this->label_width,'col')!==FALSE && strpos($this->width,'col')!==FALSE) {
+				$llw = str_replace('col','',$this->label_width);
 				$lw = str_replace('col','',$this->width);
 				if(is_numeric($lw) && $lw>0 && $lw<=12) {
-					$this->labelwidth = round((12 - $lw) / 12 * 100,0).'%';
+					$this->label_width = round((12 - $lw) / 12 * 100,0).'%';
 					$this->width = round($lw / 12 * 100,0).'%';
 				} elseif(is_numeric($llw) && $llw>0 && $llw<12) {
 					$this->width = round((12 - $llw) / 12 * 100,0).'%';
-					$this->labelwidth = round($llw / 12 * 100,0).'%';
+					$this->label_width = round($llw / 12 * 100,0).'%';
 				} else {
 					$this->width = $lw;
-					$this->labelwidth = $llw;
+					$this->label_width = $llw;
 				}//if(is_numeric($lw) && $lw>0 && $lw<=12)
-			} elseif(strpos($this->labelwidth,'col')!==FALSE) {
-				$llw = str_replace('col','',$this->labelwidth);
+			} elseif(strpos($this->label_width,'col')!==FALSE) {
+				$llw = str_replace('col','',$this->label_width);
 				if(is_numeric($llw) && $llw>0 && $llw<12) {
 					$this->width = round((12 - $llw) / 12 * 100,0).'%';
-					$this->labelwidth = round($llw / 12 * 100,0).'%';
+					$this->label_width = round($llw / 12 * 100,0).'%';
 				} else {
-					$this->labelwidth = $llw;
+					$this->label_width = $llw;
 				}//if(is_numeric($llw) && $llw>0 && $llw<12)
 			} elseif(strpos($this->width,'col')!==FALSE) {
 				$lw = str_replace('col','',$this->width);
 				if(is_numeric($lw) && $lw>0 && $lw<=12) {
-					$this->labelwidth = round((12 - $lw) / 12 * 100,0).'%';
+					$this->label_width = round((12 - $lw) / 12 * 100,0).'%';
 					$this->width = round($lw / 12 * 100,0).'%';
 				} else {
 					$this->width = $lw;
 				}//if(is_numeric($lw) && $lw>0 && $lw<=12)
-			}//if(strpos($this->labelwidth,'col')!==FALSE && strpos($this->width,'col')!==FALSE)
+			}//if(strpos($this->label_width,'col')!==FALSE && strpos($this->width,'col')!==FALSE)
 		}//if($bootstrap)
 	}//END protected function ProcessWidth
 	/**
@@ -691,10 +693,10 @@ abstract class Control {
 	 * description
 	 *
 	 * @param $tag
-	 * @return void
+	 * @return string|null
 	 * @access protected
 	 */
-	protected function SetContainer($tag) {
+	protected function SetContainer($tag): ?string {
 		$tag .= $this->ProcessCustomActions();
 		$container_class = 'NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
 		$ctrl_container = new $container_class($this);
@@ -704,11 +706,11 @@ abstract class Control {
 	/**
 	 * description
 	 *
-	 * @return void
+	 * @return string|null
 	 * @access protected
 	 * @abstract
 	 */
-	abstract protected function SetControl();
+	abstract protected function SetControl(): ?string;
 	/**
 	 * description
 	 *
@@ -726,7 +728,7 @@ abstract class Control {
 	 * @access public
 	 */
 	public function ClearBaseClass() {
-		$this->baseclass = '';
+		$this->base_class = '';
 	}//END public function ClearBaseClass
 	/**
 	 * Check control conditions
@@ -969,7 +971,7 @@ abstract class Control {
 	    if(!is_object($item) && !is_array($item)) { return NULL; }
 	    if(!is_object($item)) { $item = new VirtualEntity($item); }
 		$ldisplayvalue = '';
-		$ldisplayfield = is_string($this->selectedtextfield) && strlen($this->selectedtextfield) ? $this->selectedtextfield : $this->displayfield;
+		$ldisplayfield = is_string($this->selected_text_field) && strlen($this->selected_text_field) ? $this->selected_text_field : $this->display_field;
 		if(is_array($ldisplayfield)) {
 			foreach($ldisplayfield as $dk=>$dv) {
 				if(is_array($dv)) {
@@ -982,11 +984,11 @@ abstract class Control {
 				    $ltext = $item->getProperty($dk,'N/A','is_string');
 					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
 				}//if(is_array($dv))
-			}//foreach ($this->displayfield as $dk=>$dv)
+			}//foreach ($this->display_field as $dk=>$dv)
 		} else {
 		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
 			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
-		}//if(is_array($this->displayfield))
+		}//if(is_array($this->display_field))
 		return html_entity_decode($ldisplayvalue);
 	}//END protected function GetDisplayFieldValue
 }//END abstract class Control

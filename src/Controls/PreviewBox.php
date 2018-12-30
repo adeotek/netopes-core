@@ -23,7 +23,7 @@
 	class PreviewBox extends Control {
 		public function __construct($params = NULL){
 			$this->postable = FALSE;
-			$this->labelposition = 'left';
+			$this->label_position = 'left';
 			parent::__construct($params);
 		}//END public function __construct
 
