@@ -43,7 +43,7 @@ class ConverterAdapter {
             NApp::_Elog('Invalid converter adapter method ['.static::class.'::'.$method.']!');
             return $value;
         }//if(!method_exists(static::class,$method))
-        return call_user_func(static::class.'::'.$method,$value);
+        return static::$method($value);
 	}//END public static final function Format
     /**
      * Converts a datetime string value to DateTime instance
@@ -249,7 +249,7 @@ class ConverterAdapter {
     public static function ToNumeric($value): ?float {
         if(is_numeric($value)) { return $value; }
         if(is_string($value) && strlen($value)) {
-            $tmpVal = static::ConvertNumberToStandardFormat($value);
+            $tmpVal = static::NumberToStandardFormat($value);
             $tmpVal = filter_var($tmpVal,FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
             return is_numeric($tmpVal) ? $tmpVal : NULL;
         }//if(is_string($value) && strlen($value))

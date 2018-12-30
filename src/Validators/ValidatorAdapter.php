@@ -46,8 +46,8 @@ class ValidatorAdapter {
             if($checkOnly) { return isset($value); }
 		    return $value??$defaultValue;
         }//if(!method_exists(static::class,$method))
-        if($checkOnly) { return call_user_func(static::class.'::'.$method,$value); }
-        $isValid = call_user_func(static::class.'::'.$method,$value);
+        if($checkOnly) { return static::$method($value); }
+        $isValid = static::$method($value);
         return ($isValid ? $value : $defaultValue);
 	}//END public static final function Validate
 

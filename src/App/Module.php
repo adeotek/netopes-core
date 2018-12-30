@@ -179,34 +179,33 @@ class Module {
 	/**
 	 * description
 	 *
-	 * @param null $firstrow
-	 * @param null $lastrow
-	 * @param null $current_page
+	 * @param null $firstRow
+	 * @param null $lastRow
+	 * @param null $currentPage
 	 * @param null $rpp
 	 * @return array
 	 * @access public
 	 * @static
 	 */
-	public static function GlobalGetPagintionParams(&$firstrow = NULL,&$lastrow = NULL,$current_page = NULL,$rpp = NULL) {
-		$cpage = is_numeric($current_page) ? $current_page : 1;
+	public static function GlobalGetPagintionParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$rpp = NULL) {
+		$cpage = is_numeric($currentPage) ? $currentPage : 1;
 		if($cpage==-1){
-			$firstrow = -1;
-			$lastrow = -1;
-			return array('firstrow'=>$firstrow,'lastrow'=>$lastrow);
+			$firstRow = -1;
+			$lastRow = -1;
+			return array('first_row'=>$firstRow,'last_row'=>$lastRow);
 		}//if($cpage==-1)
 		if(is_numeric($rpp) && $rpp>0) {
 			$lrpp = $rpp;
 		} else {
-			$lrpp = Validator::ValidateParam(NApp::_GetParam('rows_per_page'),20,'is_not0_numeric');
+			$lrpp = Validator::ValidateParam(NApp::_GetParam('rows_per_page'),20,'is_not0_integer');
 		}//if(is_numeric($rpp) && $rpp>0)
-		if(Validator::IsValidParam($firstrow,'is_not0_integer')){
-			$firstrow = $firstrow;
-			$lastrow = $firstrow + $lrpp - 1;
+		if(Validator::IsValidParam($firstRow,'is_not0_integer')) {
+			$lastRow = $firstRow + $lrpp - 1;
 		} else {
-			$firstrow = ($cpage - 1) * $lrpp + 1;
-			$lastrow = $firstrow + $lrpp - 1;
+			$firstRow = ($cpage - 1) * $lrpp + 1;
+			$lastRow = $firstRow + $lrpp - 1;
 		}//if(Validator::IsValidParam($firstrow,NULL,'is_not0_numeric'))
-		return array('firstrow'=>$firstrow,'lastrow'=>$lastrow);
+		return array('first_row'=>$firstRow,'last_row'=>$lastRow);
 	}//END public static function GlobalGetPagintionParams
 	/**
 	 * description
@@ -313,10 +312,10 @@ class Module {
 						break;
 				}//END switch
 			}//END foreach
-			$lxparam['currentpage'] = 1;
+			$lxparam['current_page'] = 1;
 			$this->SetSessionParamValue($lxparam,$method,$pagehash);
 		} else {
-			$lparams['currentpage'] = 1;
+			$lparams['current_page'] = 1;
 			$this->SetSessionParamValue($lparams,$method,$pagehash);
 		}//if(is_array($lxparamp))
 		$this->Exec($method,array('target'=>$target,'phash'=>$pagehash));
@@ -332,8 +331,8 @@ class Module {
 	 * @access public
 	 */
 	public function GetPagintionParams(&$firstrow = NULL,&$lastrow = NULL,$current_page = NULL,$params = NULL) {
-		$cpage = is_numeric($current_page) ? $current_page : $params->safeGetValue('currentpage',1,'numeric','is_numeric');
-		$firstrow = $params->safeGetValue('firstrow',0,'numeric','is_numeric');
+		$cpage = is_numeric($current_page) ? $current_page : $params->safeGet('current_page',1,'is_integer');
+		$firstrow = $params->safeGet('first_row',0,'is_integer');
 		return self::GlobalGetPagintionParams($firstrow,$lastrow,$cpage);
 	}//END public function GetPagintionParams
 	/**

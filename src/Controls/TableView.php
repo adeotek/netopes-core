@@ -555,8 +555,8 @@ class TableView {
 			$extra_params['type'] = 'count-select';
 			$firstrow = $lastrow = NULL;
 			Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->current_page);
-			$extra_params['firstrow'] = $firstrow;
-			$extra_params['lastrow'] = $lastrow;
+			$extra_params['first_row'] = $firstrow;
+			$extra_params['last_row'] = $lastrow;
 		}//if($this->with_pagination && !$this->export_only)
 		$sortcolumn = get_array_value($this->sortby,'column',NULL,'is_notempty_string');
 		$extra_params['sort'] = [];
@@ -1008,7 +1008,7 @@ class TableView {
 			$result .= "\t".'</div>'."\n";
 			return $result;
 		}//if(!$this->with_pagination)
-		$pagination = new SimplePageControl(array('phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','totalrows'=>$records_no,'onclickparams'=>$this->GetActionCommand('gotopage',[],FALSE),'js_callback'=>$this->onchange_js_callback,'currentpage'=>$this->current_page));
+		$pagination = new SimplePageControl(array('phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','totalrows'=>$records_no,'onclickparams'=>$this->GetActionCommand('gotopage',[],FALSE),'js_callback'=>$this->onchange_js_callback,'current_page'=>$this->current_page));
 		$result = "\t".'<div class="'.$this->base_class.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
 		$result .= $pagination->Show();
 		$result .= "\t".'</div>'."\n";

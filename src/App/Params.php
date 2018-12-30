@@ -291,7 +291,7 @@ class Params implements Collection {
 	 */
     public function safeGetValue($key,$defaultValue = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
     {
-        \NApp::_Wlog('Deprecated method!');
+        \NApp::_Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
         if(!strlen($validation)) {
             if(strlen($format)) {
                 $validation = in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;

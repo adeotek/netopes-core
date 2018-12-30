@@ -136,9 +136,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @param  array $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
+	 * (if used with 'last_row' represents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @param  string $row_query By reference parameter that will store row query string
@@ -223,9 +223,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
+	 * (if used with 'last_row' represents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return array|bool Returns database request result
 	 * @access public
@@ -288,9 +288,9 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @param  array $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
+	 * (if used with 'last_row' represents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @param  string $row_query By reference parameter that will store row query string
@@ -455,9 +455,9 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
+	 * (if used with 'last_row' represents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @return array|bool Returns database request result

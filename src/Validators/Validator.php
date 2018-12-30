@@ -61,9 +61,9 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetValidatorAdapter(?string $method = NULL): string {
-        if(!strlen($method)) { return static::$validatorAdapter??ValidatorAdapter::class; }
+        if(!strlen($method)) { return '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\'); }
         if(!class_exists(static::$validatorAdapter??ValidatorAdapter::class) || !method_exists(static::$validatorAdapter??ValidatorAdapter::class,$method)) { throw new AppException('Invalid validator adapter class/method ['.static::$validatorAdapter??ValidatorAdapter::class.'::'.$method.']!'); }
-        return static::$validatorAdapter??ValidatorAdapter::class.'::'.$method;
+        return '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\').'::'.$method;
     }//END public static function GetValidatorAdapter
     /**
      * @param string|null $validatorAdapter Validator adapter class

@@ -167,10 +167,10 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * * 'transaction'= name of transaction in which the query will run
 	 * * 'type' = request type: select, count, execute (default 'select')
-	 * * 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * * 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * * 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' reprezents the offset of the returned rows)
+	 * * 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * * 'sort' = an array of fields to compose ORDER BY clause
 	 * * 'filters' = an array of condition to be applyed in WHERE clause
 	 * * 'out_params' = an array of output params
@@ -182,8 +182,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
 		$tran_name = get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
 		$type = strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
-		$firstrow = get_array_value($extra_params,'firstrow',NULL,'is_not0_numeric');
-		$lastrow = get_array_value($extra_params,'lastrow',NULL,'is_not0_numeric');
+		$firstrow = get_array_value($extra_params,'first_row',NULL,'is_not0_numeric');
+		$lastrow = get_array_value($extra_params,'last_row',NULL,'is_not0_numeric');
 		$sort = get_array_value($extra_params,'sort',NULL,'is_notempty_array');
 		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
 		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
@@ -202,10 +202,10 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * * 'transaction'= name of transaction in which the query will run
 	 * * 'type' = request type: select, count, execute (default 'select')
-	 * * 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' reprezents the offset of the returned rows)
-	 * * 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * * 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' reprezents the offset of the returned rows)
+	 * * 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * * 'sort' = an array of fields to compose ORDER BY clause
 	 * * 'filters' = an array of condition to be applyed in WHERE clause
 	 * * 'out_params' = an array of output params
@@ -217,8 +217,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
 		$tran_name = get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
 		$type = strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
-		$firstrow = get_array_value($extra_params,'firstrow',NULL,'is_not0_numeric');
-		$lastrow = get_array_value($extra_params,'lastrow',NULL,'is_not0_numeric');
+		$firstrow = get_array_value($extra_params,'first_row',NULL,'is_not0_numeric');
+		$lastrow = get_array_value($extra_params,'last_row',NULL,'is_not0_numeric');
 		$sort = get_array_value($extra_params,'sort',NULL,'is_notempty_array');
 		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
 		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
