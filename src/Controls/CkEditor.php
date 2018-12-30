@@ -38,9 +38,9 @@ class CkEditor extends Control {
      * @access public
      * @throws \PAF\AppException
      */
-    protected function SetControl() {
-        if(!strlen($this->tagid)) { throw new AppException('Invalid tag ID!',E_ERROR,1); }
-        $lextratagparam = strlen($this->extratagparam)>0 ? ' '.$this->extratagparam : '';
+    protected function SetControl(): ?string {
+        if(!strlen($this->tag_id)) { throw new AppException('Invalid tag ID!',E_ERROR,1); }
+        $lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
         $result = "\t\t".'<textarea'.$this->GetTagId(TRUE).$this->GetTagClass('textarea').$this->GetTagAttributes(FALSE).$lextratagparam.'>'.$this->value.'</textarea>'."\n";
         $lwidth = $this->width ? (is_numeric($this->width) ? ','.$this->width : ',\''.$this->width.'\'') : '';
         $lheight = $this->height ? (is_numeric($this->height) ? ','.$this->height : ',\''.$this->height.'\'') : '';
@@ -55,7 +55,7 @@ class CkEditor extends Control {
         } elseif(is_string($this->extraconfig) && strlen($this->extraconfig)) {
             $lextraconfig = '{'.trim($this->extraconfig,'}{').'}';
         }//if(is_array($this->extraconfig))
-        NApp::_ExecJs("CreateCkEditor('{$this->phash}','{$this->tagid}',false,".$lextraconfig.$lwidth.$lheight.");");
+        NApp::_ExecJs("CreateCkEditor('{$this->phash}','{$this->tag_id}',false,".$lextraconfig.$lwidth.$lheight.");");
         return $result;
     }//END protected function SetControl
     /**
@@ -66,6 +66,6 @@ class CkEditor extends Control {
      * @access public
      */
     public function GetDestroyJsCommand($all = FALSE) {
-        return $all ? "DestroyCkEditor('{$this->phash}');" : "DestroyCkEditor('{$this->phash}','{$this->tagid}',false);";
+        return $all ? "DestroyCkEditor('{$this->phash}');" : "DestroyCkEditor('{$this->phash}','{$this->tag_id}',false);";
     }//END public function GetDestroyJsCommand
 }//END class CkEditor extends Control

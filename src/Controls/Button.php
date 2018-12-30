@@ -36,7 +36,7 @@ class Button extends Control {
      * @return string
 	 * @access public
 	 */
-    protected function SetControl(): string {
+    protected function SetControl(): ?string {
 		$ltooltip = '';
 		$ttclass = '';
 		if(strlen($this->tooltip)) {

@@ -34,10 +34,10 @@ class ComboBox extends Control {
 	public function __construct($params = NULL) {
 		parent::__construct($params);
 		$this->onenter = NULL;
-		$this->onenterbutton = NULL;
-		if(!strlen($this->tagid)) { $this->tagid = $this->uid; }
-		if(!is_string($this->valfield) || !strlen($this->valfield)) { $this->valfield = 'id'; }
-		if(is_null($this->displayfield) || $this->displayfield=='') { $this->displayfield = 'name'; }
+		$this->onenter_button = NULL;
+		if(!strlen($this->tag_id)) { $this->tag_id = $this->uid; }
+		if(!is_string($this->value_field) || !strlen($this->value_field)) { $this->value_field = 'id'; }
+		if(is_null($this->display_field) || $this->display_field=='') { $this->display_field = 'name'; }
 		// one of the values: value/database/ajax
 		if(!strlen($this->load_type)) { $this->load_type = 'value'; }
 		if(!is_array($this->option_data)) {
@@ -57,22 +57,22 @@ class ComboBox extends Control {
         $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         $ph_class = '';
         $t_required = '';
-        if(strlen($this->pleaseselecttext)) {
-            $litems->add(new VirtualEntity([$this->valfield=>$this->pleaseselectvalue,$this->displayfield=>html_entity_decode($this->pleaseselecttext)]));
-        } elseif($this->pleaseselectvalue=='_blank') {
+        if(strlen($this->please_select_text)) {
+            $litems->add(new VirtualEntity([$this->value_field=>$this->please_select_value,$this->display_field=>html_entity_decode($this->please_select_text)]));
+        } elseif($this->please_select_value=='_blank') {
             $litems->add(new VirtualEntity([]));
         } elseif(strlen($this->placeholder)) {
             $ph_class = 'clsPlaceholder';
             $t_required = ' required="required"';
-            $litems->add(new VirtualEntity([$this->valfield=>'__is_placeholder__',$this->displayfield=>html_entity_decode($this->placeholder)]));
-        }//if(strlen($this->pleaseselectvalue))
-        if(is_object($this->selectedvalue)) {
-            $selectedValue = $this->selectedvalue->getProperty($this->valfield,NULL,'isset');
-        } elseif(is_array($this->selectedvalue)) {
-            $selectedValue = get_array_value($this->selectedvalue,$this->valfield,NULL,'isset');
+            $litems->add(new VirtualEntity([$this->value_field=>'__is_placeholder__',$this->display_field=>html_entity_decode($this->placeholder)]));
+        }//if(strlen($this->please_select_value))
+        if(is_object($this->selected_value)) {
+            $selectedValue = $this->selected_value->getProperty($this->value_field,NULL,'isset');
+        } elseif(is_array($this->selected_value)) {
+            $selectedValue = get_array_value($this->selected_value,$this->value_field,NULL,'isset');
         } else {
-            $selectedValue = $this->selectedvalue;
-        }//if(is_object($this->selectedvalue))
+            $selectedValue = $this->selected_value;
+        }//if(is_object($this->selected_value))
         $lselclass = $this->GetTagClass($ph_class);
 
 		switch($this->load_type) {
@@ -91,19 +91,19 @@ class ComboBox extends Control {
 			default:
 				throw new AppException('Invalid ComboBox load type!');
 		}//END switch
-		// NApp::_Dlog($this->tagid,'$this->tagid');
+		// NApp::_Dlog($this->tag_id,'$this->tag_id');
 		// NApp::_Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		foreach($litems as $item) {
-		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
+		    if(!is_object($item) || !$item->hasProperty($this->value_field)) {
 				$rOptions[''][] = "\t\t\t<option></option>\n";
 				continue;
-			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
-			if($item->getProperty($this->valfield)==='__is_placeholder__') {
-			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($this->displayfield)."</option>\n");
+			}//if(!is_object($item) || !$item->hasProperty($this->value_field))
+			if($item->getProperty($this->value_field)==='__is_placeholder__') {
+			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($this->display_field)."</option>\n");
 			    continue;
-			}//if($item->getProperty($this->valfield)=='__is_placeholder__')
+			}//if($item->getProperty($this->value_field)=='__is_placeholder__')
 
 			$lcolorfield = strlen($this->colorfield) ? $this->colorfield : 'color';
             $loptionclass = strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
@@ -114,7 +114,7 @@ class ComboBox extends Control {
                 }//if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition'])
             }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
 
-            $lval = $item->getProperty($this->valfield,NULL,'isset');
+            $lval = $item->getProperty($this->value_field,NULL,'isset');
 			$ltext = $this->GetDisplayFieldValue($item);
             $lselected = '';
             if($lval==$selectedValue && !(($selectedValue===NULL && $lval!==NULL) || ($selectedValue!==NULL && $lval===NULL))) {

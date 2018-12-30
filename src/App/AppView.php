@@ -51,10 +51,10 @@ class AppView {
 	 * @access protected
 	 */
 	protected $_theme = NULL;
-	/**
-	 * @var bool Debug mode on/off
-	 * @access protected
-	 */
+    /**
+     * @var bool Debug mode on/off
+     * @access protected
+     */
 	protected $_debug = FALSE;
 	/**
 	 * @var string|null View container class

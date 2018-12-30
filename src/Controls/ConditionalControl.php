@@ -34,7 +34,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$result = NULL;
 			if(!is_array($this->items) || !count($this->items)) { return $result; }
 			foreach($this->items as $c_name=>$c_params) {

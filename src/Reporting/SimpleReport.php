@@ -26,7 +26,7 @@ class SimpleReport {
 	protected $date_separator = NULL;
 	protected $time_separator = NULL;
 	protected $result = '';
-	protected $baseclass = 'listing lineslisting span-cent';
+	protected $base_class = 'listing lineslisting span-cent';
 	public function __construct(&$layout = [],&$data = [],&$class) {
 		$this->decimal_separator = NApp::_GetParam('decimal_separator');
 		$this->group_separator = NApp::_GetParam('group_separator');
@@ -130,7 +130,7 @@ class SimpleReport {
                 $total .= "\t\t\t".'</tr>'."\n";
                 $total .= "\t\t".'</tfoot>'."\n";
             }//if($has_total)
-			$table_class = (array_key_exists('table_class',$layout_item) && strlen($layout_item['table_class'])>0) ? ' class="'.$layout_item['table_class'].'"' : ' class="'.$this->baseclass.'"';
+			$table_class = (array_key_exists('table_class',$layout_item) && strlen($layout_item['table_class'])>0) ? ' class="'.$layout_item['table_class'].'"' : ' class="'.$this->base_class.'"';
 			$result = "\t".'<table'.$table_class.'>'."\n";
 			$result .= $header;
 			$result .= $body;
@@ -172,23 +172,22 @@ class SimpleReport {
 	}//END protected function number_format2
 
 	protected function DateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),TRUE);
 	}//END protected function DateFormat
 
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone',FALSE),FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),FALSE);
 	}//END protected function DateTimeFormat
 
 	protected function NoTimezoneDateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);
 	}//END protected function DateFormat
 
 	protected function NoTimezoneDateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',FALSE);
 	}//END protected function DateTimeFormat
 
 	public function Show() {
 		echo $this->result;
 	}//END public function Show
 }//END class SimpleReport
-?>

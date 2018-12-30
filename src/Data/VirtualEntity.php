@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NETopes\Core\Validators\Validator;
 use PAF\AppException;
 /**
  * VirtualEntity class
@@ -93,9 +94,9 @@ class VirtualEntity {
 			throw new AppException('Undefined method ['.$name.']!',E_ERROR,1);
 		}//if(strtolower(substr($name,0,3))==='get')
 		if(!strlen($prop_name)) { throw new AppException('Invalid method ['.$name.']!',E_ERROR,1); }
-		$default_value = get_array_value($arguments,0,NULL,'isset');
+		$defaultValue = get_array_value($arguments,0,NULL,'isset');
 		$validation = get_array_value($arguments,1,NULL,'is_string');
-		return $this->GetPropertyValue($prop_name,$strict,$default_value,$validation);
+		return $this->GetPropertyValue($prop_name,$strict,$defaultValue,$validation);
 	}//END public function __call
 	/**
      * {@inheritDoc}
@@ -107,33 +108,33 @@ class VirtualEntity {
 	 * Get property value by name
 	 *
 	 * @param string $name
-	 * @param null   $default_value
+	 * @param null   $defaultValue
 	 * @param null   $validation
 	 * @param bool   $strict
 	 * @return mixed
 	 * @throws \PAF\AppException
 	 * @access public
 	 */
-	public function getProperty($name,$default_value = NULL,$validation = NULL,$strict = FALSE) {
-		return $this->GetPropertyValue($name,$strict,$default_value,$validation);
+	public function getProperty($name,$defaultValue = NULL,$validation = NULL,$strict = FALSE) {
+		return $this->GetPropertyValue($name,$strict,$defaultValue,$validation);
 	}//END public function getProperty
 	/**
 	 * VirtualEntity dynamic getter method
 	 *
 	 * @param  string $name The name of the property
 	 * @param bool    $strict
-	 * @param null    $default_value
+	 * @param null    $defaultValue
 	 * @param null    $validation
 	 * @return mixed Returns the value of the property
 	 * @throws \PAF\AppException
 	 * @access protected
 	 */
-	protected function GetPropertyValue($name,$strict = FALSE,$default_value = NULL,$validation = NULL) {
+	protected function GetPropertyValue($name,$strict = FALSE,$defaultValue = NULL,$validation = NULL) {
 		$key = $this->naming_mode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
 		if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
 			throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
 		}//if(is_array($this->data) && array_key_exists($key,$this->data))
-		return get_array_value($this->data,$key,$default_value,$validation);
+		return Validator::ValidateArrayParam($this->data,$key,$defaultValue,$validation);
 	}//END protected function GetPropertyValue
 	/**
 	 * VirtualEntity dynamic setter method
@@ -220,4 +221,3 @@ class VirtualEntity {
 		return TRUE;
 	}//END public function merge
 }//END class VirtualEntity
-?>

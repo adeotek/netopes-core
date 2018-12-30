@@ -34,8 +34,8 @@ class KVList extends Control {
         parent::__construct($params);
         if(!$this->postable) { $this->postable_elements = FALSE; }
         else { $this->postable = FALSE; }
-        if(!strlen($this->tagid)) { $this->tagid = \PAF\AppSession::GetNewUID('KVList'); }
-        if(!strlen($this->tagname)) { $this->tagname = strlen($this->tagid) ? $this->tagid : ''; }
+        if(!strlen($this->tag_id)) { $this->tag_id = \PAF\AppSession::GetNewUID('KVList'); }
+        if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
         if(is_array($this->lang_items)) { $this->lang_items = DataSource::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct
 
@@ -63,13 +63,13 @@ class KVList extends Control {
             $pkey = '';
         }//if($with_translations)
         $result = '<div'.$this->GetTagId(TRUE,$tsufix).$this->GetTagClass('MainKVL').$this->GetTagAttributes().'>'."\n";
-        $result .= "\t".'<input type="text" class="KVLNewKey" data-name="'.$this->tagname.$pkey.'" placeholder="[key]" value="">'."\n";
+        $result .= "\t".'<input type="text" class="KVLNewKey" data-name="'.$this->tag_name.$pkey.'" placeholder="[key]" value="">'."\n";
         $result .= "\t".'<button class="KVLAddBtn"><i class="fa fa-plus-circle"></i></button>'."\n";
         $result .= "\t".'<ul class="KVLList">'."\n";
         if(is_iterable($lvalues) && count($lvalues)) {
             $lpclass = $this->postable_elements ? ' postable' : '';
             foreach($lvalues as $k=>$v) {
-                $result .= "\t\t<li><label class=\"KVLILabel\">{$k}</label><input type=\"text\" class=\"KVLIValue{$lpclass}\" name=\"{$this->tagname}{$pkey}[{$k}]\" placeholder=\"[value]\" value=\"{$v}\"><button class=\"KVLIDelBtn\"><i class=\"fa fa-minus-circle\"></i></button></li>\n";
+                $result .= "\t\t<li><label class=\"KVLILabel\">{$k}</label><input type=\"text\" class=\"KVLIValue{$lpclass}\" name=\"{$this->tag_name}{$pkey}[{$k}]\" placeholder=\"[value]\" value=\"{$v}\"><button class=\"KVLIDelBtn\"><i class=\"fa fa-minus-circle\"></i></button></li>\n";
             }//END foreach
         } else {
             $result .= "\t\t<li><span class=\"KVLBlank\">".Translate::Get('label_empty')."</span></li>\n";
@@ -80,10 +80,10 @@ class KVList extends Control {
         return $result;
     }//END protected function SetControlInstance
 
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         $label = (is_string($this->label) && strlen($this->label) ? $this->label : NULL);
         if(is_iterable($this->lang_items) && count($this->lang_items)) {
-            $result = '<div id="'.$this->tagid.'" class="clsAccordion clsControlContainer">'."\n";
+            $result = '<div id="'.$this->tag_id.'" class="clsAccordion clsControlContainer">'."\n";
             $result .= "\t".'<h3>'.(strlen($label) ? $label.' - ' : '').Translate::Get('label_general').'</h3>'."\n";
             $result .= "\t".'<div>'."\n";
             $result .= $this->SetControlInstance(TRUE);
@@ -105,7 +105,7 @@ class KVList extends Control {
                 $result .= "\t".'</div>'."\n";
             }//END foreach
             $result .= '</div>'."\n";
-            $js_script = "$('#{$this->tagid}').accordion();";
+            $js_script = "$('#{$this->tag_id}').accordion();";
             NApp::_ExecJs($js_script);
         } else {
             $result = $this->SetControlInstance();

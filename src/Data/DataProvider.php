@@ -65,18 +65,18 @@ class DataProvider {
 		self::$connections_arrays[$name] = $$name;
 		return self::$connections_arrays[$name];
 	}//END private static function GetConnectionArray
-	/**
-	 * description
-	 *
-	 * @param string $ds_name
-	 * @param array|string|null   $connection
-	 * @param string|null   $mode
-	 * @param bool   $existing_only
-	 * @return object Adapter instance
-	 * @throws \PAF\AppException
-	 * @access public
-	 * @static
-	 */
+    /**
+     * description
+     *
+     * @param string            $ds_name
+     * @param array|string|null $connection
+     * @param string|null       $mode
+     * @param bool              $existing_only
+     * @return object Adapter instance
+     * @throws \PAF\AppException
+     * @access public
+     * @static
+     */
 	public static function GetDataSource(string $ds_name,$connection = NULL,?string $mode = NULL,bool $existing_only = FALSE) {
 		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
 		$ds_arr = explode('\\',trim($ds_name,'\\'));

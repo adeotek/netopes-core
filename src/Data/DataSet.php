@@ -13,6 +13,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NETopes\Core\Validators\Validator;
 use ArrayIterator;
 use Closure;
 use function array_filter;
@@ -234,14 +235,15 @@ class DataSet implements Collection {
         return $this->elements[$key] ?? null;
     }
     /**
-	 * @param string|int  $key
-	 * @param mixed       $default_value
-	 * @param string|null $validation
-	 * @return mixed
-	 */
+     * @param string|int  $key
+     * @param mixed       $default_value
+     * @param string|null $validation
+     * @return mixed
+     * @throws \PAF\AppException
+     */
     public function safeGet($key,$default_value = NULL,$validation = NULL)
     {
-        return get_array_value($this->elements,$key,$default_value,$validation);
+        return Validator::ValidateArrayParam($this->elements,$key,$default_value,$validation);
     }
     /**
      * {@inheritDoc}

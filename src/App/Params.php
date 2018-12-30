@@ -16,6 +16,7 @@ namespace NETopes\Core\App;
 use ArrayIterator;
 use Closure;
 use NETopes\Core\Data\Collection;
+use NETopes\Core\Validators\Validator;
 use PAF\AppException;
 /**
  * Params class
@@ -262,34 +263,35 @@ class Params implements Collection {
 	 */
     public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
     {
-        $result = get_array_value($this->elements,$key,NULL,$validation);
+        $result = Validator::ValidateArrayParam($this->elements,$key,NULL,$validation);
         if(is_null($result)) {
             $dbgTrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
             throw new AppException($failMessage??'Invalid value for: '.print_r($key),E_ERROR,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
         }//if(is_null($result))
         return $result;
     }
-	/**
-	 * @param string|int  $key
-	 * @param mixed       $default_value
-	 * @param string|null $validation
-	 * @return mixed
-	 */
-    public function safeGet($key,$default_value = NULL,$validation = NULL)
+    /**
+     * @param string|int  $key
+     * @param mixed       $defaultValue
+     * @param string|null $validation
+     * @return mixed
+     * @throws \PAF\AppException
+     */
+    public function safeGet($key,$defaultValue = NULL,$validation = NULL)
     {
-        return get_array_value($this->elements,$key,$default_value,$validation);
+        return Validator::ValidateArrayParam($this->elements,$key,$defaultValue,$validation);
     }
     /**
 	 * @param string|int  $key
-	 * @param mixed       $default_value
+	 * @param mixed       $defaultValue
      * @param null        $format
 	 * @param string|null $validation
 	 * @param string|null $sub_key
 	 * @return mixed
 	 */
-    public function safeGetValue($key,$default_value = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
+    public function safeGetValue($key,$defaultValue = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
     {
-        \NApp::_Wlog('Deprecated method!');
+        \NApp::_Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
         if(!strlen($validation)) {
             if(strlen($format)) {
                 $validation = in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;
@@ -297,8 +299,8 @@ class Params implements Collection {
                 $validation = 'isset';
             }
         }
-        if(isset($sub_key)) { return get_array_value($this->elements,[$key,$sub_key],$default_value,$validation); }
-        return get_array_value($this->elements,$key,$default_value,$validation);
+        if(isset($sub_key)) { return get_array_value($this->elements,[$key,$sub_key],$defaultValue,$validation); }
+        return get_array_value($this->elements,$key,$defaultValue,$validation);
     }
     /**
      * {@inheritDoc}
@@ -457,4 +459,3 @@ class Params implements Collection {
 		return TRUE;
 	}//END public function merge
 }//class Params  implements Collection
-?>

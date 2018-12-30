@@ -6,13 +6,14 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.3.1.1
  * @filesource
  */
 namespace NETopes\Core\App;
 use PAF\AppConfig;
 use PAF\AppSession;
 use NETopes\Core\Data\DataProvider;
+
 /**
   * CoreNApp class
   *
@@ -51,40 +52,40 @@ abstract class CoreNApp extends \PAF\App {
 	 * @access protected
 	 */
 	protected $clear_namespace_session = FALSE;
-	/**
-	 * @var    string Account API security key (auto-loaded on LoadAppOptions() method)
-	 * @access protected
-	 */
+    /**
+     * @var    string Account API security key (auto-loaded on LoadAppOptions() method)
+     * @access protected
+     */
 	protected $app_access_key = NULL;
-	/**
-	 * @var    array An array of global variables
-	 * @access public
-	 */
+    /**
+     * @var    array An array of global variables
+     * @access public
+     */
 	public $globals = [];
-	/**
-	 * @var    string Current namespace
-	 * @access public
-	 */
+    /**
+     * @var    string Current namespace
+     * @access public
+     */
 	public $current_namespace = '';
-	/**
-	 * @var    string Current section folder
-	 * @access public
-	 */
+    /**
+     * @var    string Current section folder
+     * @access public
+     */
 	public $current_section_folder = '';
-	/**
-	 * @var    bool TRUE if current namespace requires login
-	 * @access public
-	 */
+    /**
+     * @var    bool TRUE if current namespace requires login
+     * @access public
+     */
 	public $requires_login = NULL;
-	/**
-	 * @var    string Namespace to be used for login
-	 * @access public
-	 */
+    /**
+     * @var    string Namespace to be used for login
+     * @access public
+     */
 	public $login_namespace = NULL;
-	/**
-	 * @var    bool With sections
-	 * @access public
-	 */
+    /**
+     * @var    bool With sections
+     * @access public
+     */
 	public $with_sections = TRUE;
 	/**
 	 * @var    string Start page
@@ -1324,6 +1325,48 @@ abstract class CoreNApp extends \PAF\App {
     public function SetInstanceConfigData(array $data,bool $raw): array {
         return AppConfig::SetInstanceConfigData($data,$raw,AppConfig::context_id_field());
 	}//END protected function SetInstanceConfigData
+	/**
+	 * Get application (user) date format string
+	 *
+	 * @param bool $forPhp
+	 * @return string|null
+	 * @access public
+	 */
+	public function GetDateFormat(bool $forPhp = FALSE): ?string {
+		$format = $this->GetParam('date_format');
+		if(!strlen($format)) {
+		    if(!strlen($this->GetParam('date_separator'))) { return NULL; }
+		    $format = 'dd'.$this->GetParam('date_separator').'MM'.$this->GetParam('date_separator').'yyyy';
+		}//if(!strlen($format))
+		if(!$forPhp) { return $format; }
+		return str_replace(['yyyy','mm','MM','dd','yy'],['Y','m','m','d','Y'],$format);
+	}//END public function GetDateFormat
+	/**
+	 * Get application (user) time format string
+	 *
+	 * @param bool $forPhp
+	 * @return string|null
+	 * @access public
+	 */
+	public function GetTimeFormat(bool $forPhp = FALSE): ?string {
+		$format = $this->GetParam('time_format');
+		if(!strlen($format)) {
+		    if(!strlen($this->GetParam('time_separator'))) { return NULL; }
+		    $format = 'HH'.$this->GetParam('time_separator').'mm'.$this->GetParam('time_separator').'ss';
+		}//if(!strlen($format))
+		if(!$forPhp) { return $format; }
+		return str_replace(['HH','hh','mm','ss'],['H','h','i','s'],$format);
+	}//END public function GetTimeFormat
+	/**
+	 * Get application (user) datetime format string
+	 *
+	 * @param bool $forPhp
+	 * @return string|null
+	 * @access public
+	 */
+	public function GetDateTimeFormat(bool $forPhp = FALSE): ?string {
+		return $this->GetDateFormat($forPhp).' '.$this->GetTimeFormat($forPhp);
+	}//END public function GetTimeFormat
 	/**
 	 * Get theme object
 	 *

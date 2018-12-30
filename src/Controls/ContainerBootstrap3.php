@@ -50,23 +50,23 @@ class ContainerBootstrap3 implements IControlContainer {
             $c_label = '';
             $c_class = is_string($this->control->container_class) && strlen(trim($this->control->container_class)) ? $this->control->container_class : '';
             if(!$this->control->no_label) {
-                if($this->control->labelposition=='top') {
+                if($this->control->label_position=='top') {
                     $c_label_cols = 12;
                 } else {
                     $c_label_cols = is_numeric($this->control->label_cols) && $this->control->label_cols>0 && $this->control->label_cols<12 ? $this->control->label_cols : 2;
-                }//if($this->control->labelposition=='top')
+                }//if($this->control->label_position=='top')
                 $llabelclass = 'control-label col-md-'.$c_label_cols.(strlen($this->control->labelclass) ? ' '.$this->control->labelclass : '');
                 $lrequired = $this->control->required ? '<span class="clsMarkerRequired"></span>' : '';
                 if(strlen($this->control->size)) { $llabelclass .= ' label-'.$this->control->size; }
-                $c_label = "\t\t".'<label class="'.$llabelclass.'" for="'.$this->control->tagid.'">'.$this->control->label.$lrequired.'</label>'."\n";
+                $c_label = "\t\t".'<label class="'.$llabelclass.'" for="'.$this->control->tag_id.'">'.$this->control->label.$lrequired.'</label>'."\n";
             }//if(!$this->control->no_label)
-            if(!$this->control->no_label && $this->control->labelposition=='top') {
+            if(!$this->control->no_label && $this->control->label_position=='top') {
                 $c_cols = is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=12 ? $this->control->cols : 12;
             } else {
                 $c_cols = is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=(12-$c_label_cols) ? $this->control->cols : (12-$c_label_cols);
-            }//if(!$this->control->no_label && $this->control->labelposition=='top')
+            }//if(!$this->control->no_label && $this->control->label_position=='top')
             if($this->control->container) { $result .= "\t".'<div class="form-group'.(strlen($c_class) ? ' '.$c_class : '').'">'."\n"; }
-            if($this->control->labelposition!='right') { $result .= $c_label; }
+            if($this->control->label_position!='right') { $result .= $c_label; }
             $result .= "\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
             if($this->control->hasActions()) {
                 $content = "\t\t\t".'<div class="input-group">'."\n\t\t\t\t".$content."\n\t\t\t".'</div>';
@@ -75,10 +75,10 @@ class ContainerBootstrap3 implements IControlContainer {
             }//if($this->control->hasActions())
             $result .= $content;
             if(is_string($this->control->field_hint) && strlen($this->control->field_hint)) {
-                $result .= "\t\t\t".'<p'.(strlen($this->control->tagid) ? ' id="'.$this->control->tagid.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
+                $result .= "\t\t\t".'<p'.(strlen($this->control->tag_id) ? ' id="'.$this->control->tag_id.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))
             $result .= "\t\t".'</div>'."\n";
-            if($this->control->labelposition=='right') { $result .= $c_label; }
+            if($this->control->label_position=='right') { $result .= $c_label; }
             if($this->control->container) { $result .= "\t".'</div>'."\n"; }
         }//if(!$this->control->container && $this->control->no_label)
         return $result;

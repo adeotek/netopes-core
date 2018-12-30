@@ -32,7 +32,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$lcontent = '';
 			if(is_array($this->items) && count($this->items)) {
 				foreach($this->items as $c_name=>$c_params) {

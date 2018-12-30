@@ -34,7 +34,7 @@
 		 * @return void
 		 * @access public
 		 */
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$lvalue = strlen($this->text) ? $this->text : $this->value;
 			$result = "\t\t".'<span'.$this->GetTagId().$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$lvalue.'</span>'."\n";
 			return $result;

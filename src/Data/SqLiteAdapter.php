@@ -87,9 +87,9 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @param  array $out_params An array of output params
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' reprezents the offset of the returned rows)
+	 * (if used with 'last_row' reprezents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return void
 	 * @access public
@@ -170,9 +170,9 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @param  string $tran_name Name of transaction in which the query will run
 	 * @param  string $type Request type: select, count, execute (default 'select')
 	 * @param  int $firstrow Integer to limit number of returned rows
-	 * (if used with 'lastrow' reprezents the offset of the returned rows)
+	 * (if used with 'last_row' reprezents the offset of the returned rows)
 	 * @param  int $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return array|bool Returns database request result
 	 * @access public

@@ -29,4 +29,3 @@
 		require_once(__DIR__.'/napp_autoload.php');
 		spl_autoload_register('_napp_autoload');
     }//if(!\PAF\AppConfig::use_custom_autoloader())
-?>

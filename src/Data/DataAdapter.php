@@ -27,11 +27,11 @@ use NApp;
  * @abstract
  */
 abstract class DataAdapter {
-	/**
-	 * @var    array Databases instances array
-	 * @access protected
-	 * @static
-	 */
+    /**
+     * @var    array Databases instances array
+     * @access protected
+     * @static
+     */
 	protected static $DatabaseAdapterInstances = [];
 	/**
 	 * @var    bool Debug flag for database calls

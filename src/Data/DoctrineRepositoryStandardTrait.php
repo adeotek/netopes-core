@@ -18,8 +18,8 @@ trait DoctrineRepositoryStandardTrait {
         try {
             $s_query = get_array_value($params,'query',NULL,'is_object');
 			if($s_query instanceof Query) { return $s_query->getResult(); }
-			$firstrow = get_array_value($params,'firstrow',0,'is_integer');
-	        $lastrow = get_array_value($params,'lastrow',0,'is_integer');
+			$firstrow = get_array_value($params,'first_row',0,'is_integer');
+	        $lastrow = get_array_value($params,'last_row',0,'is_integer');
 	        $sort = get_array_value($params,'sort',[],'is_array');
 	        $relations = get_array_value($params,'relations',[],'is_array');
 	        $filters = get_array_value($params,'filters',[],'is_array');

@@ -51,16 +51,16 @@
 					$result .= "\t\t".'<tr><td>'.$content.'</td></tr>'."\n";
 				} else {
 					$llabel = strlen($this->control->label) ? $this->control->label : '&nbsp;';
-					$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tagid.'">&nbsp;*</span>' : '';
-					$llabelwidth = (is_numeric($this->control->labelwidth) && $this->control->labelwidth>0) ? ' style="width: '.$this->control->labelwidth.'px;"' : (strpos($this->control->labelwidth,'%')!==FALSE ?' style="width: '.$this->control->labelwidth.';"' : '');
+					$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tag_id.'">&nbsp;*</span>' : '';
+					$llabelwidth = (is_numeric($this->control->label_width) && $this->control->label_width>0) ? ' style="width: '.$this->control->label_width.'px;"' : (strpos($this->control->label_width,'%')!==FALSE ?' style="width: '.$this->control->label_width.';"' : '');
 					$llabelclass = strlen($this->control->labelclass)>0 ? $this->control->labelclass : 'clsLabel';
 					$llabelcontainerclass = strlen($this->control->labelcontainerclass) ? ' class="'.$this->control->labelcontainerclass.'"' : '';
-					if($this->control->labelposition=='left') {
+					if($this->control->label_position=='left') {
 						$result .= "\t\t".'<tr>'."\n";
 						$result .= "\t\t\t".'<td'.$llabelcontainerclass.$llabelwidth.'><label class="'.$llabelclass.'">'.$llabel.$lrequired.'</label></td>'."\n";
 						$result .= "\t\t\t".'<td'.$tdstyle.'>'.$content.'</td>'."\n";
 						$result .= "\t\t".'</tr>'."\n";
-					} elseif($this->control->labelposition=='right') {
+					} elseif($this->control->label_position=='right') {
 						$result .= "\t\t".'<tr>'."\n";
 						$result .= "\t\t\t".'<td'.$tdstyle.'>'.$content.'</td>'."\n";
 						$result .= "\t\t\t".'<td'.$llabelcontainerclass.$llabelwidth.'><label class="'.$llabelclass.'">'.$llabel.$lrequired.'</label></td>'."\n";
@@ -68,7 +68,7 @@
 					} else {
 						$result .= "\t\t".'<tr><td'.$llabelcontainerclass.'><label class="'.$llabelclass.' clsTopLabel">'.$llabel.$lrequired.'</label></td></tr>'."\n";
 						$result .= "\t\t".'<tr><td'.$tdstyle.'>'.$content.'</td></tr>'."\n";
-					}//if($this->control->labelposition=='left')
+					}//if($this->control->label_position=='left')
 				}//if($this->control->no_label)
 				$result .= "\t".'</table>'."\n";
 			} else {
@@ -77,28 +77,28 @@
 				} else {
 					$llabel = strlen($this->control->label) ? $this->control->label : '&nbsp;';
 					$llabelclass = strlen($this->control->labelclass)>0 ? $this->control->labelclass : 'clsLabel';
-					if($this->control->labelposition=='right' || $this->control->labelposition=='left') {
-						$llwidth = (is_numeric($this->control->labelwidth) && $this->control->labelwidth>0) ? $this->control->labelwidth.'px' : (strpos($this->control->labelwidth,'%')!==FALSE ? $this->control->labelwidth : NULL);
+					if($this->control->label_position=='right' || $this->control->label_position=='left') {
+						$llwidth = (is_numeric($this->control->label_width) && $this->control->label_width>0) ? $this->control->label_width.'px' : (strpos($this->control->label_width,'%')!==FALSE ? $this->control->label_width : NULL);
 						if($llwidth) {
 							$llabelclass .= ' iblock';
 							$llstyle = ' style="width: '.$llwidth.';"';
 						} else {
 							$llstyle = '';
 						}//if($llwidth)
-						if($this->control->labelposition=='right') {
-							$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tagid.'">*</span>' : '';
+						if($this->control->label_position=='right') {
+							$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tag_id.'">*</span>' : '';
 							$result .= "\t".$content."\n";
 							$result .= "\t".'<label class="'.$llabelclass.'"'.$llstyle.'>'.$this->control->label.$lrequired.'</label>'."\n";
 						} else {
-							$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tagid.'">&nbsp;*</span>' : '';
+							$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tag_id.'">&nbsp;*</span>' : '';
 							$result .= "\t".'<label class="'.$llabelclass.'"'.$llstyle.'>'.$this->control->label.$lrequired.'</label>'."\n";
 							$result .= "\t".$content."\n";
-						}//if($this->control->labelposition=='right')
+						}//if($this->control->label_position=='right')
 					} else {
-						$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tagid.'">&nbsp;*</span>' : '';
+						$lrequired = $this->control->required===TRUE ? '<span class="clsRequired" id="req_'.$this->control->tag_id.'">&nbsp;*</span>' : '';
 						$result .= "\t".'<label class="'.$llabelclass.' fwidth">'.$this->control->label.$lrequired.'</label>'."\n";
 						$result .= "\t".$content."\n";
-					}//if($this->control->labelposition=='right')
+					}//if($this->control->label_position=='right')
 				}//if($this->control->no_label)
 			}//if($this->control->container)
 			return $result;

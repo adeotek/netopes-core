@@ -202,10 +202,10 @@ class DataSource {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * - 'transaction'= name of transaction in which the query will run
 	 * - 'type' = request type: select, count, execute (default 'select')
-	 * - 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * - 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * - 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' represents the offset of the returned rows)
+	 * - 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * - 'sort' = an array of fields to compose ORDER BY clause
 	 * - 'filters' = an array of condition to be applied in WHERE clause
 	 * - 'out_params' = an array of output params
@@ -238,8 +238,8 @@ class DataSource {
 				case 1:
 				$extra_params['type'] = 'select';
 				$lextra_params = $extra_params;
-				$lextra_params['firstrow'] = NULL;
-				$lextra_params['lastrow'] = NULL;
+				$lextra_params['first_row'] = NULL;
+				$lextra_params['last_row'] = NULL;
 					$params['with_count'] = 1;
 				$result = $this->adapter->ExecuteProcedure($procedure,$params,$lextra_params);
 				$result = array('count'=>$result[0]['rcount']);
@@ -288,10 +288,10 @@ class DataSource {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * - 'transaction'= name of transaction in which the query will run
 	 * - 'type' = request type: select, count, execute (default 'select')
-	 * - 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * - 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * - 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' represents the offset of the returned rows)
+	 * - 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * - 'sort' = an array of fields to compose ORDER BY clause
 	 * - 'filters' = an array of condition to be applied in WHERE clause
 	 * - 'out_params' = an array of output params
@@ -350,10 +350,10 @@ class DataSource {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * - 'transaction'= name of transaction in which the query will run
 	 * - 'type' = request type: select, count, execute (default 'select')
-	 * - 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * - 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * - 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' represents the offset of the returned rows)
+	 * - 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * - 'sort' = an array of fields to compose ORDER BY clause
 	 * - 'filters' = an array of condition to be applyed in WHERE clause
 	 * - 'out_params' = an array of output params
@@ -427,10 +427,10 @@ class DataSource {
 	 * @param  array $extra_params An array of parameters that may contain:
 	 * - 'transaction'= name of transaction in which the query will run
 	 * - 'type' = request type: select, count, execute (default 'select')
-	 * - 'firstrow' = integer to limit number of returned rows
-	 * (if used with 'lastrow' represents the offset of the returned rows)
-	 * - 'lastrow' = integer to limit number of returned rows
-	 * (to be used only with 'firstrow')
+	 * - 'first_row' = integer to limit number of returned rows
+	 * (if used with 'last_row' represents the offset of the returned rows)
+	 * - 'last_row' = integer to limit number of returned rows
+	 * (to be used only with 'first_row')
 	 * - 'sort' = an array of fields to compose ORDER BY clause
 	 * - 'filters' = an array of condition to be applyed in WHERE clause
 	 * - 'out_params' = an array of output params

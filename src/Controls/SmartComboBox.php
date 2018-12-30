@@ -60,10 +60,10 @@ class SmartComboBox extends Control {
 			$this->cbo_placeholder = NULL;
 		}//if(strlen($this->placeholder))
 		$this->onenter = NULL;
-		$this->onenterbutton = NULL;
-		if(!strlen($this->tagid)) { $this->tagid = $this->uid; }
-		if(!is_string($this->valfield) || !strlen($this->valfield)) { $this->valfield = 'id'; }
-		if(is_null($this->displayfield) || $this->displayfield=='') { $this->displayfield = 'name'; }
+		$this->onenter_button = NULL;
+		if(!strlen($this->tag_id)) { $this->tag_id = $this->uid; }
+		if(!is_string($this->value_field) || !strlen($this->value_field)) { $this->value_field = 'id'; }
+		if(is_null($this->display_field) || $this->display_field=='') { $this->display_field = 'name'; }
 		// one of the values: value/database/ajax
 		if(!strlen($this->load_type)) { $this->load_type = 'value'; }
 		if(!is_array($this->option_data)) {
@@ -74,10 +74,10 @@ class SmartComboBox extends Control {
 		    }//if(is_string($this->option_data) && strlen($this->option_data))
 		}//if(!is_array($this->option_data))
 	}//END public function __construct
-	/**
-	 * @return string|null
-	 * @throws \PAF\AppException
-	 */
+    /**
+     * @return string|null
+     * @throws \PAF\AppException
+     */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();
 		$js_script_prefix = '';
@@ -105,25 +105,25 @@ class SmartComboBox extends Control {
 		}//if($this->load_type=='ajax')
 		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
 
-        if(is_object($this->selectedvalue)) {
-            if(is_iterable($this->selectedvalue)) {
-			    $s_values = $this->selectedvalue;
+        if(is_object($this->selected_value)) {
+            if(is_iterable($this->selected_value)) {
+			    $s_values = $this->selected_value;
             } else {
-                $s_values = new DataSet([$this->selectedvalue]);
-            }//if(is_iterable($this->selectedvalue))
-        } elseif(is_array($this->selectedvalue)) {
-            $s_values = DataSource::ConvertArrayToDataSet($this->selectedvalue,VirtualEntity::class);
+                $s_values = new DataSet([$this->selected_value]);
+            }//if(is_iterable($this->selected_value))
+        } elseif(is_array($this->selected_value)) {
+            $s_values = DataSource::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
         } else {
-            if(is_scalar($this->selectedvalue)) {
+            if(is_scalar($this->selected_value)) {
                 $s_values = [[
-                    $this->valfield=>$this->selectedvalue,
-                    (is_string($this->displayfield)?$this->displayfield:'_text_')=>$this->selectedtext,
+                    $this->value_field=>$this->selected_value,
+                    (is_string($this->display_field)?$this->display_field:'_text_')=>$this->selected_text,
                 ]];
             } else {
                 $s_values = [];
-            }//if(is_scalar($this->selectedvalue))
+            }//if(is_scalar($this->selected_value))
             $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
-        }//if(is_object($this->selectedvalue))
+        }//if(is_object($this->selected_value))
 
 		switch($this->load_type) {
 			case 'ajax':
@@ -132,7 +132,7 @@ class SmartComboBox extends Control {
 			    if($s_values->count()) {
 			        foreach($s_values as $sv) {
                          $s_item = [
-                            'id'=>$sv->getProperty($this->valfield),
+                            'id'=>$sv->getProperty($this->value_field),
                             'name'=>$this->GetDisplayFieldValue($sv),
                             'selected'=>TRUE,
                         ];
@@ -143,7 +143,7 @@ class SmartComboBox extends Control {
                         $initData[] = $s_item;
                     }//END foreach
 			    }//if($s_values->count())
-				$tagauid = \PAF\AppSession::GetNewUID($this->tagid,'md5');
+				$tagauid = \PAF\AppSession::GetNewUID($this->tag_id,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
@@ -166,7 +166,7 @@ class SmartComboBox extends Control {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp} }; }";
 					}//if(is_array($ac_js_params) && count($ac_js_params))
 					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
-					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tagid}').data('hasError','0');\n"; }
+					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tag_id}').data('hasError','0');\n"; }
 					$js_script .= "\t\t\tajax: {
 						url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
@@ -174,8 +174,8 @@ class SmartComboBox extends Control {
 						cache: false,
 						data: {$ac_data_func},
 						error: ".(strlen($errCallback) ? $errCallback : "function(response) {
-                            if($('#{$this->tagid}').data('hasError')==='0' && response.responseText==='Unauthorized access!') {
-                                $('#{$this->tagid}').data('hasError','1');
+                            if($('#{$this->tag_id}').data('hasError')==='0' && response.responseText==='Unauthorized access!') {
+                                $('#{$this->tag_id}').data('hasError','1');
                                 window.location.reload();
                             }
                         }").",
@@ -215,7 +215,7 @@ class SmartComboBox extends Control {
 				throw new AppException('Invalid SmartComboBox load type!');
 		}//END switch
 		$js_script .= "\t\t})";
-		// NApp::_Dlog($this->tagid,'$this->tagid');
+		// NApp::_Dlog($this->tag_id,'$this->tag_id');
 		// NApp::_Dlog($js_script,'$js_script');
 		// NApp::_Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
@@ -224,15 +224,15 @@ class SmartComboBox extends Control {
 		if($this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1') { $s_multiple = ' multiple="multiple"'; }
 		foreach($litems as $item) {
 		    if($this->load_type=='ajax') { continue; }
-		    if(!is_object($item) || !$item->hasProperty($this->valfield)) {
+		    if(!is_object($item) || !$item->hasProperty($this->value_field)) {
 				$rOptions[''][] = "\t\t\t<option></option>\n";
 				continue;
-			}//if(!is_object($item) || !$item->hasProperty($this->valfield))
-			$lval = $item->getProperty($this->valfield,NULL,'isset');
+			}//if(!is_object($item) || !$item->hasProperty($this->value_field))
+			$lval = $item->getProperty($this->value_field,NULL,'isset');
 			$ltext = $this->GetDisplayFieldValue($item);
 			$lselected = '';
             foreach($s_values as $sv) {
-                $lsval = $sv->getProperty($this->valfield,NULL,'isset');
+                $lsval = $sv->getProperty($this->value_field,NULL,'isset');
                 if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL))) {
                         $lselected = ' selected="selected"';
                         break;
@@ -263,7 +263,7 @@ class SmartComboBox extends Control {
 		}//END foreach
 		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
-		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tagid)) : '').'">'."\n";
+		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tag_id)) : '').'">'."\n";
 		$result .= $rOptionsStr;
 		$result .= "\t\t".'</select>'."\n";
 		$result .= $this->GetActions();

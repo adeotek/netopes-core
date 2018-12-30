@@ -32,7 +32,7 @@ class Report extends ExcelExport {
 	 * @var    string CSS class used for the main table container
 	 * @access protected
 	 */
-	protected $baseclass = 'listing lineslisting span-cent';
+	protected $base_class = 'listing lineslisting span-cent';
 	/**
 	 * @var    string Report display name
 	 * @access protected
@@ -264,7 +264,7 @@ class Report extends ExcelExport {
 				$this->result .= "\t".'<div style="height: 20px; margin-bottom: 10px;">'.$ee_button."\n"."\t".'</div>'."\n";
             }//if($this->display_records_no)
             if(strlen($ee_button)) { $this->result .= "\t".'<div id="excelexport_errors"></div>'."\n"; }
-			$table_class = get_array_value($layout,'table_class',$this->baseclass,'is_string');
+			$table_class = get_array_value($layout,'table_class',$this->base_class,'is_string');
 			$this->result .= "\t".'<table'.(strlen($table_class) ? ' class="'.$table_class.'"' : '').'>'."\n";
 			$this->result .= $header;
 			$this->result .= $body;
@@ -334,19 +334,18 @@ class Report extends ExcelExport {
 	}//END protected function PercentFormat2
 
 	protected function DateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),TRUE);
 	}//END protected function DateFormat
 
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,NApp::_GetParam('timezone'),FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),FALSE);
 	}//END protected function DateTimeFormat
 
 	protected function NoTimezoneDateFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',TRUE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);
 	}//END protected function DateFormat
 
 	protected function NoTimezoneDateTimeFormat($value){
-    	return \NETopes\Core\App\Validator::ConvertDateTimeFromDbFormat($value,'',FALSE,$this->date_separator,$this->time_separator);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',FALSE);
 	}//END protected function DateTimeFormat
 }//class Report extends ExcelExport
-?>
