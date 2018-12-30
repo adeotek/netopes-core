@@ -10,10 +10,11 @@
  * @filesource
  */
 namespace NETopes\Core\App;
-use GibberishAES;
-use NApp;
+use NETopes\Core\Validators\Validator;
 use PAF\AppConfig;
 use PAF\AppException;
+use GibberishAES;
+use NApp;
 
 /**
  * Module class
