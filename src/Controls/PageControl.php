@@ -29,7 +29,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$result = '';
 			$rpp = NApp::_GetParam('rows_per_page');
 			$rpp = $rpp>0 ? $rpp : 20;

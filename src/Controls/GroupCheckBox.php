@@ -77,7 +77,7 @@ class GroupCheckBox extends Control {
         $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
     }//END protected function GetItems
 
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         $this->GetItems();
         $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
         $labelfield = is_string($this->label_field) && strlen($this->label_field) ? $this->label_field : 'name';

@@ -35,7 +35,7 @@ class BasicForm {
 	 * @var    string BasicForm table id
 	 * @access public
 	 */
-	public $tagid = NULL;
+	public $tag_id = NULL;
 	/**
 	 * @var    string BasicForm response target id
 	 * @access public

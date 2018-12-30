@@ -41,9 +41,10 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetConverterAdapter(?string $method = NULL): string {
-        if(!strlen($method)) { return static::$converterAdapter??ConverterAdapter::class; }
-        if(!class_exists(static::$converterAdapter??ConverterAdapter::class) || !method_exists(static::$converterAdapter??ConverterAdapter::class,$method)) { throw new AppException('Invalid converter adapter class/method ['.static::$converterAdapter??ConverterAdapter::class.'::'.$method.']!'); }
-        return static::$converterAdapter??ConverterAdapter::class.'::'.$method;
+        $class = '\\'.ltrim(static::$converterAdapter??ConverterAdapter::class,'\\');
+        if(!strlen($method)) { return $class; }
+        if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid converter adapter class/method ['.$class.'::'.$method.']!'); }
+        return $class.'::'.$method;
     }//END public static function GetConverterAdapter
     /**
      * @param string|null $converterAdapter Converter adapter class
@@ -61,9 +62,10 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetValidatorAdapter(?string $method = NULL): string {
-        if(!strlen($method)) { return '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\'); }
-        if(!class_exists(static::$validatorAdapter??ValidatorAdapter::class) || !method_exists(static::$validatorAdapter??ValidatorAdapter::class,$method)) { throw new AppException('Invalid validator adapter class/method ['.static::$validatorAdapter??ValidatorAdapter::class.'::'.$method.']!'); }
-        return '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\').'::'.$method;
+        $class = '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\');
+        if(!strlen($method)) { return $class; }
+        if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid validator adapter class/method ['.$class.'::'.$method.']!'); }
+        return $class.'::'.$method;
     }//END public static function GetValidatorAdapter
     /**
      * @param string|null $validatorAdapter Validator adapter class
@@ -81,9 +83,10 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetFormatterAdapter(?string $method = NULL): string {
-        if(!strlen($method)) { return static::$formatterAdapter??FormatterAdapter::class; }
-        if(!class_exists(static::$formatterAdapter??FormatterAdapter::class) || !method_exists(static::$formatterAdapter??FormatterAdapter::class,$method)) { throw new AppException('Invalid formatter adapter class/method ['.static::$formatterAdapter??FormatterAdapter::class.'::'.$method.']!'); }
-        return static::$formatterAdapter??FormatterAdapter::class.'::'.$method;
+        $class = '\\'.ltrim(static::$formatterAdapter??FormatterAdapter::class,'\\');
+        if(!strlen($method)) { return $class; }
+        if(!class_exists($class) || !method_exists($class,$method)) { throw new AppException('Invalid formatter adapter class/method ['.$class.'::'.$method.']!'); }
+        return $class.'::'.$method;
     }//END public static function GetFormatterAdapter
     /**
      * @param string|null $formatterAdapter Formatter adapter class

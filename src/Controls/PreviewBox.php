@@ -27,7 +27,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$result = "\t\t".'<div'.$this->GetTagId(2).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$this->value.'</div>'."\n";
 			return $result;
 		}//END protected function SetControl

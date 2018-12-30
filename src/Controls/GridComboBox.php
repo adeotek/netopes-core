@@ -79,7 +79,7 @@
 			$this->target = $this->tag_id.'-gcbo-target';
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$this->ProcessActions();
 			$ar_class = '';
 			if($this->required===TRUE) { $ar_class .= (strlen($ar_class) ? ' ' : '').'clsRequiredField'; }

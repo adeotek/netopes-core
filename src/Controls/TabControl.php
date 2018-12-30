@@ -27,7 +27,7 @@ class TabControl {
 	 * @var    string BasicForm table id
 	 * @access public
 	 */
-	public $tagid = NULL;
+	public $tag_id = NULL;
 	/**
 	 * @var    string BasicForm response target id
 	 * @access public
@@ -212,7 +212,7 @@ class TabControl {
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
 		$lclass = trim($this->base_class.' '.$this->class);
 		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";

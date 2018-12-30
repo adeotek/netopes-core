@@ -27,7 +27,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$result = '<input type="hidden"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 			return $result;
 		}//END protected function SetControl

@@ -43,7 +43,7 @@ class SimplePageControl extends Control {
 		return NApp::arequest()->Prepare($run_str);
 	}//END protected function AreqRun
 
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		$limit = NApp::_GetParam('rows_per_page');
 		$limit = (is_numeric($limit)>0 && $limit>0) ? $limit : 20;
 		$pages_no = ($this->totalrows>0 ? ceil($this->totalrows/$limit) : 1);

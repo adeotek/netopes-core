@@ -39,7 +39,7 @@ class FileUploader extends Control {
 		$this->buffered = FALSE;
 	}//END public function __construct
 
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		$this->tag_id = $this->tag_id=='__auto' ? \PAF\AppSession::GetNewUID() : $this->tag_id;
 		switch(strtolower($this->filter)) {
 			case 'images':

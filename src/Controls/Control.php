@@ -60,7 +60,7 @@ abstract class Control {
 	 * @var    string Main tag html id
 	 * @access public
 	 */
-	public $tagid = NULL;
+	public $tag_id = NULL;
 	/**
 	 * @var    bool Postable in PAF ajax calls (default: TRUE)
 	 * @access public

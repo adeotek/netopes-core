@@ -30,7 +30,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			$limit = NApp::_GetParam('rows_per_page');
 			$limit = $limit>0 ? $limit : 20; //crapa cu division by zero daca nu are inregistrare in admin_user_options
 			$totalnrofpages = ceil($this->totalrows/$limit);

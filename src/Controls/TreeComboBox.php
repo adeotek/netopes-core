@@ -48,7 +48,7 @@ class TreeComboBox extends Control {
 	 * @return string|null
 	 * @access protected
 	 */
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		$this->ProcessActions();
 		$lalign = strlen($this->align)>0 ? ' text-align: '.$this->align.';' : '';
 		$lwidth = (is_numeric($this->width) && $this->width>0) ? $this->width - $this->GetActionsWidth() : NULL;

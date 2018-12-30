@@ -28,7 +28,7 @@ class JqCheckBox extends Control {
 		$this->data_onchange = TRUE;
 	}//END public function __construct
 
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 		if($this->invertvalue) {
 			$lvalue = ($this->value===TRUE || $this->value==1) ? 0 : 1;
 		} else {

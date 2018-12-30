@@ -128,7 +128,7 @@ abstract class AssociationManager {
      * @var    string Base tags id string
      * @access public
      */
-    public $tagid = NULL;
+    public $tag_id = NULL;
     /**
      * @var    bool Sortable associated items on/off
      * @access public
@@ -608,7 +608,7 @@ JS;
      * @access protected
      * @throws \PAF\AppException
      */
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         $live_box = $this->GetLiveVersionItemsBox();
         $result = '<div class="'.$this->rowcls.' '.$this->base_class.' clsPanel">'."\n";
         $result .= "\t".'<div class="clsDivTable">'."\n";

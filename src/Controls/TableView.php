@@ -108,7 +108,7 @@ class TableView {
 	 * @var    string Main container id
 	 * @access public
 	 */
-	public $tagid = NULL;
+	public $tag_id = NULL;
 	/**
 	 * @var    string Theme type
 	 * @access public
@@ -1264,10 +1264,10 @@ class TableView {
 					if($acommand){
 						$ac_params = explode('}}',$acommand);
 						$acommand = '';
-						foreach($ac_params as $ce){
+						foreach($ac_params as $ce) {
 							$ce_arr = explode('{{',$ce);
-							if(count($ce_arr)>1){
-								$acommand .= $ce_arr[0].$row->GetProperty($ce_arr[1],'','true');
+							if(count($ce_arr)>1) {
+								$acommand .= $ce_arr[0].$row->GetProperty($ce_arr[1],'','is_scalar');
 							}else{
 								$acommand .= $ce_arr[0];
 							}//if(count($ce_arr)>1)

@@ -38,7 +38,7 @@ class ColorPicker extends Control {
 	 * @return string
 	 * @access protected
 	 */
-	protected function SetControl(): string {
+	protected function SetControl(): ?string {
 		if(strlen($this->jsparams)) {
 			$jsparams = $this->jsparams;
 		} else {

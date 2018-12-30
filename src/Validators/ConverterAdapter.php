@@ -62,12 +62,12 @@ class ConverterAdapter {
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 	    if(is_numeric($date)) {
-            $dt = new \DateTime('now',new \DateTimeZone($timezone));
+            if(!($dt = new \DateTime('now',new \DateTimeZone($timezone)))) { return NULL; }
 			$dt->setTimestamp($date);
 	    } elseif(is_string($date) && strlen($date)) {
 	        if(!strlen($format)) { $format = 'Y-m-d H:i:s'; }
 	        if(strpos($format,' ') && strpos($date,' ')===FALSE) { $date .= ' 00:00'.(substr($format,-2)==':s' ? ':00' : ''); }
-            $dt = \DateTime::createFromFormat($format,$date,new \DateTimeZone($timezone));
+            if(!($dt = \DateTime::createFromFormat($format,$date,new \DateTimeZone($timezone)))) { return NULL; }
 	    } else {
 	        return NULL;
 	    }//if(is_numeric($date))

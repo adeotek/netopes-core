@@ -38,7 +38,7 @@ class CkEditor extends Control {
      * @access public
      * @throws \PAF\AppException
      */
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         if(!strlen($this->tag_id)) { throw new AppException('Invalid tag ID!',E_ERROR,1); }
         $lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
         $result = "\t\t".'<textarea'.$this->GetTagId(TRUE).$this->GetTagClass('textarea').$this->GetTagAttributes(FALSE).$lextratagparam.'>'.$this->value.'</textarea>'."\n";

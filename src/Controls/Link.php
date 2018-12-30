@@ -48,7 +48,7 @@ class Link extends Control {
 	 * @return void
 	 * @access public
 	 */
-	protected function SetControl() {
+	protected function SetControl(): ?string {
 	    $ltooltip = '';
 		$ttclass = '';
 		if(strlen($this->tooltip)) {

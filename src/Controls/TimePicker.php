@@ -47,7 +47,7 @@ class TimePicker extends Control {
 	 * @return string
 	 * @access protected
 	 */
-	protected function SetControl(): string {
+	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
 			case 'bootstrap3':
 				return $this->SetBootstrap3Control();

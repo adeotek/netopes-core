@@ -28,7 +28,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			return $this->value;
 		}//END protected function SetControl
 	}//END class CustomControl extends Control

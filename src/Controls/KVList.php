@@ -80,7 +80,7 @@ class KVList extends Control {
         return $result;
     }//END protected function SetControlInstance
 
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         $label = (is_string($this->label) && strlen($this->label) ? $this->label : NULL);
         if(is_iterable($this->lang_items) && count($this->lang_items)) {
             $result = '<div id="'.$this->tag_id.'" class="clsAccordion clsControlContainer">'."\n";

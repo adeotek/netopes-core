@@ -39,7 +39,7 @@ class NumericTextBox extends Control {
         }//if($this->number_format!==FALSE && !strlen($this->number_format))
     }//END public function __construct
 
-    protected function SetControl() {
+    protected function SetControl(): ?string {
         $nclass = '';
         if($this->disabled!==TRUE && $this->readonly!==TRUE) {
             if($this->number_format!==FALSE) { $nclass = 'clsSetNumberFormat'; }

@@ -31,7 +31,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 
-		protected function SetControl() {
+		protected function SetControl(): ?string {
 			switch (strtolower($this->uc_first)) {
 				case 'first':
 					$fclass = ' clsSetUcFirst';
