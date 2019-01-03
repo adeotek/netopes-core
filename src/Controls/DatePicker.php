@@ -50,6 +50,8 @@ class DatePicker extends Control {
 		switch(strtolower($this->plugin_type)) {
 			case 'bootstrap3':
 				return $this->SetBootstrap3Control();
+			case 'bootstrap4':
+				return $this->SetBootstrap4Control();
 			case 'jqueryui':
 			default:
 				return $this->SetJQueryUIControl();
@@ -183,4 +185,81 @@ class DatePicker extends Control {
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
+	/**
+	 * Set Bootstrap 4 control HTML tag
+	 *
+	 * @return string
+	 * @access protected
+	 */
+	protected function SetBootstrap4Control(): string {
+	    if(strlen($this->format)) {
+            $lFormat = $this->format;
+            if($this->timepicker!==TRUE && $this->timepicker!==1) {
+	            $lDateFormat = str_replace('m','M',strtolower($this->format));
+	            $lTimeFormat = '';
+	        } else {
+	            $fParts = explode(' ',$lFormat);
+	            $lDateFormat = str_replace('m','M',strtolower($fParts[0]));
+	            $lTimeFormat = count($fParts)>1 ? $fParts[1] : 'HH:mm:ss';
+	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+	    } elseif(strlen($this->dateformat)) {
+            $lDateFormat = $this->dateformat;
+            if($this->timepicker!==TRUE && $this->timepicker!==1) {
+                $lFormat = strtoupper($this->dateformat);
+                $lTimeFormat = '';
+            } else {
+                $lTimeFormat = strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
+                $lFormat = strtoupper($this->dateformat).' '.$lTimeFormat;
+            }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+	    } else {
+	        $lDateFormat = 'dd.MM.yyyy';
+	        if($this->timepicker!==TRUE && $this->timepicker!==1) {
+	            $lTimeFormat = '';
+	            $lFormat = 'DD.MM.YYYY';
+	        } else {
+	            $lTimeFormat = strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
+	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
+	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+	    }//if(strlen($this->format))
+	    // NApp::_Dlog($lFormat,'$lFormat');
+
+		$ldata = ' data-format="'.$lDateFormat.'"';
+		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
+		if(strlen($this->js_params)) {
+			$jsparams = $this->js_params;
+		} else {
+			$jsparams = "{ "
+				."locale: '{$this->locale}', "
+				."format: '{$lFormat}', "
+				."showTodayButton: ".($this->today_button ? 'true' : 'false').", "
+				."stepping: {$this->minutes_stepping}"
+				." }";
+		}//if(strlen($this->js_params))
+		// NApp::_Dlog($jsparams);
+
+		$this->ProcessActions();
+		$onChange = '';
+		if($this->button) {
+		    if(!$this->readonly && !$this->disabled) {
+		        $onChange = $this->GetOnChangeAction(NULL,TRUE);
+		        $this->onchange = NULL;
+		        $this->onchange_str = NULL;
+		    }//if(!$this->readonly && !$this->disabled)
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
+			$result = "\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
+	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
+	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
+			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
+			$result .= "\t\t\t".'</span>'."\n";
+	        $result .= "\t\t".'</div>'."\n";
+	    } else {
+	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
+	    }//if($this->button)
+		$result .= $this->GetActions();
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
+			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
+		return $result;
+	}//END protected function SetBootstrap4Control
 }//END class DatePicker extends Control

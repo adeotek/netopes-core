@@ -51,6 +51,8 @@ class TimePicker extends Control {
 		switch(strtolower($this->plugin_type)) {
 			case 'bootstrap3':
 				return $this->SetBootstrap3Control();
+			case 'bootstrap4':
+				return $this->SetBootstrap3Control();
 			case 'jqueryui':
 			default:
 				return $this->SetJQueryUIControl();
@@ -136,4 +138,48 @@ class TimePicker extends Control {
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
+	/**
+	 * Set Bootstrap 4 control HTML tag
+	 *
+	 * @return string
+	 * @access protected
+	 */
+	protected function SetBootstrap4Control(): string {
+		if(strlen($this->js_params)) {
+			$jsparams = $this->js_params;
+		} else {
+			$jsparams = "{ "
+				."locale: '{$this->locale}', "
+				."format: '{$this->format}', "
+				."showTodayButton: ".($this->now_button ? 'true' : 'false').", "
+				."stepping: {$this->minutes_stepping}"
+				." }";
+		}//if(strlen($this->js_params))
+		// NApp::_Dlog($jsparams);
+
+		$this->ProcessActions();
+		$onChange = '';
+		if($this->button) {
+		    if(!$this->readonly && !$this->disabled) {
+		        $onChange = $this->GetOnChangeAction(NULL,TRUE);
+		        $this->onchange = NULL;
+		        $this->onchange_str = NULL;
+		    }//if(!$this->readonly && !$this->disabled)
+		    $groupAddonClass = strlen($this->size) ? ' input-'.$this->size : '';
+			$result = "\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
+	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
+	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
+			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
+			$result .= "\t\t\t".'</span>'."\n";
+	        $result .= "\t\t".'</div>'."\n";
+	    } else {
+	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
+	    }//if($this->button)
+		$result .= $this->GetActions();
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
+			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
+		return $result;
+	}//END protected function SetBootstrap4Control
 }//END class TimePicker extends Control

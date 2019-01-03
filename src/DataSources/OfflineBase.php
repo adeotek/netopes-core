@@ -8,12 +8,13 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2018 HTSS
  * @license    LICENSE.md
- * @version    2.2.9.9
+ * @version    2.4.0.3
  * @filesource
  */
 namespace NETopes\Core\DataSources;
 use NETopes\Core\Data\DataSource;
 use Translate;
+
 /**
  * Arrays data source class
  *
@@ -138,7 +139,6 @@ class OfflineBase extends DataSource {
 	 * @param array $params Parameters array
 	 * @return array|bool
 	 * @access public
-	 * @throws \PAF\AppException
 	 */
 	public function GetAppThemes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -146,12 +146,12 @@ class OfflineBase extends DataSource {
 		if($raw==1) {
 			$result = array(
 				array('value'=>'','name'=>'Default','type'=>''),
-				array('value'=>'_default','name'=>'DKMed','type'=>'bootstrap3'),
+				array('value'=>'_default','name'=>'Default','type'=>'bootstrap3'),
 			);
 		} else {
 		$result = array(
 			array('value'=>'','name'=>Translate::GetLabel('default',$langcode),'type'=>''),
-				array('value'=>'_default','name'=>'DKMed','type'=>'bootstrap3'),
+				array('value'=>'_default','name'=>'Default','type'=>'bootstrap3'),
 			);
 		}//if($raw==1)
 		return $result;
@@ -162,8 +162,7 @@ class OfflineBase extends DataSource {
 	 * @param array $params Parameters array
 	 * @return array|bool
 	 * @access public
-	 * @throws \PAF\AppException
-	 */
+     */
 	public function FilterOperators($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
 		$result = array(
@@ -178,7 +177,6 @@ class OfflineBase extends DataSource {
 	 * @param array $params Parameters array
 	 * @return array|bool
 	 * @access public
-	 * @throws \PAF\AppException
 	 */
 	public function FilterConditionsTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');

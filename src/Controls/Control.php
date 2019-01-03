@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.4.0.3
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -26,6 +26,9 @@ use Translate;
  *
  * Base abstract class for controls
  *
+ * @property mixed  tag_name
+ * @property bool   required
+ * @property string label_position
  * @package  NETopes\Controls
  * @access   public
  * @abstract
@@ -158,11 +161,13 @@ abstract class Control {
 				switch(strtolower($this->container)) {
 					case 'bootstrap':
 					case 'bootstrap3':
+					case 'bootstrap4':
 						$this->container = TRUE;
 						$this->label_position = 'left';
 						break;
 					case 'bootstrap_horizontal':
 					case 'horizontalbootstrap3':
+					case 'horizontalbootstrap4':
 						$this->container = TRUE;
 						$this->label_position = 'left';
 						break;
@@ -185,6 +190,7 @@ abstract class Control {
 				switch(strtolower($this->container)) {
 					case 'bootstrap':
 					case 'bootstrap3':
+					case 'bootstrap4':
 					case 'bootstrap_horizontal':
 					case 'horizontalbootstrap3':
 					case 'table':
