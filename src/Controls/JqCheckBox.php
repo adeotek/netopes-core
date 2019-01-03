@@ -41,4 +41,3 @@ class JqCheckBox extends Control {
 		return $result;
 	}//END protected function SetControl
 }//END class JqCheckBox extends Control
-?>
