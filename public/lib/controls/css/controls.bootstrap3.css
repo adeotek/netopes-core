@@ -1722,9 +1722,11 @@ table.clsBasicForm > tbody > tr > td {
 .mt10 { margin-top: 10px; }
 .mt15 { margin-top: 15px; }
 .mt20 { margin-top: 20px; }
+.mt30 { margin-top: 30px; }
 .mb10 { margin-bottom: 10px; }
 .mb15 { margin-bottom: 15px; }
 .mb20 { margin-bottom: 20px; }
+.mb30 { margin-bottom: 30px; }
 
 /* Colors */
 .err-msg { color: #cf0000; }

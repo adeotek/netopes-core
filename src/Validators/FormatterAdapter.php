@@ -247,6 +247,16 @@ class FormatterAdapter {
 		$groupSeparator = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_string');
 		return number_format($value,$decimalsNo,$decimalSeparator,$groupSeparator);
 	}//END public static function Numeric
+	/**
+     * @param mixed      $value
+     * @param array|null $regionals
+     * @return string|null
+     */
+    public static function Numeric2($value,?array $regionals = NULL): ?string {
+        if(!is_array($regionals)) { $regionals = ['decimals_no'=>2]; }
+        else { $regionals['decimals_no'] = 2; }
+        return static::Numeric($value,$regionals);
+    }//END public static function Numeric2
     /**
      * @param        $value
      * @param string $groupSeparator

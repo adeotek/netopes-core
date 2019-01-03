@@ -46,7 +46,7 @@ class NumericTextBox extends Control {
             if(is_string($this->jsvalidation) && strlen(trim($this->jsvalidation))) { $nclass .= ' '.trim($this->jsvalidation); }
             elseif($this->jsvalidation===TRUE) { $nclass .= ' clsSetNumericValidation'; }
         }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
-        if($this->allownull && !strlen($this->value)) {
+        if($this->allow_null && !strlen($this->value)) {
             $lvalue = '';
         } else {
            if($this->number_format===FALSE) {
@@ -58,12 +58,12 @@ class NumericTextBox extends Control {
                    $lvalue = number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
                }//if(strlen($this->number_format))
            }//if($this->number_format===FALSE)
-        }//if($this->allownull && !strlen($this->value))
+        }//if($this->allow_null && !strlen($this->value))
         $baseact = [];
         if($this->auto_select===TRUE) { $baseact['onclick'] = 'this.select();'; }
         $ldata = '';
         if($this->number_format!==FALSE && strlen($this->number_format)) { $ldata .= ' data-format="'.$this->number_format.'"'; }
-        if($this->allownull===TRUE) { $ldata .= ' data-anull="1"'; }
+        if($this->allow_null===TRUE) { $ldata .= ' data-anull="1"'; }
         $this->ProcessActions();
         $result = "\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass($nclass).$this->GetTagAttributes().$this->GetTagActions($baseact).$ldata.' value="'.$lvalue.'">'."\n";
         $result .= $this->GetActions();
