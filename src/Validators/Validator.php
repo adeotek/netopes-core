@@ -8,10 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.1.1
+ * @version    2.4.0.3
  * @filesource
  */
 namespace NETopes\Core\Validators;
+use PAF\AppConfig;
 use PAF\AppException;
 use NApp;
 
@@ -41,7 +42,8 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetConverterAdapter(?string $method = NULL): string {
-        $class = '\\'.ltrim(static::$converterAdapter??ConverterAdapter::class,'\\');
+        $customAdapter = AppConfig::convertor_adapter_class();
+        $class = '\\'.ltrim(static::$converterAdapter??$customAdapter??ConverterAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid converter adapter class ['.$class.']!'); }
             return $class;
@@ -65,7 +67,8 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetValidatorAdapter(?string $method = NULL): string {
-        $class = '\\'.ltrim(static::$validatorAdapter??ValidatorAdapter::class,'\\');
+        $customAdapter = AppConfig::validator_adapter_class();
+        $class = '\\'.ltrim(static::$validatorAdapter??$customAdapter??ValidatorAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid validator adapter class ['.$class.']!'); }
             return $class;
@@ -89,7 +92,8 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetFormatterAdapter(?string $method = NULL): string {
-        $class = '\\'.ltrim(static::$formatterAdapter??FormatterAdapter::class,'\\');
+        $customAdapter = AppConfig::formatter_adapter_class();
+        $class = '\\'.ltrim(static::$formatterAdapter??$customAdapter??FormatterAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid formatter adapter class ['.$class.']!'); }
             return $class;
