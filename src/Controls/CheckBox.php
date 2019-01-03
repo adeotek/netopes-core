@@ -52,11 +52,11 @@ class CheckBox extends Control {
         } else {
             $lvalue = $this->value===TRUE || $this->value===1 || $this->value==='1';
         }//if(is_array($this->value))
-        if($this->invertvalue) {
+        if($this->invert_value) {
             $lvalue = $lvalue ? 0 : 1;
         } else {
             $lvalue = $lvalue ? 1 : 0;
-        }//if($this->invertvalue)
+        }//if($this->invert_value)
         $baseact = array(
             'onclick'=>'CheckBoxClickBaseEvent(this);',
             'onkeypress'=>'if(event.keyCode==13){CheckBoxClickBaseEvent(this);}',

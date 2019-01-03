@@ -29,11 +29,11 @@ class JqCheckBox extends Control {
 	}//END public function __construct
 
 	protected function SetControl(): ?string {
-		if($this->invertvalue) {
+		if($this->invert_value) {
 			$lvalue = ($this->value===TRUE || $this->value==1) ? 0 : 1;
 		} else {
 			$lvalue = ($this->value===TRUE || $this->value==1) ? 1 : 0;
-		}//if($this->invertvalue)
+		}//if($this->invert_value)
 		$ljqparams = strlen($this->jqparams) ? $this->jqparams : '';
 		$lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
 		$result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions().$lstyle.' value="'.$lvalue.'">'."\n";

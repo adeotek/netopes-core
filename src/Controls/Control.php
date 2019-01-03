@@ -302,6 +302,7 @@ abstract class Control {
 	 * Gets the html tag class string (' class="..."')
 	 *
 	 * @param  string $extra Other html classes to be included
+     * @param bool    $raw
 	 * @return string Returns the html tag class
 	 * @access protected
 	 */

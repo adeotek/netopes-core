@@ -45,7 +45,7 @@ class Button extends Control {
 		}//if(strlen($this->tooltip))
         $ttclass .= !strlen($this->value) ? (strlen($ttclass) ? ' ': '').'io' : '';
         $licon = is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
-		$result = "\t\t".'<button'.$this->GetTagId(TRUE).$this->GetTagClass($ttclass).$this->GetTagAttributes().$this->GetTagActions().$ltooltip.'>'.$licon.$this->value.'</button>'."\n";
+		$result = "\t\t".'<button'.$this->GetTagId().$this->GetTagClass($ttclass).$this->GetTagAttributes().$this->GetTagActions().$ltooltip.'>'.$licon.$this->value.'</button>'."\n";
 		return $result;
 	}//END protected function SetControl
 }//END class Button extends Control

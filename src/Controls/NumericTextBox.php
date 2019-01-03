@@ -24,8 +24,8 @@ use NApp;
 class NumericTextBox extends Control {
     public function __construct($params = NULL) {
         $this->jsvalidation = TRUE;
-        $this->maxlength = 255;
-        $this->autoselect = TRUE;
+        $this->max_length = 255;
+        $this->auto_select = TRUE;
         parent::__construct($params);
         if(strlen($this->number_format) && is_numeric($this->placeholder)) {
             $this->placeholder = Validator::FormatNumberValue($this->placeholder,$this->number_format);
@@ -60,7 +60,7 @@ class NumericTextBox extends Control {
            }//if($this->number_format===FALSE)
         }//if($this->allownull && !strlen($this->value))
         $baseact = [];
-        if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
+        if($this->auto_select===TRUE) { $baseact['onclick'] = 'this.select();'; }
         $ldata = '';
         if($this->number_format!==FALSE && strlen($this->number_format)) { $ldata .= ' data-format="'.$this->number_format.'"'; }
         if($this->allownull===TRUE) { $ldata .= ' data-anull="1"'; }

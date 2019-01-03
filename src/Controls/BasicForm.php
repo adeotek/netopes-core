@@ -65,7 +65,7 @@ class BasicForm {
 	 * @var    int Columns number
 	 * @access public
 	 */
-	public $colsno = NULL;
+	public $cols_no = NULL;
 	/**
 	 * @var    string Labels position type (horizontal/vertical)
 	 * @access public
@@ -188,7 +188,7 @@ class BasicForm {
 				if(property_exists($this,$k)) { $this->$k = $v; }
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
-		if(!is_numeric($this->colsno) || $this->colsno<=0) { $this->colsno = 1; }
+		if(!is_numeric($this->cols_no) || $this->cols_no<=0) { $this->cols_no = 1; }
 		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property);
 	}//END public function __construct
     /**
@@ -372,7 +372,7 @@ class BasicForm {
 						$sr_hr = '<hr>';
 						break;
 				}//END switch
-				$sr_span = ' colspan="'.($this->colsno * 2 - 1).'"';
+				$sr_span = ' colspan="'.($this->cols_no * 2 - 1).'"';
 				$result .= "\t\t".'<td'.$sr_span.$sr_class.'>'.$sr_hr.'</td>'."\n";
 				$result .= $rsidecolumn;
 				$result .= "\t".'</tr>'."\n";
@@ -412,7 +412,7 @@ class BasicForm {
 			$result .= $rsidecolumn;
 			$result .= "\t".'</tr>'."\n";
 		}//END foreach
-			$lcolspan = (2 * $this->colsno - 1)>1 ? ' colspan="'.(2 * $this->colsno - 1).'"' : '';
+			$lcolspan = (2 * $this->cols_no - 1)>1 ? ' colspan="'.(2 * $this->cols_no - 1).'"' : '';
 		if(is_string($this->response_target) && strlen($this->response_target)) {
 			$result .= "\t".'<tr>'."\n";
 			$result .= $lsidecolumn;
@@ -444,7 +444,7 @@ class BasicForm {
 		$lclass = trim($this->base_class.' '.$this->class);
 		if($this->positioning_type!='vertical') { $lclass .= ' form-horizontal'; }
 		if(strlen($this->controls_size)) { $lclass .= ' form-'.$this->controls_size; }
-		if($this->colsno>1) { $lclass .= ' multi'; }
+		if($this->cols_no>1) { $lclass .= ' multi'; }
 		if(strlen($this->sub_form_tagid)) {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
 			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
@@ -485,10 +485,10 @@ class BasicForm {
 			}//if($sr_type)
 			$lgs = 12;
 			$hidden = get_array_value($row,[0,'hidden_row'],FALSE,'bool');
-			if($this->colsno>1) {
-				$lgs = round(12/$this->colsno,0,PHP_ROUND_HALF_DOWN);
+			if($this->cols_no>1) {
+				$lgs = round(12/$this->cols_no,0,PHP_ROUND_HALF_DOWN);
 				$result .= "\t".'<div class="row'.($hidden ? ' hidden' : '').'">'."\n";
-			}//if($this->colsno>1)
+			}//if($this->cols_no>1)
 			$ci = 0;
 			foreach($row as $col) {
 				$ctrl_params = get_array_value($col,'control_params',[],'is_array');
@@ -497,11 +497,11 @@ class BasicForm {
 				$hiddenControl = get_array_value($ctrl_params,'hidden',get_array_value($col,'hidden',FALSE,'bool'),'bool');
                 $c_type = get_array_value($col,'control_type',NULL,'?is_notempty_string');
 				$csi = 0;
-				if($this->colsno>1) {
+				if($this->cols_no>1) {
 					$c_span = get_array_value($col,'colspan',1,'is_numeric');
-					if($c_span==$this->colsno) {
+					if($c_span==$this->cols_no) {
 						$c_class = get_array_value($col,'class','col-md-12','is_notempty_string');
-						$csi = $this->colsno;
+						$csi = $this->cols_no;
 					} else {
 						$c_cols = get_array_value($col,'cols',0,'is_integer');
 						if($c_cols>0 && $c_cols<=12) {
@@ -511,11 +511,11 @@ class BasicForm {
 						}//if($c_cols>0 && $c_cols<=12)
 						$c_class = get_array_value($col,'class','col-md-'.$c_gs,    'is_notempty_string');
 						$csi += $c_span;
-					}//if($c_span==$this->colsno)
+					}//if($c_span==$this->cols_no)
 				} else {
 					$c_class = get_array_value($col,'class','form-group','is_notempty_string');
 					if($hidden || $hiddenControl) { $c_class .= ' hidden'; }
-				}//if($this->colsno>1)
+				}//if($this->cols_no>1)
 				$ci += $csi;
 				if(strlen($c_type)) {
 					$c_type = '\NETopes\Core\Controls\\'.$c_type;
@@ -536,12 +536,12 @@ class BasicForm {
 				$c_c_lcols = get_array_value($col,'label_cols',0,'is_integer');
 				$c_lcols = $c_c_lcols>0 ? $c_c_lcols : $this->label_cols;
 				if(is_numeric($c_lcols) && $c_lcols>0) {
-					if($this->colsno>1 && $c_span!=$this->colsno && $c_c_lcols==0) {
-						$c_lcols = $c_lcols * $this->colsno / ($c_span>0 ? $c_span : 1);
+					if($this->cols_no>1 && $c_span!=$this->cols_no && $c_c_lcols==0) {
+						$c_lcols = $c_lcols * $this->cols_no / ($c_span>0 ? $c_span : 1);
 						$ctrl_params['label_cols'] = $c_lcols;
 					} else {
 						$ctrl_params['label_cols'] = $c_lcols;
-					}//if($this->colsno>1 && $c_span!=$this->colsno && $c_c_lcols==0)
+					}//if($this->cols_no>1 && $c_span!=$this->cols_no && $c_c_lcols==0)
 				}//if(is_numeric($c_lcols) && $c_lcols>0)
 				}//if($ctrl_label_cols<1 || $ctrl_label_cols>11)
 				$c_cols = get_array_value($col,'control_cols',0,'is_integer');
@@ -556,7 +556,7 @@ class BasicForm {
 				$control = new $c_type($ctrl_params);
 				if(property_exists($c_type,'tabindex')&& !Validator::IsValidValue($control->tabindex,'is_not0_integer')){ $control->tabindex = $ltabindex++; }
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
-				if($this->colsno>1) {
+				if($this->cols_no>1) {
 					$ctrl_params['container'] = FALSE;
 					//form-group
 					$result .= "\t\t".'<div class="'.$c_class.'">'."\n";
@@ -566,12 +566,12 @@ class BasicForm {
 					$ctrl_params['class'] = trim(get_array_value($ctrl_params,'class','','is_string').($hidden ? ' hidden' : ''));
 					$ctrl_params['container'] = TRUE;
 					$result .= $control->Show();
-				}//if($this->colsno>1)
+				}//if($this->cols_no>1)
 			}//END foreach
-			if($this->colsno>1) {
-				if($ci<$this->colsno) { for($i=0;$i<($this->colsno-$ci);$i++) { $result .= "\t".'<div class="col-md-'.$lgs.'"></div>'."\n"; } }
+			if($this->cols_no>1) {
+				if($ci<$this->cols_no) { for($i=0;$i<($this->cols_no-$ci);$i++) { $result .= "\t".'<div class="col-md-'.$lgs.'"></div>'."\n"; } }
 				$result .= "\t".'</div>'."\n";
-			}//if($this->colsno>1)
+			}//if($this->cols_no>1)
 		}//END foreach
 		if(is_string($this->response_target) && strlen($this->response_target)) {
 			$result .= "\t".'<div class="row">'."\n";

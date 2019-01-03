@@ -269,6 +269,7 @@ input[type="image"].FInLine {
 	font-weight: bold;
 	margin-left: 2px;
 }
+div.clsPreviewBox { overflow: hidden; }
 /*** Forms controls sizing ***/
 /* XXS */
 .form-xxs .form-group .form-control,

@@ -22,15 +22,15 @@
 	 */
 	class QSearchTextBox extends Control {
 		public function __construct($params = null){
-			$this->maxlength = 255;
-			$this->autoselect = TRUE;
+			$this->max_length = 255;
+			$this->auto_select = TRUE;
 			parent::__construct($params);
 		}//END public function __construct
 
 		protected function SetControl(): ?string {
 			$baseact = [];
-			if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
-			$lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
+			if($this->auto_select===TRUE) { $baseact['onclick'] = 'this.select();'; }
+			$lmaxlength = (is_numeric($this->max_length) && $this->max_length>0) ? ' maxlength="'.$this->max_length.'"' : '';
 			$this->ProcessActions();
 			$result = "\t\t".'<input type="text"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions($baseact).$lmaxlength.' value="'.$this->value.'">'."\n";
 			$result .= $this->GetActions();

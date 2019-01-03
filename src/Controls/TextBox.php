@@ -23,8 +23,8 @@ namespace NETopes\Core\Controls;
 class TextBox extends Control {
     public function __construct($params = null){
         $this->uc_first = NULL; // values: NULL, first, all
-        $this->maxlength = 255;
-        $this->autoselect = TRUE;
+        $this->max_length = 255;
+        $this->auto_select = TRUE;
         parent::__construct($params);
     }//END public function __construct
 
@@ -41,8 +41,8 @@ class TextBox extends Control {
                 break;
         }//switch (strtolower($this->uc_first))
         $baseact = [];
-        if($this->autoselect===TRUE) { $baseact['onclick'] = 'this.select();'; }
-        $lmaxlength = (is_numeric($this->maxlength) && $this->maxlength>0) ? ' maxlength="'.$this->maxlength.'"' : '';
+        if($this->auto_select===TRUE) { $baseact['onclick'] = 'this.select();'; }
+        $lmaxlength = (is_numeric($this->max_length) && $this->max_length>0) ? ' maxlength="'.$this->max_length.'"' : '';
         $ltype = $this->password ? 'password' : 'text';
         $this->ProcessActions();
         if(is_string($this->icon) && strlen($this->icon)) {
