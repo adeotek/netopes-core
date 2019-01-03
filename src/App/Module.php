@@ -198,14 +198,14 @@ class Module {
 		if(is_numeric($rpp) && $rpp>0) {
 			$lrpp = $rpp;
 		} else {
-			$lrpp = Validator::ValidateParam(NApp::_GetParam('rows_per_page'),20,'is_not0_integer');
+			$lrpp = Validator::ValidateValue(NApp::_GetParam('rows_per_page'),20,'is_not0_integer');
 		}//if(is_numeric($rpp) && $rpp>0)
-		if(Validator::IsValidParam($firstRow,'is_not0_integer')) {
+		if(Validator::IsValidValue($firstRow,'is_not0_integer')) {
 			$lastRow = $firstRow + $lrpp - 1;
 		} else {
 			$firstRow = ($cpage - 1) * $lrpp + 1;
 			$lastRow = $firstRow + $lrpp - 1;
-		}//if(Validator::IsValidParam($firstrow,NULL,'is_not0_numeric'))
+		}//if(Validator::IsValidValue($firstrow,NULL,'is_not0_numeric'))
 		return array('first_row'=>$firstRow,'last_row'=>$lastRow);
 	}//END public static function GlobalGetPagintionParams
 	/**

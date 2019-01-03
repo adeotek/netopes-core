@@ -243,7 +243,7 @@ class DataSet implements Collection {
      */
     public function safeGet($key,$default_value = NULL,$validation = NULL)
     {
-        return Validator::ValidateArrayParam($this->elements,$key,$default_value,$validation);
+        return Validator::ValidateArrayValue($this->elements,$key,$default_value,$validation);
     }
     /**
      * {@inheritDoc}

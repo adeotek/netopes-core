@@ -22,10 +22,6 @@ use NApp;
  */
 class FormValidator {
     /**
-     * @var string Form element value validation class
-     */
-    protected $validationClass = Validator::class;
-    /**
      * @var array Form elements array
      */
     protected $formElements = [];
@@ -34,21 +30,25 @@ class FormValidator {
      */
     protected $formData = NULL;
     /**
+     * @var array Form errors array
+     */
+    protected $errors = [];
+    /**
      * FormValidator class constructor method
      *
-     * @param array|null                          $params Parameters array
+     * @param array|null                          $config Parameters array
      * @param \NETopes\Core\App\Params|array|null $data Form data array|Params collection
      * @access public
      * @throws \PAF\AppException
      */
-	public function __construct(?array $params = NULL,$data = NULL) {
-		if(is_array($params) && count($params)) {
-		    if(array_key_exists('content',$params)) {
-		        $this->formElements = $params['content'];
+	public function __construct($data = NULL,?array $config = NULL) {
+		if(is_array($config) && count($config)) {
+		    if(array_key_exists('content',$config)) {
+		        $this->formElements = $config['content'];
 		    } else {
-		        $this->formElements = $params;
-		    }//if(array_key_exists('content',$params))
-		}//if(is_array($params) && count($params))
+		        $this->formElements = $config;
+		    }//if(array_key_exists('content',$config))
+		}//if(is_array($config) && count($config))
         if(is_array($data)) {
             $this->formData = new Params($data);
         } elseif(is_object($data) && $data instanceof Params) {
@@ -79,9 +79,16 @@ class FormValidator {
      */
     public function SetFormData(?Params $formData): void {
         $this->formData = $formData;
+    }
+    /**
+     * @return array
+     */
+    public function getErrors(): array {
+        return $this->errors;
     }//END public function SetFormData
 
-    public function Validate() {
+
+    public function Validate(): bool {
         if(!count($this->formElements)) { return FALSE; }
         $errors = [];
         foreach($this->formElements as $element) {
@@ -90,12 +97,17 @@ class FormValidator {
                 NApp::_Dlog('Invalid form element key: '.print_r($element));
                 continue;
             }//if(!strlen($key))
+            $deafultValue = NULL;
             $required = get_array_value($element,'required',FALSE,'bool');
-            $validationType = get_array_value($element,'validation_type','','is_string');
-            if(!call_user_func($this->validationClass.'::IsValidParam')) { // TODO: check IsValidParam
-                $errors[] = [];
+            $validationType = get_array_value($element,'validation_type','','?is_notempty_string');
+            $sourceFormat = get_array_value($element,'source_format',NULL,'?is_notempty_string');
+            $isValid = FALSE;
+            $value = $this->formData->safeGet($key,$deafultValue,$validationType,$sourceFormat,$isValid);
+            if(!$isValid) {
+
+                $this->errors[] = [];
             }
         }//END foreach
-        return (count($errors) ? $errors : TRUE);
+        return (count($this->errors)==0);
     }//public function Validate
 }//END class FormValidator

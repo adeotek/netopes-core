@@ -35,7 +35,7 @@ class ConverterAdapter {
      * @static
      */
 	public static final function Convert($value,string $mode,?string $defaultValue = NULL,?string $validation = NULL) {
-        if(isset($validation)) { $value = Validator::ValidateParam($value,$defaultValue,$validation); }
+        if(isset($validation)) { $value = Validator::ValidateValue($value,$defaultValue,$validation); }
         if(is_null($value)) { return NULL; }
         $method = convert_to_camel_case($mode);
         if(strtolower(substr($method,0,2))!=='to') { $method = 'To'.$mode; }

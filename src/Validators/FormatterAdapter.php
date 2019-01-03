@@ -39,7 +39,7 @@ class FormatterAdapter {
      */
 	public static final function Format($value,string $mode,?array $regionals = NULL,?string $prefix = NULL,?string $sufix = NULL,?string $defaultValue = NULL,?string $validation = NULL,bool $htmlEntities = FALSE): ?string {
 	    if(substr($mode,-4)==='-0dv') { $validation = (substr($validation,0,1)==='?' ? '?' : '').'is_not0_numeric'; }
-        if(isset($validation)) { $value = Validator::ValidateParam($value,$defaultValue,$validation); }
+        if(isset($validation)) { $value = Validator::ValidateValue($value,$defaultValue,$validation); }
         if(is_null($value)) { return NULL; }
         $method = convert_to_camel_case($mode);
         if(!method_exists(static::class,$method)) {

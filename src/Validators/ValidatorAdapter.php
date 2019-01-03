@@ -27,26 +27,32 @@ class ValidatorAdapter {
      * @param mixed|null  $defaultValue
      * @param string|null $validation
      * @param string|null $sourceFormat
-     * @param bool        $checkOnly
+     * @param bool        $isValid
      * @return mixed
-     * @throws \Exception
+     * @throws \PAF\AppException
      * @access public
      * @static
      */
-	public static final function Validate($value,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool $checkOnly = FALSE) {
+	public static final function Validate($value,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = FALSE) {
 		$value = strlen($sourceFormat) ? Validator::ConvertValue($value,$sourceFormat) : $value;
 		if(!strlen($validation)) {
-		    if($checkOnly) { return isset($validation) ? isset($value) : TRUE; }
-		    return isset($validation) ? $value??$defaultValue : $value;
+		    if(isset($validation)) {
+		        $isValid = isset($value);
+		        return $value??$defaultValue;
+		    }//if(isset($validation))
+		    $isValid = TRUE;
+		    return $value;
 		}//if(!strlen($validation))
-		if(substr($validation,0,1)==='?' && is_null($value)) { return $checkOnly ? TRUE : NULL; }
+		if(substr($validation,0,1)==='?' && is_null($value)) {
+		    $isValid = TRUE;
+		    return NULL;
+		}//if(substr($validation,0,1)==='?' && is_null($value))
         $method = convert_to_camel_case(trim($validation,'? '));
         if(!method_exists(static::class,$method)) {
             NApp::_Elog('Invalid validator adapter method ['.static::class.'::'.$method.']!');
-            if($checkOnly) { return isset($value); }
+            $isValid = isset($value);
 		    return $value??$defaultValue;
         }//if(!method_exists(static::class,$method))
-        if($checkOnly) { return static::$method($value); }
         $isValid = static::$method($value);
         return ($isValid ? $value : $defaultValue);
 	}//END public static final function Validate
