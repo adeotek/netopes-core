@@ -23,8 +23,8 @@
 	class EditBox extends Control {
 		public function __construct($params = null){
 			$this->uc_first = 'none'; // posible values: none, first, all
-			$this->maxlength = 255;
-			$this->autoselect = TRUE;
+			$this->max_length = 255;
+			$this->auto_select = TRUE;
 			$this->textareacols = NULL;
 			$this->textarearows = NULL;
 			$this->height = NULL;

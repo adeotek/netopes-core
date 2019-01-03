@@ -37,7 +37,7 @@ class TimePicker extends Control {
 		if($this->button!==TRUE) { $this->width_offset = 0; }
 		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
 		if(!strlen($this->format)) { $this->format = 'HH:mm'; }
-		if(!is_integer($this->minutesStepping) || $this->minutesStepping<=0) { $this->minutesStepping = 5; }
+		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 5; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->now_button)) { $this->now_button = TRUE; }
 	}//END public function __construct
@@ -66,8 +66,8 @@ class TimePicker extends Control {
 		$dpclass = '';
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) { $dpclass = 'clsJqTimePicker'; }
 		$ldata = ' data-timeformat="HH:mm:ss"';
-		if(strlen($this->jsparams)) {
-			$ldata .= ' data-jqdpparams="'.$this->jsparams.'"';
+		if(strlen($this->js_params)) {
+			$ldata .= ' data-jqdpparams="'.$this->js_params.'"';
 		} else {
 			//Valorile default pentru parametri jQuery DatePicker
 			$ljqdpparams = "constrainInput: true,"
@@ -99,16 +99,16 @@ class TimePicker extends Control {
 	 * @access protected
 	 */
 	protected function SetBootstrap3Control(): string {
-		if(strlen($this->jsparams)) {
-			$jsparams = $this->jsparams;
+		if(strlen($this->js_params)) {
+			$jsparams = $this->js_params;
 		} else {
 			$jsparams = "{ "
 				."locale: '{$this->locale}', "
 				."format: '{$this->format}', "
 				."showTodayButton: ".($this->now_button ? 'true' : 'false').", "
-				."stepping: {$this->minutesStepping}"
+				."stepping: {$this->minutes_stepping}"
 				." }";
-		}//if(strlen($this->jsparams))
+		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();

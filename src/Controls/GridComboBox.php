@@ -187,7 +187,7 @@
 				'exportable'=>get_array_value($this->grid_params,'exportable',FALSE,'bool'),
 				'target'=>$this->target,
 				'loader'=>"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",
-				'alternate_row_collor'=>get_array_value($this->grid_params,'alternate_row_collor',TRUE,'bool'),
+				'alternate_row_color'=>get_array_value($this->grid_params,'alternate_row_color',TRUE,'bool'),
 				'compact_mode'=>get_array_value($this->grid_params,'compact_mode',TRUE,'bool'),
 				'scrollable'=>get_array_value($this->grid_params,'scrollable',FALSE,'bool'),
 				'with_filter'=>get_array_value($this->grid_params,'with_filter',TRUE,'bool'),

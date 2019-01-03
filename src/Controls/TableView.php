@@ -158,7 +158,7 @@ class TableView {
 	 * @var    bool Switch alternate row collor on/off
 	 * @access public
 	 */
-	public $alternate_row_collor = FALSE;
+	public $alternate_row_color = FALSE;
 	/**
 	 * @var    string Color row dynamically from a data field value
 	 * @access public
@@ -1911,7 +1911,7 @@ class TableView {
 				$r_cclass = ($r_cclass ? ' ' : '').$r_cc_class;
 				$r_cc = TRUE;
 			}//if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond))
-			$r_class = $r_cclass ? $r_cclass : ($this->alternate_row_collor && !$r_cc ? 'stdc' : '');
+			$r_class = $r_cclass ? $r_cclass : ($this->alternate_row_color && !$r_cc ? 'stdc' : '');
 			$r_tooltip = $this->GetToolTip($row,$r_class,$this->row_tooltip);
 			$r_class = strlen($r_class) ? ' class="'.$r_class.'"' : '';
 			$result .= "\t\t\t".'<tr'.$r_class.$r_style.$r_tooltip.$r_tdata.'>'."\n";
@@ -2068,7 +2068,7 @@ class TableView {
 					$this->SetRow($row,$r_cclass,FALSE);
 				} else {
 					$children = '';
-					$r_cclass = $this->alternate_row_collor ? ($r_cclass ? '' : 'altc') : '';
+					$r_cclass = $this->alternate_row_color ? ($r_cclass ? '' : 'altc') : '';
 					if($row->getProperty('has_child',0,'is_integer')==1) {
 					    $children = $this->IterateData($data,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
 					}//if($row->getProperty('has_child',0,'is_integer')==1)
@@ -2090,7 +2090,7 @@ class TableView {
 				foreach($data as $row) {
 					$row->__rowid = $rowid;
 					$row->__rowno = abs($firstrow) + $rowid;
-					$r_cclass = $this->alternate_row_collor ? ($r_cclass ? '' : 'altc') : '';
+					$r_cclass = $this->alternate_row_color ? ($r_cclass ? '' : 'altc') : '';
 					$result .= $this->SetRow($row,$r_cclass);
 					$rowid++;
 				}//END foreach

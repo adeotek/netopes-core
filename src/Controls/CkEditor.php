@@ -27,11 +27,11 @@ class CkEditor extends Control {
     /**
      * @var array|string|null
      */
-    public $extraconfig = NULL;
+    public $extra_config = NULL;
     /**
      * description
      *
-     * extraconfig:
+     * extra_config:
      * - toolbarStartupExpanded: false (hide toolbars on initialization)
      *
      * @return string|null
@@ -45,16 +45,16 @@ class CkEditor extends Control {
         $lwidth = $this->width ? (is_numeric($this->width) ? ','.$this->width : ',\''.$this->width.'\'') : '';
         $lheight = $this->height ? (is_numeric($this->height) ? ','.$this->height : ',\''.$this->height.'\'') : '';
         $lextraconfig = 'undefined';
-        if(is_array($this->extraconfig)) {
+        if(is_array($this->extra_config)) {
             try {
-                $lextraconfig = json_encode($this->extraconfig);
+                $lextraconfig = json_encode($this->extra_config);
             } catch(\Exception $je) {
                 NApp::_Elog($je->getMessage());
                 $lextraconfig = 'undefined';
             }//END try
-        } elseif(is_string($this->extraconfig) && strlen($this->extraconfig)) {
-            $lextraconfig = '{'.trim($this->extraconfig,'}{').'}';
-        }//if(is_array($this->extraconfig))
+        } elseif(is_string($this->extra_config) && strlen($this->extra_config)) {
+            $lextraconfig = '{'.trim($this->extra_config,'}{').'}';
+        }//if(is_array($this->extra_config))
         NApp::_ExecJs("CreateCkEditor('{$this->phash}','{$this->tag_id}',false,".$lextraconfig.$lwidth.$lheight.");");
         return $result;
     }//END protected function SetControl

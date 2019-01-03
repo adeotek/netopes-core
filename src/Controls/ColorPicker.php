@@ -39,8 +39,8 @@ class ColorPicker extends Control {
 	 * @access protected
 	 */
 	protected function SetControl(): ?string {
-		if(strlen($this->jsparams)) {
-			$jsparams = $this->jsparams;
+		if(strlen($this->js_params)) {
+			$jsparams = $this->js_params;
 		} else {
 			$jsparams = "{ "
 				."format: '{$this->format}', " //format:'rgb'|'hex'|'hsl'|'auto'|null
@@ -49,7 +49,7 @@ class ColorPicker extends Control {
 				." }";
 			//customClass : string
 			//useHashPrefix : bool
-		}//if(strlen($this->jsparams))
+		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();

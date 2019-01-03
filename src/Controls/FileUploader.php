@@ -14,11 +14,14 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use GibberishAES;
+
 /**
  * ClassName description
  *
  * long_description
  *
+ * @property bool   require_login
+ * @property string status_target
  * @package  NETopes\Controls
  * @access   public
  */
@@ -76,20 +79,20 @@ class FileUploader extends Control {
 		$lstatusid = strlen($this->status_target) ? ' data-statusid="'.$this->status_target.'"' : '';
 		$lcallback = strlen($this->callback) && !$this->disabled ? ' data-callback="'.rawurlencode(GibberishAES::enc($this->callback,'HTML')).'"' : '';
 
-		$this->targetdir = rawurlencode($this->targetdir);
-		$this->subfolder = rawurlencode($this->subfolder);
+		$this->target_dir = rawurlencode($this->target_dir);
+		$this->sub_folder = rawurlencode($this->sub_folder);
 		switch($this->theme_type) {
 			case 'bootstrap2':
 			case 'bootstrap3':
 			case 'bootstrap4':
 				$bclass = ' class="'.(strlen($this->button_class) ? $this->button_class : 'btn btn-info btn-xs').'"';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->targetdir.'" data-subfolder="'.$this->subfolder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 			default:
 				$bclass = strlen($this->button_class) ? ' class="'.$this->button_class.'"' : '';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->targetdir.'" data-subfolder="'.$this->subfolder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 		}//END switch
 		$onclick = (!$this->disabled ? ' onclick="$(\'#'.$this->tag_id.'\').click()"' : ' disabled="disabled"');
@@ -104,11 +107,10 @@ class FileUploader extends Control {
 	/**
 	 * Clears the base class of the control
 	 *
-	 * @return void
+	 * @return bool
 	 * @access public
 	 */
-	public function ClearBaseClass() {
+	public function ClearBaseClass(): bool {
 		return FALSE;
 	}//END public function ClearBaseClass
 }//END class FileUploader extends Control
-?>

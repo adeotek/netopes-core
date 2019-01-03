@@ -12,7 +12,6 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Data\DataProvider;
 use NApp;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSource;
@@ -26,6 +25,10 @@ use Translate;
  *
  * Standard ComboBox control
  *
+ * @property null   placeholder
+ * @property null   onenter_button
+ * @property null   cbo_placeholder
+ * @property string display_field
  * @package  NETopes\Controls
  * @access   public
  */

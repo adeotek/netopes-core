@@ -36,7 +36,7 @@ class DatePicker extends Control {
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
 		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
-		if(!is_integer($this->minutesStepping) || $this->minutesStepping<=0) { $this->minutesStepping = 1; }
+		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 1; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->today_button)) { $this->today_button = TRUE; }
 	}//END public function __construct
@@ -69,8 +69,8 @@ class DatePicker extends Control {
 		$ldateformat = strlen($this->dateformat) ? $this->dateformat : 'dd.MM.yyyy';
 		$ldata = ' data-format="'.$ldateformat.'"';
 		if($this->timepicker) { $ldata .= ' data-timeformat="'.(strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss').'"'; }
-		if(strlen($this->jsparams)) {
-			$ldata .= ' data-jqdpparams="'.$this->jsparams.'"';
+		if(strlen($this->js_params)) {
+			$ldata .= ' data-jqdpparams="'.$this->js_params.'"';
 		} else {
 			$ldateformat = str_replace('yyyy','yy',str_replace('M','m',$ldateformat));
 			//Valorile default pentru parametri jQuery DatePicker
@@ -146,16 +146,16 @@ class DatePicker extends Control {
 
 		$ldata = ' data-format="'.$lDateFormat.'"';
 		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
-		if(strlen($this->jsparams)) {
-			$jsparams = $this->jsparams;
+		if(strlen($this->js_params)) {
+			$jsparams = $this->js_params;
 		} else {
 			$jsparams = "{ "
 				."locale: '{$this->locale}', "
 				."format: '{$lFormat}', "
 				."showTodayButton: ".($this->today_button ? 'true' : 'false').", "
-				."stepping: {$this->minutesStepping}"
+				."stepping: {$this->minutes_stepping}"
 				." }";
-		}//if(strlen($this->jsparams))
+		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
 
 		$this->ProcessActions();

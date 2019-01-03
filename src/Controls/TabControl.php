@@ -208,7 +208,7 @@ class TabControl {
 	/**
 	 * Sets the output buffer value
 	 *
-	 * @return void
+	 * @return string|null
 	 * @access protected
 	 * @throws \PAF\AppException
 	 */
@@ -282,4 +282,3 @@ class TabControl {
 		return $this->output_buffer;
 	}//END public function Show
 }//END class TabControl
-?>
