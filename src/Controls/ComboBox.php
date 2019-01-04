@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.4.0.5
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -55,16 +55,23 @@ class ComboBox extends Control {
 	protected function SetControl(): ?string {
         $this->ProcessActions();
         $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+        $placeholderFieldName = (is_string($this->display_field) ? $this->display_field : '_text_');
         $ph_class = '';
         $t_required = '';
         if(strlen($this->please_select_text)) {
-            $litems->add(new VirtualEntity([$this->value_field=>$this->please_select_value,$this->display_field=>html_entity_decode($this->please_select_text)]));
+            $litems->add(new VirtualEntity([
+                $this->value_field=>$this->please_select_value,
+                $placeholderFieldName=>html_entity_decode($this->please_select_text),
+            ]));
         } elseif($this->please_select_value=='_blank') {
             $litems->add(new VirtualEntity([]));
         } elseif(strlen($this->placeholder)) {
             $ph_class = 'clsPlaceholder';
             $t_required = ' required="required"';
-            $litems->add(new VirtualEntity([$this->value_field=>'__is_placeholder__',$this->display_field=>html_entity_decode($this->placeholder)]));
+            $litems->add(new VirtualEntity([
+                $this->value_field=>'__is_placeholder__',
+                $placeholderFieldName=>html_entity_decode($this->placeholder),
+            ]));
         }//if(strlen($this->please_select_value))
         if(is_object($this->selected_value)) {
             $selectedValue = $this->selected_value->getProperty($this->value_field,NULL,'isset');
@@ -101,7 +108,7 @@ class ComboBox extends Control {
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->value_field))
 			if($item->getProperty($this->value_field)==='__is_placeholder__') {
-			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($this->display_field)."</option>\n");
+			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($placeholderFieldName)."</option>\n");
 			    continue;
 			}//if($item->getProperty($this->value_field)=='__is_placeholder__')
 
