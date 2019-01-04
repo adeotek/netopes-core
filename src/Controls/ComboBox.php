@@ -55,11 +55,12 @@ class ComboBox extends Control {
 	protected function SetControl(): ?string {
         $this->ProcessActions();
         $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
-        $placeholderFieldName = (is_string($this->display_field) ? $this->display_field : '_text_');
+        $placeholderFieldName = (is_string($this->display_field) ? $this->display_field : '__text__');
         $ph_class = '';
         $t_required = '';
         if(strlen($this->please_select_text)) {
             $litems->add(new VirtualEntity([
+                '__special_type__'=>'default_value',
                 $this->value_field=>$this->please_select_value,
                 $placeholderFieldName=>html_entity_decode($this->please_select_text),
             ]));
@@ -69,7 +70,7 @@ class ComboBox extends Control {
             $ph_class = 'clsPlaceholder';
             $t_required = ' required="required"';
             $litems->add(new VirtualEntity([
-                $this->value_field=>'__is_placeholder__',
+                '__special_type__'=>'placeholder',
                 $placeholderFieldName=>html_entity_decode($this->placeholder),
             ]));
         }//if(strlen($this->please_select_value))
@@ -107,10 +108,10 @@ class ComboBox extends Control {
 				$rOptions[''][] = "\t\t\t<option></option>\n";
 				continue;
 			}//if(!is_object($item) || !$item->hasProperty($this->value_field))
-			if($item->getProperty($this->value_field)==='__is_placeholder__') {
+			if($item->getProperty('__special_type__')==='placeholder') {
 			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($placeholderFieldName)."</option>\n");
 			    continue;
-			}//if($item->getProperty($this->value_field)=='__is_placeholder__')
+			}//if($item->getProperty('__special_type__')==='placeholder')
 
 			$lcolorfield = strlen($this->colorfield) ? $this->colorfield : 'color';
             $loptionclass = strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
@@ -122,7 +123,11 @@ class ComboBox extends Control {
             }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
 
             $lval = $item->getProperty($this->value_field,NULL,'isset');
+            if($item->getProperty('__special_type__')==='default_value') {
+                $ltext = $item->getProperty($placeholderFieldName);
+            } else {
 			$ltext = $this->GetDisplayFieldValue($item);
+            }//if($item->getProperty('__special_type__')==='default_value')
             $lselected = '';
             if($lval==$selectedValue && !(($selectedValue===NULL && $lval!==NULL) || ($selectedValue!==NULL && $lval===NULL))) {
                 $lselected = ' selected="selected"';
