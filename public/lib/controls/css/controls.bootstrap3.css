@@ -222,6 +222,8 @@
 .clsGCKBItem.form-control {
 	margin: 10px 10px 9px 10px;
 }
+.form-control.w-act { display: inline-block; }
+
 input[type="image"].FInLine {
 	display: inline-block;
 	margin: 0 10px 0 0;
