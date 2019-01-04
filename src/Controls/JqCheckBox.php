@@ -34,7 +34,7 @@ class JqCheckBox extends Control {
 		} else {
 			$lvalue = ($this->value===TRUE || $this->value==1) ? 1 : 0;
 		}//if($this->invert_value)
-		$ljqparams = strlen($this->jqparams) ? $this->jqparams : '';
+		$ljqparams = strlen($this->jq_params) ? $this->jq_params : '';
 		$lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
 		$result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions().$lstyle.' value="'.$lvalue.'">'."\n";
 		NApp::_ExecJs("$('#{$this->tag_id}').jqCheckBox({$ljqparams});");

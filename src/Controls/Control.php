@@ -360,6 +360,7 @@ abstract class Control {
 		if($this->postable) { $lclass .= ' postable'; }
 		if(strlen($this->onenter)) { $lclass .= ' clsOnEnterAction'; }
 		if(strlen($this->onenter_button)) { $lclass .= ' clsOnEnterActionButton'; }
+		if($this->HasActions() && !$this->container) { $lclass .= ' w-act'; }
 		if(strlen(trim($lclass))) { return ' class="'.trim($lclass).'"'; }
 		return '';
 	}//END protected function GetTagClass
