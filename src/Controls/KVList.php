@@ -1,14 +1,14 @@
 <?php
 /**
- * Basic controls classes file
+ * KVList class file
  *
- * File containing basic controls classes
+ * File containing KVList control class
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.4.0.5
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -18,9 +18,7 @@ use NApp;
 use Translate;
 
 /**
- * KVList class
- *
- * Control class for key-value list
+ * Class KVList
  *
  * @package  Hinter\NETopes\Controls
  * @access   public
@@ -51,13 +49,13 @@ class KVList extends Control {
             }//END try
         }//if(is_string($lvalues) && strlen($lvalues))
         if($with_translations) {
-            if(is_array($lang) && count($lang)) {
-                $tsufix = '-'.$lang['code'];
-                $pkey = '['.$lang['id'].']';
+            if(is_object($lang)) {
+                $tsufix = '-'.$lang->getProperty('code');
+                $pkey = '['.$lang->getProperty('id').']';
             } else {
                 $tsufix = '-def';
                 $pkey = '[0]';
-            }//if(is_array($lang) && count($lang))
+            }//if(is_object($lang))
         } else {
             $tsufix = '';
             $pkey = '';
