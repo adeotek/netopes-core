@@ -990,7 +990,7 @@ abstract class Control {
 					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
 				} else {
 				    $ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($dv)>0 ? str_replace('~',$ltext,$dv) : $ltext;
+					$ldisplayvalue .= strlen($dv) ? str_replace('~',$ltext,$dv) : $ltext;
 				}//if(is_array($dv))
 			}//foreach ($this->display_field as $dk=>$dv)
 		} else {
