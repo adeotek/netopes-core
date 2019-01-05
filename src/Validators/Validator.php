@@ -42,7 +42,7 @@ class Validator {
      * @throws \PAF\AppException
      */
     public static function GetConverterAdapter(?string $method = NULL): string {
-        $customAdapter = AppConfig::convertor_adapter_class();
+        $customAdapter = AppConfig::converter_adapter_class();
         $class = '\\'.ltrim(static::$converterAdapter??$customAdapter??ConverterAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid converter adapter class ['.$class.']!'); }
