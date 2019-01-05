@@ -49,7 +49,7 @@ class ConverterAdapter {
      * Converts a datetime string value to DateTime instance
      *
      * @param  mixed       $date Datetime to be converted
-     * @param  null|string $format Format of the date to be converted
+     * @param  null|string $sourceFormat Format of the date to be converted
      * @param  null|string $timezone User's timezone
      * @param bool         $convertToServerTimezone Default value TRUE
      * @return \DateTime|null Returns the datetime object or null
@@ -57,7 +57,7 @@ class ConverterAdapter {
      * @access public
      * @static
      */
-	public static function DateTimeToObject($date,?string $format = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
+	public static function DateTimeToObject($date,?string $sourceFormat = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
 	    if($date instanceof \DateTime) { return clone $date; }
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
@@ -65,10 +65,10 @@ class ConverterAdapter {
             if(!($dt = new \DateTime('now',new \DateTimeZone($timezone)))) { return NULL; }
 			$dt->setTimestamp($date);
 	    } elseif(is_string($date) && strlen($date)) {
-	        if(!strlen($format)) { $format = 'Y-m-d H:i:s'; }
-	        if(strpos($format,' ') && strpos($date,' ')===FALSE) { $date .= ' 00:00'.(substr($format,-2)==':s' ? ':00' : ''); }
-            if(!($dt = \DateTime::createFromFormat($format,$date,new \DateTimeZone($timezone)))) { return NULL; }
-	    } else {
+	        if(!strlen($sourceFormat)) { $sourceFormat = 'Y-m-d H:i:s'; }
+	        if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE) { $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : ''); }
+            if(!($dt = \DateTime::createFromFormat($sourceFormat,$date,new \DateTimeZone($timezone)))) { return NULL; }
+	    } elseif(!is_object($date) || !($date instanceof \DateTime)) {
 	        return NULL;
 	    }//if(is_numeric($date))
 	    if($convertToServerTimezone && $timezone!==AppConfig::server_timezone()) { $dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone())); }
@@ -78,7 +78,7 @@ class ConverterAdapter {
      * Converts a datetime value to database format
      *
      * @param  mixed       $date Datetime to be converted
-     * @param  string      $format Datetime format string
+     * @param  string      $sourceFormat Datetime format string
      * @param  string|null $timezone User's timezone
      * @param  int|null    $dayPart If set to 0  time is set to "00:00:00.000",
      * if set to 1 time is set to "23:59:59.999", else time is set to original value
@@ -88,10 +88,10 @@ class ConverterAdapter {
      * @access public
      * @static
      */
-	public static function DateTimeToDbFormat($date,string $format,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
+	public static function DateTimeToDbFormat($date,string $sourceFormat,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
-	    $dt = static::DateTimeToObject($date,$format,$timezone,FALSE);
+	    $dt = static::DateTimeToObject($date,$sourceFormat,$timezone,FALSE);
 	    if(is_null($dt)) { return NULL; }
 		if($dayPart===0) {
             $dt->setTime(0,0,0,0);
@@ -113,7 +113,7 @@ class ConverterAdapter {
      * @static
      */
 	public static function DateTimeToFormat($date,string $format,?string $timezone = NULL): ?string {
-	    $dt = static::DateTimeToObject($date,$format,$timezone);
+	    $dt = static::DateTimeToObject($date,NULL,$timezone);
 	    if(is_null($dt)) { return NULL; }
         return $dt->format($format);
 	}//END public static function DateTimeToFormat
