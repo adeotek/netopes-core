@@ -6,14 +6,15 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
+use NETopes\Core\AppSession;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSource;
@@ -21,10 +22,9 @@ use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
 use NETopes\Core\Data\VirtualEntity;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use NApp;
 use Translate;
-
 /**
  * Data grid control
  *
@@ -65,7 +65,7 @@ class TableView {
 	 */
 	protected $export_button = FALSE;
 	/**
-	 * @var    string Filter condition type value source (for filter PAF action)
+	 * @var    string Filter condition type value source
 	 * @access protected
 	 */
 	protected $filter_cond_val_source = NULL;
@@ -339,7 +339,7 @@ class TableView {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->chash = \PAF\AppSession::GetNewUID();
+		$this->chash = AppSession::GetNewUID();
 		$this->base_class = 'cls'.get_class_basename($this);
 		$this->current_page = 1;
 		$this->theme_type = is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
@@ -375,7 +375,7 @@ class TableView {
      * @param null   $def_value
      * @return string Return formatted value as string
      * @access protected
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	protected function FormatValue($value,$format,$def_value = NULL) {
 		if(is_string($format) && strlen($format)) {
@@ -420,7 +420,7 @@ class TableView {
 	 * @param null   $params
 	 * @param bool   $process_call
 	 * @return string Returns action javascript command string
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetActionCommand($type = '',$params = NULL,$process_call = TRUE) {
@@ -554,7 +554,7 @@ class TableView {
 		if($this->with_pagination && !$this->export_only) {
 			$extra_params['type'] = 'count-select';
 			$firstrow = $lastrow = NULL;
-			Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->current_page);
+			Module::GlobalGetPaginationParams($firstrow,$lastrow,$this->current_page);
 			$extra_params['first_row'] = $firstrow;
 			$extra_params['last_row'] = $lastrow;
 		}//if($this->with_pagination && !$this->export_only)
@@ -574,7 +574,7 @@ class TableView {
 	 *
 	 * @return DataSet
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetData() {
 		$this->totals = [];
@@ -652,7 +652,7 @@ class TableView {
 	 *
 	 * @param bool $with_filters
 	 * @return string Returns the actions bar controls html
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetActionsBarControls($with_filters = FALSE) {
@@ -705,7 +705,7 @@ class TableView {
 	 *
 	 * @param null $params
 	 * @return string|null Returns the filter box html
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetFilterBox($params = NULL): ?string {
@@ -996,7 +996,7 @@ class TableView {
 	 * @param  array $items The data array
 	 * @return string Returns the pagination box html
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetPaginationBox($items): ?string {
 		$records_no = $items->getTotalCount();
@@ -1019,7 +1019,7 @@ class TableView {
 	 *
      * @param $t_c_width
 	 * @return string Returns the header row(s) HTML as string
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetTableHeader(&$t_c_width) {
@@ -1233,7 +1233,7 @@ class TableView {
 	 * @param string $type
 	 * @param bool $is_iterator
 	 * @return mixed Returns the table cell value
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetCellValue(&$row,&$v,$name,$type,$is_iterator = FALSE) {
@@ -1334,7 +1334,7 @@ class TableView {
                     }//if($is_iterator)
                     if(isset($c_params['tag_id'])) {
                         $key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
-                        $key_value = strlen($key_value) ? $key_value : \PAF\AppSession::GetNewUID();
+                        $key_value = strlen($key_value) ? $key_value : \NETopes\Core\App\AppSession::GetNewUID();
                         $c_params['tag_id'] .= '_'.$key_value;
                     }//if(isset($c_params['tag_id']))
                     $p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
@@ -1745,7 +1745,7 @@ class TableView {
 	 * @param null $r_tree_state
 	 * @param bool $is_iterator
 	 * @return string Returns the table cell html
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function SetCell(&$row,&$v,$name,$has_child = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
@@ -1881,7 +1881,7 @@ class TableView {
 	 * @param null $r_cclass
 	 * @param bool $has_child
 	 * @return string Returns the table row html
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function SetRow($row,$r_cclass = NULL,$has_child = FALSE) {
@@ -2045,7 +2045,7 @@ class TableView {
 	 * @param null $lvl
 	 * @param null $id_parent
 	 * @return string Returns the table html
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function IterateData($data,&$params,$r_cclass = NULL,$lvl = NULL,$id_parent = NULL) {
@@ -2053,7 +2053,6 @@ class TableView {
 		if(!is_object($data) || !count($data)) { return NULL; }
 		$result = '';
 		if($this->tree) {
-
 			$has_parent = is_numeric($id_parent) && $id_parent>0;
 			if(is_null($lvl)) { $this->tree_top_lvl = $lvl = $data->first()->getProperty('lvl',1,'is_integer'); }
 			foreach($data as $rowid=>$row) {
@@ -2085,7 +2084,7 @@ class TableView {
 				}//END foreach
 			} else {
 				$firstrow = $lastrow = NULL;
-				Module::GlobalGetPagintionParams($firstrow,$lastrow,$this->current_page);
+				Module::GlobalGetPaginationParams($firstrow,$lastrow,$this->current_page);
 				$rowid = 0;
 				foreach($data as $row) {
 					$row->__rowid = $rowid;
@@ -2195,7 +2194,7 @@ class TableView {
 	 *
 	 * @param null $params
 	 * @return string|null
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function SetControl($params = NULL): ?string {
@@ -2318,7 +2317,7 @@ class TableView {
      * @param array  $config
      * @param bool   $overwrite
      * @return void
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function SetColumn(string $name,array $config,bool $overwrite = FALSE): void {
         if(array_key_exists($name,$this->columns) && !$overwrite) { throw new AppException('Column already set!'); }
@@ -2338,7 +2337,7 @@ class TableView {
      * @param int|null $index
      * @param bool     $overwrite
      * @return void
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function AddAction(string $name,array $action,bool $updateVisibleCount = TRUE,?int $index = NULL,bool $overwrite = FALSE): void {
 	    if(!array_key_exists($name,$this->columns) || !is_array($this->columns[$name])) { $this->columns[$name] = []; }
@@ -2375,7 +2374,7 @@ class TableView {
 	 * * other passthrough params
 	 * @return string Returns the control's content (html)
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function Show($params = NULL): ?string {
 		// NApp::_Dlog($params,'TableView>>Show');
@@ -2397,7 +2396,7 @@ class TableView {
 	 * * other passthrough params
 	 * @return string Returns the control's filters box content
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function ShowFiltersBox($params = NULL) {
 		$o_params = is_object($params) ? $params : new Params($params);
@@ -2422,7 +2421,7 @@ class TableView {
 	 *
      * @param null $params
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
      * @access public
 	 */
 	public function ExportAll($params = NULL) {
@@ -2470,7 +2469,7 @@ class TableView {
 	 *
 	 * @param  array $params An array of parameters
 	 * @return string|bool Returns file content or FALSE on error
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      * @access public

@@ -4,14 +4,13 @@
  *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * Base Base Doctrine data adapter class
  *
@@ -26,7 +25,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function ExecRepositoryMethod($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -45,7 +44,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function CreateItem($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -59,7 +58,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function GetItems($params = [],$extra_params = []) {
         if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -88,7 +87,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function GetObjects($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -102,7 +101,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function GetItem($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -118,7 +117,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function Search($params = [],$extra_params = []) {
 		if(!strlen($this->entityName) || !class_exists($this->entityName)) { throw new AppException('Invalid entity ['.$this->entityName.']!'); }
@@ -136,7 +135,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function SetItem($params = [],$extra_params = []) {
 		if(!is_object($params)) { throw new AppException('Invalid entity instance!'); }
@@ -156,7 +155,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function SetNewItem($params = [],$extra_params = []) {
 		return $this->SetItem($params,$extra_params);
@@ -168,7 +167,7 @@ class DoctrineDataSource extends DataSource {
      * @param array $params
      * @param array $extra_params
      * @return bool
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function UnsetItem($params = [],$extra_params = []) {
 		if(is_array($params)) {

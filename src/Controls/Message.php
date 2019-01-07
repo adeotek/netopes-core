@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
@@ -21,7 +21,7 @@
 	 * @access   public
 	 */
 	class Message extends Control {
-		public function __construct($params = NULL){
+		public function __construct($params = NULL) {
 			$this->postable = FALSE;
 			$this->no_label = TRUE;
 			$this->text = NULL;

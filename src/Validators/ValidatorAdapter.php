@@ -6,14 +6,13 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.1.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
 use NApp;
-
 /**
  * Class ValidatorAdapter
  *
@@ -29,7 +28,7 @@ class ValidatorAdapter {
      * @param string|null $sourceFormat
      * @param bool        $isValid
      * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -213,7 +212,7 @@ class ValidatorAdapter {
     /**
      * @param $value
      * @return bool
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function IsDatetime(&$value): bool {
         $value = Validator::ConvertDateTimeToObject($value);

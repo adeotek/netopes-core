@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 /**
@@ -329,7 +329,6 @@ class MongoDbDbAdapter extends DataAdapter {
 		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$dbg_method.'('.print_r($params,TRUE).')','duration'=>(microtime(TRUE)-$time)),$log);
 		return arr_change_key_case($final_result,TRUE);
 	}//END public function MongoDbExecuteMethod
-
 	/**
 	 * Escapes single quote charcater from a string
 	 * !!!DUMMY FUNCTION!!!

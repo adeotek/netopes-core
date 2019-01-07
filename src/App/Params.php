@@ -7,9 +7,9 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.8
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -17,7 +17,7 @@ use ArrayIterator;
 use Closure;
 use NETopes\Core\Data\Collection;
 use NETopes\Core\Validators\Validator;
-use PAF\AppException;
+use NETopes\Core\AppException;
 /**
  * Params class
  *
@@ -39,7 +39,7 @@ class Params implements Collection {
 	 *
 	 * @param $input
 	 * @return array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function ConvertStringToArray($input) {
 		if(!is_string($input) || !strlen($input)) { return []; }
@@ -67,7 +67,7 @@ class Params implements Collection {
 	 * Initializes a new DataSet.
 	 *
 	 * @param mixed $params
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
     public function __construct($params = NULL) {
         if(is_null($params)) {
@@ -87,7 +87,7 @@ class Params implements Collection {
 	 * @param array $elements Elements.
 	 *
 	 * @return static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
     protected function createFrom(array $elements)
     {
@@ -258,7 +258,7 @@ class Params implements Collection {
 	 * @param string|null $validation
 	 * @param string|null $failMessage
 	 * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 */
     public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
     {
@@ -276,7 +276,7 @@ class Params implements Collection {
      * @param string|null $sourceFormat
      * @param bool        $isValid
      * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function safeGet($key,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = TRUE) {
         return Validator::ValidateArrayValue($this->elements,$key,$defaultValue,$validation,$sourceFormat,$isValid);
@@ -358,7 +358,7 @@ class Params implements Collection {
      * {@inheritDoc}
      *
      * @return static
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function map(Closure $func)
     {
@@ -368,7 +368,7 @@ class Params implements Collection {
      * {@inheritDoc}
      *
      * @return static
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function filter(Closure $p)
     {
@@ -424,7 +424,6 @@ class Params implements Collection {
     {
         return array_slice($this->elements, $offset, $length, true);
     }
-
     public function jsonSerialize()
     {
         return json_encode($this->elements);

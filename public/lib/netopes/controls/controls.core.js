@@ -1,11 +1,11 @@
 /**
  * NETopes controls core javascript file
  *
- * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.2.5.8
+ * @version    2.5.0.0
  ***/
 /*** For Loader and Screen blocking ***/
 function ShowLoader(element,full) {
@@ -19,7 +19,6 @@ function ShowLoader(element,full) {
 		$(obj).show();
 	}//if($(obj).length>0)
 }//function ShowLoader
-
 function HideLoader(element) {
 	if(typeof(element)=='object') {
 		var obj = element;
@@ -39,7 +38,6 @@ function OpenUrl(url,new_tab) {
 		window.open(url);
 	}//if(new_tab===true || new_tab===1 || new_tab==='1')
 }//END function OpenUrl
-
 function randerReCaptcha(elementid,site_key) {
 	if(grecaptcha && elementid && $('#'+elementid).length) {
 		if(!site_key || site_key.length==0) {
@@ -48,7 +46,6 @@ function randerReCaptcha(elementid,site_key) {
 		if(site_key) { grecaptcha.render(elementid,{ 'sitekey' : site_key }); }
 	}
 }//function randerReCaptcha
-
 function getReCaptcha(elementid) {
     if(grecaptcha) {
         var response = grecaptcha.getResponse();
@@ -63,7 +60,6 @@ function getReCaptcha(elementid) {
     }
     return false;
 }//function getReCaptcha
-
 function resetReCaptcha() {
 	if(grecaptcha) { grecaptcha.reset(); }
 }//function resetReCaptcha
@@ -73,7 +69,6 @@ function GetCurrentLanguageCode(){
 	var langsel = $('#lang-selector').val();
 	return langsel.substring(langsel.indexOf('^',0)+1).toLowerCase();
 }//END function GetCurrentLanguageCode
-
 function GetNewLanguageLink(newlang,newdomain,olddomain) {
 	var newvalue = newlang;
 	if(strpos(newlang,'^')) { newlang = newlang.substring(newlang.indexOf('^',0)+1); }
@@ -98,13 +93,11 @@ function GetNewLanguageLink(newlang,newdomain,olddomain) {
 	$('#lang-selector').val(newvalue);
 	return newlink+clinkhash;
 }//END function GetNewLanguageLink
-
 function SetNewLanguageLink(newlang,newdomain,olddomain) {
 	var lnlink = GetNewLanguageLink(newlang,newdomain,olddomain);
 	if(lnlink) { window.location.href = lnlink; }
 }//END function SetNewLanguageLink
 /*** END For Language selector ***/
-
 /*** For getting element value ***/
 function GetElementValue(elementid,elementproperty) {
 	var lproperty = elementproperty ? elementproperty : 'value';
@@ -136,7 +129,6 @@ $(document).on('focus','.clsJqDatePicker',function(e) {
 		$(this).datepicker();
 	}//if($(this).attr('data-jqdpparams').length)
 });//$(document).on('focus','.clsJqDatePicker',function(e)
-
 $(document).on('focus','.clsJqDateTimePicker',function(e) {
 	var langcode = GetCurrentLanguageCode();
 	$.datepicker.setDefaults($.datepicker.regional[langcode]);
@@ -147,7 +139,6 @@ $(document).on('focus','.clsJqDateTimePicker',function(e) {
 		$(this).datetimepicker();
 	}//if($(this).attr('data-jqdpparams').length)
 });//$(document).on('focus','.clsJqDateTimePicker',function(e)
-
 $(document).on('focus','.clsJqTimePicker',function(e) {
 	var langcode = GetCurrentLanguageCode();
 	//$.timepicker.setDefaults($.timepicker.regional[langcode]);
@@ -158,7 +149,6 @@ $(document).on('focus','.clsJqTimePicker',function(e) {
 	}//if($(this).attr('data-jqdpparams').length)
 });//$(document).on('focus','.clsJqTimePicker',function(e)
 /*** END For jQuery DateTimePicker ***/
-
 /*** For NumericTextBox ***/
 $(document).on('focus','.clsSetNumberFormat',function(e) {
 	var anull = $(this).attr('data-anull');
@@ -171,7 +161,6 @@ $(document).on('focus','.clsSetNumberFormat',function(e) {
 		}//if(nformat)
 	}//if(anull!=1 || $(this).val()!='')
 });//$(document).on('focus','.clsSetNumberFormat',function(e)
-
 $(document).on('focusout','.clsSetNumberFormat',function(e) {
 	var anull = $(this).attr('data-anull');
 	if((anull==='1' || anull==='true') && $(this).val()==='') {
@@ -200,14 +189,12 @@ $(document).on('focusout','.clsSetNumberFormat',function(e) {
 		}//if(nformat)
 	}//if((anull=='1' || anull=='true') && $(this).val()=='')
 });//$(document).on('focusout','.clsSetNumberFormat',function(e)
-
 /**
  * @return {number}
  */
 function FormatToNumericValue(element_value,decimal_separator,group_separator,sufix) {
     return Number(element_value.replaceAll(sufix,'').replaceAll(group_separator,'').replaceAll(decimal_separator,'.'));
 }//END function FormatToNumericValue
-
 /**
  * @return {number}
  */
@@ -238,14 +225,12 @@ function GetNumericTextboxValue(element) {
 		return FormatToNumericValue(eObj.val(), decimalSeparator, groupSeparator, suffix);
 	}//if(!dFormat.length)
 }//END function GetNumericTextboxValue
-
 function GetCalculatedValue(element_value,decimal_separator) {
 	var formated_value = element_value+'';
 	formated_value = formated_value.replaceAll('.',decimal_separator);
 	return formated_value;
 }//END function GetCalculatedValue
 /*** END For NumericTextBox ***/
-
 /*** For CheckBox control ***/
 function CheckBoxClickBaseEvent(obj,elementid) {
 	if(typeof(obj)!='object') {
@@ -260,7 +245,6 @@ function CheckBoxClickBaseEvent(obj,elementid) {
 	}//if(cvalue==1)
 	$(obj).trigger('change');
 }//END function CheckBoxClickBaseEvent
-
 function UnselectGroupCheckBoxes(grouptag,obj,valuetag){
 	var notselected = true;
 	$('#'+grouptag+' input[type=image]').each( function() {
@@ -291,11 +275,9 @@ function GroupCheckBoxBaseEvent(obj) {
 		// console.log($('#'+eid).val());
 	}//if(eid && $('#'+eid).length>0)
 }//END function GroupCheckBoxBaseEvent
-
 $(document).on('click','.clsGCKBItem.active',function(e) {
 	GroupCheckBoxBaseEvent(this);
 });//$(document).on('click','.clsGCKBItem',function(e)
-
 $(document).on('keypress','.clsGCKBItem.active',function(e) {
 	if(event.keyCode==13) { GroupCheckBoxBaseEvent(this); }
 });//$(document).on('keypress','.clsGCKBItem',function(e)
@@ -322,7 +304,6 @@ function AppendComboBoxItem(elementid,val,text,selected) {
 		if(selected==1) { $(obj).val(val).trigger('change'); }
 	}//if($(obj).hasClass("select2-hidden-accessible"))
 }//END function AppendComboBoxItem
-
 //functie pentru afisarea corecta a selecturilor cu style diferit pe optiuni
 function UpdateComboBoxClass(elementid) {
 	$('#'+elementid+' option').each(function(e) {
@@ -333,7 +314,6 @@ function UpdateComboBoxClass(elementid) {
 		}//if($(this).attr('selected')=='selected')
 	});//$('#'+elementid+' option').each(function(e)
 }//END function UpdateComboBoxClass
-
 function CBODDBtnClick(elementid) {
 	var obj = $('#'+elementid+'-dropdown');
 	if($(obj).css('display')=='none') {
@@ -350,7 +330,6 @@ function CBODDBtnClick(elementid) {
 		$(obj).hide();
 	}//if($(obj).css('display')=='none')
 }//END function CBODDBtnClick
-
 function GCBOLoader(state,elementid) {
 	var obj = $('#'+elementid+'-dropdown > .gcbo-loader');
 	if(obj && obj.length>0) {
@@ -362,7 +341,6 @@ function GCBOLoader(state,elementid) {
 		}//if(state==1)
 	}//if(obj && obj.length>0)
 }//END function GCBOLoader
-
 function GCBODDBtnClick(elementid,open) {
 	if($('#'+elementid).attr('disabled')) { return false; }
 	var obj = $('#'+elementid+'-dropdown');
@@ -397,7 +375,6 @@ function GCBODDBtnClick(elementid,open) {
 		$(obj).hide();
 	}//if(act)
 }//END function GCBODDBtnClick
-
 function GCBOSetValue(elementid,val,title,btnclick) {
 	if($('#'+elementid).attr('disabled')) { return false; }
 	var clear = false;
@@ -423,7 +400,6 @@ function GCBOSetValue(elementid,val,title,btnclick) {
 	var onchange = $('#'+elementid).attr('data-onchange');
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function GCBOSetValue
-
 function TCBOSetValue(elementid,val,title,update_tree) {
 	if($('#'+elementid).attr('disabled')) { return false; }
 	var oval = $('#'+elementid).val();
@@ -439,7 +415,6 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 	var onchange = $('#'+elementid).attr('data-onchange');
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function TCBOClear
-
 function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
 	var lval = encodeURIComponent(val);
@@ -492,7 +467,6 @@ function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,
         }
 	});
 }//END function InitFancyTree
-
 $(document).on('keydown','input.clsGridComboBox[type=text]',function(e) {
 	if($('#'+$(this).attr('data-id')).attr('disabled')) { e.preventDefault(); return false; }
     if(e.keyCode==13) { //Enter
@@ -506,7 +480,6 @@ $(document).on('keydown','input.clsGridComboBox[type=text]',function(e) {
     	GCBODDBtnClick($(this).attr('data-id'),null);
     }//if(e.keyCode==13)
 });//$(document).on('keydown','input.clsGridComboBox[type=text]',function(e)
-
 $(document).on('keydown','input.clsTreeComboBox[type=text]',function(e) {
 	if($('#'+$(this).attr('data-id')).attr('disabled')) { e.preventDefault(); return false; }
     if(e.keyCode==13 || (e.altKey && (e.keyCode==40 || e.keyCode==98)) || e.keyCode==115) { //Enter/Alt+Down/Alt+Numpad2/F4
@@ -517,7 +490,6 @@ $(document).on('keydown','input.clsTreeComboBox[type=text]',function(e) {
     }//if(e.keyCode==13)
 });//$(document).on('keydown','input.clsTreeComboBox[type=text]',function(e)
 /*** END For ComboBox ***/
-
 /*** For Select2 and SmartComboBox ***/
 function SmartCBOInitialize() {
 	// console.log('SmartCBOInitialize>>');
@@ -534,7 +506,6 @@ function SmartCBOInitialize() {
     	}//if(!$(obj).hasClass("select2-hidden-accessible"))
 	});//$('select.SmartCBO').each(function(i,obj)
 }//END function SmartCBOInitialize
-
 function GetSmartCBOValue(element,asObject) {
 	if(!element) { return null; }
 	var lelement = element;
@@ -545,7 +516,6 @@ function GetSmartCBOValue(element,asObject) {
 	lval = lval.join(',');
 	return lval;
 }//END function GetSmartCBOValue
-
 function GetSmartCBOText(element,asObject) {
 	if(!element) { return null; }
 	var lelement = element;
@@ -580,7 +550,6 @@ function SetSmartCBOValue(element,new_val) {
 	}//if(typeof(new_val)==='object')
 	return true;
 }//function SetSmartCBOValue
-
 function GetSelect2Val(element,org) {
 	if(!element) { return undefined; }
 	var lelement = element;
@@ -590,12 +559,10 @@ function GetSelect2Val(element,org) {
 	return lval;
 }//function GetSelect2Val
 /*** END For Select2 and SmartComboBox ***/
-
 /*** For KVList ***/
 $(document).on('click','div.MainKVL > .KVLAddBtn',function(e) { KVLAddElement(this); });
 $(document).on('click','div.MainKVL > ul.KVLList > li > .KVLIDelBtn',function(e) { KVLRemoveElement(this); });
 $(document).on('keydown','div.MainKVL > input[type=text].KVLNewKey',function(e) { if(e.keyCode==13) { KVLAddElement(this); } });
-
 function KVLAddElement(obj) {
 	var parent = $(obj).parent();
 	var vitem = $(parent).children('input[type=text].KVLNewKey').first();
@@ -608,7 +575,6 @@ function KVLAddElement(obj) {
 		$(vitem).val('');
 	}//if(ival && ival.length)
 }//END function KVLAddElement
-
 function KVLRemoveElement(obj) {
 	var parent = $(obj).parent();
 	if(parent) {
@@ -620,7 +586,6 @@ function KVLRemoveElement(obj) {
 	}//if(parent)
 }//END function KVLRemoveElement
 /*** END For KVList ***/
-
 /*** For Actions ***/
 function BindShortcuts(saveCtrl,cancelCtrl){
 	var kpressfct= function(e){
@@ -633,14 +598,12 @@ function BindShortcuts(saveCtrl,cancelCtrl){
 	};//var kpressfct= function(e)
 	$(document).on('keypress',kpressfct);
 }//END function BindShortcuts
-
 $(document).on('keydown','.clsOnEnterAction',function(e) {
     if(e.keyCode==13){
     	var lact = $(this).attr('data-onenter');
     	if(lact) { eval(lact); }
     }//if(e.keyCode==13)
 });//$(document).on('keydown','.clsOnEnterAction',function(e)
-
 $(document).on('keydown','.clsOnEnterActionButton',function(e) {
     if(e.keyCode==13){
     	var lid = $(this).attr('data-onenterbtn');
@@ -650,7 +613,6 @@ $(document).on('keydown','.clsOnEnterActionButton',function(e) {
     	}//if(lid)
     }//if(e.keyCode==13)
 });//$(document).on('keydown','.clsOnEnterActionButton',function(e)
-
 function AddClassOnErrorByParent(parentid,reset,errclass) {
 	var lclass = errclass ? errclass : 'clsFieldError';
 	if(reset) {
@@ -659,7 +621,6 @@ function AddClassOnErrorByParent(parentid,reset,errclass) {
 		$('#'+parentid+' .clsRequiredField').addClass(lclass);
 	}//if(reset)
 }//END function AddClassOnErrorByParent
-
 function AddClassOnError(elementid,reset,errclass) {
 	var lclass = errclass ? errclass : 'clsFieldError';
 	if(reset) {
@@ -669,7 +630,6 @@ function AddClassOnError(elementid,reset,errclass) {
 	}//if(reset)
 }//function AddClassOnError
 /*** END For Actions ***/
-
 /*** For Validations ***/
 function CheckIfEnter(e){ //e is event object passed from function invocation
 	var characterCode;//  literal character code will be stored in this variable
@@ -681,12 +641,10 @@ function CheckIfEnter(e){ //e is event object passed from function invocation
 	 }//if(e && e.which)
 	 return characterCode == 13 ? true : false;
 }//END function CheckIfEnter
-
 $(document).on('keydown','.clsSetNoNumericValidation',function(e) {
 	var key = e.which || e.keyCode || e.charCode || 0;
 	if((key>=48 && key<=57)	|| (key>=96 && key<=105)) { e.preventDefault(); }
 });//$(document).on('keydown','.clsSetNoNumericValidation',function(e)
-
 $(document).on('keydown','.clsSetNumericValidation',function(e) {
 	var key = e.which || e.keyCode || e.charCode || 0;
 	if(e.ctrlKey || e.altKey
@@ -724,7 +682,6 @@ $(document).on('keydown','.clsSetNumericValidation',function(e) {
 	//alert(e.ctrlKey+'|'+e.altKey+'|'+e.shiftKey+'|'+key);
 	e.preventDefault();
 });//$(document).on('keydown','.clsSetNumericValidation',function(e)
-
 $(document).on('keydown','.clsSetPhoneValidation',function(e) {
 	var key = e.which || e.keyCode || e.charCode || 0;
 	if(e.ctrlKey || e.altKey
@@ -761,19 +718,16 @@ $(document).on('keydown','.clsSetPhoneValidation',function(e) {
 	e.preventDefault();
 });//$(document).on('keydown','.clsSetPhoneValidation',function(e)
 /*** END For Validations ***/
-
 /*** For text inputs ***/
 $(document).on('focusout','.clsSetUcFirst',function(e) {
 	var lval = $(this).val().ucfirst(false);
 	$(this).val(lval);
 });//$(document).on('focusout','.clsSetUcFirst',function(e)
-
 $(document).on('focusout','.clsSetUcFirstAll',function(e) {
 	var lval = $(this).val().ucfirst(true);
 	$(this).val(lval);
 });//$(document).on('focusout','.clsSetUcFirstAll',function(e)
 /*** END For text inputs ***/
-
 function AnimatedHide(elementid,val,speed) {
 	if($('#'+elementid).length>0) {
 		var lspeed = speed ? speed : 600;
@@ -784,7 +738,6 @@ function AnimatedHide(elementid,val,speed) {
 		}//if(val==1)
 	}//if($('#'+elementid).length > 0)
 }//END function AnimatedHide
-
 function AnimatedHideWithSave(elementid,valueid,speed) {
 	if($('#'+elementid).length>0) {
 		var lspeed = speed ? speed : 600;
@@ -803,7 +756,6 @@ function AnimatedHideWithSave(elementid,valueid,speed) {
 		}//if(typeof(Storage)!=='undefined')
 	}//if($('#'+elementid).length > 0)
 }//END function AnimatedHideWithSave
-
 /*** For CKEditor ***/
 function CreateCkEditor(phash,e,multi,econfig,ewidth,eheight) {
 	if(multi) {
@@ -823,7 +775,6 @@ function CreateCkEditor(phash,e,multi,econfig,ewidth,eheight) {
 		window.ckei_list = ckei;
 	}//if(multi)
 }//function CreateCkEditor(e,multi)
-
 function DestroyCkEditors(phash,target) {
 	if(!target || target.length==0) { return; }
 	var targetObj = $('#'+target);
@@ -848,7 +799,6 @@ function DestroyCkEditors(phash,target) {
 	}//END for
 	window.ckei_list = newCkei;
 }//function DestroyCkEditors
-
 function DestroyCkEditor(phash,e,multi) {
 	// if(!phash) { phash = window.name.length>0 ? window.name : '_xbasepage_'; }
 	// console.log('DestroyCkEditor!: ' + e + ' // ' + phash);
@@ -962,7 +912,6 @@ function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 	});//$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i)
 }//END function TreeGridViewAction
 /*** END For TreeGrid ***/
-
 /*** For Dynamic Forms ***/
 function RepeatControl(obj,tagid) {
 	if(!obj || !tagid) { return false; }
@@ -990,7 +939,6 @@ function RepeatControl(obj,tagid) {
 	var lract = $(obj).attr('data-ract');
 	$('<button class="clsRepeatableCtrlBtn remove-ctrl-btn" onclick="RemoveRepeatableControl(this,\''+lntagid+'\')"><i class="fa fa-minus-circle" aria-hidden="true"></i>'+(lract?lract:'')+'</button>').insertBefore($(obj));
 }//END function RepeatControl
-
 function RemoveRepeatableControl(obj,elementid) {
 	if(!elementid) { return false; }
 	$('#'+elementid).remove();

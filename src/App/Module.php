@@ -4,18 +4,17 @@
  *
  * @package    NETopes\Modules
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.10.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
 use NETopes\Core\Validators\Validator;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use GibberishAES;
 use NApp;
-
 /**
  * Module class
  *
@@ -86,17 +85,17 @@ class Module {
 	 * @return void
 	 * @access protected
 	 */
-	protected function __construct() {
+	protected final function __construct() {
 	    $this->viewsExtension = AppConfig::app_views_extension();
 		$this->_Init();
-	}//END protected function __construct
+	}//END protected final function __construct
 	/**
 	 * Magic getter for [module] virtual property
 	 *
 	 * @param string $name
 	 * @return mixed Returns $this
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __get(string $name) {
 	    if($name==='module') { throw new AppException('Undefined module property ['.$name.']!',E_ERROR,1); }
@@ -109,7 +108,7 @@ class Module {
 	 * @param array  $arguments
 	 * @return mixed
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call(string $name,$arguments) {
 		if(strpos($name,'DRights')===FALSE) { throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
@@ -124,7 +123,7 @@ class Module {
 	 * @param array  $arguments
 	 * @return mixed
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @static
 	 */
 	public static function __callStatic($name,$arguments) {
@@ -177,18 +176,19 @@ class Module {
 		}//if(!array_key_exists($name,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$name]))
 		return self::$ModuleInstances[$class];
 	}//END public static function GetInstance
-	/**
-	 * description
-	 *
-	 * @param null $firstRow
-	 * @param null $lastRow
-	 * @param null $currentPage
-	 * @param null $rpp
-	 * @return array
-	 * @access public
-	 * @static
-	 */
-	public static function GlobalGetPagintionParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$rpp = NULL) {
+    /**
+     * description
+     *
+     * @param null $firstRow
+     * @param null $lastRow
+     * @param null $currentPage
+     * @param null $rpp
+     * @return array
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
+	public static function GlobalGetPaginationParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$rpp = NULL) {
 		$cpage = is_numeric($currentPage) ? $currentPage : 1;
 		if($cpage==-1){
 			$firstRow = -1;
@@ -207,7 +207,7 @@ class Module {
 			$lastRow = $firstRow + $lrpp - 1;
 		}//if(Validator::IsValidValue($firstrow,NULL,'is_not0_numeric'))
 		return array('first_row'=>$firstRow,'last_row'=>$lastRow);
-	}//END public static function GlobalGetPagintionParams
+	}//END public static function GlobalGetPaginationParams
 	/**
 	 * description
 	 *
@@ -217,7 +217,7 @@ class Module {
 	 * @param bool   $reset_session_params
 	 * @param mixed  $before_call
 	 * @return mixed return description
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function Exec(string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
@@ -291,7 +291,7 @@ class Module {
 	 *
 	 * @param object|null $params
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function SetFilter($params = NULL) {
@@ -321,28 +321,29 @@ class Module {
 		}//if(is_array($lxparamp))
 		$this->Exec($method,array('target'=>$target,'phash'=>$pagehash));
 	}//END public function SetFilter
-	/**
-	 * description
-	 *
-	 * @param null $firstrow
-	 * @param null $lastrow
-	 * @param null $current_page
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @return array
-	 * @access public
-	 */
-	public function GetPagintionParams(&$firstrow = NULL,&$lastrow = NULL,$current_page = NULL,$params = NULL) {
+    /**
+     * description
+     *
+     * @param null        $firstrow
+     * @param null        $lastrow
+     * @param null        $current_page
+     * @param object|null $params Parameters object (instance of [Params])
+     * @return array
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public function GetPaginationParams(&$firstrow = NULL,&$lastrow = NULL,$current_page = NULL,$params = NULL) {
 		$cpage = is_numeric($current_page) ? $current_page : $params->safeGet('current_page',1,'is_integer');
 		$firstrow = $params->safeGet('first_row',0,'is_integer');
-		return self::GlobalGetPagintionParams($firstrow,$lastrow,$cpage);
-	}//END public function GetPagintionParams
+		return self::GlobalGetPaginationParams($firstrow,$lastrow,$cpage);
+	}//END public function GetPaginationParams
 	/**
 	 * description
 	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function CloseForm($params = NULL) {
 		if(!is_object($params)) { $params = new Params($params); }
@@ -386,7 +387,7 @@ class Module {
      * @param  string|null $theme_dir View theme sub-directory
      * (if empty/NULL) application configuration will be used
      * @return string Returns view full name (including absolute path and extension)
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
      * @access public
      */
@@ -398,7 +399,6 @@ class Module {
 		$themeModulesViewsPath = AppConfig::app_theme_modules_views_path();
 		$defDir = (is_string($viewsDefDir) ? (strlen(trim($viewsDefDir,'/')) ? '/'.trim($viewsDefDir,'/') : '') : '/_default');
         $themeDir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($appTheme) && strlen($appTheme) ? $appTheme : NULL);
-
         // NApp::_Dlog($fName,'$fName');
 		// NApp::_Dlog($themeDir,'$themeDir');
         if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath)) {
@@ -412,7 +412,6 @@ class Module {
             array_pop($mPathArr);
             $mPath = implode(DIRECTORY_SEPARATOR,$mPathArr);
             // NApp::_Dlog($mPath,'$mPath');
-
             // NApp::_Dlog($this->class,'$this->class');
             $parents = self::GetParents($this->class);
             // NApp::_Dlog($parents,'$parents');
@@ -428,7 +427,6 @@ class Module {
             }//if($baseDir)
             // Get theme view file
             $mFullPath = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
-
             if($themeDir && !$baseDir) {
                 // NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
                 if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
@@ -453,7 +451,6 @@ class Module {
                 }//END foreach
             }//if($parents)
         }//if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath))
-
         $rc = new \ReflectionClass($this);
         $mFullPath = dirname($rc->getFileName());
         // NApp::_Dlog($mFullPath,'$mFullPath');
@@ -492,7 +489,7 @@ class Module {
      * (if empty/NULL) application configuration will be used
      * @return string Returns view full name (including absolute path and extension)
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
 		// NApp::StartTimeTrack('MGetViewFile');
@@ -523,8 +520,13 @@ class Module {
 		}//END foreach
 		return $result;
 	}//END public static function ConvertRightsRevokedArray
-
-	protected function SetDebugData($data,$label = NULL,$reset = FALSE,$method = NULL) {
+    /**
+     * @param      $data
+     * @param null $label
+     * @param bool $reset
+     * @param null $method
+     */
+    protected function SetDebugData($data,$label = NULL,$reset = FALSE,$method = NULL) {
 		$current_method = $method ? $method : call_back_trace();
 		if($reset || !is_array($this->debugData)) { $this->debugData = []; }
 		if(!isset($this->debugData[$current_method]) || !is_array($this->debugData[$current_method])) { $this->debugData[$current_method] = []; }
@@ -534,15 +536,24 @@ class Module {
 			$this->debugData[$current_method][] = $data;
 		}//if(is_string($label) && strlen($label))
 	}//END protected function SetDebugData
-
-	protected function GetDebugData($label,$method = NULL) {
+    /**
+     * @param      $label
+     * @param null $method
+     * @return null
+     */
+    protected function GetDebugData($label,$method = NULL) {
 		if(!is_string($label) && !is_numeric($label)) { return NULL; }
 		$current_method = $method ? $method : call_back_trace();
 		if(!is_array($this->debugData) || !isset($this->debugData[$current_method][$label])) { return NULL; }
 		return $this->debugData[$current_method][$label];
 	}//END protected function GetDebugData
-
-	public function GetCallDebugData($params = NULL) {
+    /**
+     * @param null $params
+     * @return array|mixed|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetCallDebugData($params = NULL) {
+	    /** @var \NETopes\Core\App\Params $params */
 		$clear = $params->safeGet('clear',FALSE,'bool');
 		$method = $params->safeGet('method',NULL,'is_string');
 		$result = NULL;

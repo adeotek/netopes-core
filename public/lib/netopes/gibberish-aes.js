@@ -17,7 +17,6 @@
 * Usage: GibberishAES.enc("secret", "password")
 * Outputs: AES Encrypted text encoded in Base64
 */
-
 (function (root, factory) {
     if (typeof exports === 'object') {
         // Node.
@@ -31,12 +30,10 @@
     }
 }(this, function () {
     'use strict';
-
     var Nr = 14,
     /* Default to 256 Bit Encryption */
     Nk = 8,
     Decrypt = false,
-
     enc_utf8 = function(s)
     {
         try {
@@ -46,7 +43,6 @@
             throw 'Error on UTF-8 encode';
         }
     },
-
     dec_utf8 = function(s)
     {
         try {
@@ -56,7 +52,6 @@
             throw ('Bad Key');
         }
     },
-
     padBlock = function(byteArr)
     {
         var array = [], cpad, i;
@@ -70,7 +65,6 @@
         }
         return array;
     },
-
     block2s = function(block, lastBlock)
     {
         var string = '', padding, i;
@@ -92,7 +86,6 @@
         }
         return string;
     },
-
     a2h = function(numArr)
     {
         var string = '', i;
@@ -101,7 +94,6 @@
         }
         return string;
     },
-
     h2a = function(s)
     {
         var ret = [];
@@ -111,22 +103,17 @@
         });
         return ret;
     },
-
     s2a = function(string, binary) {
         var array = [], i;
-
         if (! binary) {
             string = enc_utf8(string);
         }
-
         for (i = 0; i < string.length; i++)
         {
             array[i] = string.charCodeAt(i);
         }
-
         return array;
     },
-
     size = function(newsize)
     {
         switch (newsize)
@@ -147,7 +134,6 @@
             throw ('Invalid Key Size Specified:' + newsize);
         }
     },
-
     randArr = function(num) {
         var result = [], i;
         for (i = 0; i < num; i++) {
@@ -155,7 +141,6 @@
         }
         return result;
     },
-
     openSSLKey = function(passwordArr, saltArr) {
         // Number of rounds depends on the size of the AES in use
         // 3 rounds for 256
@@ -183,7 +168,6 @@
             iv: iv
         };
     },
-
     rawEncrypt = function(plaintext, key, iv) {
         // plaintext, key and iv as byte arrays
         key = expandKey(key);
@@ -205,7 +189,6 @@
         }
         return cipherBlocks;
     },
-
     rawDecrypt = function(cryptArr, key, iv, binary) {
         //  cryptArr, key and iv as byte arrays
         key = expandKey(key);
@@ -227,7 +210,6 @@
         string += block2s(plainBlocks[i], true);
         return binary ? string : dec_utf8(string);
     },
-
     encryptBlock = function(block, words) {
         Decrypt = false;
         var state = addRoundKey(block, words, 0),
@@ -241,10 +223,8 @@
             //last round? don't mixColumns
             state = addRoundKey(state, words, round);
         }
-
         return state;
     },
-
     decryptBlock = function(block, words) {
         Decrypt = true;
         var state = addRoundKey(block, words, Nr),
@@ -258,10 +238,8 @@
             }
             //last round? don't mixColumns
         }
-
         return state;
     },
-
     subBytes = function(state) {
         var S = Decrypt ? SBoxInv: SBox,
         temp = [],
@@ -271,7 +249,6 @@
         }
         return temp;
     },
-
     shiftRows = function(state) {
         var temp = [],
         shiftBy = Decrypt ? [0, 13, 10, 7, 4, 1, 14, 11, 8, 5, 2, 15, 12, 9, 6, 3] : [0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11],
@@ -281,7 +258,6 @@
         }
         return temp;
     },
-
     mixColumns = function(state) {
         var t = [],
         c;
@@ -300,10 +276,8 @@
                 t[3+c*4] = GBX[state[c*4]] ^ GDX[state[1+c*4]] ^ G9X[state[2+c*4]] ^ GEX[state[3+c*4]];
             }
         }
-
         return t;
     },
-
     addRoundKey = function(state, words, round) {
         var temp = [],
         i;
@@ -312,7 +286,6 @@
         }
         return temp;
     },
-
     xorBlocks = function(block1, block2) {
         var temp = [],
         i;
@@ -321,7 +294,6 @@
         }
         return temp;
     },
-
     expandKey = function(key) {
         // Expects a 1d number array
         var w = [],
@@ -331,12 +303,10 @@
         t,
         flat = [],
         j;
-
         for (i = 0; i < Nk; i++) {
             r = [key[4 * i], key[4 * i + 1], key[4 * i + 2], key[4 * i + 3]];
             w[i] = r;
         }
-
         for (i = Nk; i < (4 * (Nr + 1)); i++) {
             w[i] = [];
             for (t = 0; t < 4; t++) {
@@ -360,7 +330,6 @@
         }
         return flat;
     },
-
     subWord = function(w) {
         // apply SBox to 4-byte word w
         for (var i = 0; i < 4; i++) {
@@ -368,7 +337,6 @@
         }
         return w;
     },
-
     rotWord = function(w) {
         // rotate 4-byte word w left by one byte
         var tmp = w[0],
@@ -379,7 +347,6 @@
         w[3] = tmp;
         return w;
     },
-
 // jlcooke: 2012-07-12: added strhex + invertArr to compress G2X/G3X/G9X/GBX/GEX/SBox/SBoxInv/Rcon saving over 7KB, and added encString, decString
     strhex = function(str,size) {
         var i, ret = [];
@@ -397,7 +364,6 @@
     },
     Gxx = function(a, b) {
         var i, ret;
-
         ret = 0;
         for (i=0; i<8; i++) {
             ret = ((b&1)===1) ? ret^a : ret;
@@ -405,7 +371,6 @@
             a = (a>0x7f) ? 0x11b^(a<<1) : (a<<1);
             b >>>= 1;
         }
-
         return ret;
     },
     Gx = function(x) {
@@ -415,7 +380,6 @@
         }
         return r;
     },
-
     // S-box
 /*
     SBox = [
@@ -437,7 +401,6 @@
     248, 152, 17, 105, 217, 142, 148, 155, 30, 135, 233, 206, 85, 40, 223,
     140, 161, 137, 13, 191, 230, 66, 104, 65, 153, 45, 15, 176, 84, 187,
     22], //*/ SBox = strhex('637c777bf26b6fc53001672bfed7ab76ca82c97dfa5947f0add4a2af9ca472c0b7fd9326363ff7cc34a5e5f171d8311504c723c31896059a071280e2eb27b27509832c1a1b6e5aa0523bd6b329e32f8453d100ed20fcb15b6acbbe394a4c58cfd0efaafb434d338545f9027f503c9fa851a3408f929d38f5bcb6da2110fff3d2cd0c13ec5f974417c4a77e3d645d197360814fdc222a908846eeb814de5e0bdbe0323a0a4906245cc2d3ac629195e479e7c8376d8dd54ea96c56f4ea657aae08ba78252e1ca6b4c6e8dd741f4bbd8b8a703eb5664803f60e613557b986c11d9ee1f8981169d98e949b1e87e9ce5528df8ca1890dbfe6426841992d0fb054bb16',2),
-
     // Precomputed lookup table for the inverse SBox
 /*    SBoxInv = [
     82, 9, 106, 213, 48, 54, 165, 56, 191, 64, 163, 158, 129, 243, 215,
@@ -458,13 +421,11 @@
     224, 59, 77, 174, 42, 245, 176, 200, 235, 187, 60, 131, 83, 153, 97,
     23, 43, 4, 126, 186, 119, 214, 38, 225, 105, 20, 99, 85, 33, 12,
     125], //*/ SBoxInv = invertArr(SBox),
-
     // Rijndael Rcon
 /*
     Rcon = [1, 2, 4, 8, 16, 32, 64, 128, 27, 54, 108, 216, 171, 77, 154, 47, 94,
     188, 99, 198, 151, 53, 106, 212, 179, 125, 250, 239, 197, 145],
 //*/ Rcon = strhex('01020408102040801b366cd8ab4d9a2f5ebc63c697356ad4b37dfaefc591',2),
-
 /*
     G2X = [
     0x00, 0x02, 0x04, 0x06, 0x08, 0x0a, 0x0c, 0x0e, 0x10, 0x12, 0x14, 0x16,
@@ -490,7 +451,6 @@
     0xfb, 0xf9, 0xff, 0xfd, 0xf3, 0xf1, 0xf7, 0xf5, 0xeb, 0xe9, 0xef, 0xed,
     0xe3, 0xe1, 0xe7, 0xe5
     ], //*/ G2X = Gx(2),
-
 /*    G3X = [
     0x00, 0x03, 0x06, 0x05, 0x0c, 0x0f, 0x0a, 0x09, 0x18, 0x1b, 0x1e, 0x1d,
     0x14, 0x17, 0x12, 0x11, 0x30, 0x33, 0x36, 0x35, 0x3c, 0x3f, 0x3a, 0x39,
@@ -515,7 +475,6 @@
     0x0b, 0x08, 0x0d, 0x0e, 0x07, 0x04, 0x01, 0x02, 0x13, 0x10, 0x15, 0x16,
     0x1f, 0x1c, 0x19, 0x1a
     ], //*/ G3X = Gx(3),
-
 /*
     G9X = [
     0x00, 0x09, 0x12, 0x1b, 0x24, 0x2d, 0x36, 0x3f, 0x48, 0x41, 0x5a, 0x53,
@@ -541,7 +500,6 @@
     0x31, 0x38, 0x23, 0x2a, 0x15, 0x1c, 0x07, 0x0e, 0x79, 0x70, 0x6b, 0x62,
     0x5d, 0x54, 0x4f, 0x46
     ], //*/ G9X = Gx(9),
-
 /*    GBX = [
     0x00, 0x0b, 0x16, 0x1d, 0x2c, 0x27, 0x3a, 0x31, 0x58, 0x53, 0x4e, 0x45,
     0x74, 0x7f, 0x62, 0x69, 0xb0, 0xbb, 0xa6, 0xad, 0x9c, 0x97, 0x8a, 0x81,
@@ -566,7 +524,6 @@
     0xca, 0xc1, 0xdc, 0xd7, 0xe6, 0xed, 0xf0, 0xfb, 0x92, 0x99, 0x84, 0x8f,
     0xbe, 0xb5, 0xa8, 0xa3
     ], //*/ GBX = Gx(0xb),
-
 /*
     GDX = [
     0x00, 0x0d, 0x1a, 0x17, 0x34, 0x39, 0x2e, 0x23, 0x68, 0x65, 0x72, 0x7f,
@@ -592,7 +549,6 @@
     0xdc, 0xd1, 0xc6, 0xcb, 0xe8, 0xe5, 0xf2, 0xff, 0xb4, 0xb9, 0xae, 0xa3,
     0x80, 0x8d, 0x9a, 0x97
     ], //*/ GDX = Gx(0xd),
-
 /*
     GEX = [
     0x00, 0x0e, 0x1c, 0x12, 0x38, 0x36, 0x24, 0x2a, 0x70, 0x7e, 0x6c, 0x62,
@@ -618,7 +574,6 @@
     0xd7, 0xd9, 0xcb, 0xc5, 0xef, 0xe1, 0xf3, 0xfd, 0xa7, 0xa9, 0xbb, 0xb5,
     0x9f, 0x91, 0x83, 0x8d
     ], //*/ GEX = Gx(0xe),
-
     enc = function(string, pass, binary) {
         // string, password in plaintext
         var salt = randArr(8),
@@ -633,7 +588,6 @@
         cipherBlocks = saltBlock.concat(cipherBlocks);
         return Base64.encode(cipherBlocks);
     },
-
     dec = function(string, pass, binary) {
         // string, password in plaintext
         var cryptArr = Base64.decode(string),
@@ -646,13 +600,10 @@
         string = rawDecrypt(cryptArr, key, iv, binary);
         return string;
     },
-
     MD5 = function(numArr) {
-
         function rotateLeft(lValue, iShiftBits) {
             return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
         }
-
         function addUnsigned(lX, lY) {
             var lX4,
             lY4,
@@ -677,7 +628,6 @@
                 return (lResult ^ lX8 ^ lY8);
             }
         }
-
         function f(x, y, z) {
             return (x & y) | ((~x) & z);
         }
@@ -690,27 +640,22 @@
         function funcI(x, y, z) {
             return (y ^ (x | (~z)));
         }
-
         function ff(a, b, c, d, x, s, ac) {
             a = addUnsigned(a, addUnsigned(addUnsigned(f(b, c, d), x), ac));
             return addUnsigned(rotateLeft(a, s), b);
         }
-
         function gg(a, b, c, d, x, s, ac) {
             a = addUnsigned(a, addUnsigned(addUnsigned(g(b, c, d), x), ac));
             return addUnsigned(rotateLeft(a, s), b);
         }
-
         function hh(a, b, c, d, x, s, ac) {
             a = addUnsigned(a, addUnsigned(addUnsigned(h(b, c, d), x), ac));
             return addUnsigned(rotateLeft(a, s), b);
         }
-
         function ii(a, b, c, d, x, s, ac) {
             a = addUnsigned(a, addUnsigned(addUnsigned(funcI(b, c, d), x), ac));
             return addUnsigned(rotateLeft(a, s), b);
         }
-
         function convertToWordArray(numArr) {
             var lWordCount,
             lMessageLength = numArr.length,
@@ -733,7 +678,6 @@
             lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
             return lWordArray;
         }
-
         function wordToHex(lValue) {
             var lByte,
             lCount,
@@ -744,17 +688,13 @@
              }
             return wordToHexArr;
         }
-
         /*function utf8Encode(string) {
             string = string.replace(/\r\n/g, "\n");
             var utftext = "",
             n,
             c;
-
             for (n = 0; n < string.length; n++) {
-
                 c = string.charCodeAt(n);
-
                 if (c < 128) {
                     utftext += String.fromCharCode(c);
                 }
@@ -767,12 +707,9 @@
                     utftext += String.fromCharCode(((c >> 6) & 63) | 128);
                     utftext += String.fromCharCode((c & 63) | 128);
                 }
-
             }
-
             return utftext;
         }*/
-
         var x = [],
         k,
         AA,
@@ -784,14 +721,11 @@
         c,
         d,
         rnd = strhex('67452301efcdab8998badcfe10325476d76aa478e8c7b756242070dbc1bdceeef57c0faf4787c62aa8304613fd469501698098d88b44f7afffff5bb1895cd7be6b901122fd987193a679438e49b40821f61e2562c040b340265e5a51e9b6c7aad62f105d02441453d8a1e681e7d3fbc821e1cde6c33707d6f4d50d87455a14eda9e3e905fcefa3f8676f02d98d2a4c8afffa39428771f6816d9d6122fde5380ca4beea444bdecfa9f6bb4b60bebfbc70289b7ec6eaa127fad4ef308504881d05d9d4d039e6db99e51fa27cf8c4ac5665f4292244432aff97ab9423a7fc93a039655b59c38f0ccc92ffeff47d85845dd16fa87e4ffe2ce6e0a30143144e0811a1f7537e82bd3af2352ad7d2bbeb86d391',8);
-
         x = convertToWordArray(numArr);
-
         a = rnd[0];
         b = rnd[1];
         c = rnd[2];
         d = rnd[3];
-
         for (k = 0; k < x.length; k += 16) {
             AA = a;
             BB = b;
@@ -866,19 +800,15 @@
             c = addUnsigned(c, CC);
             d = addUnsigned(d, DD);
         }
-
         return wordToHex(a).concat(wordToHex(b), wordToHex(c), wordToHex(d));
     },
-
     encString = function(plaintext, key, iv) {
         var i;
         plaintext = s2a(plaintext);
-
         key = s2a(key);
         for (i=key.length; i<32; i++){
             key[i] = 0;
         }
-
         if (iv === undefined) {
             // TODO: This is not defined anywhere... commented out...
             // iv = genIV();
@@ -888,7 +818,6 @@
                 iv[i] = 0;
             }
         }
-
         var ct = rawEncrypt(plaintext, key, iv);
         var ret = [iv];
         for (i=0; i<ct.length; i++){
@@ -896,27 +825,22 @@
         }
         return Base64.encode(ret);
     },
-
     decString = function(ciphertext, key) {
         var tmp = Base64.decode(ciphertext);
         var iv = tmp.slice(0, 16);
         var ct = tmp.slice(16, tmp.length);
         var i;
-
         key = s2a(key);
         for (i=key.length; i<32; i++){
             key[i] = 0;
         }
-
         var pt = rawDecrypt(ct, key, iv, false);
         return pt;
     },
-
     Base64 = (function(){
         // Takes a Nx16x1 byte array and converts it to Base64
         var _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
         chars = _chars.split(''),
-
         encode = function(b, withBreaks) {
             var flatArr = [],
             b64 = '',
@@ -947,7 +871,6 @@
             }
             return broken_b64;
         },
-
         decode = function(string) {
             string = string.replace(/\n/g, '');
             var flatArr = [],
@@ -959,7 +882,6 @@
                 c[1] = _chars.indexOf(string.charAt(i + 1));
                 c[2] = _chars.indexOf(string.charAt(i + 2));
                 c[3] = _chars.indexOf(string.charAt(i + 3));
-
                 b[0] = (c[0] << 2) | (c[1] >> 4);
                 b[1] = ((c[1] & 15) << 4) | (c[2] >> 2);
                 b[2] = ((c[2] & 3) << 6) | c[3];
@@ -968,12 +890,10 @@
             flatArr = flatArr.slice(0, flatArr.length - (flatArr.length % 16));
             return flatArr;
         };
-
         //internet explorer
         if(typeof Array.indexOf === "function") {
             _chars = chars;
         }
-
         /*
         //other way to solve internet explorer problem
         if(!Array.indexOf){
@@ -988,13 +908,11 @@
         }
         */
 
-
         return {
             "encode": encode,
             "decode": decode
         };
     })();
-
     return {
         "size": size,
         "h2a":h2a,
@@ -1012,5 +930,4 @@
         "Hash":{"MD5":MD5},
         "Base64":Base64
     };
-
 }));

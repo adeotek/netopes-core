@@ -6,14 +6,14 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
 use NETopes\Core\Data\DataProvider;
-use PAF\AppConfig;
+use NETopes\Core\App\AppConfig;
 use NApp;
 /**
  * Class Mailer
@@ -43,7 +43,7 @@ class Mailer {
 	 * @param $acc array            email CC addresses (email => label) (optional)
 	 * @param null $reply_to
 	 * @return int 					will be the no of emails sent successfully or 0 if there is an error
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @static
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
@@ -160,7 +160,7 @@ class Mailer {
 				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
 			}//if(self::$debug)
 			if($result) { return $result; }
-			throw new \PAF\AppException($e->getMessage(),E_ERROR,0);
+			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,0);
 		}//try
 	}//END public static function SendSMTPEmail
 	/**
@@ -175,7 +175,7 @@ class Mailer {
 	 * @param      $abcc array            email BCC address (email => label) (optional)
 	 * @param null $reply_to
 	 * @return int                    will be the no of emails sent successfully or 0 if there is an error
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @static
 	 */
 	public static function SimpleSendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$acc = NULL,$abcc = NULL,$reply_to = NULL) {

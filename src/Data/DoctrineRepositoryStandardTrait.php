@@ -1,7 +1,7 @@
 <?php
 namespace NETopes\Core\Data;
 use Doctrine\ORM\Query;
-use PAF\AppException;
+use NETopes\Core\AppException;
 /**
  * Trait DoctrineRepositoryStandardTrait
  *
@@ -12,7 +12,7 @@ trait DoctrineRepositoryStandardTrait {
 	/**
 	 * @param array  $params
 	 * @return array|null
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function findFiltered(?array $params = []): ?array {
         try {
@@ -104,14 +104,12 @@ trait DoctrineRepositoryStandardTrait {
                     }//if(is_array($field) && count($field))
 				}//END foreach
 			}//if(count($filters))
-
 			if($firstrow>0 && $lastrow>0) {
 				$qb->select('count(e)');
 				$stime = microtime(TRUE);
                 $tcount = $qb->getQuery()->getSingleScalarResult();
                 $this->DbDebug($qb->getQuery(),'findFiltered[count]',$stime);
 			}//if($firstrow>0 && $lastrow>0)
-
 	        if(count($sort)) {
 	            $first = TRUE;
 				foreach($sort as $c=>$d) {
@@ -124,7 +122,6 @@ trait DoctrineRepositoryStandardTrait {
 					}//if($first)
 				}//END foreach
 	        }//if(count($sort))
-
 	        if($firstrow>0) {
 	            if($lastrow>0) {
 	                $qb->setFirstResult($firstrow-1);
@@ -133,7 +130,6 @@ trait DoctrineRepositoryStandardTrait {
 	                $qb->setMaxResults($firstrow);
 	            }//if($lastrow>0)
 	        }//if($firstrow>0)
-
 			$qb->select('e');
 			if(count($relations)) {
 			    foreach($relations as $k=>$r) {
@@ -141,7 +137,6 @@ trait DoctrineRepositoryStandardTrait {
                     $qb->addSelect($k);
                 }//END foreach
 			}//if(count($relations))
-
 			$stime = microtime(TRUE);
 			$data = $qb->getQuery()->getResult();
 			$this->DbDebug($qb->getQuery(),'findFiltered',$stime);

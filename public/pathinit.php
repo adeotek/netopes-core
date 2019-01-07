@@ -1,0 +1,29 @@
+<?php
+/**
+ * NETopes paths configuration file.
+ *
+ * @package    NETopes\App
+ * @author     George Benjamin-Schonberger
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
+ * @license    LICENSE.md
+ * @version    2.5.0.0
+ * @filesource
+ */
+if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
+// Define offline mode on/off
+if(file_exists('.offline') && trim(file_get_contents('.offline'))=='1') {
+    define('_NAPP_OFFLINE',TRUE);
+} else {
+    define('_NAPP_OFFLINE',FALSE);
+}//if(file_exists('.offline') && trim(file_get_contents('.offline'))=='1')
+// Paths constants definition (Editable zone)
+define('_NAPP_APPLICATION_PATH','');
+define('_NAPP_CONFIG_PATH','config');
+define('_NAPP_PUBLIC_ROOT_PATH',DIRECTORY_SEPARATOR.'public');
+define('_NAPP_PUBLIC_PATH','');
+// END Paths constants definition (Editable zone)
+$aapp_root_path = dirname(__FILE__).DIRECTORY_SEPARATOR;
+if(strlen(_NAPP_PUBLIC_ROOT_PATH._NAPP_PUBLIC_PATH)>0) {
+    $aapp_root_path .= str_repeat('..'.DIRECTORY_SEPARATOR,substr_count(trim(_NAPP_PUBLIC_ROOT_PATH._NAPP_PUBLIC_PATH,DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR)+1);
+}//if(strlen(_NAPP_PUBLIC_ROOT_PATH._NAPP_PUBLIC_PATH)>0)
+define('_NAPP_ROOT_PATH',realpath($aapp_root_path));

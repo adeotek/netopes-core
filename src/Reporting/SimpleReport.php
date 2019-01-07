@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -139,7 +139,6 @@ class SimpleReport {
 			$this->result = $result;
 		}//foreach($layout as $layout_item)
 	}//END public function __construct
-
 	protected function FormatValue(&$rowformat,$item,$formatcall = NULL,$class = NULL) {
 		if(!is_array($rowformat['dbfield'])) {
 			if(array_key_exists('indexof',$rowformat) && is_array($rowformat['indexof']) && count($rowformat['indexof'])) {
@@ -162,31 +161,24 @@ class SimpleReport {
         }//if(is_null($formatcall)
         return $class->$formatcall($rowformat['dbfield'],$item);
 	}//END protected function format_value
-
 	protected function NumberFormat0($value) {
 		return number_format($value,0,$this->decimal_separator,$this->group_separator);
 	}//END protected function number_format0
-
 	protected function NumberFormat2($value) {
 		return number_format($value,2,$this->decimal_separator,$this->group_separator);
 	}//END protected function number_format2
-
 	protected function DateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),TRUE);
 	}//END protected function DateFormat
-
 	protected function DateTimeFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),FALSE);
 	}//END protected function DateTimeFormat
-
 	protected function NoTimezoneDateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);
 	}//END protected function DateFormat
-
 	protected function NoTimezoneDateTimeFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',FALSE);
 	}//END protected function DateTimeFormat
-
 	public function Show() {
 		echo $this->result;
 	}//END public function Show

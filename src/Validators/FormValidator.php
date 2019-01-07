@@ -6,15 +6,14 @@
  *
  * @package    NETopes\Core\Validators
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.1.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
 use NETopes\Core\App\Params;
 use NApp;
-
 /**
  * Class FormValidator
  *
@@ -39,7 +38,7 @@ class FormValidator {
      * @param array|null                          $config Parameters array
      * @param \NETopes\Core\App\Params|array|null $data Form data array|Params collection
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function __construct($data = NULL,?array $config = NULL) {
 		if(is_array($config) && count($config)) {
@@ -69,7 +68,7 @@ class FormValidator {
     }//END public function SetFormElements
     /**
      * @return \NETopes\Core\App\Params
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function GetFormData(): Params {
         return $this->formData ?? new Params();
@@ -86,8 +85,6 @@ class FormValidator {
     public function getErrors(): array {
         return $this->errors;
     }//END public function SetFormData
-
-
     public function Validate(): bool {
         if(!count($this->formElements)) { return FALSE; }
         $errors = [];
@@ -104,7 +101,6 @@ class FormValidator {
             $isValid = FALSE;
             $value = $this->formData->safeGet($key,$deafultValue,$validationType,$sourceFormat,$isValid);
             if(!$isValid) {
-
                 $this->errors[] = [];
             }
         }//END foreach

@@ -50,7 +50,6 @@
 	text-align:center;
 	margin-left: 20px;
 }
-
 .clsDivTable {
     display: table;
     table-layout: fixed;
@@ -345,7 +344,6 @@ div.clsRoundBox {
 }
 .clsFieldError { background-color: #FDC9C9 !important; }
 input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeComboBox { background-color: #FDC9C9 !important; }
-
 .clsPreviewBox {
 	display: inline-block;
 	padding: 1px 5px;
@@ -363,7 +361,6 @@ input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeCombo
 .actions-group { margin-bottom: 5px; }
 .actions-group > .btn { margin-right: 10px; }
 .actions-group > .btn.pull-right { margin-left: 10px; margin-right: 0; }
-
 .clsDatePicker {
 	cursor: pointer;
 	margin: 0;
@@ -393,7 +390,6 @@ input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeCombo
 	padding-top: 8px;
 	padding-bottom: 8px;
 }
-
 .clsEditBox { margin: 0; }
 table.clsForm {
 	margin: 0 auto;
@@ -434,7 +430,6 @@ table.clsForm > tbody > tr:hover {
 .clsToolTipTitle.dgrey-bg {
 	color: #f0f0f0 !important;
 }
-
 .clsBoxTitle {
 	display: block;
 	margin-bottom: 5px;
@@ -445,7 +440,6 @@ table.clsForm > tbody > tr:hover {
 /*** ComboBox ***/
 select.clsPlaceholder:required:invalid { color: #999999; }
 select.clsPlaceholder option { color: #000000; }
-
 .clsGridComboBox, .clsTreeComboBox { margin: 0 !important; }
 div.clsGridComboBox.ctrl-container,
 div.clsTreeComboBox.ctrl-container {
@@ -721,7 +715,6 @@ button.tall {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
-
 /*button.clsButton.bk-red {*/
 	/*background: #CF0000;*/
 /*}*/
@@ -784,7 +777,6 @@ button.clsButton.rbt-1:focus {
 /*button.clsButton.bk-lgrey:focus {*/
 	/*background: #666;*/
 /*}*/
-
 div.clsDivButton {
 	float: left;
 	height: 22px;
@@ -950,7 +942,6 @@ button.clsButton.type-0 > i {
 /*a.clsLink.type-0.bk-lgrey:hover {*/
 	/*background: #666;*/
 /*}*/
-
 /*div.clsDivButton.ionly,*/
 /*button.clsButton.ionly,*/
 /*a.clsLink.ionly {*/
@@ -1032,7 +1023,6 @@ button.clsButton.type-0 > i {
 	/*background: transparent;*/
 	/*color: #AAFFFF;*/
 /*}*/
-
 
 /*** clsKVList control ***/
 /*.clsKVList:after {*/
@@ -1222,14 +1212,12 @@ div.clsTableView div.clsTableViewFilters div.f-container input[type="text"].clsT
 div.clsTableView div.clsTableViewFilters div.f-container div.clsTreeComboBox.ctrl-clear.f-value {
 	margin: -15px 20px 0 0 !important;
 }
-
 div.clsTableView div.clsTableViewFilters div.f-container select {
 	height: 20px;
 	line-height: 18px;
 	padding: 0;
 	padding-left: 1px;
 }
-
 div.clsTableView div.clsTableViewFilters div.f-container .select2-container.select2-container--default {
 	margin-top: -1px;
 }
@@ -1242,7 +1230,6 @@ div.clsTableView div.clsTableViewFilters div.f-container .select2-container--def
 div.clsTableView div.clsTableViewFilters div.f-container .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 19px;
 }
-
 div.clsTableView div.clsTableViewFilters div.f-container button,
 div.clsTableView div.clsTableViewFilters div.f-container a {
 	box-sizing: border-box;
@@ -1451,7 +1438,6 @@ div.clsTableView div.clsTableViewFooter {
 	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#F0F0F0), to(#FFFFFF));
 	background: -webkit-linear-gradient(top, #FFFFFF, #F0F0F0);
 	background: -ms-linear-gradient(top, #FFFFFF, #F0F0F0);
-
 }
 div.clsTableView div.f-active {
 	padding-top: 5px;
@@ -1598,7 +1584,6 @@ table.clsBasicForm > tbody > tr > td.clsTRS.sub-title.bordert {
 	font-weight: normal;
 	color: #666;
 }
-
 .clsAssociationManager .subFormSummary ul {
 	text-align: left;
 }
@@ -1865,7 +1850,6 @@ button.clsButton.noi,
 a.clsLink.noi {
 	padding: 0 10px 3px 10px;
 }
-
 /*** Final overwrites ***/
 .ui-dialog.ui-modal-dlg > .ui-dialog-content button.clsButton { padding-top: 2px !important; }
 /* END Final overwrites */
@@ -1932,7 +1916,6 @@ strong, .bold { font-weight: bold; }
 	min-height: 14px;
 	line-height: 14px;
 }
-
 .blank-checkbox {
 	display: inline-block;
 	width: 18px;
@@ -1940,11 +1923,9 @@ strong, .bold { font-weight: bold; }
 	padding: 0;
 	margin: 0 10px 0 0;
 }
-
 .tacenter { text-align: center; }
 .vatop { vertical-align: top; }
 .vamid { vertical-align: middle; }
-
 .hidden { display: none; }
 .float-left { float: left; }
 .float-right { float: right; }
@@ -1966,7 +1947,6 @@ strong, .bold { font-weight: bold; }
 }
 .span-100p { width: 100%; }
 .span-95p { width: 95%; }
-
 .no-margin { margin: 0 !important; }
 .mt10 { margin-top: 10px !important; }
 .mb10 { margin-bottom: 10px !important; }
@@ -1974,7 +1954,6 @@ strong, .bold { font-weight: bold; }
 .ml15 { margin-left: 15px !important; }
 .mr20 { margin-right: 20px !important; }
 .ml20 { margin-left: 20px !important; }
-
 .dbordert { border-top: 1px solid #303064; }
 .dbordertb { border-top: 2px solid #303064; }
 .dborderb { border-bottom: 1px solid #303064; }
@@ -1983,11 +1962,9 @@ strong, .bold { font-weight: bold; }
 .lbordertb { border-top: 2px solid #999; }
 .lborderb { border-bottom: 1px solid #999; }
 .lborderbb { border-bottom: 2px solid #999; }
-
 .hscrollable { overflow-x: auto !important; }
 .vscrollable { overflow-y: auto !important; }
 .scrollable { overflow: auto !important; }
-
 .section-title {
 	font-size: 14px;
 	font-weight: bold;

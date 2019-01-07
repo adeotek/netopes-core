@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
@@ -61,24 +61,24 @@
 		 * @access protected
 		 */
 		protected $loaded = FALSE;
-		/**
-		 * GridComboBox class constructor
-		 *
-		 * @param  array $params An array of params
-		 * @return void
-		 * @access public
-		 */
+        /**
+         * GridComboBox class constructor
+         *
+         * @param  array $params An array of params
+         * @throws \NETopes\Core\AppException
+         * @return void
+         * @access public
+         */
 		public function __construct($params = NULL) {
 			$this->visible_tooltip = TRUE;
 			$this->autoload = FALSE;
 			parent::__construct($params);
 			if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns)) {
-				throw new \PAF\AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
+				throw new \NETopes\Core\AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
 				return FALSE;
 			}//if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns))
 			$this->target = $this->tag_id.'-gcbo-target';
 		}//END public function __construct
-
 		protected function SetControl(): ?string {
 			$this->ProcessActions();
 			$ar_class = '';
@@ -150,11 +150,10 @@
 			$result .= $this->GetActions();
 			return $result;
 		}//END protected function SetControl
-
 		public function ShowDropDown($params = NULL) {
 			//NApp::_Dlog($params,'ShowDropDown');
 			if(!is_object(NApp::arequest())) {
-				throw new \PAF\AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
+				throw new \NETopes\Core\AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
 				return;
 			}//if(!is_object(NApp::arequest()))
 			if(array_key_exists('params',$params)) {
@@ -162,7 +161,6 @@
 			} else {
 				$lparams = $params;
 			}//if(array_key_exists('params',$params))
-
 			$qsearch_field = strlen($this->qsearch_da_param) ? $this->qsearch_da_param : 'for_text';
 			$value_filter = strlen($this->value_da_param) ? $this->value_da_param : 'for_id';
 			$ifilters = [];

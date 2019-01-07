@@ -2,19 +2,18 @@
 /**
  * NETopes application configuration structure file
  *
- * Here are all the configuration elements definition for NETopes and PAF
+ * Here are all the configuration elements definition for NETopes
  *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.4.0.3
+ * @version    2.5.0.0
  * @filesource
  */
-if(!defined('_VALID_AAPP_REQ') || _VALID_AAPP_REQ!==TRUE) { die('Invalid request!'); }
-
+if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
 $_NAPP_CONFIG_STRUCTURE = [
-//START NETopes specific configuration
+//START NETopes configuration
     // Custom validator adapter class
     'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
     // Custom converter adapter class
@@ -93,8 +92,12 @@ $_NAPP_CONFIG_STRUCTURE = [
     'sys_tasks_log_file'=>['access'=>'readonly','default'=>'sys_tasks.log','validation'=>'is_notempty_string'],
     // Name of the API cron jobs log file
     'api_cron_jobs_log_file'=>['access'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
-//END START NETopes specific configuration
-//START Basic configuration
+//END START NETopes configuration
+//START NETopes base configuration
+    // Relative path to NETopes javascript files (linux style)
+    'app_js_path'=>['access'=>'readonly','default'=>'/lib/netopes','validation'=>'is_string'],
+    // Use NETopes AJAX extension
+    'app_use_ajax_extension'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
     // Use custom modules and data sources autoloader
@@ -105,7 +108,7 @@ $_NAPP_CONFIG_STRUCTURE = [
     // Request max duration in seconds
     'request_time_limit'=>['access'=>'readonly','default'=>1800,'validation'=>'is_not0_integer'],
     // Use output buffering via ob_start/ob_flush
-    'bufferd_output'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
+    'buffered_output'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
     // Doctrine entities relative path (relative to application directory)
     'doctrine_entities_path'=>['access'=>'readonly','default'=>'DataEntities','validation'=>'string'],
     // Doctrine entities namespace
@@ -126,19 +129,59 @@ $_NAPP_CONFIG_STRUCTURE = [
     'app_cache_redis'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Cache files path (absolute)
     'app_cache_path'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
-    // PAF cached calls separator
-    'app_cache_separator'=>['access'=>'readonly','default'=>'![PAFC[','validation'=>'is_notempty_string'],
-    // PAF cached arguments separator
-    'app_cache_arg_separator'=>['access'=>'readonly','default'=>']!PAFC!A![','validation'=>'is_notempty_string'],
+    // NETopes cached calls separator
+    'app_cache_separator'=>['access'=>'readonly','default'=>'![NAPPC[','validation'=>'is_notempty_string'],
+    // NETopes cached arguments separator
+    'app_cache_arg_separator'=>['access'=>'readonly','default'=>']!NAPPC!A![','validation'=>'is_notempty_string'],
     // Cookie login on/off
     'cookie_login'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
     // Validity of login cookie from last action (in days)
     'cookie_login_lifetime'=>['access'=>'readonly','default'=>15,'validation'=>'is_not0_integer'],
-//END START Basic configuration
-//START PAF configuration overwrites
-    // Session name (NULL for default)
+//END START Base configuration
+//START Session configuration
+    // Server timezone
+    'server_timezone'=>['access'=>'readonly','default'=>'Europe/Bucharest','validation'=>'is_notempty_string'],
+    // PHP Session name (NULL for default)
     'session_name'=>['access'=>'readonly','default'=>'NETOPESPID','validation'=>'is_notempty_string'],
-    // PAF implementing class name
-    'ajax_class_name'=>['access'=>'readonly','default'=>'NETopes\Core\App\AjaxRequest','validation'=>'is_string'],
-//END PAF configuration overwrites
+    // Use session splitting by window.name or not
+    'split_session_by_page'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
+    // Use asynchronous session read/write
+    'async_session'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
+    // Session timeout in seconds
+    'session_timeout'=>['access'=>'readonly','default'=>3600,'validation'=>'is_not0_integer'],
+    // Use redis for session storage
+    'session_redis'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // Redis server connection string (host_name:port?params)
+    'session_redis_server'=>['access'=>'readonly','default'=>'tcp://127.0.0.1:6379?timeout=1&weight=1&database=0','validation'=>'is_notempty_string'],
+    // Use memcache for session storage
+    'session_memcached'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // Memcache server connection string (host_name:port)
+    'session_memcached_server'=>['access'=>'readonly','default'=>'localhost:11211','validation'=>'is_notempty_string'],
+    // PHP Session file path. If left blank default php setting will be used (absolute or relative path).
+    'session_file_path'=>['access'=>'readonly','default'=>'tmp','validation'=>'is_notempty_string'],
+    // Verification key for session data
+    'session_key'=>['access'=>'readonly','default'=>'1234567890','validation'=>'is_string'],
+    // Session array keys case: CASE_LOWER/CASE_UPPER or NULL for no case modification
+    'session_keys_case'=>['access'=>'readonly','default'=>CASE_LOWER,'validation'=>'is_integer'],
+//END Session configuration
+//START Logs & errors reporting
+    // Debug mode on/off
+    'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
+    // Database debug mode on/off
+    'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
+    // Database debug to file on/off
+    'db_debug2file'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
+    // Show debug invocation source file name and path in browser console on/off
+    'console_show_file'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
+    // Javascript php console password
+    'debug_console_password'=>['access'=>'readonly','default'=>'112233','validation'=>'is_string'],
+    // Relative path to the logs folder
+    'logs_path'=>['access'=>'readonly','default'=>'/.logs','validation'=>'is_notempty_string'],
+    // Name of the main log file
+    'log_file'=>['access'=>'readonly','default'=>'app.log','validation'=>'is_notempty_string'],
+    // Name of the errors log file
+    'errors_log_file'=>['access'=>'readonly','default'=>'errors.log','validation'=>'is_notempty_string'],
+    // Name of the debugging log file
+    'debug_log_file'=>['access'=>'readonly','default'=>'debugging.log','validation'=>'is_notempty_string'],
+//END START Logs & errors reporting
 ];

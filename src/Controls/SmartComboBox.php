@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.7.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,10 +16,9 @@ use NApp;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppException;
 use Translate;
-
 /**
  * ComboBox control
  *
@@ -79,7 +78,7 @@ class SmartComboBox extends Control {
 	}//END public function __construct
     /**
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();
@@ -107,7 +106,6 @@ class SmartComboBox extends Control {
 			$js_script .= "\t\t\tminimumInputLength: {$this->minimum_input_length},\n";
 		}//if($this->load_type=='ajax')
 		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
-
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
 			    $s_values = $this->selected_value;
@@ -127,7 +125,6 @@ class SmartComboBox extends Control {
             }//if(is_scalar($this->selected_value))
             $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
         }//if(is_object($this->selected_value))
-
 		switch($this->load_type) {
 			case 'ajax':
 			    $litems->add(new VirtualEntity(),TRUE);
@@ -146,7 +143,7 @@ class SmartComboBox extends Control {
                         $initData[] = $s_item;
                     }//END foreach
 			    }//if($s_values->count())
-				$tagauid = \PAF\AppSession::GetNewUID($this->tag_id,'md5');
+				$tagauid = \NETopes\Core\App\AppSession::GetNewUID($this->tag_id,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');

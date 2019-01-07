@@ -1,42 +1,36 @@
 /**
- * NETopes controls Bootstrap 3 javascript file
+ * NETopes controls extra javascript file
  *
- * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.1.0.0
+ * @version    2.5.0.0
  */
-
 $(function() {
 	SmartCBOInitialize();
-	ShowToolTip('.clsTitleToolTip');
-	ShowToolTip('.clsTitleSToolTip');
-	ShowToolTip('.clsDataToolTip','data');
-	ShowToolTip('.clsGCBToolTip','selectedtext');
-	ShowPopover('.clsWebuiPopover',true);
-	ShowPopover('.clsDarkWebuiPopover',true);
-	ShowPopover('.clsWebuiSPopover',false);
-	ShowPopover('.clsDarkWebuiSPopover',false);
+	ShowToolTip('.clsTitleToolTip[title]');
+	ShowToolTip('.clsTitleSToolTip[title]');
+	ShowToolTip('.clsDataToolTip[data]');
+	ShowToolTip('.clsGCBToolTip');
+	ShowPopover('.clsWebuiPopover');
+	ShowPopover('.clsDarkWebuiPopover');
 });//$(function()
-
 $(document).on('onARequestInit',function(e) {
-	if(typeof(e.target)=='string') { DestroyCkEditors(window.name,e.target); }
+	DestroyCkEditors(window.name,e.target);
+	ToolTipCleanup();
 });
-
 $(document).on('onARequestComplete',function(e) {
+	// if(e.source=='runRepeated') { return; }
 	ShowErrorDialog(false);
 	SmartCBOInitialize();
-	ShowToolTip('.clsTitleToolTip');
-	ShowToolTip('.clsTitleSToolTip');
-	ShowToolTip('.clsDataToolTip','data');
-	ShowToolTip('.clsGCBToolTip','selectedtext');
-	ShowPopover('.clsWebuiPopover',true);
-	ShowPopover('.clsDarkWebuiPopover',true);
-	ShowPopover('.clsWebuiSPopover',false);
-	ShowPopover('.clsDarkWebuiSPopover',false);
+	ShowToolTip('.clsTitleToolTip[title]');
+	ShowToolTip('.clsTitleSToolTip[title]');
+	ShowToolTip('.clsDataToolTip[data]');
+	ShowToolTip('.clsGCBToolTip');
+	ShowPopover('.clsWebuiPopover');
+	ShowPopover('.clsDarkWebuiPopover');
 });
-
 /*** For Errors Popup ***/
 function ShowErrorDialog(errstr,encrypted,targetid,title) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'errors-dlg'; }
@@ -117,7 +111,6 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
 		buttons: lbuttons
     });
 }//END function ShowConfirmDialog
-
 function ShowMessageDialog(message,title,encrypted,targetid) {
 	if(!message || typeof(message)!='string' || message.length<=0) { return false; }
 	if(encrypted) { message = GibberishAES.dec(message,'HTML'); }
@@ -144,7 +137,7 @@ function ShowMessageDialog(message,title,encrypted,targetid) {
 /* END For modal dialogs */
 /*** For showing and closing the modal form ***/
 function ShowModalForm(width,title,close_callback,targetid) {
-	if(!targetid || typeof(targetid)!=='string' || targetid.length<=0) { targetid = 'modal'; }
+	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'modal'; }
 	// console.log('ShowModalForm>>');
 	// console.log('targetid: '+targetid);
 	// console.log($('#'+targetid));
@@ -169,15 +162,10 @@ function ShowModalForm(width,title,close_callback,targetid) {
 		closeOnEscape: false,
 		dragStop: function(event,ui) { $(this).dialog({height:'auto'}); },
 		close: function() {
-			if(close_callback) {
-				eval(close_callback);
-			} else {
+			if(close_callback) { eval(close_callback); }
+			else {
 				var d_close_callback = $(this).attr('data-close-callback');
 				if(d_close_callback) { eval (d_close_callback); }
-            }
-            if(targetid!=='modal') {
-            	$('#'+targetid).dialog('destroy');
-            	$('#'+targetid).html('');
             }
 		},
         open: function() {
@@ -194,7 +182,6 @@ function ShowModalForm(width,title,close_callback,targetid) {
 		}
     });
 }//END function ShowModalForm
-
 function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'modal'; }
 	// console.log('CloseModalForm>>');
@@ -203,56 +190,78 @@ function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	// console.log('dynamic: '+dynamic);
 	if(skip_default_ccb==1 || skip_default_ccb==true) { $('#'+targetid).attr('data-close-callback',''); }
 	if($('#'+targetid).dialog('instance')) {
-		// console.log('dialog: close');
 		$('#'+targetid).dialog('close');
 	} else {
-		// console.log('element: hide');
 		$('#'+targetid).hide();
 	}//if($('#'+targetid).dialog('instance'))
 	$('#'+targetid).html('');
 	if(targetid!='modal' && (dynamic==1 || dynamic==true)) { $('#'+targetid).remove(); }
 	if(callback) { eval(GibberishAES.dec(callback,'cmf')); }
 }//END function CloseModalForm
-
 function AppendDynamicModal(targetid) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0 || $('#'+targetid).length) { return false; }
 	$('body').append('<div id="'+targetid+'" class="ui-modal" style="display: none;"></div>');
 }//END function AppendDynamicModal
-
 function ShowDynamicModalForm(targetid,width,title,close_callback) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { return; }
 	return ShowModalForm(width,title,close_callback,targetid);
 }//END function ShowDynamicModalForm
 /* END For showing and closing the modal form */
-function ShowToolTip(etype,source) {
-	switch(source) {
-		case 'data':
-			$(etype).tooltip({
-				html: true,
-				title: function() {
-					var ldata = $(this).attr('data');
-					if(!ldata || ldata.length<=0) { return false; }
-					ldata = GibberishAES.dec(ldata,'HTML');
-					return ldata;
-				}
-			});
+/*** For ToolTip ***/
+function ShowToolTip(etype) {
+	var ttclass = '';
+	switch(etype) {
+		case '.clsDataToolTip[data]':
+			ttclass = 'white-bg';
 			break;
-		case 'selectedtext':
-			$(etype).tooltip({
-				title: function() {
-					if($('#'+$(this).attr('id')+'_selectedtext').length) { return false; }
-					var ldata = $('#'+$(this).attr('id')+'_selectedtext').val();
-					return ldata;
-				}
-			});
-			break;
+		case '.clsTitleToolTip[title]':
+		case '.clsTitleSToolTip[title]':
+		case '.clsGCBToolTip':
 		default:
-			$(etype).tooltip();
+			ttclass = 'dgrey-bg';
 			break;
-	}//END switch
+	}//END swich
+	$(etype).each(function() {
+		if($(this).data('ui-tooltip')) { return; }
+		var dtclass = $(this).attr('data-ttcls');
+		if(dtclass && dtclass.length) { ttclass = dtclass; }
+		$(this).tooltip({
+			items: etype,
+			tooltipClass: ttclass,
+			content: function() {
+				switch(etype) {
+					case '.clsDataToolTip[data]':
+						var ldata = $(this).attr('data');
+						if(ldata) { return GibberishAES.dec(ldata,'HTML'); }
+						return '';
+					case '.clsGCBToolTip':
+						if($('#'+$(this).attr('id')+'_selectedtext').length) { return $('#'+$(this).attr('id')+'_selectedtext').val(); }
+						return '';
+					default:
+						return $(this).attr('title');
+				}//END swich
+			},//content: function()
+			position: {
+	        	my: 'center bottom-20',
+	        	at: 'center top',
+	        	using: function(position,feedback) {
+	          		$(this).css(position);
+	          		if(etype!='.clsTitleSToolTip[title]') {
+		          		$('<div>')
+				            .addClass('arrow-'+ttclass)
+				            .addClass(feedback.vertical)
+				            .addClass(feedback.horizontal)
+				            .appendTo(this);
+					}//if(etype!='.clsTitleSToolTip[title]')
+	        	}//using: function(position,feedback)
+	      	}//position:
+	    });//$(this).tooltip
+	});//$(etype).each(function()
 }//function ShowToolTip
-
-function ShowPopover(etype,encrypted) {
+function ToolTipCleanup() {
+	 $('.ui-tooltip-content').parent('div.ui-tooltip').remove();
+}//END function ToolTipCleanup
+function ShowPopover(etype) {
 	var styleClass = '';
 	if(etype=='.clsDarkWebuiPopover') { styleClass = 'inverse'; }
 	$(etype).webuiPopover({
@@ -262,16 +271,36 @@ function ShowPopover(etype,encrypted) {
 		// 	return ldata;
 		// },
 		content: function() {
-			if(encrypted==true || encrypted==1 || encrypted=='1' || encrypted=='true') {
-				var ldata = $(this).attr('data');
-				if(!ldata || ldata.length<=0) { return false; }
-				ldata = GibberishAES.dec(ldata,'HTML');
-				return ldata;
-			} else {
-				return $(this).attr('data');
-			}//if(encrypted==true || encrypted==1 || encrypted=='1' || encrypted=='true')
+			var ldata = $(this).attr('data');
+			if(!ldata || ldata.length<=0) { return false; }
+			ldata = GibberishAES.dec(ldata,'HTML');
+			return ldata;
 		},
 		trigger: 'hover',
 		style: styleClass
 	});
 }//function ShowPopover
+/* END For ToolTip */
+/*** For Language selector ***/
+function ShowLanguagesList(cobject,elementid,action,lheight) {
+	switch (action) {
+		case 1:
+			$('#'+elementid).css('position','absolute');
+			var loffset = $(cobject).offset();
+			var ltop = loffset.top + 19;
+			var lleft = loffset.left;
+			$('#'+elementid).css('top',ltop+'px');
+			$('#'+elementid).css('left',lleft+'px');
+			$('#'+elementid).css('height',lheight+'px');
+			$('#'+elementid).css('display','');
+			break;
+		case 2:
+			$('#'+elementid).css('height',lheight+'px');
+			$('#'+elementid).css('display','');
+			break;
+		default:
+			$('#'+elementid).css('display','none');
+			break;
+	}//switch (action)
+}//function ShowLanguagesList
+/* END For Language selector */

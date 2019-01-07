@@ -6,14 +6,13 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.5.8
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
-
 /**
  * ColorPicker control classes
  *
@@ -51,7 +50,6 @@ class ColorPicker extends Control {
 			//useHashPrefix : bool
 		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
-
 		$this->ProcessActions();
 		if($this->preview) {
 			$result = "\t\t".'<div class="input-group" id="'.$this->tag_id.'_control">'."\n";

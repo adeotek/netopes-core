@@ -6,14 +6,14 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
-use PAF\AppException;
+use NETopes\Core\AppException;
 /**
  * VirtualEntity class
  *
@@ -61,7 +61,7 @@ class VirtualEntity {
 	 * @param  string $name The name of the property
 	 * @return mixed Returns the value of the property
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __get($name) {
 		$key = $this->naming_mode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
@@ -76,7 +76,7 @@ class VirtualEntity {
 	 * @param array  $arguments
 	 * @return mixed
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call($name,array $arguments) {
 		if(strtolower(substr($name,0,3))==='get') {
@@ -112,7 +112,7 @@ class VirtualEntity {
 	 * @param null   $validation
 	 * @param bool   $strict
 	 * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function getProperty($name,$defaultValue = NULL,$validation = NULL,$strict = FALSE) {
@@ -126,7 +126,7 @@ class VirtualEntity {
 	 * @param null    $defaultValue
 	 * @param null    $validation
 	 * @return mixed Returns the value of the property
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetPropertyValue($name,$strict = FALSE,$defaultValue = NULL,$validation = NULL) {
@@ -143,7 +143,7 @@ class VirtualEntity {
 	 * @param mixed    $value
 	 * @param bool    $strict
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function SetPropertyValue($name,$value,$strict = FALSE) {

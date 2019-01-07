@@ -6,13 +6,13 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppException;
+use NETopes\Core\AppException;
 /**
  * BaseEntity class
  *
@@ -33,7 +33,7 @@ abstract class BaseEntity {
 	 * @param array  $arguments
 	 * @return mixed
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call($name,array $arguments) {
 		if(strtolower(substr($name,0,7))==='safeget') {
@@ -54,7 +54,7 @@ abstract class BaseEntity {
 	 * @param string|null $validation
 	 * @param bool   $strict
 	 * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function getProperty(?string $name,$default_value = NULL,?string $validation = NULL,bool $strict = FALSE) {
@@ -68,7 +68,7 @@ abstract class BaseEntity {
 	 * @param null    $default_value
 	 * @param string|null $validation
 	 * @return mixed Returns the value of the property
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function GetPropertyValue(?string $name,bool $strict = FALSE,$default_value = NULL,?string $validation = NULL) {

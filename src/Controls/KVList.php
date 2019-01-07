@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.4.0.5
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,7 +16,6 @@ use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use NApp;
 use Translate;
-
 /**
  * Class KVList
  *
@@ -27,16 +26,14 @@ class KVList extends Control {
     protected $postable_elements = TRUE;
     public $lang_items = NULL;
     public $lang_ds = NULL;
-
     public function __construct($params = NULL) {
         parent::__construct($params);
         if(!$this->postable) { $this->postable_elements = FALSE; }
         else { $this->postable = FALSE; }
-        if(!strlen($this->tag_id)) { $this->tag_id = \PAF\AppSession::GetNewUID('KVList'); }
+        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\App\AppSession::GetNewUID('KVList'); }
         if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
         if(is_array($this->lang_items)) { $this->lang_items = DataSource::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct
-
     protected function SetControlInstance($with_translations = FALSE,$values = NULL,$lang = NULL) {
         $this->ProcessActions();
         $lvalues = (is_null($values) ? $this->value : $values);
@@ -77,7 +74,6 @@ class KVList extends Control {
         $result .= $this->GetActions();
         return $result;
     }//END protected function SetControlInstance
-
     protected function SetControl(): ?string {
         $label = (is_string($this->label) && strlen($this->label) ? $this->label : NULL);
         if(is_iterable($this->lang_items) && count($this->lang_items)) {

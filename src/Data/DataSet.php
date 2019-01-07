@@ -7,9 +7,9 @@
  *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.9.8
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -239,7 +239,7 @@ class DataSet implements Collection {
      * @param mixed       $default_value
      * @param string|null $validation
      * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function safeGet($key,$default_value = NULL,$validation = NULL)
     {
@@ -383,7 +383,6 @@ class DataSet implements Collection {
     public function slice($offset, $length = null) {
         return array_slice($this->elements, $offset, $length, true);
     }
-
     public function jsonSerialize() {
         return json_encode($this->elements);
     }

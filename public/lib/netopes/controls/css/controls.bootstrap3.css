@@ -40,7 +40,6 @@
 	filter: alpha(opacity=50);
 	opacity: .5;
 }
-
 .ui-timepicker-standard { padding: 0; }
 .ui-timepicker.ui-widget.ui-widget-content { border: 0; }
 .ui-timepicker.ui-menu .ui-menu-item { padding: 5px 0; }
@@ -223,7 +222,6 @@
 	margin: 10px 10px 9px 10px;
 }
 .form-control.w-act { display: inline-block; }
-
 input[type="image"].FInLine {
 	display: inline-block;
 	margin: 0 10px 0 0;
@@ -412,7 +410,6 @@ select.input-xs { padding: 4px 2px; }
     line-height: 18px;
     border-radius: 2px;
 }
-
 .form-sm .form-group .form-control.select2-selection--multiple,
 .form-group-sm .form-control.select2-selection--multiple,
 .input-sm.select2-selection--multiple {
@@ -421,7 +418,6 @@ select.input-xs { padding: 4px 2px; }
 	padding: 2px 5px;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__rendered li.select2-search--inline { width: calc(100% - 20px); }
-
 .form-sm .form-group select.form-control,
 .form-group-sm select.form-control,
 select.input-sm { padding: 5px 2px; }
@@ -463,9 +459,7 @@ select.input-sm { padding: 5px 2px; }
     width: 20px;
 }
 /*** END Forms controls sizing ***/
-
 .select2-dropdown { margin-left: 0 !important; }
-
 .control-set {
     position: relative;
     display: table;
@@ -501,7 +495,6 @@ select.input-sm { padding: 5px 2px; }
 	margin-left: 5px;
 	margin-right: 0;
 }
-
 /*.form-xxs .form-group > .btn,*/
 .btn-group-xxs > .btn,
 .btn-xxs {
@@ -515,7 +508,6 @@ select.input-sm { padding: 5px 2px; }
 .btn.io > i { margin: 0; }
 .btn-xxs.io { padding: 0; }
 .btn-xxs.io > i { width: 20px; }
-
 .link {
 	color: #2196F3;
 	text-decoration: none;
@@ -582,7 +574,6 @@ select.input-sm { padding: 5px 2px; }
 /*** ComboBox ***/
 select.clsPlaceholder:required:invalid { color: #999999; }
 select.clsPlaceholder option { color: #000000; }
-
 .clsGridComboBox, .clsTreeComboBox { margin: 0 !important; }
 div.clsGridComboBox.ctrl-container,
 div.clsTreeComboBox.ctrl-container {
@@ -1092,7 +1083,6 @@ div.clsTableView div.clsTableViewFilters div.f-container div.f-active .f-active-
 	color: #cf0000;
 }
 /*div.clsTableView div.clsTableViewFilters div.f-container div.f-active .f-active-item strong { color: #000000; }*/
-
 /*???*/
 /*div.clsTableView div.clsTableViewFilters div.f-container div.clsTreeComboBox.ctrl-container.f-value {*/
 	/*display: inline-block;*/
@@ -1118,7 +1108,6 @@ div.clsTableView div.clsTableViewFilters div.f-container div.f-active .f-active-
 /*div.clsTableView div.clsTableViewFilters div.f-container .select2-container--default .select2-selection--single .select2-selection__arrow {*/
 	/*height: 19px;*/
 /*}*/
-
 
 /* END Filters */
 div.clsTableView div.clsTContainer {
@@ -1409,7 +1398,6 @@ table.clsBasicForm > tbody > tr > td {
 	font-weight: normal;
 	color: #666;
 }
-
 .clsAssociationManager .subFormSummary ul {
 	text-align: left;
 }
@@ -1496,7 +1484,6 @@ table.clsBasicForm > tbody > tr > td {
 }
 /* End style for associations manager filters */
 /*** END AssociationManager ***/
-
 /*** Generic Rules ***/
 .clsDivTable {
     display: table;
@@ -1528,7 +1515,6 @@ table.clsBasicForm > tbody > tr > td {
 	min-height: 14px;
 	line-height: 14px;
 }
-
 .col-xs-offset-right-12 {
   margin-right: 100%;
 }
@@ -1691,7 +1677,6 @@ table.clsBasicForm > tbody > tr > td {
     margin-right: 0;
   }
 }
-
 .blank-checkbox {
 	display: inline-block;
 	width: 18px;
@@ -1699,22 +1684,18 @@ table.clsBasicForm > tbody > tr > td {
 	padding: 0;
 	margin: 0 10px 0 0;
 }
-
 .span-cent { width: 100%; }
 .tacenter { text-align: center; }
 .taleft { text-align: left; }
 .taright { text-align: right; }
-
 .float-left { float: left !important; }
 .float-right { float: right !important; }
 .fta-left { text-align: left !important; }
 .fta-right { text-align: right !important; }
 .dblock { display: block; }
-
 .ipos-left > i { margin-right: 7px; }
 .ipos-right > i { margin-left: 7px; }
 .no-margin { margin: 0 !important; }
-
 .ml10 { margin-left: 10px; }
 .ml15 { margin-left: 15px; }
 .ml20 { margin-left: 20px; }
@@ -1729,7 +1710,6 @@ table.clsBasicForm > tbody > tr > td {
 .mb15 { margin-bottom: 15px; }
 .mb20 { margin-bottom: 20px; }
 .mb30 { margin-bottom: 30px; }
-
 /* Colors */
 .err-msg { color: #cf0000; }
 .black-std { color: #000000; }
@@ -1743,7 +1723,6 @@ table.clsBasicForm > tbody > tr > td {
 .red-bold { color: #c8180b; font-weight: bold; }
 .dred-bold { color: #cf0000; font-weight: bold; }
 /* END Colors */
-
 .dbordert { border-top: 1px solid #333333; }
 .dbordertb { border-top: 2px solid #333333; }
 .dborderb { border-bottom: 1px solid #333333; }
@@ -1752,11 +1731,9 @@ table.clsBasicForm > tbody > tr > td {
 .lbordertb { border-top: 2px solid #dddddd; }
 .lborderb { border-bottom: 1px solid #dddddd; }
 .lborderbb { border-bottom: 2px solid #dddddd; }
-
 .hscrollable { overflow-x: auto !important; }
 .vscrollable { overflow-y: auto !important; }
 .scrollable { overflow: auto !important; }
-
 .clsFieldError { background-color: #FDC9C9 !important; }
 input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeComboBox { background-color: #FDC9C9 !important; }
 /*** END Generic Rules ***/

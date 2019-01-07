@@ -4,16 +4,15 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * Application BaseView class
  *
@@ -137,7 +136,7 @@ class AppView {
 	 * @param  string $name The name of the property
 	 * @return mixed Returns the value of the property
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function __get($name) {
 		if(!array_key_exists($name,$this->_passTrough)) { throw new AppException('Undefined property ['.$name.']!',E_ERROR,1); }
@@ -462,7 +461,7 @@ class AppView {
      * @param string     $_c_class Control class fully qualified name
      * @param array|null $args
      * @return string
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
 		if(count($this->_params)) { extract($this->_params); }
@@ -495,7 +494,7 @@ class AppView {
 	 * @param string $method
 	 * @param        $params
 	 * @return string
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetModuleContent(string $module,string $method,$params): string {
 		ob_start();
@@ -509,7 +508,7 @@ class AppView {
      * @param bool   $hasActions
      * @param bool   $hasTitle
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function GetContainer(?string $containerType,array $tags = [],bool $hasActions = FALSE,bool $hasTitle = FALSE): ?string {
 	    if($containerType===NULL) { return NULL; }
@@ -542,7 +541,7 @@ class AppView {
      * @param string|null $title
      * @param array|null  $actions
      * @return bool
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId = NULL,?string $containerClass = NULL,?string $tag = NULL,?string $title = NULL,?array $actions = NULL): bool {
 	    $tags = [];
@@ -603,7 +602,7 @@ class AppView {
 	 * @param bool $return If TRUE view content is returned as string, else is outputted
 	 * @return string|null
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function Render(bool $return = FALSE): ?string {
 		$content = '';

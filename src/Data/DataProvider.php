@@ -6,16 +6,15 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.5.7
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
   * DataProvider prepares and makes the data requests
   *
@@ -73,7 +72,7 @@ class DataProvider {
      * @param string|null       $mode
      * @param bool              $existing_only
      * @return object Adapter instance
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -123,7 +122,7 @@ class DataProvider {
 	 * @param  string $method Method to be searched
      * @param null|string $mode
 	 * @return bool Returns TRUE if the method exist of FALSE otherwise
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -144,7 +143,7 @@ class DataProvider {
 	 * @return array|bool Returns the data source method response
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$connection = NULL;
@@ -180,7 +179,7 @@ class DataProvider {
 	 * @return array|bool Returns the data source method response
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetKeyValueArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$keyfield = get_array_value($extra_params,'keyfield','id','is_notempty_string');
@@ -200,7 +199,7 @@ class DataProvider {
 	 * @return mixed Returns the data adapter method response
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function Get(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
 		$entity = get_array_value($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
@@ -221,7 +220,7 @@ class DataProvider {
 	 * @return DataSet|bool Returns the data source method response as DataSet
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetKeyValue($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
 		$entity = get_array_value($extra_params,'entity_class','\NETopes\Core\Data\VirtualEntity','is_notempty_string');
@@ -235,7 +234,7 @@ class DataProvider {
 	 * @param array $params
 	 * @param array $connection
 	 * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -253,7 +252,7 @@ class DataProvider {
 	 * @param       $da_name
 	 * @param array $connection
 	 * @return bool
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -277,7 +276,7 @@ class DataProvider {
 	 * @param bool  $overwrite
 	 * @param null  $custom_tran_params
 	 * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -298,7 +297,7 @@ class DataProvider {
 	 * @param array $connection
 	 * @param bool  $log
 	 * @return mixed
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -318,7 +317,7 @@ class DataProvider {
 	 * @param null $connection
 	 * @param null $platform
 	 * @return \Doctrine\ORM\EntityManager|null|object
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 */
 	public static function GetEntityManager($connection = NULL,&$platform = NULL) {
 		if((is_array($connection) && count($connection))) {

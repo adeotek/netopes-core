@@ -6,15 +6,14 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 use Translate;
-
 /**
  * ClassName description
  *
@@ -33,7 +32,6 @@ class SimplePageControl extends Control {
 		$this->current_page = 0;
 		parent::__construct($params);
 	}//END public function __construct
-
 	protected function AreqRun($search = NULL,$replace = NULL) {
 		$run_str = $this->onclickparams;
 		if($search && isset($replace)) { $run_str = str_replace($search,$replace,$run_str); }
@@ -42,7 +40,6 @@ class SimplePageControl extends Control {
 		}//if(strlen($this->js_callback))
 		return NApp::arequest()->Prepare($run_str);
 	}//END protected function AreqRun
-
 	protected function SetControl(): ?string {
 		$limit = NApp::_GetParam('rows_per_page');
 		$limit = (is_numeric($limit)>0 && $limit>0) ? $limit : 20;
@@ -61,7 +58,7 @@ class SimplePageControl extends Control {
                 $lonclick = $this->AreqRun('{{page}}',($cpage-1));
                 $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
             }//if($cpage==1 || $cpage<0)
-            $psid = \PAF\AppSession::GetNewUID(NULL,'md5');
+            $psid = \NETopes\Core\App\AppSession::GetNewUID(NULL,'md5');
             $lonclick = $this->AreqRun('{{page}}',$psid.':value');
             $result .= "\t".'<select id="'.$psid.'" onchange="'.$lonclick.'">'."\n";
             for($i=1; $i<=$pages_no; $i++) {

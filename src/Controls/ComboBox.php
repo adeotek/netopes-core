@@ -6,17 +6,16 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.4.0.5
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * ComboBox control
  *
@@ -50,7 +49,7 @@ class ComboBox extends Control {
 	}//END public function __construct
 	/**
 	 * @return string|null
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetControl(): ?string {
         $this->ProcessActions();
@@ -82,7 +81,6 @@ class ComboBox extends Control {
             $selectedValue = $this->selected_value;
         }//if(is_object($this->selected_value))
         $lselclass = $this->GetTagClass($ph_class);
-
 		switch($this->load_type) {
 			case 'database':
 				$data = $this->LoadData($this->data_source);
@@ -112,7 +110,6 @@ class ComboBox extends Control {
 			    array_unshift($rOptions[''],"\t\t\t<option value=\"\" disabled=\"disabled\" selected=\"selected\" hidden=\"hidden\">".$item->getProperty($placeholderFieldName)."</option>\n");
 			    continue;
 			}//if($item->getProperty('__special_type__')==='placeholder')
-
 			$lcolorfield = strlen($this->colorfield) ? $this->colorfield : 'color';
             $loptionclass = strlen($item->getProperty($lcolorfield,'','is_string')) ? ' '.$item->getProperty($lcolorfield,'','is_string') : '';
             $lcolorcodefield = strlen($this->colorcodefield) ? ' color: '.$this->colorcodefield.';' : '';
@@ -121,7 +118,6 @@ class ComboBox extends Control {
                     $loptionclass = $this->option_conditional_class['class'];
                 }//if($item->getProperty($this->option_conditional_class['field'],'','is_string')===$this->option_conditional_class['condition'])
             }//if(!strlen($loptionclass) && is_array($this->option_conditional_class) && count($this->option_conditional_class) && array_key_exists('field',$this->option_conditional_class) && array_key_exists('condition',$this->option_conditional_class) && array_key_exists('class',$this->option_conditional_class) && $item->hasProperty($this->option_conditional_class['field']))
-
             $lval = $item->getProperty($this->value_field,NULL,'isset');
             if($item->getProperty('__special_type__')==='default_value') {
                 $ltext = $item->getProperty($placeholderFieldName);
@@ -142,7 +138,6 @@ class ComboBox extends Control {
             foreach($this->option_data as $od) {
                 $o_data .= ' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
             }//END foreach
-
 			if(is_string($this->group_field) && strlen($this->group_field)) {
                 $groupName = $item->getProperty($this->group_field,'','is_string');
                 if(!array_key_exists($groupName,$rOptions)) { $rOptions[$groupName] = []; }

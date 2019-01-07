@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 /**
@@ -58,13 +58,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 */
 	public static $silent_mode = FALSE;
 	/**
-	 * @var    bool Re-throw warnings as \PAF\AppException
+	 * @var    bool Re-throw warnings as \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
 	public static $rethrow_warnings = TRUE;
 	/**
-	 * @var    bool Re-throw notices as \PAF\AppException
+	 * @var    bool Re-throw notices as \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -128,17 +128,17 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		return $result;
 	}//END public static function GetErrors
 	/**
-	 * Adds an exception (of \PAF\AppException type) to the error stack
+	 * Adds an exception (of \NETopes\Core\AppException type) to the error stack
 	 *
-	 * @param \PAF\AppException $exception The exception to be added to the stack
+	 * @param \NETopes\Core\AppException $exception The exception to be added to the stack
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
-	public static function AddError(\PAF\AppException $exception) {
-		if(!is_object($exception) || get_class($exception)!=='PAF\AppException') { throw new \PAF\AppException('Invalid exception !',E_WARNING,0); }
-		$errfile = str_replace(_AAPP_ROOT_PATH,'',$exception->getFile());
+	public static function AddError(\NETopes\Core\AppException $exception) {
+		if(!is_object($exception) || get_class($exception)!=='NETopes\Core\AppException') { throw new \NETopes\Core\AppException('Invalid exception !',E_WARNING,0); }
+		$errfile = str_replace(_NAPP_ROOT_PATH,'',$exception->getFile());
 		if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 		self::$errors_stack[] = array('errstr'=>$exception->getMessage(),'errno'=>$exception->getCode(),'errfile'=>$errfile,'errline'=>$exception->getLine());
 		if(class_exists('NApp') && NApp::GetDebuggerState()) {
@@ -155,12 +155,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @param  int|null    $errline Error location (line)
 	 * @param  array       $errcontext Error context
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
 	public static function ErrorHandlerFunction(int $errno = -1,string $errstr = 'Unknown error',?string $errfile = NULL,?int $errline = NULL,array $errcontext = []) {
-		$errfile = str_replace(_AAPP_ROOT_PATH,'',$errfile);
+		$errfile = str_replace(_NAPP_ROOT_PATH,'',$errfile);
 		switch($errno) {
 			case E_NOTICE:
 				if(self::IsSilent() || self::$rethrow_notices!==TRUE) {
@@ -171,7 +171,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \PAF\AppException($errstr,$errno,0,$errfile,$errline);
+					throw new \NETopes\Core\AppException($errstr,$errno,0,$errfile,$errline);
 				}//if(self::IsSilent() || self::$rethrow_notices!==TRUE)
 				break;
 			case E_WARNING:
@@ -190,7 +190,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \PAF\AppException($errstr,$errno,0,$errfile,$errline);
+					throw new \NETopes\Core\AppException($errstr,$errno,0,$errfile,$errline);
 				}//if(!$ibase_error && (self::IsSilent() || self::$rethrow_warnings!==TRUE))
 				break;
 			default:
@@ -202,7 +202,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \PAF\AppException($errstr,$errno,1,$errfile,$errline);
+					throw new \NETopes\Core\AppException($errstr,$errno,1,$errfile,$errline);
 				}//if(self::IsSilent())
 				break;
 		}//END switch
@@ -214,21 +214,21 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function ExceptionHandlerFunction($exception) {
-		if(get_class($exception)!='PAF\AppException') {
+		if(get_class($exception)!='NETopes\Core\AppException') {
 			switch(get_class($exception)) {
 				case 'PDOException':
-					$e = new \PAF\AppException($exception->getMessage(),E_ERROR,1,$exception->getFile(),$exception->getLine(),'pdo',$exception->getCode(),$exception->errorInfo);
+					$e = new \NETopes\Core\AppException($exception->getMessage(),E_ERROR,1,$exception->getFile(),$exception->getLine(),'pdo',$exception->getCode(),$exception->errorInfo);
 					break;
 				default:
-					$e = new \PAF\AppException($exception->getMessage(),$exception->getCode(),1,$exception->getFile(),$exception->getLine());
+					$e = new \NETopes\Core\AppException($exception->getMessage(),$exception->getCode(),1,$exception->getFile(),$exception->getLine());
 					break;
 			}//END switch
 		} else {
 			$e = $exception;
-		}//if(get_class($exception)!='PAF\AppException')
+		}//if(get_class($exception)!='NETopes\Core\AppException')
 		if(self::IsSilent()) {
 			self::AddError($e);
 		} else {
@@ -242,15 +242,15 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function ShutDownHandlerFunction(bool $output = TRUE) {
 		if(!$output) { return; }
 		// $error_types = array('E_ERROR'=>1,'E_PARSE'=>4,'E_CORE_ERROR'=>16,'E_CORE_WARNING'=>32,'E_COMPILE_ERROR'=>64,'E_COMPILE_WARNING'=>128,'E_STRICT'=>2048);
 		$e = error_get_last();
 		if(is_array($e) && count($e)) { //&& in_array($e['type'],$error_types)
-			$errfile = str_replace(_AAPP_ROOT_PATH,'',$e['file']);
-			self::AddError(new \PAF\AppException($e['message'],$e['type'],0,$errfile,$e['line']));
+			$errfile = str_replace(_NAPP_ROOT_PATH,'',$e['file']);
+			self::AddError(new \NETopes\Core\AppException($e['message'],$e['type'],0,$errfile,$e['line']));
 		}//if(is_array($e) && count($e))
 		if(!self::IsSilent() && self::HasErrors()) { self::ShowErrors(); }
 		self::$shutdown = TRUE;
@@ -259,14 +259,14 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * Processes the errors stack (optionaly adding a last error)
 	 * and sends errors to be displayed or logged
 	 *
-	 * @param \PAF\AppException $exception The last exception to be added to the stack
+	 * @param \NETopes\Core\AppException $exception The last exception to be added to the stack
 	 * befor showing error
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
-	public static function ShowErrors(\PAF\AppException $exception = NULL) {
+	public static function ShowErrors(\NETopes\Core\AppException $exception = NULL) {
 		if(is_object($exception)) { self::AddError($exception); }
 		if(!is_array(self::$errors_stack) || !count(self::$errors_stack)) { return; }
 		if(count(self::$errors_stack)==1) {
@@ -325,7 +325,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function DisplayError($errstr = '',$errno = NULL,$errfile = NULL,$errline = NULL) {
 		if(class_exists('NApp') && NApp::$silent_errors && !NApp::$debug) { return; }

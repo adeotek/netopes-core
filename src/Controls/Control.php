@@ -6,21 +6,20 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.4.0.3
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
-use PAF\AppSession;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use NApp;
 use GibberishAES;
 use Translate;
-
 /**
  * Control abstract class file
  *
@@ -65,7 +64,7 @@ abstract class Control {
 	 */
 	public $tag_id = NULL;
 	/**
-	 * @var    bool Postable in PAF ajax calls (default: TRUE)
+	 * @var    bool Postable in NETopes AJAX requests (default: TRUE)
 	 * @access public
 	 */
 	public $postable = TRUE;
@@ -743,7 +742,7 @@ abstract class Control {
 	 *
 	 * @param  array $conditions The conditions array
 	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function CheckConditions($conditions) {
@@ -830,7 +829,7 @@ abstract class Control {
      * @return array|string Return processed parameters array
 	* @access public
 	* @static
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	*/
 	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$params_prefix = NULL) {
 	    $lRow = is_object($row) ? $row : new VirtualEntity(is_array($row) ? $row : []);
@@ -868,7 +867,7 @@ abstract class Control {
 	 * @param  object $row Data row object
 	 * @param  array $conditions The conditions array
 	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -930,7 +929,7 @@ abstract class Control {
 	 * @param  array $params Parameters array
 	 * @return array Returns processed tab array
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @static
 	 */
 	public static function GetTranslationData($params = []) {
@@ -950,13 +949,12 @@ abstract class Control {
 		}//if(strlen($ds_key))
 		return $result;
 	}//END public static function GetTranslationData
-
     /**
      * Gets the records from the database
      *
      * @param array $params
      * @return mixed Returns processed tab array
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -973,7 +971,7 @@ abstract class Control {
 	/**
 	 * @param $item
 	 * @return null|string
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function GetDisplayFieldValue($item): ?string {
 	    if(!is_object($item) && !is_array($item)) { return NULL; }

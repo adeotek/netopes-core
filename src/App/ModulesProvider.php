@@ -4,15 +4,13 @@
  *
  * @package    NETopes\Modules
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.10.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
-use PAF\AppConfig;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * Modules controller (provider) class
  *
@@ -48,13 +46,13 @@ class ModulesProvider {
         $cmName = ($bName==$mDir ? $bName.'Custom' : $mDir).'\\'.$bName.'Custom';
         array_shift($mArr);
         $cPath = implode('\\',$mArr).'\\';
-        if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$cPath.$cmName.'.php')) {
+        if(file_exists(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$cPath.$cmName.'.php')) {
             $cName = AppConfig::app_root_namespace().'\\'.$cPath.$cmName;
             $custom = TRUE;
         } else {
             $cName = $mName;
             $custom = FALSE;
-        }//if(file_exists(_AAPP_ROOT_PATH._AAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php'))
+        }//if(file_exists(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php'))
 		return $cName::GetInstance($name,$cName,$custom);
 	}//END public static function GetModule
 	/**
@@ -84,7 +82,7 @@ class ModulesProvider {
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -111,7 +109,7 @@ class ModulesProvider {
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -132,7 +130,7 @@ class ModulesProvider {
 	 * @param  array  $before_call An array of parameters to be passed to the _BeforeCall method
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */

@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -97,7 +97,7 @@ class PdfReport {
 	 * @access public
 	 */
 	public function __construct(&$params = []) {
-		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
+		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \NETopes\Core\AppException('Invalid object parameters !',E_ERROR,1); }
 		//reset($params);
 		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
 		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::_GetParam('group_separator');
@@ -120,7 +120,7 @@ class PdfReport {
         $cline = 0;
 		$first = TRUE;
 		foreach($params['layouts'] as $layout) {
-			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
+			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) { throw new \NETopes\Core\AppException('Invalid object parameters !',E_ERROR,1); }
 			if(array_key_exists('with_borders',$layout)) { $this->with_borders = $layout['with_borders']; }
 			$borders = $this->with_borders ? $this->border_settings : [];
 			$this->SetFormats((array_key_exists('formats',$layout) ? $layout['formats'] : NULL));
@@ -223,16 +223,13 @@ class PdfReport {
 		$col_value .= (array_key_exists('sufix',$column) && $column['sufix']) ? $column['sufix'] : '';
 		return $col_value;
 	}//END protected function GetCellValue
-
     public function PdfOutput(){
         return $this->pdf->Output('','S');
     }//END public function PdfOutput
-
     protected function NumberFormat0($data,$column) {
 		if(is_array($column['dbfield'])) { return NULL; }
 		return number_format($data[$column['dbfield']],0,$this->decimal_separator,$this->group_separator);
 	}//END protected function NumberFormat0
-
 	protected function NumberFormat2($data,$column) {
 		if(is_array($column['dbfield'])) { return NULL; }
 		return number_format($data[$column['dbfield']],2,$this->decimal_separator,$this->group_separator);

@@ -6,19 +6,18 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
-use PAF\AppException;
-use PAF\AppSession;
+use NETopes\Core\AppException;
+use NETopes\Core\App\AppSession;
 use NApp;
 use Translate;
-
 /**
  * AssociationManager control class
  *
@@ -340,7 +339,6 @@ JS;
         $liclass = 'ui-state-default am-element';
         $item_id = $row->getProperty($this->associated_id_field,'','isset');
         $item_name = $this->GetAssociatedItemName($row);
-
         $itclass = '';
         $filterData = '';
         if(is_string($this->associated_state_field) && strlen($this->associated_state_field) && $row->getProperty($this->associated_state_field,0,'is_integer')<=0) {
@@ -355,7 +353,6 @@ JS;
         	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-sis-sel-'.$item_id,'tag_name'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
         }//if(is_string($this->associated_state_field) && strlen($this->associated_state_field) && $row->getProperty($this->associated_state_field,0,'is_integer')<=0)
-
         $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
         $result .= $ckbTag;
         if($this->sortable) {
@@ -385,7 +382,7 @@ JS;
      *
      * @return string Returns associated box HTML
      * @access protected
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     protected function GetAssociatedItemsBox() {
         try {
@@ -417,7 +414,7 @@ JS;
      *
      * @return string
      * @access protected
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     protected function GetAssignableItemsActions() {
         $result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
@@ -476,7 +473,6 @@ JS;
         $is_associated = $row->getProperty('assoc',0,'is_numeric')==1;
         if($this->allow_multi_assoc===FALSE && $is_associated) { return ''; }
         $item_name = $this->GetAssignableItemName($row);
-
         $itclass = 'txt'.($is_associated ? ' associated' : '');
         $filterData = '';
         if(is_string($this->assignable_state_field) && strlen($this->assignable_state_field) && $row->getProperty($this->assignable_state_field,0,'is_integer')<=0) {
@@ -491,7 +487,6 @@ JS;
         	$ckb_sel = new CheckBox(array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-ais-sel-'.$item_id,'tag_name'=>$item_id,'value'=>0,'class'=>'FInLine'));
             $ckbTag = "\t\t\t\t\t\t".$ckb_sel->Show()."\n";
         }//if(is_string($this->assignable_state_field) && strlen($this->assignable_state_field) && $row->getProperty($this->assignable_state_field,0,'is_integer')<=0)
-
         $result = "\t\t\t\t\t".'<li class="'.$liclass.'" id="'.$item_id.'"'.$filterData.'>'."\n";
         $result .= $ckbTag;
         $result .= "\t\t\t\t\t\t".'<span class="'.$itclass.'">'.$item_name.'</span>'."\n";
@@ -518,7 +513,7 @@ JS;
      *
      * @return string Returns assignable box HTML
      * @access protected
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     protected function GetAssignableItemsBox() {
         try {
@@ -606,7 +601,7 @@ JS;
      *
      * @return string Returns the complete HTML for the control
      * @access protected
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
         $live_box = $this->GetLiveVersionItemsBox();
@@ -653,7 +648,7 @@ JS;
      * @param bool $output
      * @return string|null Returns or outputs the content (html)
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function Show($output = FALSE) {
         if(!$output) { return $this->SetControl(); }

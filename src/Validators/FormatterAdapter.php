@@ -6,14 +6,13 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.1.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
 use NApp;
-
 /**
  * Class FormatterAdapter
  *
@@ -32,7 +31,7 @@ class FormatterAdapter {
      * @param string|null $validation
      * @param bool        $htmlEntities
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
      * @access public
      * @static
@@ -60,13 +59,13 @@ class FormatterAdapter {
                     $arguments[] = $htmlEntities;
                     break;
                 case 'size':
-                    $arguments[] = get_array_param($regionals,'size',100,'is_not0_integer');
+                    $arguments[] = get_array_value($regionals,'size',100,'is_not0_integer');
                     break;
                 case 'number_format':
-                    $arguments[] = get_array_param($regionals,'number_format','6|.||','is_string');
+                    $arguments[] = get_array_value($regionals,'number_format','6|.||','is_string');
                     break;
                 case 'groupseparator':
-                    $arguments[] = get_array_param($regionals,'group_separator','','is_string');
+                    $arguments[] = get_array_value($regionals,'group_separator','','is_string');
                     break;
                 default:
                     $arguments[] = NULL;

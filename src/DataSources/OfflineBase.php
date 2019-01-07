@@ -8,13 +8,12 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2018 HTSS
  * @license    LICENSE.md
- * @version    2.4.0.3
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\DataSources;
 use NETopes\Core\Data\DataSource;
 use Translate;
-
 /**
  * Arrays data source class
  *
@@ -262,7 +261,6 @@ class OfflineBase extends DataSource {
 		}//if(get_array_value($params,'sadmin',0,'is_numeric')==1)
 		return $result;
 	}//END public function GetTranslationsConfigsTypes
-
 	/**
 	 * Gets Modules Types
 	 *

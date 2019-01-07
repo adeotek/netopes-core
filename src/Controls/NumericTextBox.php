@@ -6,15 +6,14 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.8.11
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Validators\Validator;
 use NApp;
-
 /**
  * NumericTextBox
  *
@@ -23,7 +22,7 @@ use NApp;
  */
 class NumericTextBox extends Control {
     public function __construct($params = NULL) {
-        $this->jsvalidation = TRUE;
+        $this->js_validation = TRUE;
         $this->max_length = 255;
         $this->auto_select = TRUE;
         parent::__construct($params);
@@ -38,13 +37,12 @@ class NumericTextBox extends Control {
             $this->number_format = $def_decno.'|'.$def_dsep.'|'.$def_gsep.'|'.$this->sufix;
         }//if($this->number_format!==FALSE && !strlen($this->number_format))
     }//END public function __construct
-
     protected function SetControl(): ?string {
         $nclass = '';
         if($this->disabled!==TRUE && $this->readonly!==TRUE) {
             if($this->number_format!==FALSE) { $nclass = 'clsSetNumberFormat'; }
-            if(is_string($this->jsvalidation) && strlen(trim($this->jsvalidation))) { $nclass .= ' '.trim($this->jsvalidation); }
-            elseif($this->jsvalidation===TRUE) { $nclass .= ' clsSetNumericValidation'; }
+            if(is_string($this->js_validation) && strlen(trim($this->js_validation))) { $nclass .= ' '.trim($this->js_validation); }
+            elseif($this->js_validation===TRUE) { $nclass .= ' clsSetNumericValidation'; }
         }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
         if($this->allow_null && !strlen($this->value)) {
             $lvalue = '';

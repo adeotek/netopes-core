@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -26,7 +26,6 @@ class CheckBox extends Control {
         $this->colors = array('pred'=>'clsCheckBoxPRed','round'=>'clsCheckBoxRound');
         parent::__construct($params);
     }//END public function __construct
-
     protected function SetControl(): ?string {
         $this->base_class = (strlen($this->color) && array_key_exists($this->color,$this->colors)) ? $this->colors[$this->color] : $this->base_class;
         if(is_array($this->value)) {
@@ -37,7 +36,7 @@ class CheckBox extends Control {
                     if(strlen($arg)) {
                         try {
                             $lvalue = eval($arg);
-                        } catch(\PAF\AppException $ee) {
+                        } catch(\NETopes\Core\AppException $ee) {
                             $lvalue = 0;
                             NApp::_Elog($ee->getMessage(),'CheckBox');
                         }//END try

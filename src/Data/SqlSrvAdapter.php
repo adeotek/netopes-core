@@ -13,9 +13,8 @@
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * SqlSrvDatabase is implementing the MS SQL database
  *
@@ -83,7 +82,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function SqlSrvSetGlobalVariables($params = NULL): bool {
 		if(!is_array($params) || !count($params)) { return TRUE; }
@@ -125,7 +124,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param  array $connection Database connection array
 	 * @return void
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection): void {
 		$dbconnect_options = array(
@@ -177,7 +176,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $custom_tran_params
      * @return object Returns the transaction instance
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		$lname = strlen($name) ? $name : $this->default_tran;
@@ -196,7 +195,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param  string $name Transaction name
 	 * @param bool    $log
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function SqlSrvRollbackTran($name = NULL,$log = TRUE) {
@@ -220,7 +219,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param bool    $log
 	 * @param bool    $preserve
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function SqlSrvCommitTran($name = NULL,$log = TRUE,$preserve = FALSE) {
@@ -281,7 +280,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
         $conditionType = get_array_value($condition,'condition_type','==','is_notempty_string');
         $conditionString = NULL;
         $filterValue = NULL;
-
         switch(strtolower($conditionType)) {
             case 'like':
             case 'notlike':
@@ -350,7 +348,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 break;
 		}//END switch
         if(!$conditionString || !$filterValue) { return ''; }
-
 		$result = ' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
 		$result .= ' '.$conditionString.' '.$filterValue;
         return $result;
@@ -426,7 +423,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $custom_tran_params
      * @return array|bool Returns database request result
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
 	public function SqlSrvExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -593,7 +590,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param null    $results_keys_case
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function SqlSrvExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
@@ -660,7 +657,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param  array  $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
 	public function SqlSrvExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {

@@ -6,15 +6,14 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 use GibberishAES;
-
 /**
  * ClassName description
  *
@@ -26,7 +25,6 @@ use GibberishAES;
  * @access   public
  */
 class FileUploader extends Control {
-
 	public function __construct($params = null) {
 		$this->status_target = 'ARequestStatus';
 		$this->width = 0;
@@ -41,9 +39,8 @@ class FileUploader extends Control {
 		$this->no_label = TRUE;
 		$this->buffered = FALSE;
 	}//END public function __construct
-
 	protected function SetControl(): ?string {
-		$this->tag_id = $this->tag_id=='__auto' ? \PAF\AppSession::GetNewUID() : $this->tag_id;
+		$this->tag_id = $this->tag_id=='__auto' ? \NETopes\Core\App\AppSession::GetNewUID() : $this->tag_id;
 		switch(strtolower($this->filter)) {
 			case 'images':
 				$utype = 1;
@@ -78,7 +75,6 @@ class FileUploader extends Control {
 		$dclass = $this->droparea!==FALSE ? ' clsDropArea' : '';
 		$lstatusid = strlen($this->status_target) ? ' data-statusid="'.$this->status_target.'"' : '';
 		$lcallback = strlen($this->callback) && !$this->disabled ? ' data-callback="'.rawurlencode(GibberishAES::enc($this->callback,'HTML')).'"' : '';
-
 		$this->target_dir = rawurlencode($this->target_dir);
 		$this->sub_folder = rawurlencode($this->sub_folder);
 		switch($this->theme_type) {
