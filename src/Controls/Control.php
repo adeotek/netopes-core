@@ -215,7 +215,7 @@ abstract class Control {
 	 * @access protected
 	 */
 	protected function GetThis($encrypted = TRUE) {
-		if($encrypted && strlen($this->chash)){ return GibberishAES::enc(serialize($this),$this->chash); }
+		if($encrypted && strlen($this->chash)) { return GibberishAES::enc(serialize($this),$this->chash); }
 		return serialize($this);
 	}//END protected function GetThis
 	/**

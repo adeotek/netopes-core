@@ -5,8 +5,9 @@
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.5.0.0
- ***/
+ * @version    2.5.0.1
+ */
+
 /*** For Loader and Screen blocking ***/
 function ShowLoader(element,full) {
 	if(typeof(element)=='object') {
@@ -15,7 +16,7 @@ function ShowLoader(element,full) {
 		var obj = $('#'+element);
 	}//if(typeof(element)=='object')
 	if($(obj).length>0) {
-		if(full==1 || full==true || full=='1') { $(obj).css('height',Math.max($(document).outerHeight(),window.innerHeight)+'px'); }
+		if(full===1 || full===true || full==='1') { $(obj).css('height',Math.max($(document).outerHeight(),window.innerHeight)+'px'); }
 		$(obj).show();
 	}//if($(obj).length>0)
 }//function ShowLoader
@@ -42,7 +43,7 @@ function OpenUrl(url,new_tab) {
 
 function randerReCaptcha(elementid,site_key) {
 	if(grecaptcha && elementid && $('#'+elementid).length) {
-		if(!site_key || site_key.length==0) {
+		if(!site_key || site_key.length===0) {
 			site_key = $('#'+elementid).data('site-key');
 		}
 		if(site_key) { grecaptcha.render(elementid,{ 'sitekey' : site_key }); }
@@ -490,6 +491,50 @@ function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,
 				TCBOSetValue(elementid,'','',false);
 			}//if(data.node.isSelected())
         }
+	});
+}//END function InitTCBOFancyTree
+
+function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
+	if(!elementid || elementid.length===0) { return; }
+	var aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
+	var luid = '';
+	var lparams = hide_parents_checkbox ? '&hpc=1' : '';
+	if(uid || uid.length>0) { luid += '&uid='+uid; }
+	var paramsString = '';
+	if(typeof(url_params)==='object') {
+	    for(var pk in url_params) { paramsString += '&' + pk + '=' + url_params[pk]; }
+	} else if(typeof(url_params)==='string') {
+	    paramsString = url_params;
+	}//if(typeof(url_params)==='object')
+	if(encrypt===1 || encrypt===true) {
+		aurl += '&arhash='+encodeURIComponent(GibberishAES.enc('module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name,'xJS'));
+	} else {
+		aurl += '&module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name;
+	}//if(encrypt===1 || encrypt===true)
+	$('#'+elementid+'-ctree').fancytree({
+		checkbox: true,
+        icon: icon||false,
+		selectMode: 1,
+		clickFolderMode: 1,
+		debugLevel: 0,
+		source: {
+			url: aurl+'&type=json&tree=1',
+		},
+		lazyLoad: function(event,data) {
+			data.result = {
+				url: aurl+'&type=json&tree=1',
+				data: { key: data.node.key },
+			};
+		},
+		createNode: function(event,data) {
+		    if(!data.node.data.hasSelectedChild) { return false; }
+			$.ajax({
+				url: aurl+'&type=json&tree=1',
+				data: { key: data.node.key },
+				dataType: 'json',
+				success: function(response) { data.node.addChildren(response); }
+			});
+		}
 	});
 }//END function InitFancyTree
 
