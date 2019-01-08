@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -93,15 +93,15 @@ class Report extends ExcelExport {
 	 */
 	//public function __construct(&$layout = [],&$data = [],&$class) {
 	public function __construct(&$params = []) {
-		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \PAF\AppException('Invalid object parameters !',E_ERROR,1); }
+		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \NETopes\Core\AppException('Invalid object parameters !',E_ERROR,1); }
 		$this->report_name = get_array_value($params,'report_name',NULL,'is_notempty_string');
 		$this->export_module = get_array_value($params,'export_module',$this->export_module,'is_string');
 		$this->export_method = get_array_value($params,'export_method',$this->export_method,'is_string');
 		$phash = get_array_value($params,'phash',NULL,'is_notempty_string');
 		$this->excel_export = (strlen($this->export_module) && strlen($this->export_method) && strlen($phash)) ? get_array_value($params,'excel_export',$this->excel_export,'bool') : false;
 		if($this->excel_export) {
-			$this->dhash = \PAF\AppSession::GetNewUID(get_class_basename($this),'sha1');
-			$this->cached_file = 'cache_'.\PAF\AppSession::GetNewUID(get_class_basename($this).$phash,'sha1',TRUE);
+			$this->dhash = \NETopes\Core\AppSession::GetNewUID(get_class_basename($this),'sha1');
+			$this->cached_file = 'cache_'.\NETopes\Core\AppSession::GetNewUID(get_class_basename($this).$phash,'sha1',TRUE);
 			$def_fname = str_replace(' ','_',trim($this->report_name)).'_'.date('d.m.Y-H.i').'.xlsx';
 			$this->export_file_name = GibberishAES::enc(get_array_value($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
 			$this->excel_export = $this->CreateCacheExcelFile($params);
@@ -273,7 +273,6 @@ class Report extends ExcelExport {
 			$this->result .= "\t".'<div>&nbsp;</div>'."\n";
 		}//END foreach
 	}//END public function __construct
-
 	protected function GetValue(&$data,&$column) {
 		$col_value = '';
 		$dbfield = $column['dbfield'];
@@ -295,7 +294,6 @@ class Report extends ExcelExport {
 		}//END foreach
 		return $col_value;
 	}//END protected function GetValue
-
 	protected function CreateCacheExcelFile(&$params) {
 		if(!strlen($this->cached_file)) { return FALSE; }
 		try {
@@ -312,39 +310,30 @@ class Report extends ExcelExport {
 		}//END try
 		return TRUE;
 	}//END protected function CreateCacheExcelFile
-
 	public function Show() {
 		return $this->result;
 	}//END public function Show
-
 	protected function NumberFormat0($value) {
 		return number_format((is_numeric($value) ? $value : 0),0,$this->decimal_separator,$this->group_separator);
 	}//END protected function NumberFormat0
-
 	protected function NumberFormat2($value) {
 		return number_format((is_numeric($value) ? $value : 0),2,$this->decimal_separator,$this->group_separator);
 	}//END protected function NumberFormat2
-
 	protected function PercentFormat0($value) {
 		return number_format((is_numeric($value) ? $value : 0),0,$this->decimal_separator,$this->group_separator).' %';
 	}//END protected function PercentFormat0
-
 	protected function PercentFormat2($value) {
 		return number_format((is_numeric($value) ? $value : 0),2,$this->decimal_separator,$this->group_separator).' %';
 	}//END protected function PercentFormat2
-
 	protected function DateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),TRUE);
 	}//END protected function DateFormat
-
 	protected function DateTimeFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),FALSE);
 	}//END protected function DateTimeFormat
-
 	protected function NoTimezoneDateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);
 	}//END protected function DateFormat
-
 	protected function NoTimezoneDateTimeFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',FALSE);
 	}//END protected function DateTimeFormat

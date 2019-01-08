@@ -8,12 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * MariaDbDatabase Is implementing the MariaDb database
  *
@@ -46,7 +45,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param  array $connection Database connection
 	 * @return void
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
@@ -202,7 +201,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -316,7 +315,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -417,7 +416,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for MySQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);

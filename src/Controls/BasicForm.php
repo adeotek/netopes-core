@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.6.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,7 +16,6 @@ use NETopes\Core\App\ITheme;
 use NETopes\Core\Validators\Validator;
 use NApp;
 use NETopes\Core\Data\DataSource;
-
 /**
  * BasicForm control class
  *

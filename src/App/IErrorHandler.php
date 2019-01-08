@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -43,7 +43,7 @@ interface IErrorHandler {
 	 * @param  int|null    $errline Error location (line)
 	 * @param  array       $errcontext Error context
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -55,7 +55,7 @@ interface IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function ExceptionHandlerFunction($exception);
 	/**
@@ -65,7 +65,7 @@ interface IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	public static function ShutDownHandlerFunction(bool $output = TRUE);
 }//END interface IErrorHandler

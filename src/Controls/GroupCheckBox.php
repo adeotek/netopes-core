@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -18,7 +18,6 @@ use NApp;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use Translate;
-
 /**
  * GroupCheckBox class
  *
@@ -63,9 +62,8 @@ class GroupCheckBox extends Control {
     public function __construct($params = NULL) {
         parent::__construct($params);
         if(!is_object($this->items)) { $this->items = DataSource::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
-        if(!strlen($this->tag_id)) { $this->tag_id = \PAF\AppSession::GetNewUID('GroupCheckBox','md5'); }
+        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
-
     protected function GetItems() {
         if(isset($this->items)) { return; }
         $ds_class = get_array_value($this->data_source,'ds_class','','is_string');
@@ -76,7 +74,6 @@ class GroupCheckBox extends Control {
         if(!strlen($ds_class) || !strlen($ds_method) || !DataProvider::MethodExists($ds_class,$ds_method,$mode)) { return; }
         $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
     }//END protected function GetItems
-
     protected function SetControl(): ?string {
         $this->GetItems();
         $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
@@ -115,7 +112,7 @@ class GroupCheckBox extends Control {
                 } else {
                     $i_active = strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
                 }//if($this->disabled || $this->readonly)
-                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
+                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
             }//END foreach
         } else {
             $result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";

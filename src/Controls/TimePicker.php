@@ -6,14 +6,13 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.3.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
-
 /**
  * TimePicker control class
  *
@@ -112,7 +111,6 @@ class TimePicker extends Control {
 				." }";
 		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
-
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -156,7 +154,6 @@ class TimePicker extends Control {
 				." }";
 		}//if(strlen($this->js_params))
 		// NApp::_Dlog($jsparams);
-
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {

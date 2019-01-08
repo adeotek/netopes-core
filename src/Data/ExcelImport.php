@@ -6,18 +6,17 @@
  *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use NApp;
-
 /**
  * ExcelImport class
  *
@@ -88,7 +87,7 @@ class ExcelImport {
 	 * @param array $fields
 	 * @param array $params Parameters object (instance of [Params])
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
     public function __construct(array $fields,array $params = []) {
@@ -110,7 +109,7 @@ class ExcelImport {
 	 * @param array       $params Parameters object (instance of [Params])
 	 * @param null|string $file_type
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
 	 * @access public

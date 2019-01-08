@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -102,7 +102,6 @@ class TreeComboBox extends Control {
 		$result .= "\t\t".'<div id="'.$this->tag_id.'-ctree" class="'.$lddcclass.'"></div>';
 		$result .= "\t".'</div>'."\n";
 		$result .= '</div>'."\n";
-
 		$ds_module = get_array_value($this->data_source,'ds_class','','is_string');
         $ds_method = get_array_value($this->data_source,'ds_method','','is_string');
         if(strlen($ds_module) && strlen($ds_method)) {

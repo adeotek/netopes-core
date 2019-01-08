@@ -6,13 +6,13 @@
  *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
-use PAF\AppException;
+use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NApp;
 use Translate;
@@ -184,7 +184,7 @@ class PdfDocument {
 	 * PdfDocumentBase class constructor
 	 *
 	 * @param  array $params Constructor parameters array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @return void
 	 * @access public
 	 */
@@ -209,7 +209,7 @@ class PdfDocument {
 	 * PDF class initializer
 	 *
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access protected
 	 */
 	protected function _Init() {
@@ -310,7 +310,7 @@ class PdfDocument {
 	 * @param int|null $docId Data key (ID)
 	 * @return void
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function LoadData(?int $docId): void {
 		switch($this->type) {
@@ -443,7 +443,6 @@ class PdfDocument {
 			return FALSE;
 		}//if(is_array($this->html_data))
 		if(!count($html)) { return FALSE; }
-
 		// set default monospaced font
 		$this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 		// set auto page breaks
@@ -464,7 +463,7 @@ class PdfDocument {
 	 *
 	 * @return void
 	 * @access public
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetContent() {
 		switch($this->type) {
@@ -492,7 +491,7 @@ class PdfDocument {
 	 * description
 	 *
 	 * @return void
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @throws \Exception
 	 * @access public
 	 */

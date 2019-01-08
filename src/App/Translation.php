@@ -6,17 +6,16 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
 use NETopes\Core\Data\DataProvider;
 use NApp;
-use PAF\AppConfig;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * Class Translation
  *

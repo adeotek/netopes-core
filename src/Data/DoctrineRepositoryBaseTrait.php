@@ -1,10 +1,9 @@
 <?php
 namespace NETopes\Core\Data;
-use PAF\AppConfig;
+use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * Trait DoctrineRepositoryBaseTrait
  *
@@ -76,7 +75,6 @@ trait DoctrineRepositoryBaseTrait {
         $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
         return $persister->count($criteria);
     }//END public function countBy
-
     /**
      * Adds where conditions to the Query for searching all words in $searchTerm
      *
@@ -99,7 +97,7 @@ trait DoctrineRepositoryBaseTrait {
      * @param string      $rawName
      * @param string|null $alias
      * @return string
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public function getFieldName(string $rawName,?string $alias = NULL): string {
         if(!strlen($rawName)) { throw new AppException('Invalid field name!'); }

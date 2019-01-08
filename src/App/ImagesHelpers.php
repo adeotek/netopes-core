@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
  namespace NETopes\Core\App;
@@ -85,7 +85,6 @@ class ImagesHelpers {
 			$transparent = imagecolorallocatealpha($newImage,255,255,255,127);
 			imagefilledrectangle($newImage,0,0,$newImageWidth,$newImageHeight,$transparent);
 		}//if($istransparent || $imageType=="image/png" || $imageType=="image/x-png")
-
 		$t_x = 0;
 		$t_y = 0;
 		if($start_x<0) {
@@ -108,9 +107,7 @@ class ImagesHelpers {
 			$newImageHeight -= ($crop_height-$imageheight);
 			$crop_height = $imageheight;
 		}//if($imageheight<$crop_height)
-
 		imagecopyresampled($newImage,$source,$t_x,$t_y,$start_x,$start_y,$newImageWidth,$newImageHeight,$crop_width,$crop_height);
-
 		if($istransparent && $imageType!="image/png" && $imageType!="image/x-png") {
 			$imageType = 'image/png';
 			$image_name = $target_img.'.png';

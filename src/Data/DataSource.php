@@ -6,18 +6,17 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppConfig;
-use PAF\AppSession;
-use PAF\AppException;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppSession;
+use NETopes\Core\AppException;
 use NApp;
 use Redis;
-
 /**
  * DataSource is the base class for all data sources
  *
@@ -409,7 +408,7 @@ class DataSource {
                 NApp::_Elog($re->getMessage(),'RedisException');
                 $redis = NULL;
             } catch(AppException $xe) {
-                NApp::_Elog($xe->getMessage(),'PAF\AppException');
+                NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
                 $redis = NULL;
             } catch(\Exception $e) {
                 NApp::_Elog($e->getMessage(), 'Exception');
@@ -490,7 +489,7 @@ class DataSource {
 				} catch(\RedisException $re) {
 					NApp::_Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'PAF\AppException');
+					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
@@ -551,7 +550,7 @@ class DataSource {
 				} catch(\RedisException $re) {
 					NApp::_Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'PAF\AppException');
+					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
@@ -609,7 +608,7 @@ class DataSource {
 				} catch(\RedisException $re) {
 					NApp::_Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'PAF\AppException');
+					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');
 				}//END try
@@ -648,7 +647,7 @@ class DataSource {
 					NApp::_Elog($re->getMessage(),'RedisException');
 					$result = FALSE;
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'PAF\AppException');
+					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
 					$result = FALSE;
 				} catch(\Exception $e) {
 					NApp::_Elog($e->getMessage(),'Exception');

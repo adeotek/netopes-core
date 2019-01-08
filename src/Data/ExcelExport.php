@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.0.1
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -17,10 +17,9 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * Excel export class
  *
@@ -144,7 +143,7 @@ class ExcelExport {
 	 * - 'save_path'(string): absolute path where the output excel
 	 * file will be saved (if NULL or empty, output will be
 	 * sent to the browser for download)
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
 	 * @access public
@@ -152,20 +151,17 @@ class ExcelExport {
 	public function __construct(array $params) {
 		if(!count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new AppException('ExcelExport: Invalid parameters !',E_ERROR,1); }
 		$this->pre_processed_data = get_array_value($params,'pre_processed_data',FALSE,'bool');
-
 		$this->decimal_separator = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
 		$this->group_separator = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
 		$this->date_separator = get_array_value($params,'date_separator',NApp::_GetParam('date_separator'),'is_string');
 		$this->time_separator = get_array_value($params,'time_separator',NApp::_GetParam('time_separator'),'is_string');
 		$this->langcode = get_array_value($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
 		$this->timezone = get_array_value($params,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
-
 		$file_type = get_array_value($params,'version','xlsx','is_notempty_string');
 		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('ExcelExport: Invalid output file type!',E_ERROR,1); }
 		$output = get_array_value($params,'output',FALSE,'bool');
 		$save_path = get_array_value($params,'save_path',NULL,'is_string');
 		$file_name = get_array_value($params,'file_name','','is_string');
-
 		Cell::setValueBinder(new AdvancedValueBinder());
 		$this->obj = new Spreadsheet();
 		$this->obj->getDefaultStyle()->getFont()->setName('Calibri');
@@ -173,7 +169,6 @@ class ExcelExport {
 		$sheet_index = -1;
 		$sheet_name = '';
 		$active_sheet = NULL;
-
 		foreach($params['layouts'] as $layout) {
 			if(!is_array($layout) || !array_key_exists('columns',$layout) || !count($layout['columns']) || !array_key_exists('data',$layout)) {
 				$this->obj = NULL;

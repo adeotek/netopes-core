@@ -1,11 +1,11 @@
 /**
  * NETopes controls core javascript file
  *
- * Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.2.5.8
+ * @version    2.5.0.0
  ***/
 /*** For Loader and Screen blocking ***/
 function ShowLoader(element,full) {

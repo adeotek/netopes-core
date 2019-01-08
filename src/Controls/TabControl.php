@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -62,7 +62,7 @@ class TabControl {
 	 * BasicForm class constructor method
 	 *
 	 * @param  array $params Parameters array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @return void
 	 * @access public
 	 */
@@ -169,7 +169,7 @@ class TabControl {
 	 * @param  array $tab Tab parameters array
 	 * @return array Returns processed tab array
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetTabData($tab) {
 		if(!is_array($tab)) { return $tab; }
@@ -210,7 +210,7 @@ class TabControl {
 	 *
 	 * @return string|null
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetControl(): ?string {
 		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }

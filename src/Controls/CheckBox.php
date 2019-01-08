@@ -6,13 +6,15 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
+use NETopes\Core\AppConfig;
+
 /**
  * ClassName description
  *
@@ -26,7 +28,6 @@ class CheckBox extends Control {
         $this->colors = array('pred'=>'clsCheckBoxPRed','round'=>'clsCheckBoxRound');
         parent::__construct($params);
     }//END public function __construct
-
     protected function SetControl(): ?string {
         $this->base_class = (strlen($this->color) && array_key_exists($this->color,$this->colors)) ? $this->colors[$this->color] : $this->base_class;
         if(is_array($this->value)) {
@@ -37,7 +38,7 @@ class CheckBox extends Control {
                     if(strlen($arg)) {
                         try {
                             $lvalue = eval($arg);
-                        } catch(\PAF\AppException $ee) {
+                        } catch(\NETopes\Core\AppException $ee) {
                             $lvalue = 0;
                             NApp::_Elog($ee->getMessage(),'CheckBox');
                         }//END try
@@ -62,7 +63,7 @@ class CheckBox extends Control {
             'onkeypress'=>'if(event.keyCode==13){CheckBoxClickBaseEvent(this);}',
         );
         $lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
-        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
+        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
         return $result;
     }//END protected function SetControl
 }//END class CheckBox extends Control

@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -18,9 +18,8 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use NApp;
-use PAF\AppConfig;
-use PAF\AppException;
-
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
 /**
 	 * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
 	 *
@@ -45,7 +44,7 @@ class DoctrineAdapter extends DataAdapter {
 	 * @param  array  $connection Database connection array
 	 * @param  object $platform
 	 * @return EntityManager
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -125,7 +124,7 @@ class DoctrineAdapter extends DataAdapter {
 	 * @param  array $connection Database connection array
 	 * @return void
 	 * @access protected
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {
 		$this->em = self::GetEntityManager(NApp::app_path(),$connection,$this->platform);

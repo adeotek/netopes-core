@@ -6,17 +6,16 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
-use PAF\AppConfig;
-use PAF\AppSession;
-use PAF\AppException;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppSession;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * DbAdapter is the base abstract class for all database adapters
  *
@@ -89,7 +88,7 @@ abstract class DataAdapter {
 	 * Database class constructor
 	 *
 	 * @param  array $connection Database connection array
-	 * @throws \PAF\AppException
+	 * @throws \NETopes\Core\AppException
 	 * @return void
 	 * @access public
 	 */
@@ -140,7 +139,6 @@ abstract class DataAdapter {
 	public function GetConnection() {
 		return $this->connection;
 	}//END public function GetConnection
-
 	protected function DbDebug($query,$label = NULL,$time = NULL,$forced = FALSE) {
 		if(!$this->debug && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';

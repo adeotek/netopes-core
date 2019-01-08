@@ -4,9 +4,9 @@
  *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.2.7.2
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\App;

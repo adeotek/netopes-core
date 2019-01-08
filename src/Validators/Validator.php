@@ -6,16 +6,15 @@
  *
  * @package    NETopes\Core\Validators
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.4.0.3
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
-use PAF\AppConfig;
-use PAF\AppException;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
 use NApp;
-
 /**
  * Class Validator
  *
@@ -39,7 +38,7 @@ class Validator {
      *
      * @param string|null $method
      * @return string|null Converter adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function GetConverterAdapter(?string $method = NULL): string {
         $customAdapter = AppConfig::converter_adapter_class();
@@ -53,7 +52,7 @@ class Validator {
     }//END public static function GetConverterAdapter
     /**
      * @param string|null $converterAdapter Converter adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function SetConverterAdapter(?string $converterAdapter): void {
         if(isset($converterAdapter) && !class_exists($converterAdapter) && is_subclass_of($converterAdapter,ConverterAdapter::class)) { throw new AppException('Invalid converter adapter class!'); }
@@ -64,7 +63,7 @@ class Validator {
      *
      * @param string|null $method
      * @return string|null Validator adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function GetValidatorAdapter(?string $method = NULL): string {
         $customAdapter = AppConfig::validator_adapter_class();
@@ -78,7 +77,7 @@ class Validator {
     }//END public static function GetValidatorAdapter
     /**
      * @param string|null $validatorAdapter Validator adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function SetValidatorAdapter(?string $validatorAdapter): void {
         if(isset($validatorAdapter) && !class_exists($validatorAdapter) && is_subclass_of($validatorAdapter,ValidatorAdapter::class)) { throw new AppException('Invalid validator adapter class!'); }
@@ -89,7 +88,7 @@ class Validator {
      *
      * @param string|null $method
      * @return string|null Formatter adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function GetFormatterAdapter(?string $method = NULL): string {
         $customAdapter = AppConfig::formatter_adapter_class();
@@ -103,7 +102,7 @@ class Validator {
     }//END public static function GetFormatterAdapter
     /**
      * @param string|null $formatterAdapter Formatter adapter class
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function SetFormatterAdapter(?string $formatterAdapter): void {
         if(isset($formatterAdapter) && !class_exists($formatterAdapter) && is_subclass_of($formatterAdapter,FormatterAdapter::class)) { throw new AppException('Invalid formatter adapter class!'); }
@@ -115,7 +114,7 @@ class Validator {
      * @param $name
      * @param $arguments
      * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     public static function __callStatic($name,$arguments) {
         if(substr($name,0,6)==='Format') {
@@ -137,7 +136,7 @@ class Validator {
      * @param bool        $isValid
      * @return mixed
      * @throws \Exception
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -153,7 +152,7 @@ class Validator {
 	 * @param string|null $validation
      * @param string|null $sourceFormat
 	 * @return bool
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -173,7 +172,7 @@ class Validator {
      * @param bool        $isValid
      * @return mixed
      * @throws \Exception
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -227,7 +226,7 @@ class Validator {
      * @param string|null $validation
      * @param string|null $sourceFormat
 	 * @return bool
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -248,7 +247,7 @@ class Validator {
      * @param string|null $validation
      * @param bool        $htmlEntities
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -263,7 +262,7 @@ class Validator {
      * @param string|null $defaultValue
      * @param string|null $validation
      * @return mixed
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -276,7 +275,7 @@ class Validator {
      * @param        $value
      * @param string $numberFormat
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -292,7 +291,7 @@ class Validator {
      * @param string|null $langCode
      * @param bool        $useIntl
      * @return string|null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      * @access public
      * @static
      */
@@ -306,7 +305,7 @@ class Validator {
 	 * @param  string|null $decimalSeparator The decimal separator
 	 * @param  string|null $groupSeparator The group separator
 	 * @return string Returns the number in the database format
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
@@ -320,7 +319,7 @@ class Validator {
 	 * @param  null|string $format Format of the date to be converted
 	 * @param  null|string $timezone User's timezone
 	 * @return \DateTime|null Returns the datetime object or null
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */

@@ -6,15 +6,14 @@
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2013 - 2018 AdeoTEK Software SRL
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.1.0.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
-use PAF\AppException;
-
+use NETopes\Core\AppException;
 /**
  * ClassName description
  *
@@ -36,7 +35,7 @@ class CkEditor extends Control {
      *
      * @return string|null
      * @access public
-     * @throws \PAF\AppException
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
         if(!strlen($this->tag_id)) { throw new AppException('Invalid tag ID!',E_ERROR,1); }
