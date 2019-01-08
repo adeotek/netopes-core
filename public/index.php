@@ -34,7 +34,7 @@ if(array_key_exists('do',$_GET) && strtolower($_GET['do'])=='logout') {
     if($rns!=$napp->current_namespace) {
         header('Location:'.$napp->GetAppWebLink(NULL,$rns));
     } else {
-    header('Location:'.$napp->url->GetUrl(NULL,array('do','uhash')));
+        header('Location:'.$napp->url->GetUrl(NULL,array('do','uhash')));
     }//if($rns!=$napp->current_namespace)
     exit();
 }//if(array_key_exists('do',$_GET) && strtolower($_GET['do'])=='logout')

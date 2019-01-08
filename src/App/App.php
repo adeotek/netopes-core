@@ -645,11 +645,11 @@ abstract class App implements IApp {
 	 * @param  string $key The name of the parameter
 	 * @param bool    $phash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
-	 * @param null    $namespace
+	 * @param string|null    $namespace
 	 * @return mixed  Returns the parameter value or NULL
 	 * @access public
 	 */
-	public function GetParam($key,$phash = FALSE,$namespace = NULL) {
+	public function GetParam(string $key,$phash = FALSE,?string $namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
 		$lphash = isset($phash) ? $phash : $this->phash;
 		$data = AppSession::GetData();
@@ -664,11 +664,11 @@ abstract class App implements IApp {
 	 * @param  string $key The name of the parameter
 	 * @param  string $phash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
-	 * @param null    $namespace
+	 * @param string|null    $namespace
 	 * @return mixed  Returns the parameter value or NULL
 	 * @access public
 	 */
-	public function GetPageParam($key,$phash = NULL,$namespace = NULL) {
+	public function GetPageParam(string $key,$phash = NULL,?string $namespace = NULL) {
 		return $this->GetParam($key,$phash,$namespace);
 	}//END public function GetPageParam
 	/**
@@ -678,11 +678,11 @@ abstract class App implements IApp {
 	 * @param  mixed  $val The value of the parameter
 	 * @param bool    $phash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
-	 * @param null    $namespace
+	 * @param string|null    $namespace
 	 * @return void
 	 * @access public
 	 */
-	public function SetParam($key,$val,$phash = FALSE,$namespace = NULL) {
+	public function SetParam(string $key,$val,$phash = FALSE,?string $namespace = NULL) {
 		$lnamespace = strlen($namespace) ? $namespace : $this->current_namespace;
 		$lphash = isset($phash) ? $phash : $this->phash;
 		$data = AppSession::GetData();
@@ -702,11 +702,11 @@ abstract class App implements IApp {
 	 * @param  mixed  $val The value of the parameter
 	 * @param  string $phash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
-	 * @param null    $namespace
+	 * @param string|null    $namespace
 	 * @return void
 	 * @access public
 	 */
-	public function SetPageParam($key,$val,$phash = NULL,$namespace = NULL) {
+	public function SetPageParam(string $key,$val,$phash = NULL,?string $namespace = NULL) {
 		$this->SetParam($key,$val,$phash,$namespace);
 	}//END public function SetPageParam
 	/**
@@ -890,8 +890,8 @@ HTML;
 	 * @return void
 	 * @access public
 	 */
-	public function ExecJs($value,$dynamic = FALSE) {
-		if(!is_string($value) || !strlen($value)) { return; }
+	public function ExecJs(string $value,bool $dynamic = FALSE) {
+		if(!strlen($value)) { return; }
 		if(!$dynamic && $this->ajax && is_object($this->arequest)) {
 			$this->arequest->ExecuteJs($value);
 		} else {
@@ -1248,15 +1248,15 @@ HTML;
 	/**
 	 * Gets the application base link with or without language path
 	 *
-	 * @param null    $uri
+	 * @param string|null    $uri
 	 * @param  string $namespace Namespace for generating app_web_link or NULL for current namespace
 	 * @param  bool   $base If set to TRUE will return only base link (app_web_link property) else will return base link + language path
-	 * @param null    $langcode
+	 * @param string|null    $langCode
 	 * @return string The link of the application (with or without language path)
 	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
-	public function GetAppWebLink($uri = NULL,$namespace = NULL,$base = FALSE,$langcode = NULL) {
+	public function GetAppWebLink(?String $uri = NULL,?string $namespace = NULL,bool $base = FALSE,?string $langCode = NULL): string {
 		$namespace = $namespace ? $namespace : $this->current_namespace;
 		if($namespace!=$this->current_namespace) {
 			global $_DOMAINS_CONFIG;
@@ -1266,7 +1266,7 @@ HTML;
 		} else {
 			$ns_link_alias = get_array_value($this->globals,['domain_config','link_alias'],'','is_string');
 		}//if($namespace!=$this->current_namespace)
-		$llangcode = $langcode===FALSE ? '' : (is_string($langcode) && strlen($langcode) ? $langcode : $this->GetLanguageCode());
+		$llangcode = $langCode===FALSE ? '' : (is_string($langCode) && strlen($langCode) ? $langCode : $this->GetLanguageCode());
 		$lang = ($this->IsMultiLanguage($namespace) && !AppConfig::url_without_language() && strlen($llangcode)) ? strtolower($llangcode) : '';
 		if(AppConfig::app_mod_rewrite()) {
 			if($base) { return $this->app_web_link.'/'.($ns_link_alias ? $ns_link_alias.'/' : ''); }
@@ -1415,8 +1415,8 @@ HTML;
 		}//if(!strlen($user_hash))
 		$idsection = $this->url->GetParam('section');
 		$idzone = $this->url->GetParam('zone');
-		$langcode = $this->url->GetParam('language');
-		if($this->ajax || !is_string($langcode) || !strlen($langcode)) { $langcode = $this->GetLanguageCode(); }
+		$langCode = $this->url->GetParam('language');
+		if($this->ajax || !is_string($langCode) || !strlen($langCode)) { $langCode = $this->GetLanguageCode(); }
 		if($notFromDb) {
 		    $this->user_status = -1;
             $this->login_status = FALSE;
@@ -1434,13 +1434,13 @@ HTML;
             $this->SetParam('group_separator',',');
             $this->SetParam('date_separator','.');
             $this->SetParam('time_separator',':');
-            $this->SetPageParam('language_code',strtolower($langcode));
-            $this->url->SetParam('language',$langcode);
+            $this->SetPageParam('language_code',strtolower($langCode));
+            $this->url->SetParam('language',$langCode);
         } else {
             $appdata = DataProvider::Get('System\System','GetAppSettings',[
                 'for_domain'=>$this->url->GetAppDomain(),
                 'for_namespace'=>$this->current_namespace,
-                'for_lang_code'=>$langcode,
+                'for_lang_code'=>$langCode,
                 'for_user_hash'=>$user_hash,
                 'login_namespace'=>(strlen($this->login_namespace) ? $this->login_namespace : NULL),
                 'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : NULL),
@@ -1766,7 +1766,7 @@ HTML;
 	 * @access public
 	 * @throws \Exception
 	 */
-	public function Dlog($value,$label = '',$file = FALSE,$path = FALSE) {
+	public function Dlog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
 		if(!is_object($this->debugger)) { return; }
 		if(AppConfig::console_show_file()===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
@@ -1786,7 +1786,7 @@ HTML;
 	 * @access public
 	 * @throws \Exception
 	 */
-	public function Wlog($value,$label = '',$file = FALSE,$path = FALSE) {
+	public function Wlog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
 		if(!is_object($this->debugger)) { return; }
 		if(AppConfig::console_show_file()===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
@@ -1806,7 +1806,7 @@ HTML;
 	 * @access public
 	 * @throws \Exception
 	 */
-	public function Elog($value,$label = '',$file = FALSE,$path = FALSE) {
+	public function Elog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
 		if(!is_object($this->debugger)) { return; }
 		if(AppConfig::console_show_file()===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
@@ -1826,7 +1826,7 @@ HTML;
 	 * @access public
 	 * @throws \Exception
 	 */
-	public function Ilog($value,$label = '',$file = FALSE,$path = FALSE) {
+	public function Ilog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
 		if(!is_object($this->debugger)) { return; }
 		if(AppConfig::console_show_file()===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
@@ -1840,14 +1840,14 @@ HTML;
 	 *
 	 * @param  string $msg Text to be written to log
 	 * @param  string $type Log type (log, error or debug) (optional)
-	 * @param  string $file Custom log file complete name (path + name) (optional)
-	 * @param string  $path
+	 * @param  string|null $file Custom log file complete name (path + name) (optional)
+	 * @param string|null  $path
 	 * @return bool|string
 	 * @access public
 	 */
-	public function Write2LogFile($msg,$type = 'log',$file = '',$path = '') {
+	public function Write2LogFile(string $msg,string $type = 'log',?string $file = NULL,?string $path = NULL) {
 		if(is_object($this->debugger)) { return $this->debugger->Write2LogFile($msg,$type,$file,$path); }
-		$lpath = (is_string($path) && strlen($path) ? rtrim($path,'/') : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::logs_path()).'/';
+		$lpath = (strlen($path) ? rtrim($path,'/') : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::logs_path()).'/';
 		switch(strtolower($type)) {
 			case 'error':
 				return Debugger::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::errors_log_file()));

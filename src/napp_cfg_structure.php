@@ -14,12 +14,6 @@
 if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
 $_NAPP_CONFIG_STRUCTURE = [
 //START NETopes configuration
-    // Custom validator adapter class
-    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
-    // Custom converter adapter class
-    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
-    // Custom formatter adapter class
-    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
     // Files non-public repository path (absolute)
     'repository_path'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
     // Use CDN for loading resources
@@ -94,14 +88,20 @@ $_NAPP_CONFIG_STRUCTURE = [
     'api_cron_jobs_log_file'=>['access'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
 //END START NETopes configuration
 //START NETopes base configuration
-    // Relative path to NETopes javascript files (linux style)
-    'app_js_path'=>['access'=>'readonly','default'=>'/lib/netopes','validation'=>'is_string'],
-    // Use NETopes AJAX extension
-    'app_use_ajax_extension'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
     // Use custom modules and data sources autoloader
     'use_custom_autoloader'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // Relative path to NETopes javascript files (linux style)
+    'app_js_path'=>['access'=>'readonly','default'=>'/lib/netopes','validation'=>'is_string'],
+    // Use NETopes AJAX extension
+    'app_use_ajax_extension'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // Custom validator adapter class
+    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    // Custom converter adapter class
+    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    // Custom formatter adapter class
+    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
     // Error handler class NULL/empty for default NETopes implementation
     //   (must implement NETopes\Core\App\IErrorHandler interface)
     'error_handler_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
