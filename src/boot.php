@@ -29,4 +29,4 @@ if(strlen($custom_error_handler) && class_exists($custom_error_handler) && array
 if(!\NETopes\Core\AppConfig::use_custom_autoloader()) {
     require_once(__DIR__.'/napp_autoload.php');
     spl_autoload_register('_napp_autoload');
-}//if(!\NETopes\Core\App\AppConfig::use_custom_autoloader())
+}//if(!\NETopes\Core\AppConfig::use_custom_autoloader())

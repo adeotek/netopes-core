@@ -30,7 +30,7 @@ class KVList extends Control {
         parent::__construct($params);
         if(!$this->postable) { $this->postable_elements = FALSE; }
         else { $this->postable = FALSE; }
-        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\App\AppSession::GetNewUID('KVList'); }
+        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('KVList'); }
         if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
         if(is_array($this->lang_items)) { $this->lang_items = DataSource::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct

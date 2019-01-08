@@ -661,7 +661,7 @@ function excel2unixts($date,$timezone = NULL,$new_timezone = NULL,$format = 'Y-m
  */
 function get_timestamp($date,$timezone = NULL,$new_timezone = NULL) {
     try {
-        $dt = new DateTime($date,new DateTimeZone(strlen($timezone) ? $timezone : \NETopes\Core\App\AppConfig::server_timezone()));
+        $dt = new DateTime($date,new DateTimeZone(strlen($timezone) ? $timezone : \NETopes\Core\AppConfig::server_timezone()));
         if(strlen($new_timezone)) {
             $dt->setTimezone(new DateTimeZone($new_timezone));
         }//if(strlen($new_timezone))

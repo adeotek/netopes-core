@@ -15,7 +15,7 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
-use NETopes\Core\App\AppSession;
+use NETopes\Core\AppSession;
 use NApp;
 use Translate;
 /**

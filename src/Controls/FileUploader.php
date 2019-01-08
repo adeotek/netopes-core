@@ -40,7 +40,7 @@ class FileUploader extends Control {
 		$this->buffered = FALSE;
 	}//END public function __construct
 	protected function SetControl(): ?string {
-		$this->tag_id = $this->tag_id=='__auto' ? \NETopes\Core\App\AppSession::GetNewUID() : $this->tag_id;
+		$this->tag_id = $this->tag_id=='__auto' ? \NETopes\Core\AppSession::GetNewUID() : $this->tag_id;
 		switch(strtolower($this->filter)) {
 			case 'images':
 				$utype = 1;

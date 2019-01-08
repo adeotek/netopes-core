@@ -12,7 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\App\AppSession;
+use NETopes\Core\AppSession;
 use NApp;
 use GibberishAES;
 /**

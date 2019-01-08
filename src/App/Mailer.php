@@ -13,7 +13,7 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\Data\DataProvider;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NApp;
 /**
  * Class Mailer

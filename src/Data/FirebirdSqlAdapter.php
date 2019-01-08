@@ -13,7 +13,7 @@
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
-use NETopes\Core\App\AppSession;
+use NETopes\Core\AppSession;
 use NETopes\Core\AppException;
 use NApp;
 /**

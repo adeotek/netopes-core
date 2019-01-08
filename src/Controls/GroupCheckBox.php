@@ -62,7 +62,7 @@ class GroupCheckBox extends Control {
     public function __construct($params = NULL) {
         parent::__construct($params);
         if(!is_object($this->items)) { $this->items = DataSource::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
-        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\App\AppSession::GetNewUID('GroupCheckBox','md5'); }
+        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
     protected function GetItems() {
         if(isset($this->items)) { return; }

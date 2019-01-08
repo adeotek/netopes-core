@@ -58,7 +58,7 @@ class SimplePageControl extends Control {
                 $lonclick = $this->AreqRun('{{page}}',($cpage-1));
                 $result .= "\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
             }//if($cpage==1 || $cpage<0)
-            $psid = \NETopes\Core\App\AppSession::GetNewUID(NULL,'md5');
+            $psid = \NETopes\Core\AppSession::GetNewUID(NULL,'md5');
             $lonclick = $this->AreqRun('{{page}}',$psid.':value');
             $result .= "\t".'<select id="'.$psid.'" onchange="'.$lonclick.'">'."\n";
             for($i=1; $i<=$pages_no; $i++) {

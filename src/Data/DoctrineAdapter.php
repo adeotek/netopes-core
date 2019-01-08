@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use NApp;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 /**
 	 * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database

@@ -16,7 +16,7 @@ use NApp;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use Translate;
 /**
@@ -143,7 +143,7 @@ class SmartComboBox extends Control {
                         $initData[] = $s_item;
                     }//END foreach
 			    }//if($s_values->count())
-				$tagauid = \NETopes\Core\App\AppSession::GetNewUID($this->tag_id,'md5');
+				$tagauid = \NETopes\Core\AppSession::GetNewUID($this->tag_id,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
 				$cns = NApp::current_namespace();
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');

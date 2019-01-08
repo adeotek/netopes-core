@@ -1,6 +1,6 @@
 <?php
 namespace NETopes\Core\Data;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
 use NETopes\Core\AppException;

@@ -12,8 +12,8 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NETopes\Core\App\AppConfig;
-use NETopes\Core\App\AppSession;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppSession;
 use NETopes\Core\AppException;
 use NApp;
 use Redis;

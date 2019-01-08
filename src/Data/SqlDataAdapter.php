@@ -12,7 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NApp;
 /**
  * DbAdapter is the base abstract class for all database adapters

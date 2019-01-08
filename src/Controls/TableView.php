@@ -1334,7 +1334,7 @@ class TableView {
                     }//if($is_iterator)
                     if(isset($c_params['tag_id'])) {
                         $key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
-                        $key_value = strlen($key_value) ? $key_value : \NETopes\Core\App\AppSession::GetNewUID();
+                        $key_value = strlen($key_value) ? $key_value : \NETopes\Core\AppSession::GetNewUID();
                         $c_params['tag_id'] .= '_'.$key_value;
                     }//if(isset($c_params['tag_id']))
                     $p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');

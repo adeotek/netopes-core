@@ -17,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use NETopes\Core\App\AppConfig;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
 /**
