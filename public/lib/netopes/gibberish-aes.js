@@ -17,6 +17,7 @@
 * Usage: GibberishAES.enc("secret", "password")
 * Outputs: AES Encrypted text encoded in Base64
 */
+
 (function (root, factory) {
     if (typeof exports === 'object') {
         // Node.

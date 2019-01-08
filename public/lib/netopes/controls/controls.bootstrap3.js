@@ -7,6 +7,8 @@
  * @author     George Benjamin-Schonberger
  * @version    2.5.0.0
  */
+
+
 $(function() {
 	SmartCBOInitialize();
 	ShowToolTip('.clsTitleToolTip');
@@ -18,9 +20,11 @@ $(function() {
 	ShowPopover('.clsWebuiSPopover',false);
 	ShowPopover('.clsDarkWebuiSPopover',false);
 });//$(function()
+
 $(document).on('onARequestInit',function(e) {
 	if(typeof(e.target)=='string') { DestroyCkEditors(window.name,e.target); }
 });
+
 $(document).on('onARequestComplete',function(e) {
 	ShowErrorDialog(false);
 	SmartCBOInitialize();
@@ -33,6 +37,7 @@ $(document).on('onARequestComplete',function(e) {
 	ShowPopover('.clsWebuiSPopover',false);
 	ShowPopover('.clsDarkWebuiSPopover',false);
 });
+
 /*** For Errors Popup ***/
 function ShowErrorDialog(errstr,encrypted,targetid,title) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'errors-dlg'; }
@@ -113,6 +118,7 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
 		buttons: lbuttons
     });
 }//END function ShowConfirmDialog
+
 function ShowMessageDialog(message,title,encrypted,targetid) {
 	if(!message || typeof(message)!='string' || message.length<=0) { return false; }
 	if(encrypted) { message = GibberishAES.dec(message,'HTML'); }
@@ -189,6 +195,7 @@ function ShowModalForm(width,title,close_callback,targetid) {
 		}
     });
 }//END function ShowModalForm
+
 function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { targetid = 'modal'; }
 	// console.log('CloseModalForm>>');
@@ -207,10 +214,12 @@ function CloseModalForm(callback,targetid,dynamic,skip_default_ccb) {
 	if(targetid!='modal' && (dynamic==1 || dynamic==true)) { $('#'+targetid).remove(); }
 	if(callback) { eval(GibberishAES.dec(callback,'cmf')); }
 }//END function CloseModalForm
+
 function AppendDynamicModal(targetid) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0 || $('#'+targetid).length) { return false; }
 	$('body').append('<div id="'+targetid+'" class="ui-modal" style="display: none;"></div>');
 }//END function AppendDynamicModal
+
 function ShowDynamicModalForm(targetid,width,title,close_callback) {
 	if(!targetid || typeof(targetid)!='string' || targetid.length<=0) { return; }
 	return ShowModalForm(width,title,close_callback,targetid);
@@ -243,6 +252,7 @@ function ShowToolTip(etype,source) {
 			break;
 	}//END switch
 }//function ShowToolTip
+
 function ShowPopover(etype,encrypted) {
 	var styleClass = '';
 	if(etype=='.clsDarkWebuiPopover') { styleClass = 'inverse'; }

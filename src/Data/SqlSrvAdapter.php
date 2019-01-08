@@ -6,9 +6,9 @@
  *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
- * @copyright  Copyright (c) 2004 - 2017 AdeoTEK Software
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    1.2.1.0
+ * @version    2.5.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
