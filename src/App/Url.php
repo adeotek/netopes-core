@@ -12,6 +12,8 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
+
 /**
  * Class Url
  *

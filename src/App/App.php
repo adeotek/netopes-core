@@ -835,15 +835,37 @@ abstract class App implements IApp {
 	 * @return string|null
 	 */
 	public function JsInit(bool $output = TRUE): ?string {
-	    $jsRootUrl = $this->app->app_web_link.AppConfig::app_js_path();
+	    $js = $this->GetJsConstants();
+	    $js .= $this->GetJsScripts();
+		if($output) { echo $js; return NULL; }
+		return $js;
+	}//END public function JsInit
+	/**
+     * Get NETopes application javascript constants
+     *
+	 * @return string
+	 */
+	public function GetJsConstants(): string {
+	    $jsRootUrl = $this->app_web_link.AppConfig::app_js_path();
 	    $jsThemeBaseUrl = $this->app_web_link.$this->GetSectionPath();
 	    $js = <<<HTML
         <script type="text/javascript">
             const xAppWebLink = '{$this->app_web_link}';
             const xAppThemeLink = '{$jsThemeBaseUrl}';
-            const NAPP_PHASH = '{$this->app->phash}';
+            const NAPP_PHASH = '{$this->phash}';
             const NAPP_JS_PATH = '{$jsRootUrl}';
         </script>
+HTML;
+		return $js;
+	}//END public function GetJsConstants
+	/**
+     * Get NETopes application javascript
+     *
+	 * @return string
+	 */
+	public function GetJsScripts(): string {
+	    $jsRootUrl = $this->app_web_link.AppConfig::app_js_path();
+	    $js = <<<HTML
         <script type="text/javascript" src="{$jsRootUrl}/gibberish-aes.min.js?v=1901081"></script>
         <script type="text/javascript" src="{$jsRootUrl}/main.min.js?v=1901081"></script>
 HTML;
@@ -858,9 +880,8 @@ HTML;
 				}//END foreach
 			}//if(is_array($dbg_scripts) && count($dbg_scripts))
 		}//if(is_object($this->debugger))
-		if($output) { echo $js; return NULL; }
 		return $js;
-	}//END public function JsInit
+	}//END public function GetJsScripts
 	/**
 	 * Add javascript code to the dynamic js queue (executed at the end of the current request)
 	 *
