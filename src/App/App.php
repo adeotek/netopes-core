@@ -398,9 +398,9 @@ abstract class App implements IApp {
      * @throws \NETopes\Core\AppException
      */
 	public function AjaxRequestInit(array $postParams = [],$subSession = NULL): bool {
+	    if(!AppConfig::app_use_ajax_extension()) { return FALSE; }
 	    if(!$this->IsValidAjaxRequest()) {
 	        $ajaxRequestClass = AppConfig::ajax_class_name();
-	        if(!AppConfig::app_use_ajax_extension()) { return FALSE; }
 	        if(!strlen($ajaxRequestClass) || !class_exists($ajaxRequestClass) || !is_subclass_of($ajaxRequestClass,BaseRequest::class)) { throw new AppException('Invalid AJAX Request class: ['.$ajaxRequestClass.']!'); }
 			$this->arequest = new $ajaxRequestClass($this,$subSession,$postParams);
 	    }//if(!$this->IsValidAjaxRequest())
@@ -836,8 +836,11 @@ abstract class App implements IApp {
 	 */
 	public function JsInit(bool $output = TRUE): ?string {
 	    $jsRootUrl = $this->app->app_web_link.AppConfig::app_js_path();
+	    $jsThemeBaseUrl = $this->app_web_link.$this->GetSectionPath();
 	    $js = <<<HTML
         <script type="text/javascript">
+            const xAppWebLink = '{$this->app_web_link}';
+            const xAppThemeLink = '{$jsThemeBaseUrl}';
             const NAPP_PHASH = '{$this->app->phash}';
             const NAPP_JS_PATH = '{$jsRootUrl}';
         </script>
