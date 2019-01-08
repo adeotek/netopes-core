@@ -1,21 +1,22 @@
 <?php
 /**
- * Modules controller (provider) class file
+ * Modules provider class file
  *
- * @package    NETopes\Modules
+ * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.5.0.1
  * @filesource
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+
 /**
- * Modules controller (provider) class
+ * Class ModulesProvider
  *
- * @package  NETopes\Modules
+ * @package  NETopes\Core\App
  * @access   public
  */
 class ModulesProvider {
@@ -36,24 +37,21 @@ class ModulesProvider {
 	 */
 	public static function GetModule($name,$base = FALSE) {
 	    $nsPrefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
-	    if(substr($name,0,1)==='\\' && substr(trim($name,'\\'),0,strlen($nsPrefix)-1)!==$nsPrefix) {
-		    return $name::GetInstance($name,$name,FALSE);
-		}//if(substr($name,0,1)==='\\' && substr(trim($name,'\\'),0,strlen($nsPrefix)-1)!==$nsPrefix)
-        $mName = '\\'.(substr(trim($name,'\\'),0,strlen($nsPrefix)-1)==$nsPrefix ? '' : $nsPrefix).trim($name,'\\');
-        if($base) { return $mName::GetInstance($name,$mName,FALSE); }
+	    if(class_exists('\\'.trim($name,'\\'))) {
+	        $mName = '\\'.trim($name,'\\');
+	    } else {
+	        $mName = '\\'.$nsPrefix.trim($name,'\\');
+	    }//if(class_exists('\\'.trim($name,'\\')))
+	    if($base) { return $mName::GetInstance($name,$mName,FALSE); }
         $mArr = explode('\\',trim($mName,'\\'));
         $bName = array_pop($mArr);
         $mDir = array_pop($mArr);
-        $cmName = ($bName==$mDir ? $bName.'Custom' : $mDir).'\\'.$bName.'Custom';
-        array_shift($mArr);
-        $cPath = implode('\\',$mArr).'\\';
-        if(file_exists(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$cPath.$cmName.'.php')) {
-            $cName = AppConfig::app_root_namespace().'\\'.$cPath.$cmName;
-            $custom = TRUE;
-        } else {
+        $cName = '\\'.implode('\\',$mArr).'\\'.($bName==$mDir ? $bName.'Custom' : $mDir).'\\'.$bName.'Custom';
+        $custom = TRUE;
+        if(!class_exists($cName)) {
             $cName = $mName;
             $custom = FALSE;
-        }//if(file_exists(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.$c_path.$c_name.'.php'))
+        }//if(!class_exists($cName))
 		return $cName::GetInstance($name,$cName,$custom);
 	}//END public static function GetModule
 	/**
