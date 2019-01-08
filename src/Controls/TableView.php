@@ -14,6 +14,7 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\Data\DataProvider;
@@ -1804,7 +1805,7 @@ class TableView {
 					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
 					if($has_child) {
 						$t_s_val = $r_tree_state ? 1 : 0;
-						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::app_web_link().'/lib/controls/images/transparent12.gif">';
+						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent12.gif">';
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
 					}//if($has_child)

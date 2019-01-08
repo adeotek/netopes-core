@@ -565,12 +565,12 @@ abstract class App implements IApp {
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function RedirectOnError() {
-		if($this->ajax && is_subclass_of($this->arequest,BaseRequest::class,FALSE)) {
+		if($this->ajax && $this->IsValidAjaxRequest()) {
 			echo BaseRequest::$app_act_sep.'window.location.href = "'.$this->GetAppWebLink().'";';
 		} else {
 			header('Location:'.$this->GetAppWebLink());
 			exit();
-		}//if($this->ajax)
+		}//if($this->ajax && $this->IsValidAjaxRequest())
 	}//END public function RedirectOnError
 	/**
 	 * Redirect to a url
@@ -1735,7 +1735,7 @@ HTML;
 	 * @access public
 	 */
     public function InitDebugger() {
-		if(AppConfig::debug()!==TRUE || !class_exists('\NETopes\Core\Debugger')) { return FALSE; }
+		if(AppConfig::debug()!==TRUE || !class_exists('\NETopes\Core\App\Debugger')) { return FALSE; }
 		if(is_object($this->debugger)) { return $this->debugger->IsEnabled(); }
 		$tmp_path = isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
 		$this->debugger = new Debugger(AppConfig::debug(),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::logs_path(),$tmp_path,AppConfig::debug_console_password());

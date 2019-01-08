@@ -13,6 +13,8 @@
  */
 namespace NETopes\Core\Controls;
 use NApp;
+use NETopes\Core\AppConfig;
+
 /**
  * ClassName description
  *
@@ -61,7 +63,7 @@ class CheckBox extends Control {
             'onkeypress'=>'if(event.keyCode==13){CheckBoxClickBaseEvent(this);}',
         );
         $lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
-        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::app_web_link().'/lib/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
+        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
         return $result;
     }//END protected function SetControl
 }//END class CheckBox extends Control
