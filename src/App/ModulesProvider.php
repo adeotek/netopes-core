@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 /**
  * Modules controller (provider) class

@@ -325,7 +325,6 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \NETopes\Core\AppException
 	 */
 	public static function DisplayError($errstr = '',$errno = NULL,$errfile = NULL,$errline = NULL) {
 		if(class_exists('NApp') && NApp::$silent_errors && !NApp::$debug) { return; }
@@ -373,4 +372,3 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		}//if(strlen(self::$js_show_error) && class_exists('NApp') && is_object(NApp::GetCurrentInstance()) && NApp::$gui_loaded)
 	}//END public function DisplayError
 }//END class ErrorHandler
-?>
