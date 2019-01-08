@@ -117,9 +117,9 @@ class TreeComboBox extends Control {
             if(count($ds_js_params)) {
                 foreach($ds_js_params as $acpk=>$acpv) { $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.': '.$acpv; }
             }//if(count($ds_js_params))
-		$this->encrypted = $this->encrypted ? 1 : 0;
-		$this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
-		NApp::_SetSessionAcceptedRequest($this->uid);
+		    $this->encrypted = $this->encrypted ? 1 : 0;
+		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
+		    NApp::_SetSessionAcceptedRequest($this->uid);
             NApp::_ExecJs("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
