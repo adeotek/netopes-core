@@ -60,6 +60,14 @@ class Module {
 	 * @access public
 	 */
 	public $phash = NULL;
+    /**
+     * Get class name with relative namespace
+     *
+     * @return string
+     */
+    public static final function class(): string {
+	    return trim(str_replace(AppConfig::app_root_namespace().'\\'.ModulesProvider::$nsPath,'',static::class),'\\');
+	}//END public static final function class
 	/**
 	 * Module class initializer
 	 *
