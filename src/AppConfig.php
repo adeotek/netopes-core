@@ -54,7 +54,6 @@ if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request
  * @method static app_cache_path()
  * @method static app_api_key()
  * @method static app_api_separator()
- * @method static app_session_key()
  * @method static app_encryption_key()
  * @method static ajax_class_name()
  * @method static ajax_class_file()

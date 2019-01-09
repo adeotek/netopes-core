@@ -1344,7 +1344,7 @@ HTML;
 	public function GetCookieHash($namespace = NULL,$salt = NULL) {
 		$lnamespace = $namespace ? $namespace : $this->current_namespace;
 		$lsalt = strlen($salt) ? $salt : 'loggedin';
-		return AppSession::GetNewUID(AppConfig::app_session_key().$this->url->GetAppDomain().$this->url->GetUrlFolder().$lnamespace.$lsalt,'sha256',TRUE);
+		return AppSession::GetNewUID(AppConfig::app_encryption_key().$this->url->GetAppDomain().$this->url->GetUrlFolder().$lnamespace.$lsalt,'sha256',TRUE);
 	}//END public function GetCookieHash
 	/**
 	 * description
