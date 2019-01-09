@@ -18,10 +18,20 @@ use NApp;
 /**
  * Class TreeView
  *
+ * @property mixed      icon
+ * @property bool|mixed hide_parents_checkbox
+ * @property int|mixed  encrypted
+ * @property mixed      extra_tag_params
+ * @property mixed      class
+ * @property mixed      checkboxs
  * @package  NETopes\Controls
  * @access   public
  */
 class TreeView extends Control {
+    /**
+     * @var null
+     */
+    public $data_source = NULL;
     /**
      * description
      *
@@ -30,7 +40,7 @@ class TreeView extends Control {
      */
     protected function SetControl(): ?string {
         if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID(); }
-		$cStyle = strlen($this->width) ? ' style="width: '.$this->width.(is_numeric($this->width) ? 'px' : '').';"' : '';
+		$cStyle = isset($this->width) && strlen($this->width) ? ' style="width: '.$this->width.(is_numeric($this->width) ? 'px' : '').';"' : '';
 		$extraTagParams = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
 		$lClass = $this->base_class.(strlen($this->class)>0 ? ' '.$this->class : '');
 		$result = "\t\t".'<div'.$this->GetTagId(FALSE).' class="'.$lClass.'"'.$cStyle.$extraTagParams.'></div>';
@@ -51,8 +61,9 @@ class TreeView extends Control {
             }//if(count($ds_js_params))
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
+		    $this->checkboxs = $this->checkboxs ? TRUE : FALSE;
 		    NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitFancyTree('{$this->tag_id}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+            NApp::_ExecJs("InitFancyTree('{$this->tag_id}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->checkboxs).",".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		return $result;
     }//END protected function SetControl
