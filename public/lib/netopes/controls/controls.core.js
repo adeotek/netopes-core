@@ -10,10 +10,11 @@
 
 /*** For Loader and Screen blocking ***/
 function ShowLoader(element,full) {
+	let obj;
 	if(typeof(element)=='object') {
-		let obj = element;
+		obj = element;
 	} else {
-		let obj = $('#'+element);
+		obj = $('#'+element);
 	}//if(typeof(element)=='object')
 	if($(obj).length>0) {
 		if(full===1 || full===true || full==='1') { $(obj).css('height',Math.max($(document).outerHeight(),window.innerHeight)+'px'); }
@@ -22,10 +23,11 @@ function ShowLoader(element,full) {
 }//function ShowLoader
 
 function HideLoader(element) {
+	let obj;
 	if(typeof(element)=='object') {
-		let obj = element;
+		obj = element;
 	} else {
-		let obj = $('#'+element);
+		obj = $('#'+element);
 	}//if(typeof(element)=='object')
 	if($(obj).length>0) { $(obj).hide(); }
 }//function HideLoader
@@ -535,9 +537,9 @@ function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,
 				success: function(response) { data.node.addChildren(response); }
 			});
 		},
-		click: function(event, data) { $.event.trigger({ type: 'fancyTree.onclick', event: event, data: data }); },
-		dblclick: function(event, data) { $.event.trigger({ type: 'fancyTree.ondblclick', event: event, data: data }); },
-		select: function(event, data) { $.event.trigger({ type: 'fancyTree.onselect', event: event, data: data }); }
+		click: function(event, data) { $(this).trigger('fancyTree.onclick', data); },
+		dblclick: function(event, data) { $(this).trigger('fancyTree.ondblclick', data); },
+		select: function(event, data) { $(this).trigger('fancyTree.onselect', data); }
 	});
 }//END function InitFancyTree
 
@@ -998,10 +1000,10 @@ function CreateFileUploader(elementid,multi) {
 /*** For TreeGrid ***/
 function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 	if(!orgid) { orgid = pid; }
-	if(cval!=0 && cval!=1) { cval = $(obj).val()==1 ? 0 : 1; }
-	if(orgid==pid) { $(obj).val(cval); }
+	if(cval!==0 && cval!==1) { cval = $(obj).val()===1 ? 0 : 1; }
+	if(orgid===pid) { $(obj).val(cval); }
 	$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i) {
-		if(cval==1) { $(this).show(); } else { $(this).hide(); }
+		if(cval===1) { $(this).show(); } else { $(this).hide(); }
 		obj = $(this).find('input.clsTreeGridBtn').first();
 		if(typeof(obj)=='object') {
 			pid = $(this).attr('data-id');
