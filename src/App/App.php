@@ -1360,11 +1360,11 @@ HTML;
 		$c_hash = $this->GetCookieHash($namespace,$name);
 		$c_cookie_hash = NULL;
 		if(array_key_exists($c_hash,$_COOKIE) && strlen($_COOKIE[$c_hash])) {
-			$c_cookie_hash = \GibberishAES::dec($_COOKIE[$c_hash],AppConfig::app_session_key());
+			$c_cookie_hash = \GibberishAES::dec($_COOKIE[$c_hash],AppConfig::app_encryption_key());
 		} elseif($set_if_missing===TRUE || $set_if_missing===1 || $set_if_missing==='1') {
 			$c_cookie_hash = AppSession::GetNewUID();
 			$lvalability = (is_numeric($validity) && $validity>0 ? $validity : 180)*24*3600;
-			$_COOKIE[$c_hash] = \GibberishAES::enc($c_cookie_hash,AppConfig::app_session_key());
+			$_COOKIE[$c_hash] = \GibberishAES::enc($c_cookie_hash,AppConfig::app_encryption_key());
 			setcookie($c_hash,$_COOKIE[$c_hash],time()+$lvalability,'/',$this->url->GetAppDomain());
 		}//if(array_key_exists($sc_hash,$_COOKIE) && strlen($_COOKIE[$sc_hash]))
 		return $c_cookie_hash;
@@ -1388,7 +1388,7 @@ HTML;
 			setcookie($lcookie_hash,'',time()+$lvalidity,'/',$this->url->GetAppDomain());
 			return TRUE;
 		}//if(!$uhash)
-		$_COOKIE[$cookie_hash] = \GibberishAES::enc($uhash,AppConfig::app_session_key());
+		$_COOKIE[$cookie_hash] = \GibberishAES::enc($uhash,AppConfig::app_encryption_key());
 		setcookie($lcookie_hash,$_COOKIE[$cookie_hash],time()+$lvalidity,'/',$this->url->GetAppDomain());
 		return TRUE;
 	}//END public function SetLoginCookie
@@ -1407,7 +1407,7 @@ HTML;
 		$auto_login = 1;
 		$user_hash = $this->url->GetParam('uhash');
 		if(!strlen($user_hash) && array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash])) {
-			$user_hash = \GibberishAES::dec($_COOKIE[$cookie_hash],AppConfig::app_session_key());
+			$user_hash = \GibberishAES::dec($_COOKIE[$cookie_hash],AppConfig::app_encryption_key());
 		}//if(!strlen($user_hash) && array_key_exists($cookie_hash,$_COOKIE) && strlen($_COOKIE[$cookie_hash]))
 		if(!strlen($user_hash)) {
 			$auto_login = 0;

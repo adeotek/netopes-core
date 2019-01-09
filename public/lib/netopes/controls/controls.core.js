@@ -534,7 +534,10 @@ function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,
 				dataType: 'json',
 				success: function(response) { data.node.addChildren(response); }
 			});
-		}
+		},
+		click: function(event, data) { $.event.trigger({ type: 'fancyTree.onclick', event: event, data: data }); },
+		dblclick: function(event, data) { $.event.trigger({ type: 'fancyTree.ondblclick', event: event, data: data }); },
+		select: function(event, data) { $.event.trigger({ type: 'fancyTree.onselect', event: event, data: data }); }
 	});
 }//END function InitFancyTree
 
