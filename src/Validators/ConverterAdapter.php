@@ -64,8 +64,30 @@ class ConverterAdapter {
             if(!($dt = new \DateTime('now',new \DateTimeZone($timezone)))) { return NULL; }
 			$dt->setTimestamp($date);
 	    } elseif(is_string($date) && strlen($date)) {
-	        if(!strlen($sourceFormat)) { $sourceFormat = 'Y-m-d H:i:s'; }
-	        if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE) { $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : ''); }
+	        if(!strlen($sourceFormat)) {
+	            if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/',$date)) {
+	                 $sourceFormat = 'Y-m-d H:i:s';
+	                 $date .= ' 00:00:00';
+	            } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
+	                 $sourceFormat = 'Y-m-d H:i:s';
+	                 $date .= ':00';
+	            } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s|T)[0-9]{2}:[0-9]{2}:[0-9]{2}$/',$date)) {
+	                 $sourceFormat = 'Y-m-d H:i:s';
+	            } else {
+	                $sourceFormat = NApp::_GetDateTimeFormat(TRUE);
+	                if(strpos($date,' ')===FALSE && strpos($date,'T')===FALSE) {
+	                    $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : '');
+	                } elseif(substr($sourceFormat,-2)==':s' && preg_match('/(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
+	                    $date .= ':00';
+	                }//if(strpos($date,' ')===FALSE && strpos($date,'T')===FALSE)
+	            }//if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/',$date))
+	        } else {
+	            if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE && strpos($date,'T')===FALSE) {
+                    $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : '');
+                } elseif(substr($sourceFormat,-2)==':s' && preg_match('/(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
+                    $date .= ':00';
+                }//if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE && strpos($date,'T')===FALSE)
+	        }//if(!strlen($sourceFormat))
             if(!($dt = \DateTime::createFromFormat($sourceFormat,$date,new \DateTimeZone($timezone)))) { return NULL; }
 	    } elseif(!is_object($date) || !($date instanceof \DateTime)) {
 	        return NULL;
@@ -87,7 +109,7 @@ class ConverterAdapter {
      * @access public
      * @static
      */
-	public static function DateTimeToDbFormat($date,string $sourceFormat,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
+	public static function DateTimeToDbFormat($date,?string $sourceFormat = NULL,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
 	    $dt = static::DateTimeToObject($date,$sourceFormat,$timezone,FALSE);
@@ -142,7 +164,7 @@ class ConverterAdapter {
     public static function ToUDatetime($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
-        return $dt->format(NApp::_GetDateTimeFormat());
+        return $dt->format(NApp::_GetDateTimeFormat(TRUE));
 	}//END public static function ToUDatetime
 	/**
      * @param mixed $value
@@ -152,7 +174,7 @@ class ConverterAdapter {
     public static function ToUDate($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
-        return $dt->format(NApp::_GetDateFormat());
+        return $dt->format(NApp::_GetDateFormat(TRUE));
 	}//END public static function ToUDate
     /**
      * @param mixed $value
@@ -160,7 +182,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToDbDatetime($value): ?string {
-        $dt = static::DateTimeToObject($value,NApp::_GetDateTimeFormat());
+        $dt = static::DateTimeToObject($value,NApp::_GetDateTimeFormat(TRUE));
         if(is_null($dt)) { return NULL; }
         return $dt->format('Y-m-d H:i:s');
 	}//END public static function ToDbDatetime
@@ -170,7 +192,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToDbDate($value): ?string {
-        $dt = static::DateTimeToObject($value,NApp::_GetDateFormat());
+        $dt = static::DateTimeToObject($value,NApp::_GetDateFormat(TRUE));
         if(is_null($dt)) { return NULL; }
         return $dt->format('Y-m-d');
 	}//END public static function ToDbDate
@@ -180,7 +202,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToSodDatetime($value): ?string {
-        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(),NULL,1);
+        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(TRUE),NULL,1);
 	}//END public static function ToSodDatetime
 	/**
      * @param mixed $value
@@ -188,7 +210,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToEodDatetime($value): ?string {
-        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(),NULL,2);
+        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(TRUE),NULL,2);
 	}//END public static function ToEodDatetime
 	/**
 	 * Converts a number to standard format

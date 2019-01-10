@@ -340,8 +340,7 @@ class Validator {
      * @throws \Exception
      */
 	public static function ConvertDateTimeToDbFormat($date,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE): ?string {
-		$format = $dateOnly ? NApp::_GetDateFormat(TRUE) : NApp::_GetDateTimeFormat(TRUE);
-		return call_user_func(static::GetConverterAdapter('DateTimeToDbFormat'),$date,$format,$timezone,$dayPart,$dateOnly);
+		return call_user_func(static::GetConverterAdapter('DateTimeToDbFormat'),$date,NULL,$timezone,$dayPart,$dateOnly);
 	}//END public static function ConvertDateTimeToDbFormat
 	/**
      * Convert datetime value to provided format
