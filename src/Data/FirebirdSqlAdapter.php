@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.5.0.5
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -16,6 +16,7 @@ use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppSession;
 use NETopes\Core\AppException;
 use NApp;
+
 /**
  * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
  *
@@ -291,6 +292,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
     /**
      * @param array $condition
      * @return string
+     * @throws \Exception
      */
     private function GetFilterCondition(array $condition): string {
         $cond = get_array_value($condition,'condition',NULL,'is_notempty_string');
@@ -396,16 +398,21 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
-		    foreach($this->EscapeString($params) as $k=>$v) {
-                if(strlen($v)>4000) {
-                    $bpid = $this->AddBlobParam($v,$transaction);
-                    if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
-					if(!is_array($bind_params)) { $bind_params = []; }
-					$bind_params[] = $bpid;
-					$query = str_replace('{{'.$k.'}}','?',$query);
+		    foreach($params as $k=>$p) {
+		        if($p instanceof \DateTime) {
+		            $query = str_replace('{{'.$k.'}}',$p->format('Y-m-d H:i:s'),$query);
                 } else {
-                    $query = str_replace('{{'.$k.'}}',$v,$query);
-                }//if(strlen($v)>4000)
+                    $p = $this->EscapeString($p);
+                    if(strlen($p)>4000) {
+                        $bpid = $this->AddBlobParam($p,$transaction);
+                        if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
+                        if(!is_array($bind_params)) { $bind_params = []; }
+                        $bind_params[] = $bpid;
+                        $query = str_replace('{{'.$k.'}}','?',$query);
+                    } else {
+                        $query = str_replace('{{'.$k.'}}',$p,$query);
+                    }//if(strlen($v)>4000)
+                }//if($p instanceof \DateTime)
             }//END foreach
 		}//if(is_array($params) && count($params))
 		$filter_str = '';
@@ -539,16 +546,21 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		if(is_array($params)) {
 			if(count($params)) {
 				$parameters = '';
-				foreach($this->EscapeString($params) as $p) {
-					if(strlen($p)>4000) {
-						$bpid = $this->AddBlobParam($p,$transaction);
-						if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
-						if(!is_array($bind_params)) { $bind_params = []; }
-						$bind_params[] = $bpid;
-						$parameters .= (strlen($parameters) ? ',?' : '(?');
-					} else {
-						$parameters .= (strlen($parameters) ? ',' : '(').(is_null($p) ? 'NULL' : "'{$p}'");
-					}//if(strlen($p)>4000)
+				foreach($params as $p) {
+				    if($p instanceof \DateTime) {
+				        $parameters .= (strlen($parameters) ? ',' : '(')."'".$p->format('Y-m-d H:i:s')."'";
+				    } else {
+				        $p = $this->EscapeString($p);
+				        if(strlen($p)>4000) {
+                            $bpid = $this->AddBlobParam($p,$transaction);
+                            if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) { throw new AppException('Invalid query parameter!',E_USER_ERROR); }
+                            if(!is_array($bind_params)) { $bind_params = []; }
+                            $bind_params[] = $bpid;
+                            $parameters .= (strlen($parameters) ? ',?' : '(?');
+                        } else {
+                            $parameters .= (strlen($parameters) ? ',' : '(').(is_null($p) ? 'NULL' : "'{$p}'");
+                        }//if(strlen($p)>4000)
+				    }//if($p instanceof \DateTime)
 				}//END foreach
 				$parameters .= ')';
 			} else {
@@ -705,7 +717,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		if(is_array($param)) {
 			$result = [];
 			foreach($param as $k=>$v) { $result[$k] = static::FirebirdSqlEscapeString($v); }
-		return $result;
+		    return $result;
 		}//if(is_array($param))
 		if(is_scalar($param)) { return str_replace("'","''",$param); }
 		return NULL;
