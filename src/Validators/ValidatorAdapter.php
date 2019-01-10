@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.5.0.6
  * @filesource
  */
 namespace NETopes\Core\Validators;
@@ -236,6 +236,24 @@ class ValidatorAdapter {
         $value = Validator::ConvertDateTimeToDbFormat($value,NULL,NULL,TRUE);
         return (is_string($value) && strlen($value));
     }//END public static function DbDate
+    /**
+     * @param $value
+     * @return bool
+     * @throws \Exception
+     */
+    public static function AppDatetime(&$value): bool {
+        $value = Validator::ConvertDateTimeToAppFormat($value);
+        return (is_string($value) && strlen($value));
+    }//END public static function AppDatetime
+    /**
+     * @param $value
+     * @return bool
+     * @throws \Exception
+     */
+    public static function AppDate(&$value): bool {
+        $value = Validator::ConvertDateTimeToAppFormat($value,NULL,TRUE);
+        return (is_string($value) && strlen($value));
+    }//END public static function AppDate
     /**
      * @param $value
      * @return bool
