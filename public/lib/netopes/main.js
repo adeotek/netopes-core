@@ -6,7 +6,7 @@
  * License    LICENSE.md
  *
  * @author     George Benjamin-Schonberger
- * @version    2.5.0.0
+ * @version    2.5.0.3
  */
 if(NAPP_PHASH && window.name!==NAPP_PHASH) { window.name = NAPP_PHASH; }
 $(window).on('load',function() { setCookie('__napp_pHash_','',1); });
@@ -139,8 +139,12 @@ function arrayMerge(farray,sarray,recursive) {
 })(jQuery);
 
 function is_numeric(input) {
-    return ((input - 0) === input && (''+input).trim().length > 0);
+    return ((''+input).trim().length>0 && input==parseFloat(input));
 }//END function is_numeric
+
+function is_integer(input) {
+    return ((''+input).trim().length>0 && input==parseInt(input));
+}//END function is_integer
 
 function strpos(haystack,needle,offset) {
 	var i = (haystack+'').indexOf(needle,(offset || 0));

@@ -1256,7 +1256,7 @@ HTML;
 	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
-	public function GetAppWebLink(?String $uri = NULL,?string $namespace = NULL,bool $base = FALSE,?string $langCode = NULL): string {
+	public function GetAppWebLink(?string $uri = NULL,?string $namespace = NULL,bool $base = FALSE,?string $langCode = NULL): string {
 		$namespace = $namespace ? $namespace : $this->current_namespace;
 		if($namespace!=$this->current_namespace) {
 			global $_DOMAINS_CONFIG;
