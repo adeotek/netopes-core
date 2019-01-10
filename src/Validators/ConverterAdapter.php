@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.5.0.6
  * @filesource
  */
 namespace NETopes\Core\Validators;
@@ -156,26 +156,26 @@ class ConverterAdapter {
         if(is_null($dt)) { return NULL; }
         return $dt->format('Y-m-d H:i:s');
 	}//END public static function ToDatetime
-	/**
-     * @param mixed $value
+    /**
+     * @param mixed       $value
      * @return string|null
      * @throws \Exception
      */
-    public static function ToUDatetime($value): ?string {
+    public static function ToAppDatetime($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
         return $dt->format(NApp::_GetDateTimeFormat(TRUE));
-	}//END public static function ToUDatetime
-	/**
-     * @param mixed $value
+	}//END public static function ToAppDatetime
+    /**
+     * @param mixed       $value
      * @return string|null
      * @throws \Exception
      */
-    public static function ToUDate($value): ?string {
+    public static function ToAppDate($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
         return $dt->format(NApp::_GetDateFormat(TRUE));
-	}//END public static function ToUDate
+	}//END public static function ToAppDate
     /**
      * @param mixed $value
      * @return string|null

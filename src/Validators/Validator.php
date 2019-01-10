@@ -8,13 +8,14 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.5.0.6
  * @filesource
  */
 namespace NETopes\Core\Validators;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
+
 /**
  * Class Validator
  *
@@ -342,6 +343,22 @@ class Validator {
 	public static function ConvertDateTimeToDbFormat($date,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE): ?string {
 		return call_user_func(static::GetConverterAdapter('DateTimeToDbFormat'),$date,NULL,$timezone,$dayPart,$dateOnly);
 	}//END public static function ConvertDateTimeToDbFormat
+	/**
+     * Converts a datetime value to application (user) format
+     *
+     * @param  mixed       $date Datetime to be converted
+     * @param  string|null $timezone User's timezone
+     * if set to 1 time is set to "23:59:59.999", else time is set to original value
+     * @param  bool        $dateOnly If set TRUE eliminates the time
+     * @return string Returns the datetime in the database format
+     * @access public
+     * @static
+     * @throws \Exception
+     */
+	public static function ConvertDateTimeToAppFormat($date,?string $timezone = NULL,bool $dateOnly = FALSE): ?string {
+		$format = $dateOnly ? NApp::_GetDateFormat(TRUE) : NApp::_GetDateTimeFormat(TRUE);
+		return call_user_func(static::GetConverterAdapter('DateTimeToFormat'),$date,$format,$timezone);
+	}//END public static function ConvertDateTimeToAppFormat
 	/**
      * Convert datetime value to provided format
      *
