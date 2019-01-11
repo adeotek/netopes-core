@@ -32,6 +32,6 @@ $_SESSION['robot'] = 1;
 NETopes\Core\AppSession::SessionClose();
 switch(strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost')) {
     default:
-        echo file_get_contents('robots.txt');
+        echo (file_exists('robots.txt') ? file_get_contents('robots.txt') : '');
         break;
 }//END switch

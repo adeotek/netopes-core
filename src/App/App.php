@@ -339,9 +339,10 @@ abstract class App implements IApp {
 				}//if(property_exists($this,$key))
 			}//foreach($params as $key=>$value)
 		}//if(is_array($params) && count($params)>0)
-		if($shell) { return; }
-		$this->InitDebugger();
-		$this->StartOutputBuffer();
+		if(!$shell) {
+		    $this->InitDebugger();
+		    $this->StartOutputBuffer();
+		}//if(!$shell)
         $this->current_namespace = (array_key_exists('namespace',$params) && $params['namespace']) ? $params['namespace'] : '';
 		global $_DOMAINS_CONFIG;
 		if(!isset($_DOMAINS_CONFIG['domains']) || !is_array($_DOMAINS_CONFIG['domains'])) { die('Invalid domain registry settings!'); }
