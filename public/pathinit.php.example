@@ -17,7 +17,7 @@ if(file_exists('.offline') && trim(file_get_contents('.offline'))=='1') {
     define('_NAPP_OFFLINE',FALSE);
 }//if(file_exists('.offline') && trim(file_get_contents('.offline'))=='1')
 // Paths constants definition (Editable zone)
-define('_NAPP_APPLICATION_PATH','');
+define('_NAPP_APPLICATION_PATH','app');
 define('_NAPP_CONFIG_PATH','config');
 define('_NAPP_PUBLIC_ROOT_PATH',DIRECTORY_SEPARATOR.'public');
 define('_NAPP_PUBLIC_PATH','');
