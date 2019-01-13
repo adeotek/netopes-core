@@ -651,26 +651,6 @@ function excel2unixts($date,$timezone = NULL,$new_timezone = NULL,$format = 'Y-m
     }//END try
 }//END function excel2unixts
 /**
- * Gets the Unix timestamp for a date/time with an optional timezone
- *
- * @param  string $date The string representing a date/time in a PHP accepted format
- * (if NULL or 'now' is passed, the function will return the current Unix timestamp)
- * @param  string $timezone Optional parameter representing the timezone string
- * @param  string $new_timezone User's time zone (optional)
- * @return int The Unix timestamp
- */
-function get_timestamp($date,$timezone = NULL,$new_timezone = NULL) {
-    try {
-        $dt = new DateTime($date,new DateTimeZone(strlen($timezone) ? $timezone : \NETopes\Core\AppConfig::server_timezone()));
-        if(strlen($new_timezone)) {
-            $dt->setTimezone(new DateTimeZone($new_timezone));
-        }//if(strlen($new_timezone))
-        return $dt->getTimestamp();
-    } catch(Exception $e) {
-        return NULL;
-    }//END try
-}//END function get_timestamp
-/**
  * Returns a string containing a formated number
  *
  * @param  number $value The number to be formated
@@ -986,6 +966,13 @@ function vprint($var,$html_entities = FALSE,$return = FALSE,$utf8encode = FALSE)
     echo $result;
     return NULL;
 }//END function vprint
+/**
+ * @param mixed       $var
+ * @param string|null $label
+ */
+function cli_print($var,?string $label = null) {
+    echo (strlen($label) ? $label.': ' : '').print_r($var,TRUE).PHP_EOL;
+}//END function cli_print
 /**
  * @param        $array
  * @param string $separator
