@@ -91,7 +91,7 @@ $_NAPP_CONFIG_STRUCTURE = [
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
     // Use custom modules and data sources autoloader
-    'use_custom_autoloader'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    'use_custom_autoloader'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
     // Relative path to NETopes javascript files (linux style)
     'app_js_path'=>['access'=>'readonly','default'=>'/lib/netopes','validation'=>'is_string'],
     // Use NETopes AJAX extension

@@ -1,7 +1,7 @@
 <?php
 if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
 // Load helper functions
-require_once(__DIR__.'/helpers.php');
+require_once(__DIR__.'/functions.php');
 // Load AppConfig
 try {
     \NETopes\Core\AppConfig::LoadConfig((isset($_APP_CONFIG) && is_array($_APP_CONFIG) ? $_APP_CONFIG : []),(isset($_CUSTOM_CONFIG_STRUCTURE) && is_array($_CUSTOM_CONFIG_STRUCTURE) ? $_CUSTOM_CONFIG_STRUCTURE : []));
