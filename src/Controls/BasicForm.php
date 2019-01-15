@@ -134,7 +134,7 @@ class BasicForm {
 	 * @var    int|null Fields conditions field name case
 	 * @access public
 	 */
-	public $field_name_property_case = NULL;
+	public $field_name_property_case = CASE_LOWER;
 	/**
 	 * @var    string Fields conditions visibility property
 	 * @access public
@@ -188,7 +188,7 @@ class BasicForm {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if(!is_numeric($this->cols_no) || $this->cols_no<=0) { $this->cols_no = 1; }
-		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property);
+		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property,$this->field_name_property_case);
 	}//END public function __construct
     /**
      * @param array $action
@@ -256,8 +256,9 @@ class BasicForm {
 	 * Gets the form actions string
 	 *
 	 * @param int $tabindex
-	 * @return void
+     * @return string
 	 * @access protected
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function GetActions($tabindex = 0) {
 		$result = '';
@@ -296,7 +297,6 @@ class BasicForm {
      */
     protected function CheckFieldConditions(array &$control,?string $fieldName = NULL): bool {
         if(!strlen($fieldName)) { $fieldName = get_array_value($control,'tag_name',NULL,'?is_notempty_string'); }
-        if(isset($this->field_name_property_case)) { $fieldName = $this->field_name_property_case==CASE_UPPER ? strtoupper($fieldName) : strtolower($fieldName); }
 	    if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) { return TRUE; }
 	    $condition = $this->field_conditions->get($fieldName);
 	    if($this->mandatory_fields_only && !$condition->getProperty($this->mandatory_field_property,FALSE,'bool')) {
@@ -313,6 +313,7 @@ class BasicForm {
 	 *
 	 * @return string
 	 * @access protected
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function GetTableControl(): string {
 		$ltabindex = 101;
