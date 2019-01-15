@@ -91,29 +91,30 @@ class DataSource {
      * set as the new main key.
      * If $keyfield is empty or NULL, the 'id' key will be used.
      * @param bool    $convertToDataSet
+     * @param int|null $case
      * @return array Returns the converted array
      * @access public
      * @static
      */
-	public static function ConvertResultsToKeyValue($results,?string $keyField = NULL,bool $convertToDataSet = FALSE) {
+	public static function ConvertResultsToKeyValue($results,?string $keyField = NULL,bool $convertToDataSet = FALSE,?int $case = NULL) {
 	    if(!is_iterable($results)) { return $results; }
 	    $key = strlen($keyField) ? $keyField : 'id';
 	    if(is_object($results)) {
             $tempResults = new DataSet();
             foreach($results as $v) {
                 if(is_object($v)) {
-                    $tempResults->set($v->getProperty($key),$v);
+                    $tempResults->set(change_case($v->getProperty($key),$case),$v);
                 } else {
-                    $tempResults->set(get_array_value($v,$key,NULL,'isset'),$v);
+                    $tempResults->set(change_case(get_array_value($v,$key,NULL,'isset'),$case),$v);
                 }//if(is_object($v))
             }//END foreach
 	    } else {
 	        $tempResults = [];
             foreach($results as $v) {
                 if(is_object($v)) {
-                    $tempResults[$v->getProperty($key)] = $v;
+                    $tempResults[change_case($v->getProperty($key),$case)] = $v;
                 } else {
-                    $tempResults[get_array_value($v,$key,NULL,'isset')] = $v;
+                    $tempResults[change_case(get_array_value($v,$key,NULL,'isset'),$case)] = $v;
                 }//if(is_object($v))
             }//END foreach
             if($convertToDataSet) { $tempResults = new DataSet($tempResults); }
@@ -126,17 +127,18 @@ class DataSource {
      * @param  array       $data The array to be converted
      * @param  string|null $entity_class Name of the entity class
      * @param null|string  $fieldToUseAsKey
+     * @param int          $case
      * @return mixed Returns the DataSet or NULL on error
      * @access public
      * @static
      */
-	public static function ConvertArrayToDataSet($data = [],$entity_class = NULL,?string $fieldToUseAsKey = NULL) {
+	public static function ConvertArrayToDataSet($data = [],$entity_class = NULL,?string $fieldToUseAsKey = NULL,?int $case = CASE_LOWER) {
 		if(!is_array($data)) {
 		    if($fieldToUseAsKey===NULL) { return $data; }
-		    return static::ConvertResultsToKeyValue($data,$fieldToUseAsKey);
+		    return static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,FALSE,$case);
 		}//if(!is_array($data))
 		if(!is_string($entity_class) || !strlen($entity_class) || !class_exists($entity_class)) {
-		    $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
+		    $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
 		} else {
 			if(count($data)) {
 			    $fElement = reset($data);
@@ -145,7 +147,7 @@ class DataSource {
                 } else {
 					if(is_object($fElement)) {
 					    if(isset($fieldToUseAsKey)) {
-				        	$result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE);
+				        	$result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
 					    } else {
 					        $result = new DataSet($data);
 					    }//if(isset($fieldToUseAsKey))
@@ -153,9 +155,9 @@ class DataSource {
 				        $result = new DataSet();
 				        foreach($data as $k=>$v) {
 				            if(strlen($fieldToUseAsKey)) {
-				                $result->set(get_array_value($v,$fieldToUseAsKey,$k,'isset'),new $entity_class($v));
+				                $result->set(change_case(get_array_value($v,$fieldToUseAsKey,$k,'isset'),$case),new $entity_class($v));
 				            } else {
-				                $result->set($k,new $entity_class($v));
+				                $result->set(change_case($k,$case),new $entity_class($v));
 				            }//if(strlen($fieldToUseAsKey))
 				        }//END foreach
 					}//if(is_object($fElement))

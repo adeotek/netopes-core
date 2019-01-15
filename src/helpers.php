@@ -30,6 +30,17 @@ function coalesce() {
     return NULL;
 }//END function coalesce
 /**
+ * Change string case
+ *
+ * @param mixed    $input
+ * @param int|null $case
+ * @return  mixed
+ */
+function change_case($input,?int $case = CASE_LOWER) {
+    if(!is_string($input)) { return $input; }
+    return ($case===CASE_LOWER ? strtolower($input) : ($case===CASE_UPPER ? strtoupper($input) : $input));
+}//END function coalesce
+/**
  * SQL-like coalesce function for strings
  * (empty string is considered null)
  *
