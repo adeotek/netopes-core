@@ -117,24 +117,89 @@ function change_array_keys_case($input,bool $recursive = FALSE,int $case = CASE_
  */
 function validate_param($value,$defaultValue = NULL,?string $validation = NULL,bool $checkOnly = FALSE) {
     if(!strlen($validation)) {
-        if(isset($validation)) {
-            $isValid = isset($value);
-            return $value??$defaultValue;
-        }//if(isset($validation))
-        $isValid = TRUE;
-        return $value;
+        if($checkOnly) { return isset($value); }
+        return (isset($value) ? $value : $defaultValue);
     }//if(!strlen($validation))
-    if(substr($validation,0,1)==='?' && is_null($value)) {
-        $isValid = TRUE;
-        return NULL;
-    }//if(substr($validation,0,1)==='?' && is_null($value))
-    $method = convert_to_camel_case(trim($validation,'? '));
-    if(!method_exists('\NETopes\Core\Validators\TBaseValidator',$method)) {
-        $isValid = isset($value);
-        return $value??$defaultValue;
-    }//if(!method_exists('\NETopes\Core\Validators\TBaseValidator',$method))
-    $isValid = \NETopes\Core\Validators\TBaseValidator::$method($value);
-    return ($isValid ? $value : $defaultValue);
+    if(substr($validation,0,1)=='?') {
+        if(is_null($value)) { return NULL; }
+        $validation = substr($validation,1);
+    }//if(substr($validation,0,1)=='?')
+    if($checkOnly) {
+        switch(strtolower($validation)) {
+            case 'true':
+                return ($value ? TRUE : FALSE);
+            case 'is_object':
+                return is_object($value);
+            case 'is_scalar':
+                return is_scalar($value);
+            case 'is_numeric':
+                return is_numeric($value);
+            case 'is_integer':
+                return (is_numeric($value) && is_integer($value*1));
+            case 'is_float':
+                return (is_numeric($value) && is_float($value*1));
+            case 'is_not0_numeric':
+                return (is_numeric($value) && $value<>0);
+            case 'is_not0_integer':
+                return (is_numeric($value) && is_integer($value*1) && $value<>0);
+            case 'is_not0_float':
+                return (is_numeric($value) && is_float($value*1) && $value<>0);
+            case 'is_array':
+                return is_array($value);
+            case 'is_notempty_array':
+                return (is_array($value) && count($value));
+            case 'is_string':
+                return is_scalar($value);
+            case 'is_notempty_string':
+                return (is_scalar($value) && strlen(strval($value)));
+            case 'trim_is_notempty_string':
+                return (is_scalar($value) && strlen(trim(strval($value))));
+            case 'is_bool':
+            case 'is_boolean':
+                return is_bool($value);
+            case 'isset':
+            case 'bool':
+            default: return isset($value);
+        }//END switch
+    }//if($checkOnly)
+    switch(strtolower($validation)) {
+        case 'true':
+            return ($value ? $value : $defaultValue);
+        case 'is_object':
+            return (is_object($value) ? $value : $defaultValue);
+        case 'is_scalar':
+            return is_scalar($value) ? $value : $defaultValue;
+        case 'is_numeric':
+            return (is_numeric($value) ? ($value+0) : $defaultValue);
+        case 'is_integer':
+            return (is_numeric($value) && is_integer($value*1) ? intval($value) : $defaultValue);
+        case 'is_float':
+            return (is_numeric($value) ? floatval($value) : $defaultValue);
+        case 'is_not0_numeric':
+            return (is_numeric($value) && $value<>0 ? ($value+0) : $defaultValue);
+        case 'is_not0_integer':
+            return (is_numeric($value) && is_integer($value*1) && intval($value)<>0 ? intval($value) : $defaultValue);
+        case 'is_not0_float':
+            return (is_numeric($value) && $value<>0 ? floatval($value) : $defaultValue);
+        case 'is_array':
+            return is_array($value) ? $value : $defaultValue;
+        case 'is_notempty_array':
+            return (is_array($value) && count($value) ? $value : $defaultValue);
+        case 'is_string':
+            return (is_scalar($value) ? strval($value) : $defaultValue);
+        case 'is_notempty_string':
+            return (is_scalar($value) && strlen(strval($value)) ? strval($value) : $defaultValue);
+        case 'trim_is_notempty_string':
+            return (is_scalar($value) && strlen(trim(strval($value))) ? strval($value) : $defaultValue);
+        case 'is_bool':
+        case 'is_boolean':
+            return is_bool($value) ? $value : $defaultValue;
+        case 'bool':
+            return (isset($value) ? (strtolower($value)=='true' ? TRUE : (strtolower($value)=='false' ? FALSE : (bool) $value)) : $defaultValue);
+        case 'isset':
+        default:
+            return (isset($value) ? $value : $defaultValue);
+    }//END switch
 }//END function validate_param
 /**
  * Checks if a key exists in an array and validates its value
@@ -147,7 +212,7 @@ function validate_param($value,$defaultValue = NULL,?string $validation = NULL,b
  * @return  bool Returns TRUE if $key exists in the $array or FALSE otherwise.
  * If $validation is not NULL, result is TRUE only if $array[$key] is validated
  */
-function check_array_key($key,$array,?string $validation = NULL) {
+function check_array_key($key,&$array,?string $validation = NULL) {
     if(!is_array($array) || is_null($key) || (!is_integer($key) && !is_string($key)) || !array_key_exists($key,$array)) { return FALSE; }
     if(!is_string($validation)) { return TRUE; }
     return validate_param($array[$key],NULL,$validation,TRUE);
@@ -163,7 +228,7 @@ function check_array_key($key,$array,?string $validation = NULL) {
  * (as implemented in validate_param function)
  * @return  mixed Returns param value or default value if not validated
  */
-function get_array_value($var,$key,$defaultValue = NULL,?string $validation = NULL) {
+function get_array_value(&$var,$key,$defaultValue = NULL,?string $validation = NULL) {
     if(is_array($key)) {
         if(!count($key)) { return $defaultValue; }
         $lKey = array_shift($key);
@@ -204,7 +269,7 @@ function get_array_value($var,$key,$defaultValue = NULL,?string $validation = NU
  * @param   string $sub_key
  * @return  mixed Returns param value or default value if not validated
  */
-function get_array_param($var,$key,$defaultValue = NULL,?string $validation = NULL,$sub_key = NULL) {
+function get_array_param(&$var,$key,$defaultValue = NULL,?string $validation = NULL,$sub_key = NULL) {
     if(is_string($sub_key) || is_numeric($sub_key)) { $key = [$key,$sub_key]; }
     return get_array_value($var,$key,$defaultValue,$validation);
 }//END function get_array_param

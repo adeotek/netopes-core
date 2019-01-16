@@ -66,7 +66,7 @@ class Module {
      * @return string
      */
     public static final function class(): string {
-	    return trim(str_replace(AppConfig::app_root_namespace().'\\'.ModulesProvider::$nsPath,'',static::class),'\\');
+	    return trim(str_replace(AppConfig::GetValue('app_root_namespace').'\\'.ModulesProvider::$nsPath,'',static::class),'\\');
 	}//END public static final function class
 	/**
 	 * Module class initializer
@@ -94,7 +94,7 @@ class Module {
 	 * @access protected
 	 */
 	protected final function __construct() {
-	    $this->viewsExtension = AppConfig::app_views_extension();
+	    $this->viewsExtension = AppConfig::GetValue('app_views_extension');
 		$this->_Init();
 	}//END protected final function __construct
 	/**
@@ -152,18 +152,18 @@ class Module {
 	 */
 	public static function GetDRights($module,$method = '',$type = 'All') {
 		if(NApp::_GetParam('sadmin')==1) { return FALSE; }
-		// NApp::_Dlog($module,'$module');
-		// NApp::_Dlog($method,'$method');
-		// NApp::_Dlog($type,'$type');
+		// NApp::Dlog($module,'$module');
+		// NApp::Dlog($method,'$method');
+		// NApp::Dlog($type,'$type');
 		if(is_null($module) || is_null($method) || !strlen($type)) { return NULL; }
 		$module = $module=='Module' ? '' : $module;
 		$rights = NApp::_GetParam('user_rights_revoked');
 		$rights = get_array_value($rights,[$module,$method],NULL,'is_array');
-		// NApp::_Dlog($rights,'$rights');
+		// NApp::Dlog($rights,'$rights');
 		if(is_null($rights)) { return NULL; }
 		if(get_array_value($rights,'state',0,'is_numeric')!=1 || (get_array_value($rights,'sadmin',0,'is_numeric')==1 && NApp::_GetParam('sadmin')!=1)) { return TRUE; }
 		if(strtolower($type)=='all') { return $rights; }
-		// NApp::_Dlog(get_array_value($rights,strtolower('d'.$type),NULL,'bool'),'dright');
+		// NApp::Dlog(get_array_value($rights,strtolower('d'.$type),NULL,'bool'),'dright');
 		return get_array_value($rights,strtolower('d'.$type),NULL,'bool');
 	}//END public static function GetDRights
 	/**
@@ -232,7 +232,7 @@ class Module {
 		$o_before_call = is_object($before_call) ? $before_call : new Params($before_call);
 		if($o_before_call->count() && !$this->_BeforeExec($before_call)) { return FALSE; }
 		$o_params = is_object($params) ? $params : new Params($params);
-		if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) { NApp::arequest()->SetDynamicTarget($dynamicTargetId); }
+		if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) { NApp::Ajax()->SetDynamicTarget($dynamicTargetId); }
 		if($reset_session_params) { $this->SetSessionParamValue(NULL,$method); }
 		return $this->$method($o_params);
 	}//END public function Exec
@@ -360,10 +360,10 @@ class Module {
 			$callback = $params->safeGet('callback','','is_string');
 			if($callback) { GibberishAES::enc($callback ,'cmf'); }
 			$dynamic = intval($params->safeGet('dynamic',TRUE,'bool'));
-			NApp::arequest()->ExecuteJs("CloseModalForm('{$callback}','{$targetid}','{$dynamic}');");
+			NApp::Ajax()->ExecuteJs("CloseModalForm('{$callback}','{$targetid}','{$dynamic}');");
 		} elseif(strlen($targetid)) {
-			NApp::arequest()->ExecuteJs("$(document).off('keypress');");
-			NApp::arequest()->hide($targetid);
+			NApp::Ajax()->ExecuteJs("$(document).off('keypress');");
+			NApp::Ajax()->hide($targetid);
 		}//if($params->safeGet('modal',TRUE,'bool'))
 	}//END public function CloseForm
 	/**
@@ -402,27 +402,27 @@ class Module {
 	private function ViewFileProvider(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
         $fName = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.$this->viewsExtension;
         // Get theme directory and theme views base directory
-        $appTheme = strtolower(AppConfig::app_theme());
-		$viewsDefDir = AppConfig::app_default_views_dir();
-		$themeModulesViewsPath = AppConfig::app_theme_modules_views_path();
+        $appTheme = strtolower(AppConfig::GetValue('app_theme'));
+		$viewsDefDir = AppConfig::GetValue('app_default_views_dir');
+		$themeModulesViewsPath = AppConfig::GetValue('app_theme_modules_views_path');
 		$defDir = (is_string($viewsDefDir) ? (strlen(trim($viewsDefDir,'/')) ? '/'.trim($viewsDefDir,'/') : '') : '/_default');
         $themeDir = (is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($appTheme) && strlen($appTheme) ? $appTheme : NULL);
-        // NApp::_Dlog($fName,'$fName');
-		// NApp::_Dlog($themeDir,'$themeDir');
+        // NApp::Dlog($fName,'$fName');
+		// NApp::Dlog($themeDir,'$themeDir');
         if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath)) {
-            if(!file_exists(NApp::app_path().'/'.trim($themeModulesViewsPath,'/\\'))) { throw new AppException('Invalid views theme path!'); }
-            $baseDir = NApp::app_path().'/'.trim($themeModulesViewsPath,'/\\').DIRECTORY_SEPARATOR;
-            // NApp::_Dlog($baseDir,'$baseDir');
-            // NApp::_Dlog($this->class,'$this->class');
+            if(!file_exists(NApp::$app_path.'/'.trim($themeModulesViewsPath,'/\\'))) { throw new AppException('Invalid views theme path!'); }
+            $baseDir = NApp::$app_path.'/'.trim($themeModulesViewsPath,'/\\').DIRECTORY_SEPARATOR;
+            // NApp::Dlog($baseDir,'$baseDir');
+            // NApp::Dlog($this->class,'$this->class');
             $mPathArr = explode('\\',trim($this->class,'\\'));
             array_shift($mPathArr);
             array_shift($mPathArr);
             array_pop($mPathArr);
             $mPath = implode(DIRECTORY_SEPARATOR,$mPathArr);
-            // NApp::_Dlog($mPath,'$mPath');
-            // NApp::_Dlog($this->class,'$this->class');
+            // NApp::Dlog($mPath,'$mPath');
+            // NApp::Dlog($this->class,'$this->class');
             $parents = self::GetParents($this->class);
-            // NApp::_Dlog($parents,'$parents');
+            // NApp::Dlog($parents,'$parents');
             // For themed views stored outside "modules" directory (with fallback on "modules" directory)
             if($baseDir) {
                 if(file_exists($baseDir.$mPath.$fName)) { return $baseDir.$mPath.$fName; }
@@ -434,55 +434,55 @@ class Module {
                 }//if($parents)
             }//if($baseDir)
             // Get theme view file
-            $mFullPath = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
+            $mFullPath = NApp::$app_path.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
             if($themeDir && !$baseDir) {
-                // NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
+                // NApp::Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
                 if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
             }//if($themeDir && !$baseDir)
             // Get default theme view file
-            // NApp::_Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
+            // NApp::Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
             if(file_exists($mFullPath.$defDir.$fName)) { return $mFullPath.$defDir.$fName; }
             // Get view from parent classes hierarchy
             if($parents) {
                 foreach($parents as $parent) {
-                    // NApp::_Dlog($parent,'$parent');
+                    // NApp::Dlog($parent,'$parent');
                     $pPath = get_array_value($parent,'path','','is_string');
-                    $pFullPath = NApp::app_path().DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$pPath;
+                    $pFullPath = NApp::$app_path.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$pPath;
                     // Get from parent theme dir
                     if($themeDir && !$baseDir) {
-                        // NApp::_Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
+                        // NApp::Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
                         if(file_exists($pFullPath.'/'.$themeDir.$fName)) { return $pFullPath.'/'.$themeDir.$fName; }
                     }//if($themeDir && !$baseDir)
                     // Get view from current parent class path
-                    // NApp::_Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
+                    // NApp::Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
                     if(file_exists($pFullPath.$defDir.$fName)) { return $pFullPath.$defDir.$fName; }
                 }//END foreach
             }//if($parents)
         }//if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath))
         $rc = new \ReflectionClass($this);
         $mFullPath = dirname($rc->getFileName());
-        // NApp::_Dlog($mFullPath,'$mFullPath');
+        // NApp::Dlog($mFullPath,'$mFullPath');
 		if($themeDir) {
-			// NApp::_Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
+			// NApp::Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
 			if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
 		}//if($themeDir)
 		// Get default theme view file
-		// NApp::_Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
+		// NApp::Dlog($mFullPath.$defDir.$fName,'Check[D.C]');
 		if(file_exists($mFullPath.$defDir.$fName)) { return $mFullPath.$defDir.$fName; }
 		$parents = self::GetParents($this->class);
-        // NApp::_Dlog($parents,'$parents');
+        // NApp::Dlog($parents,'$parents');
         // Get view from parent classes hierarchy
 		if($parents) {
 			foreach($parents as $parent) {
-				// NApp::_Dlog($parent,'$parent');
+				// NApp::Dlog($parent,'$parent');
 				$pFullPath = get_array_value($parent,'path','','is_string');
 				// Get from parent theme dir
 				if($themeDir) {
-					// NApp::_Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
+					// NApp::Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');
 					if(file_exists($pFullPath.'/'.$themeDir.$fName)) { return $pFullPath.'/'.$themeDir.$fName; }
 				}//if($themeDir)
 				// Get view from current parent class path
-				// NApp::_Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
+				// NApp::Dlog($pFullPath.$defDir.$fName,'Check[D.P]');
 				if(file_exists($pFullPath.$defDir.$fName)) { return $pFullPath.$defDir.$fName; }
 			}//END foreach
 		}//if($parents)
@@ -506,8 +506,8 @@ class Module {
 		} catch(\ReflectionException $re) {
 		    throw AppException::GetInstance($re);
 		}//END try
-		// NApp::_Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
-		// NApp::_Dlog($result,'GetViewFile::'.$name);
+		// NApp::Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
+		// NApp::Dlog($result,'GetViewFile::'.$name);
 		return $result;
 	}//END public function GetViewFile
 	/**

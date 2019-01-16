@@ -36,7 +36,7 @@ class ModulesProvider {
 	 * @static
 	 */
 	public static function GetModule($name,$base = FALSE) {
-	    $nsPrefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
+	    $nsPrefix = AppConfig::GetValue('app_root_namespace').'\\'.self::$nsPath;
 	    if(class_exists('\\'.trim($name,'\\'))) {
 	        $mName = '\\'.trim($name,'\\');
 	    } else {

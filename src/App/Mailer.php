@@ -84,7 +84,7 @@ class Mailer {
 						$encryption = NULL;
 						break;
 				}//END switch
-				// NApp::_Dlog(array(
+				// NApp::Dlog(array(
 				// 	'1_smtpauth'=>$smtpauth,
 				// 	'2_smtphost'=>$smtphost,
 				// 	'3_smtpport'=>$smtpport,
@@ -107,7 +107,7 @@ class Mailer {
 				}//if($smtpauth==0)
 				if(strlen($exchangedomain)) { $transport->setLocalDomain($exchangedomain); }
 			} else {
-				// NApp::_Dlog($sendmail,'sendmail');
+				// NApp::Dlog($sendmail,'sendmail');
 				$transport = \Swift_SendmailTransport::newInstance('/usr/sbin/sendmail -t -i');
 			}//if($sendmail!=1)
 			$mailer = \Swift_Mailer::newInstance($transport);
@@ -142,12 +142,12 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+				],1),NApp::$app_path.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
 		} catch(\Exception $e) {
-			NApp::_Elog($e->getMessage(),'$mailer->send::Exception');
+			NApp::Elog($e->getMessage(),'$mailer->send::Exception');
 			$result = strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
 			if(self::$debug) {
 				NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
@@ -157,7 +157,7 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+				],1),NApp::$app_path.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			if($result) { return $result; }
 			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,0);

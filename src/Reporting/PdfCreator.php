@@ -17,7 +17,7 @@ use NApp;
 /*
  * TCPDF config initialization
  */
-require_once(NApp::app_path()._NAPP_CONFIG_PATH.'/TcpdfConfig.php');
+require_once(NApp::$app_path._NAPP_CONFIG_PATH.'/TcpdfConfig.php');
 /**
  * PdfCreator class
  *

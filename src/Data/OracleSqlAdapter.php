@@ -277,7 +277,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function OracleExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -512,7 +512,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query.$sql_params4dbg,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function OracleExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

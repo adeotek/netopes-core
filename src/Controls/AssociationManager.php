@@ -312,7 +312,7 @@ JS;
                         var previd = 0;
                         var newindex = $(ui.item).index();
                         if(newindex>0) { previd = $(ui.item).prev().attr('id'); }
-                        ".NApp::arequest()->Prepare("AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid~'after_id'|previd,'{$this->sort_target}')->errors-<elid-<previd")."
+                        ".NApp::Ajax()->Prepare("AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid~'after_id'|previd,'{$this->sort_target}')->errors-<elid-<previd")."
                     }
                 });
                 $('#{$this->sis_box_tagid}').disableSelection();
@@ -388,7 +388,7 @@ JS;
         try {
             $items = $this->LoadAssociatedItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e->getMessage());
             $items = [];
         }//END try
         $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
@@ -519,7 +519,7 @@ JS;
         try {
             $items = $this->LoadAssignableItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e->getMessage());
             $items = [];
         }//END try
         $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
@@ -576,7 +576,7 @@ JS;
         try {
             $items = $this->LoadLiveVersionItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e->getMessage());
             $items = [];
         }//END try
         if($items===FALSE) { return NULL; }

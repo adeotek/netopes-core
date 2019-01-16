@@ -142,8 +142,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 		self::$errors_stack[] = array('errstr'=>$exception->getMessage(),'errno'=>$exception->getCode(),'errfile'=>$errfile,'errline'=>$exception->getLine());
 		if(class_exists('NApp') && NApp::GetDebuggerState()) {
-			NApp::_Elog($exception->getMessage().' -> file: '.$errfile.' -> line: '.$exception->getLine(),'Error['.$exception->getCode().']');
-			if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace'); }
+			NApp::Elog($exception->getMessage().' -> file: '.$errfile.' -> line: '.$exception->getLine(),'Error['.$exception->getCode().']');
+			if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace'); }
 		}//if(class_exists('NApp') && NApp::GetDebuggerState())
 	}//END public static function AddError
 	/**
@@ -167,8 +167,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 					self::$errors_stack[] = array('errstr'=>$errstr,'errno'=>$errno,'errfile'=>$errfile,'errline'=>$errline);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::_Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
-						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
+						NApp::Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
 					throw new \NETopes\Core\AppException($errstr,$errno,0,$errfile,$errline);
@@ -186,8 +186,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 					self::$errors_stack[] = array('errstr'=>$errstr,'errno'=>$errno,'errfile'=>$errfile,'errline'=>$errline);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::_Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
-						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
+						NApp::Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
 					throw new \NETopes\Core\AppException($errstr,$errno,0,$errfile,$errline);
@@ -198,8 +198,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errors_stack)) { self::$errors_stack = []; }
 					self::$errors_stack[] = array('errstr'=>$errstr,'errno'=>$errno,'errfile'=>$errfile,'errline'=>$errline);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::_Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
-						if(self::$backtrace) { NApp::_Elog(debug_backtrace(),'Backtrace:'); }
+						NApp::Elog("$errstr -> file: $errfile -> line: $errline","Error[$errno]");
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
 					throw new \NETopes\Core\AppException($errstr,$errno,1,$errfile,$errline);
@@ -352,12 +352,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		if(strlen(self::$js_show_error) && class_exists('NApp') && is_object(NApp::GetCurrentInstance()) && NApp::$gui_loaded) {
 			$error_str = \GibberishAES::enc($error_str,'HTML');
 			if(NApp::ajax()) {
-				if(is_object(NApp::arequest()) && !self::$shutdown) {
-					NApp::arequest()->ExecuteJs(self::$js_show_error."('{$error_str}',true);");
+				if(is_object(NApp::Ajax()) && !self::$shutdown) {
+					NApp::Ajax()->ExecuteJs(self::$js_show_error."('{$error_str}',true);");
 				} else {
 					$result = '<input type="hidden" class="IPEPText" value="'.$error_str.'">';
 					echo $result;
-				}//if(is_object(NApp::arequest()) && !self::$shutdown)
+				}//if(is_object(NApp::Ajax()) && !self::$shutdown)
 			} else {
 				NApp::_ExecJs(self::$js_show_error."('{$error_str}.',TRUE);");
 			}//if(NApp::ajax())

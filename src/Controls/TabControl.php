@@ -106,7 +106,7 @@ class TabControl {
 				$tcontent = str_replace('{{t_name}}',$tab['t_name'],$tcontent);
 				$tcontent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tcontent);
 				$tscript = get_array_value($tab,'load_script','','is_string');
-				$js_command = NApp::arequest()->Prepare($tcontent,1,NULL,$tscript);
+				$js_command = NApp::Ajax()->Prepare($tcontent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
 				if(get_array_value($tab,'autoload',TRUE,'bool')) {
 					NApp::_ExecJs($js_command);
@@ -117,7 +117,7 @@ class TabControl {
 				$c_type = get_array_value($tcontent,'control_type',NULL,'is_notempty_string');
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type)) {
-					NApp::_Elog('Control class ['.$c_type.'] not found!');
+					NApp::Elog('Control class ['.$c_type.'] not found!');
 					continue;
 				}//if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type))
 				$c_params = get_array_value($tcontent,'control_params',[],'is_array');
@@ -183,7 +183,7 @@ class TabControl {
 				$ds_field = get_array_value($tab,'ds_field','','is_string');
 				if(strlen($ds_field)) {
 					$ds_items = DataProvider::GetKeyValueArray($ds_class,$ds_method,$ds_params,array('keyfield'=>$ds_key));
-					//NApp::_Dlog($ds_items,'$ds_items1');
+					//NApp::Dlog($ds_items,'$ds_items1');
 					if(is_array($ds_items) && count($ds_items)) {
 						foreach($ds_items as $k=>$v) {
 							$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',get_array_value($v,$ds_field,'','isset'));
@@ -192,7 +192,7 @@ class TabControl {
 				}//if(strlen($da_field))
 			} else {
 				$ds_items = DataProvider::GetArray($ds_class,$ds_method,$ds_params);
-				//NApp::_Dlog($ds_items,'$ds_items2');
+				//NApp::Dlog($ds_items,'$ds_items2');
 				if(is_array($ds_items) && count($ds_items)) {
 					foreach($ds_items as $k=>$v) {
 						$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',$v);
@@ -200,9 +200,9 @@ class TabControl {
 				}//if(is_array($ds_items) && count($ds_items))
 			}//if(strlen($da_key))
 		}//if(strlen($ds_class) && strlen($ds_method))
-		// NApp::_Dlog($result['content']['control_params'],'control_params>B');
+		// NApp::Dlog($result['content']['control_params'],'control_params>B');
 		$result = $this->ProcessParamsArray($result,'/{{.*}}/','',TRUE);
-		// NApp::_Dlog($result['content']['control_params'],'control_params>A');
+		// NApp::Dlog($result['content']['control_params'],'control_params>A');
 		return $result;
 	}//END protected function GetTabData
 	/**

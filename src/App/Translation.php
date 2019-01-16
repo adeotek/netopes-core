@@ -41,7 +41,7 @@ class Translation {
 	 */
 	protected static function GetTranslationCacheFile($langcode,$loop = TRUE) {
 		if(!$langcode) { return NULL; }
-		if(NApp::current_namespace()=='web') {
+		if(NApp::GetCurrentNamespace()=='web') {
 			$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : 0;
 			$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : 0;
 			$cnamespace = 'site_strings';
@@ -49,10 +49,10 @@ class Translation {
 		} else {
 			$id_section = NULL;
 			$id_zone = NULL;
-			$cnamespace = NApp::current_namespace().'_strings';
+			$cnamespace = NApp::GetCurrentNamespace().'_strings';
 			$lfile = 'lang_'.$langcode.'.cache';
 		}//if(NApp::current_namespace=='web')
-		$lpath = NApp::app_public_path().'/templates/'.NApp::current_namespace().NApp::current_section_folder().'/resources/';
+		$lpath = NApp::$app_public_path.'/templates/'.NApp::GetCurrentNamespace().NApp::current_section_folder().'/resources/';
 		if(NApp::_GetParam('translation_cache_is_dirty')==1 && file_exists($lpath.$lfile)) { unlink($lpath.$lfile); }
 		if(!file_exists($lpath.$lfile)) {
 			$tarray = NULL;
@@ -108,17 +108,17 @@ class Translation {
 		$llang_code = (is_string($langcode) && strlen($langcode)) ? $langcode : NApp::_GetLanguageCode();
 		if(!is_array(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code])) { static::GetTranslationCacheFile($llang_code); }
 		if(!is_array(static::$_LANGUAGES_STRINGS) || !count(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code]) || !count(static::$_LANGUAGES_STRINGS[$llang_code]) || !array_key_exists($lmodule,static::$_LANGUAGES_STRINGS[$llang_code]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !array_key_exists($lmethod,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod]) || !array_key_exists($lkey,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod])) {
-			if(AppConfig::auto_insert_missing_translations()) {
+			if(AppConfig::GetValue('auto_insert_missing_translations')) {
 				try {
-					if(NApp::current_namespace()=='web') {
+					if(NApp::GetCurrentNamespace()=='web') {
 						$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : NULL;
 						$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : NULL;
 						$cnamespace = 'site_strings';
 					} else {
 						$id_section = NULL;
 						$id_zone = NULL;
-						$cnamespace = NApp::current_namespace().'_strings';
-					}//if(NApp::current_namespace()=='web')
+						$cnamespace = NApp::GetCurrentNamespace().'_strings';
+					}//if(NApp::GetCurrentNamespace()=='web')
 					DataProvider::GetArray('System\Translations','SetBlankTranslationsResource',[
 						'in_name'=>$lkey,
 						'in_config_label'=>$cnamespace,
@@ -129,12 +129,12 @@ class Translation {
 						'in_method'=>strlen($lmethod) ? $lmethod : NULL,
 					]);
 				} catch(AppException $e) {
-					NApp::_Elog($e->getMessage(),'LanguageInit');
+					NApp::Elog($e->getMessage(),'LanguageInit');
 					NApp::_Write2LogFile($e->getFullMessage(),'error');
 				}//END try
 			} else {
-				NApp::_Write2LogFile("|Module[{$lmodule}]|Method[{$lmethod}]|Key[{$lkey}]",'debug',NApp::app_path().AppConfig::logs_path()."/missing_translations_".NApp::current_namespace()."_{$llang_code}.log");
-			}//if(AppConfig::auto_insert_missing_translations())
+				NApp::_Write2LogFile("|Module[{$lmodule}]|Method[{$lmethod}]|Key[{$lkey}]",'debug',NApp::$app_path.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::GetCurrentNamespace()."_{$llang_code}.log");
+			}//if(AppConfig::GetValue('auto_insert_missing_translations'))
 			return "[{$lkey}]";
 		}//if(...
 		if($echo) { echo static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey]; }

@@ -254,7 +254,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			ibase_blob_add($blob_handle,$param);
 			$blob_id = ibase_blob_close($blob_handle);
 		} catch(\Exception $e) {
-			NApp::_Elog($e->getMessage());
+			NApp::Elog($e->getMessage());
 			$blob_id = NULL;
 		}//END try
 		return $blob_id;
@@ -519,7 +519,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function FirebirdSqlExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -685,7 +685,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function FirebirdSqlExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

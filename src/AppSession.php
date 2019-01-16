@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.6.0.0
  * @filesource
  */
 namespace NETopes\Core;
@@ -116,16 +116,17 @@ class AppSession {
 	public static function MarkForDeletion() {
 		self::$marked_for_deletion = TRUE;
 	}//END public static function MarkForDeletion
-	/**
-	 * Convert a string to the session keys case (set in configuration)
-	 *
-	 * @param  string $input The string to be converted to the session case
-	 * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
-	 * FALSE - do not change case, NULL - use the configuration value
-	 * @return string|array The value converted to the session case
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Convert a string to the session keys case (set in configuration)
+     *
+     * @param  string $input The string to be converted to the session case
+     * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
+     * FALSE - do not change case, NULL - use the configuration value
+     * @return string|array The value converted to the session case
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function ConvertToSessionCase($input,$keys_case = NULL) {
 		if($keys_case===FALSE) { return $input; }
 		if(is_array($input)) {
@@ -134,7 +135,7 @@ class AppSession {
 			return $linput;
 		}//if(is_array($input))
 		if(!is_string($input)) { return $input; }
-		switch(is_numeric($keys_case) ? $keys_case : AppConfig::session_keys_case()) {
+		switch(is_numeric($keys_case) ? $keys_case : AppConfig::GetValue('session_keys_case')) {
 			case CASE_LOWER:
 				return strtolower($input);
 			case CASE_UPPER:
@@ -143,34 +144,35 @@ class AppSession {
 				return $input;
 		}//END switch
 	}//END public static function ConvertToSessionCase
-	/**
-	 * Set session configuration
-	 *
-	 * @param      $absolute_path
-	 * @param      $domain
-	 * @param      $session_timeout
-	 * @param null $session_id
-	 * @param null $log_file
-	 * @return string
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Set session configuration
+     *
+     * @param      $absolute_path
+     * @param      $domain
+     * @param      $session_timeout
+     * @param null $session_id
+     * @param null $log_file
+     * @return string
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function ConfigAndStartSession($absolute_path,$domain,$session_timeout,$session_id = NULL,$log_file = NULL) {
 		self::$session_started = FALSE;
 		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silent_mode = TRUE; }
 		$errors = [];
 		$dbg_data = '';
-		$session_name = AppConfig::session_name();
+		$session_name = AppConfig::GetValue('session_name');
 		ini_set('session.use_cookies',1);
 		ini_set('session.cookie_lifetime',0);
 		ini_set('session.cookie_domain',$domain);
 		ini_set('session.gc_maxlifetime',$session_timeout);
 		ini_set('session.cache_expire',$session_timeout/60);
-		if(AppConfig::session_redis()===TRUE) {
+		if(AppConfig::GetValue('session_redis')===TRUE) {
 			if(class_exists('\Redis',FALSE)) {
 				try {
 					ini_set('session.save_handler','redis');
-					ini_set('session.save_path',AppConfig::session_redis_server());
+					ini_set('session.save_path',AppConfig::GetValue('session_redis_server'));
 					ini_set('session.cache_expire',intval($session_timeout/60));
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
@@ -196,12 +198,12 @@ class AppSession {
 				}//try
 			}//if(class_exists('\Redis',FALSE))
 		}//if(self::$session_redis===TRUE)
-		if(!self::$session_started && AppConfig::session_memcached()===TRUE) {
+		if(!self::$session_started && AppConfig::GetValue('session_memcached')===TRUE) {
 			$errors = [];
 			if(class_exists('\Memcached',FALSE)) {
 				try {
 					ini_set('session.save_handler','memcached');
-					ini_set('session.save_path',AppConfig::session_memcached_server());
+					ini_set('session.save_path',AppConfig::GetValue('session_memcached_server'));
 					ini_set('session.cache_expire',intval($session_timeout/60));
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
@@ -228,7 +230,7 @@ class AppSession {
 			} elseif(class_exists('\Memcache',FALSE)) {
 				try {
 					ini_set('session.save_handler','memcache');
-					ini_set('session.save_path',AppConfig::session_memcached_server());
+					ini_set('session.save_path',AppConfig::GetValue('session_memcached_server'));
 					ini_set('session.cache_expire',intval($session_timeout/60));
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
@@ -257,7 +259,7 @@ class AppSession {
 		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silent_mode = FALSE; }
 		if(!self::$session_started) {
 			ini_set('session.save_handler','files');
-			$session_file_path = AppConfig::session_file_path();
+			$session_file_path = AppConfig::GetValue('session_file_path');
 			if(strlen($session_file_path)) {
 				if((substr($session_file_path,0,1)=='/' || substr($session_file_path,1,2)==':\\') && file_exists($session_file_path)) {
 					session_save_path($session_file_path);
@@ -276,16 +278,17 @@ class AppSession {
 		}//if(!$initialized)
 		return $dbg_data;
 	}//END public static function ConfigAndStartSession
-	/**
-	 * Initiate/re-initiate session and read session data
-	 *
-	 * @param string    $path URL path
-	 * @param bool|null $do_not_keep_alive
-	 * @param bool      $ajax Is AJAX request
-	 * @return void
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Initiate/re-initiate session and read session data
+     *
+     * @param string    $path URL path
+     * @param bool|null $do_not_keep_alive
+     * @param bool      $ajax Is AJAX request
+     * @return void
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function SessionStart(string $path = '',?bool $do_not_keep_alive = NULL,$ajax = FALSE) {
 		if(!self::$with_session) { return; }
 		$dbg_data = '>> '.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'console')."\n";
@@ -295,14 +298,14 @@ class AppSession {
 		$cdomain = strtolower((array_key_exists('SERVER_NAME',$_SERVER) && $_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
 		$cfulldomain = $cdomain.$path;
 		$cuseragent = array_key_exists('HTTP_USER_AGENT',$_SERVER) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN USER AGENT';
-		$session_timeout = AppConfig::session_timeout();
-		$log_file = AppConfig::logs_path().'/'.AppConfig::errors_log_file();
+		$session_timeout = AppConfig::GetValue('session_timeout');
+		$log_file = AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('errors_log_file');
 		if(!self::$session_started) { $dbg_data .= self::ConfigAndStartSession($absolute_path,$cdomain,$session_timeout,NULL,$log_file); }
 		$dbg_data .= 'Session ID: '.session_id()."\n";
 		$dbg_data .= 'Session age: '.(isset($_SESSION['X_SCAT']) ? (time()-$_SESSION['X_SCAT']) : 'N/A')."\n";
 		$dbg_data .= 'Last request: '.(isset($_SESSION['X_SEXT']) ? (time()-$_SESSION['X_SEXT']) : 'N/A')."\n";
 		$dbg_data .= 'X_SKEY: '.(isset($_SESSION['X_SKEY']) ? $_SESSION['X_SKEY'] : 'N/A')."\n";
-		$session_key = AppConfig::session_key();
+		$session_key = AppConfig::GetValue('session_key');
         if(!isset($_SESSION['X_SEXT']) || !isset($_SESSION['X_SKEY']) || ($_SESSION['X_SEXT']+$session_timeout)<time() || $_SESSION['X_SKEY']!=self::GetNewUID($session_key.session_id(),'sha256',TRUE)) {
             $dbg_data .= 'Do: SESSION RESET'."\n";
         	$_SESSION = [];
@@ -319,15 +322,15 @@ class AppSession {
 			$_SESSION['SESSION_ID'] = session_id();
 			$dbg_data .= 'Session ID (new): '.session_id()."\n";
 		}//if(!isset($_SESSION['X_SEXT']) || !isset($_SESSION['X_SKEY']) || ($_SESSION['X_SEXT']+self::$session_timeout)<time() || $_SESSION['X_SKEY']!=self::GetNewUID(self::$session_key.session_id(),'sha256',TRUE))
-		set_time_limit(AppConfig::request_time_limit());
+		set_time_limit(AppConfig::GetValue('request_time_limit'));
 		$_SESSION['X_SKEY'] = self::GetNewUID($session_key.session_id(),'sha256',TRUE);
 		$dbg_data .= 'Do not keep alive: '.($do_not_keep_alive!==TRUE && $do_not_keep_alive!==1 ? 'FALSE' : 'TRUE')."\n";
 		if($do_not_keep_alive!==TRUE && $do_not_keep_alive!==1) { $_SESSION['X_SEXT'] = time(); }
 		// vprint($dbg_data);
-		// self::Log2File($dbg_data,$absolute_path.AppConfig::logs_path().'/'.AppConfig::debugging_log_file());
+		// self::Log2File($dbg_data,$absolute_path.AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('debugging_log_file'));
 		self::$data = $_SESSION;
 		self::$initial_data = self::$data;
-		if(AppConfig::async_session() && $ajax) { AppSession::SessionClose(); }
+		if(AppConfig::GetValue('async_session') && $ajax) { AppSession::SessionClose(); }
     }//END public static function SessionStart
     /**
      * Commit the temporary session into the session
@@ -378,7 +381,7 @@ class AppSession {
 					$lvalue = (array_key_exists($key,self::$data) && is_array(self::$data[$key]) && array_key_exists($phash,self::$data[$key])) ? self::$data[$key][$phash] : NULL;
 					$li_arr = (array_key_exists($key,self::$initial_data) && is_array(self::$initial_data[$key]) && array_key_exists($phash,self::$initial_data[$key])) ? self::$initial_data[$key][$phash] : NULL;
 					if(array_key_exists($key,$_SESSION) && is_array($_SESSION[$key]) && array_key_exists($phash,$_SESSION[$key])) {
-						$_SESSION[$key][$phash] = custom_array_merge($_SESSION[$key][$phash],$lvalue,TRUE,$li_arr);
+						$_SESSION[$key][$phash] = self::MergeSession($_SESSION[$key][$phash],$lvalue,TRUE,$li_arr);
 					} else {
 						$_SESSION[$key][$phash] = $lvalue;
 					}//if(array_key_exists($key,$_SESSION) && is_array($_SESSION[$key]) && array_key_exists($phash,$_SESSION[$key]))
@@ -386,7 +389,7 @@ class AppSession {
 					$lvalue = array_key_exists($key,self::$data) ? self::$data[$key] : NULL;
 					$li_arr = array_key_exists($key,self::$initial_data) ? self::$initial_data[$key] : NULL;
 					if(array_key_exists($key,$_SESSION)) {
-						$_SESSION[$key] = custom_array_merge($_SESSION[$key],$lvalue,TRUE,$li_arr);
+						$_SESSION[$key] = self::MergeSession($_SESSION[$key],$lvalue,TRUE,$li_arr);
 					} else {
 						$_SESSION[$key] = $lvalue;
 					}//if(array_key_exists($key,$_SESSION))
@@ -396,12 +399,12 @@ class AppSession {
 					$lvalue = array_key_exists($phash,self::$data) ? self::$data[$phash] : NULL;
 					$li_arr = is_array(self::$initial_data) && array_key_exists($phash,self::$initial_data) ? self::$initial_data[$phash] : NULL;
 					if(array_key_exists($phash,$_SESSION)) {
-						$_SESSION[$phash] = custom_array_merge($_SESSION[$phash],$lvalue,TRUE,$li_arr);
+						$_SESSION[$phash] = self::MergeSession($_SESSION[$phash],$lvalue,TRUE,$li_arr);
 					} else {
 						$_SESSION[$phash] = $lvalue;
 					}//if(array_key_exists($phash,$_SESSION))
 				} else {
-					$_SESSION = custom_array_merge($_SESSION,self::$data,TRUE,self::$initial_data);
+					$_SESSION = self::MergeSession($_SESSION,self::$data,TRUE,self::$initial_data);
 				}//if(strlen($phash))
 			}//if(strlen($key))
 			if($reload) {
@@ -452,19 +455,20 @@ class AppSession {
 		}//if(is_string($path) && strlen($path))
 		return array_key_exists($key,$data) ? $data[$key] : NULL;
 	}//END protected static function GetCustomParam
-	/**
-	 * Get a global parameter (a parameter from first level of the array) from the session data array
-	 *
-	 * @param  string $key The key of the searched parameter
-	 * @param  string $phash The page hash (default NULL)
-	 * If FALSE is passed, the main (App property) page hash will not be used
-	 * @param  string $path An array containing the succession of keys for the searched parameter
-	 * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
-	 * FALSE - do not change case, NULL - use the configuration value
-	 * @return mixed Returns the parameter value or NULL
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Get a global parameter (a parameter from first level of the array) from the session data array
+     *
+     * @param  string $key The key of the searched parameter
+     * @param  string $phash The page hash (default NULL)
+     * If FALSE is passed, the main (App property) page hash will not be used
+     * @param  string $path An array containing the succession of keys for the searched parameter
+     * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
+     * FALSE - do not change case, NULL - use the configuration value
+     * @return mixed Returns the parameter value or NULL
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function GetGlobalParam($key,$phash = NULL,$path = NULL,$keys_case = NULL) {
 		if(!is_array(self::$data)) { return NULL; }
 		$lkey = self::ConvertToSessionCase($key,$keys_case);
@@ -477,20 +481,21 @@ class AppSession {
 		if($lpath) { return self::GetCustomParam($key,$lpath,self::$data); }
 		return (array_key_exists($lkey,self::$data) ? self::$data[$lkey] : NULL);
 	}//END public static function GetGlobalParam
-	/**
-	 * Set a global parameter (a parameter from first level of the array) from the session data array
-	 *
-	 * @param  string $key The key of the searched parameter
-	 * @param  mixed  $val The value to be set
-	 * @param  string $phash The page hash (default NULL)
-	 * If FALSE is passed, the main (App property) page hash will not be used
-	 * @param  string $path An array containing the succession of keys for the searched parameter
-	 * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
-	 * FALSE - do not change case, NULL - use the configuration value
-	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Set a global parameter (a parameter from first level of the array) from the session data array
+     *
+     * @param  string $key The key of the searched parameter
+     * @param  mixed  $val The value to be set
+     * @param  string $phash The page hash (default NULL)
+     * If FALSE is passed, the main (App property) page hash will not be used
+     * @param  string $path An array containing the succession of keys for the searched parameter
+     * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
+     * FALSE - do not change case, NULL - use the configuration value
+     * @return bool Returns TRUE on success or FALSE otherwise
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function SetGlobalParam($key,$val,$phash = NULL,$path = NULL,$keys_case = NULL) {
 		if(!is_array(self::$data)) { self::$data = []; }
 		$lkey = self::ConvertToSessionCase($key,$keys_case);
@@ -500,9 +505,9 @@ class AppSession {
 				$part_arr = array($lkey=>$val);
 				foreach(array_reverse($lpath) as $k) { $part_arr = array($k=>$part_arr); }
 				if($phash) {
-					self::$data[$phash] = custom_array_merge(self::$data[$phash],$part_arr,TRUE);
+					self::$data[$phash] = self::MergeSession(self::$data[$phash],$part_arr,TRUE);
 				} else {
-					self::$data = custom_array_merge(self::$data,$part_arr,TRUE);
+					self::$data = self::MergeSession(self::$data,$part_arr,TRUE);
 				}//if($lphash)
 				return TRUE;
 			}//if(is_array($path) && count($path))1
@@ -523,18 +528,19 @@ class AppSession {
 		}//if($lphash)
 		return TRUE;
 	}//END public static function SetGlobalParam
-	/**
-	 * Delete a global parameter (a parameter from first level of the array) from the session data array
-	 *
-	 * @param  string $key The key of the searched parameter
-	 * @param  string $phash The page hash (default NULL)
-	 * If FALSE is passed, the main (App property) page hash will not be used
-	 * @param null    $path
-	 * @param null    $keys_case
-	 * @return bool
-	 * @access public
-	 * @static
-	 */
+    /**
+     * Delete a global parameter (a parameter from first level of the array) from the session data array
+     *
+     * @param  string $key The key of the searched parameter
+     * @param  string $phash The page hash (default NULL)
+     * If FALSE is passed, the main (App property) page hash will not be used
+     * @param null    $path
+     * @param null    $keys_case
+     * @return bool
+     * @access public
+     * @static
+     * @throws \NETopes\Core\AppException
+     */
 	public static function UnsetGlobalParam($key,$phash = NULL,$path = NULL,$keys_case = NULL) {
 		if(!is_array(self::$data)) { return TRUE; }
 		$lkey = self::ConvertToSessionCase($key,$keys_case);
@@ -544,9 +550,9 @@ class AppSession {
 				$part_arr = array($lkey=>NULL);
 				foreach(array_reverse($lpath) as $k) { $part_arr = array($k=>$part_arr); }
 				if($phash) {
-					self::$data[$phash] = custom_array_merge(self::$data[$phash],$part_arr,TRUE);
+					self::$data[$phash] = self::MergeSession(self::$data[$phash],$part_arr,TRUE);
 				} else {
-					self::$data = custom_array_merge(self::$data,$part_arr,TRUE);
+					self::$data = self::MergeSession(self::$data,$part_arr,TRUE);
 				}//if($lphash)
 				return TRUE;
 			}//if(is_array($path) && count($path))1
@@ -567,4 +573,115 @@ class AppSession {
 		}//if($lphash)
 		return TRUE;
 	}//END public static function UnsetGlobalParam
+	/**
+     * Array merge with overwrite option (the 2 input arrays remains untouched).
+     * The second array will overwrite the first.
+     *
+     * @param   array $current First array to merge
+     * @param   array $new Second array to merge
+     * @param   bool  $overwrite Overwrite sitch: TRUE with overwrite (default), FALSE without overwrite
+     * @param   array $initial
+     * @return  array|bool Returns the merged array or FALSE if one of the arr arguments is not an array
+     */
+    public static function MergeSession($current,$new,$overwrite = TRUE,$initial = NULL) {
+        if(!is_array($current) || !is_array($new)) { return NULL; }
+        if(!is_array($current)) { return $new; }
+        if(!is_array($new)) { return $current; }
+        $result = $current;
+        foreach($new as $k=>$v) {
+            $i_arr = is_array($initial) && array_key_exists($k,$initial) ? $initial[$k] : NULL;
+            if($i_arr && $v===$i_arr) { continue; }
+            if(array_key_exists($k,$result)) {
+                if(is_array($result[$k]) && is_array($v)) {
+                    $result[$k] = self::MergeSession($result[$k],$v,$overwrite,$i_arr);
+                } else {
+                    if($overwrite===TRUE) { $result[$k] = $v; }
+                }//if(is_array($result[$k]) && is_array($v))
+            } else {
+                $result[$k] = $v;
+            }//if(array_key_exists($k,$result))
+        }//END foreach
+        if(is_array($initial) && count($initial)) {
+            foreach(array_diff_key($initial,$new) as $k=>$v) { unset($result[$k]); }
+        }//if(is_array($initial) && count($initial))
+        return $result;
+    }//END public static function MergeSession
+    /**
+     * Gets a parameter from the temporary session
+     *
+     * @param  string     $key The name of the parameter
+     * @param string|null $phash The page hash (default FALSE, global context)
+     * If FALSE is passed, the main (NApp property) page hash will not be used
+     * @param string|null $namespace
+     * @return mixed  Returns the parameter value or NULL
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function GetParam(string $key,?string $phash = NULL,?string $namespace = NULL) {
+	    if(!is_array(self::$data)) { return NULL; }
+	    $data = self::$data;
+	    if(is_string($namespace)) {
+	        if(!array_key_exists($namespace,$data) || !is_array($data[$namespace])) { return NULL; }
+            $data = $data[$namespace];
+	    }//if(is_string($namespace))
+	    if(is_string($phash)) {
+	        if(!array_key_exists($phash,$data) || !is_array($data[$phash])) { return NULL; }
+            $data = $data[$phash];
+	    }//if(is_string($phash))
+		$lkey = self::ConvertToSessionCase($key);
+		if(!array_key_exists($lkey,$data)) { return NULL; }
+		return $data[$lkey];
+	}//END public static function GetParam
+    /**
+     * Sets a parameter to the temporary session
+     *
+     * @param  string     $key The name of the parameter
+     * @param  mixed      $val The value of the parameter
+     * @param string|null $phash The page hash (default FALSE, global context)
+     * If FALSE is passed, the main (NApp property) page hash will not be used
+     * @param string|null $namespace
+     * @return void
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function SetParam(string $key,$val,?string $phash = NULL,?string $namespace = NULL) {
+		if(!is_array(self::$data)) { self::$data = []; }
+		$lkey = self::ConvertToSessionCase($key);
+		if(isset($namespace)) {
+		    if(isset($phash)) {
+                self::$data[$namespace][$phash][$lkey] = $val;
+		    } else {
+		        self::$data[$namespace][$lkey] = $val;
+		    }//if(isset($phash))
+		} elseif(isset($phash)) {
+		    self::$data[$phash][$lkey] = $val;
+		} else {
+		    self::$data[$lkey] = $val;
+		}//if(isset($namespace))
+	}//END public static function SetParam
+    /**
+     * Delete a parameter from the temporary session
+     *
+     * @param  string        $key The name of the parameter
+     * @param string|null    $phash The page hash (default FALSE, global context)
+     * If FALSE is passed, the main (NApp property) page hash will not be used
+     * @param string|null    $namespace
+     * @return void
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function UnsetParam($key,?string $phash = NULL,?string $namespace = NULL) {
+		$lkey = AppSession::ConvertToSessionCase($key);
+		if(isset($namespace)) {
+		    if(isset($phash)) {
+                unset(self::$data[$namespace][$phash][$lkey]);
+		    } else {
+		        unset(self::$data[$namespace][$lkey]);
+		    }//if(isset($phash))
+		} elseif(isset($phash)) {
+		    unset(self::$data[$phash][$lkey]);
+		} else {
+		    unset(self::$data[$lkey]);
+		}//if(isset($namespace))
+	}//END public static function UnsetParam
 }//END class AppSession

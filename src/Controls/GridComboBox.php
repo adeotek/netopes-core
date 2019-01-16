@@ -117,7 +117,7 @@
 			if(is_array($this->dynamic_params) && count($this->dynamic_params)) {
 				foreach($this->dynamic_params as $dk=>$dv) { $dparams .= "~'dynf[{$dk}]'|$dv"; }
 			}//if(is_array($this->dynamic_params) && count($this->dynamic_params))
-			$dd_action = NApp::arequest()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tag_id}:value~'qsearch'|{$this->tag_id}-cbo:value~'text'|{$this->tag_id}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tag_id}'); }");
+			$dd_action = NApp::Ajax()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tag_id}:value~'qsearch'|{$this->tag_id}-cbo:value~'text'|{$this->tag_id}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tag_id}'); }");
 			$isvalue = strlen($this->selected_value) ? $this->selected_value : NULL;
 			$demptyval = strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
 			$result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
@@ -130,11 +130,11 @@
 				$result .= "\t\t".'<div class="gcbo-loader" style="display: none;"><i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i></div>'."\n";
 				$result .= "\t\t".'<div id="'.$this->tag_id.'-gcbo-target" class="gcbo-target">'."\n";
 				if(strlen($dparams)) {
-					if(NApp::ajax() && is_object(NApp::arequest())) {
-						NApp::arequest()->ExecuteJs($dd_action);
+					if(NApp::ajax() && is_object(NApp::Ajax())) {
+						NApp::Ajax()->ExecuteJs($dd_action);
 					} else {
 						$result .= "\t"."<script type=\"text/javascript\">{$dd_action}</script>"."\n";
-					}//if(NApp::ajax() && is_object(NApp::arequest()))
+					}//if(NApp::ajax() && is_object(NApp::Ajax()))
 				} else {
 					$result .= $this->ShowDropDown(array('return'=>TRUE,'selected_value'=>$isvalue));
 				}//if(strlen($dparams))
@@ -151,11 +151,11 @@
 			return $result;
 		}//END protected function SetControl
 		public function ShowDropDown($params = NULL) {
-			//NApp::_Dlog($params,'ShowDropDown');
-			if(!is_object(NApp::arequest())) {
+			//NApp::Dlog($params,'ShowDropDown');
+			if(!is_object(NApp::Ajax())) {
 				throw new \NETopes\Core\AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
 				return;
-			}//if(!is_object(NApp::arequest()))
+			}//if(!is_object(NApp::Ajax()))
 			if(array_key_exists('params',$params)) {
 				$lparams = $params['params'];
 			} else {

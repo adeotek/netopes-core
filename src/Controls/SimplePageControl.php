@@ -36,9 +36,9 @@ class SimplePageControl extends Control {
 		$run_str = $this->onclickparams;
 		if($search && isset($replace)) { $run_str = str_replace($search,$replace,$run_str); }
 		if(strlen($this->js_callback)) {
-		return NApp::arequest()->PrepareWithCallback($run_str,$this->js_callback);
+		return NApp::Ajax()->PrepareWithCallback($run_str,$this->js_callback);
 		}//if(strlen($this->js_callback))
-		return NApp::arequest()->Prepare($run_str);
+		return NApp::Ajax()->Prepare($run_str);
 	}//END protected function AreqRun
 	protected function SetControl(): ?string {
 		$limit = NApp::_GetParam('rows_per_page');

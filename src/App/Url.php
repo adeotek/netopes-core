@@ -13,6 +13,7 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
+use NETopes\Core\Helpers;
 
 /**
  * Class Url
@@ -178,7 +179,7 @@ class Url {
     		$texts = '';
     		foreach($params as $k=>$v) {
 				$keys .= (strlen($keys) ? ',' : '').$k;
-				if($keysonly!==TRUE) { $texts .= (strlen($texts) ? ',' : '').str_to_url($v); }
+				if($keysonly!==TRUE) { $texts .= (strlen($texts) ? ',' : '').Helpers::stringToUrl($v); }
 			}//foreach ($params as $k=>$v)
 			if($keysonly===TRUE) { return $keys; }
 			return $keys.(strlen($texts) ? '~'.$texts : '');
@@ -319,10 +320,10 @@ class Url {
 		$this->data[$key] = is_array($this->data[$key]) ? $this->data[$key] : array();
 		if(is_array($element)) {
 			foreach ($element as $k=>$v) {
-				$this->data[$key][$k] = str_to_url($v);
+				$this->data[$key][$k] = Helpers::stringToUrl($v);
 			}//foreach ($element as $k=>$v)
 		} else {
-			$this->data[$key][$element] = str_to_url($text);
+			$this->data[$key][$element] = Helpers::stringToUrl($text);
 		}//if(is_array($element))
 		return TRUE;
 	}//END public function SetParamElement
@@ -363,16 +364,17 @@ class Url {
 		}//if(is_array($url))
 		return $result;
 	}//END public function SetParams
-	/**
-	 * description
-	 *
-	 * @param int  $url_format
-	 * @param null $params
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * description
+     *
+     * @param int  $url_format
+     * @param null $params
+     * @return string
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetBase($url_format = self::URL_FORMAT_FRIENDLY,$params = NULL) {
-		$lurl_format = AppConfig::app_mod_rewrite() ? $url_format : self::URL_FORMAT_SHORT;
+		$lurl_format = AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
 		switch($lurl_format) {
 			case self::URL_FORMAT_FRIENDLY:
 				$lang = NULL;
@@ -400,18 +402,19 @@ class Url {
 				return '';
 		}//END switch
 	}//END public function GetBase
-	/**
-	 * Create new application URL
-	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @param int         $url_format
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * Create new application URL
+     *
+     * @param object|null $params Parameters object (instance of [Params])
+     * @param int         $url_format
+     * @return string
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetNewUrl($params = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
 		$result = '';
 		$anchor = '';
-		$lurl_format = AppConfig::app_mod_rewrite() ? $url_format : self::URL_FORMAT_SHORT;
+		$lurl_format = AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
 		if(is_array($params) && count($params)) {
 			$first = TRUE;
 			foreach($params as $k=>$v) {
@@ -432,15 +435,16 @@ class Url {
 		}//if(is_array($params) && count($params))
 		return $this->GetBase($lurl_format,$params).$result.(strlen($anchor) ? '#'.$anchor : '');
 	}//END public function GetNewUrl
-	/**
-	 * description
-	 *
-	 * @param null $params
-	 * @param null $rparams
-	 * @param int  $url_format
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * description
+     *
+     * @param null $params
+     * @param null $rparams
+     * @param int  $url_format
+     * @return string
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetUrl($params = NULL,$rparams = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
 		$data = $this->data;
 		if(is_array($rparams) && count($rparams)) {
@@ -453,7 +457,7 @@ class Url {
 				}//if(is_array($value))
 			}//END foreach
 		}//if(is_array($rparams) && count($rparams))
-		if(is_array($params) && count($params)) { $data = custom_array_merge($data,$params,TRUE); }
+		if(is_array($params) && count($params)) { $data = \NETopes\Core\DataHelpers::customArrayMerge($data,$params,TRUE); }
 		return $this->GetNewUrl($data,$url_format);
 	}//END public function GetUrl
 	/**

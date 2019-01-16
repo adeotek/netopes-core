@@ -143,7 +143,7 @@ class DatePicker extends Control {
 	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
 	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
 	    }//if(strlen($this->format))
-	    // NApp::_Dlog($lFormat,'$lFormat');
+	    // NApp::Dlog($lFormat,'$lFormat');
 		$ldata = ' data-format="'.$lDateFormat.'"';
 		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
 		if(strlen($this->js_params)) {
@@ -156,7 +156,7 @@ class DatePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -218,7 +218,7 @@ class DatePicker extends Control {
 	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
 	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
 	    }//if(strlen($this->format))
-	    // NApp::_Dlog($lFormat,'$lFormat');
+	    // NApp::Dlog($lFormat,'$lFormat');
 		$ldata = ' data-format="'.$lDateFormat.'"';
 		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
 		if(strlen($this->js_params)) {
@@ -231,7 +231,7 @@ class DatePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {

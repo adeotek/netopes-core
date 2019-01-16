@@ -33,7 +33,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	protected function __construct($connection) {
-		$this->debug = AppConfig::db_debug();
+		$this->debug = AppConfig::GetValue('db_debug');
 		$this->debug2file = AppConfig::db_debug2file();
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \NETopes\Core\AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
@@ -325,7 +325,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
 		}//try
 		//if($this->debug==1) {echo " #Duration: ".number_format((microtime(TRUE)-$time),3,'.','')." sec#<br/>";}
-		return arr_change_key_case($final_result,TRUE);
+		return change_array_keys_case($final_result,TRUE);
 	}//END public function PdoExecuteQuery
 	public function PdoExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE) {
 		$time = microtime(TRUE);
@@ -356,7 +356,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
 		}//END try
 		//if($this->debug==1) {echo " #Duration: ".number_format((microtime(TRUE)-$time),3,'.','')." sec#<br/>";}
-		return arr_change_key_case($final_result,TRUE);
+		return change_array_keys_case($final_result,TRUE);
 	}//END public function PdoExecuteProcedure
 }//END abstract class SqlDataAdapter extends DataAdapter
 ?>

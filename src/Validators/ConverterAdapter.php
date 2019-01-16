@@ -39,7 +39,7 @@ class ConverterAdapter {
         $method = convert_to_camel_case($mode);
         if(strtolower(substr($method,0,2))!=='to') { $method = 'To'.$mode; }
         if(!method_exists(static::class,$method)) {
-            NApp::_Elog('Invalid converter adapter method ['.static::class.'::'.$method.']!');
+            NApp::Elog('Invalid converter adapter method ['.static::class.'::'.$method.']!');
             return $value;
         }//if(!method_exists(static::class,$method))
         return static::$method($value);
@@ -59,7 +59,7 @@ class ConverterAdapter {
 	public static function DateTimeToObject($date,?string $sourceFormat = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
 	    if($date instanceof \DateTime) { return clone $date; }
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
-		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
+		$timezone = strlen($timezone) ? $timezone : AppConfig::GetValue('server_timezone');
 	    if(is_numeric($date)) {
             if(!($dt = new \DateTime('now',new \DateTimeZone($timezone)))) { return NULL; }
 			$dt->setTimestamp($date);
@@ -92,7 +92,7 @@ class ConverterAdapter {
 	    } elseif(!is_object($date) || !($date instanceof \DateTime)) {
 	        return NULL;
 	    }//if(is_numeric($date))
-	    if($convertToServerTimezone && $timezone!==AppConfig::server_timezone()) { $dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone())); }
+	    if($convertToServerTimezone && $timezone!==AppConfig::GetValue('server_timezone')) { $dt->setTimezone(new \DateTimeZone(AppConfig::GetValue('server_timezone'))); }
 		return $dt;
 	}//END public static function DateTimeToObject
     /**
@@ -111,7 +111,7 @@ class ConverterAdapter {
      */
 	public static function DateTimeToDbFormat($date,?string $sourceFormat = NULL,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
 	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
-		$timezone = strlen($timezone) ? $timezone : AppConfig::server_timezone();
+		$timezone = strlen($timezone) ? $timezone : AppConfig::GetValue('server_timezone');
 	    $dt = static::DateTimeToObject($date,$sourceFormat,$timezone,FALSE);
 	    if(is_null($dt)) { return NULL; }
 		if($dayPart===0) {
@@ -119,7 +119,7 @@ class ConverterAdapter {
         } elseif($dayPart===1) {
             $dt->setTime(23,59,59,999);
         }//if($dayPart===0)
-		if($timezone!==AppConfig::server_timezone()) { $dt->setTimezone(new \DateTimeZone(AppConfig::server_timezone())); }
+		if($timezone!==AppConfig::GetValue('server_timezone')) { $dt->setTimezone(new \DateTimeZone(AppConfig::GetValue('server_timezone'))); }
 		return $dt->format(($dateOnly ? 'Y-m-d' : 'Y-m-d H:i:s'));
 	}//END public static function DateTimeToDbFormat
     /**

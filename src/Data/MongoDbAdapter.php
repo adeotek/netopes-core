@@ -186,7 +186,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			}//if($this->debug2screen)
 		}//if($this->debug)
 		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
-		return arr_change_key_case($final_result,TRUE);
+		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -279,7 +279,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			}//if($this->debug2screen)
 		}//if($this->debug)
 		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
-		return arr_change_key_case($final_result,TRUE);
+		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
@@ -327,7 +327,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			}//if($this->debug2screen)
 		}//if($this->debug)
 		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$dbg_method.'('.print_r($params,TRUE).')','duration'=>(microtime(TRUE)-$time)),$log);
-		return arr_change_key_case($final_result,TRUE);
+		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteMethod
 	/**
 	 * Escapes single quote charcater from a string

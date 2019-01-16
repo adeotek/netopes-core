@@ -110,7 +110,7 @@ class TimePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -153,7 +153,7 @@ class TimePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {

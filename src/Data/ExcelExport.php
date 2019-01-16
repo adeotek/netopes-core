@@ -354,7 +354,7 @@ class ExcelExport {
 			$v_dtype = is_numeric($col_value) ? 'numeric' : 'string';
 			$data_type = get_array_value($column,'data_type',$v_dtype,'is_notempty_string');
 			if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
-				$dt_value = unixts2excel($col_value,AppConfig::server_timezone(),$this->timezone);
+				$dt_value = unixts2excel($col_value,AppConfig::GetValue('server_timezone'),$this->timezone);
 				if($dt_value) {
 					$col_value = $dt_value;
 					$data_type = 'datetime';

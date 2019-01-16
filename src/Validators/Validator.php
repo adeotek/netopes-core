@@ -40,9 +40,10 @@ class Validator {
      * @param string|null $method
      * @return string|null Converter adapter class
      * @throws \NETopes\Core\AppException
+     * @throws \Exception
      */
     public static function GetConverterAdapter(?string $method = NULL): string {
-        $customAdapter = AppConfig::converter_adapter_class();
+        $customAdapter = AppConfig::GetValue('converter_adapter_class');
         $class = '\\'.ltrim(static::$converterAdapter??$customAdapter??ConverterAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid converter adapter class ['.$class.']!'); }
@@ -67,7 +68,7 @@ class Validator {
      * @throws \NETopes\Core\AppException
      */
     public static function GetValidatorAdapter(?string $method = NULL): string {
-        $customAdapter = AppConfig::validator_adapter_class();
+        $customAdapter = AppConfig::GetValue('validator_adapter_class');
         $class = '\\'.ltrim(static::$validatorAdapter??$customAdapter??ValidatorAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid validator adapter class ['.$class.']!'); }
@@ -92,7 +93,7 @@ class Validator {
      * @throws \NETopes\Core\AppException
      */
     public static function GetFormatterAdapter(?string $method = NULL): string {
-        $customAdapter = AppConfig::formatter_adapter_class();
+        $customAdapter = AppConfig::GetValue('formatter_adapter_class');
         $class = '\\'.ltrim(static::$formatterAdapter??$customAdapter??FormatterAdapter::class,'\\');
         if(!strlen($method)) {
             if(!class_exists($class)) { throw new AppException('Invalid formatter adapter class ['.$class.']!'); }

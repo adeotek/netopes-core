@@ -49,7 +49,7 @@ class ColorPicker extends Control {
 			//customClass : string
 			//useHashPrefix : bool
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		if($this->preview) {
 			$result = "\t\t".'<div class="input-group" id="'.$this->tag_id.'_control">'."\n";

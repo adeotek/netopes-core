@@ -97,8 +97,8 @@ class ComboBox extends Control {
 			default:
 				throw new AppException('Invalid ComboBox load type!');
 		}//END switch
-		// NApp::_Dlog($this->tag_id,'$this->tag_id');
-		// NApp::_Dlog($litems,'$litems');
+		// NApp::Dlog($this->tag_id,'$this->tag_id');
+		// NApp::Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		foreach($litems as $item) {
@@ -146,14 +146,14 @@ class ComboBox extends Control {
                 $rOptions[''][] = "\t\t\t".'<option value="'.$lval.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ltext).'</option>'."\n";
             }//if(is_string($this->group_field) && strlen($this->group_field))
 		}//END foreach
-		// NApp::_Dlog($rOptions,'$rOptions');
+		// NApp::Dlog($rOptions,'$rOptions');
 		$rOptionsStr = '';
 		foreach(array_keys($rOptions) as $group) {
 		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
             $rOptionsStr .= implode('',$rOptions[$group]);
             if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
 		}//END foreach
-		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
+		// NApp::Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
         //$this->GetTagClass('SmartCBO')
 		$result = "\t\t".'<select'.$t_required.$this->GetTagId(TRUE).$lselclass.$this->GetTagAttributes().$this->GetTagActions().'>'."\n";

@@ -143,7 +143,7 @@ trait DoctrineRepositoryStandardTrait {
 			if(get_array_value($params,'collection',FALSE,'bool')) { return $data; }
 			return ['data'=>$data,'count'=>$tcount];
 		} catch(\Doctrine\ORM\Query\QueryException $qe) {
-			// \NApp::_Dlog($qe->getTrace());
+			// \NApp::Dlog($qe->getTrace());
 			throw new AppException('#'.get_class($qe).'# '.$qe->getMessage(),$qe->getCode(),1);
 		} catch(\Doctrine\ORM\ORMException $oe) {
 			throw new AppException('#'.get_class($oe).'# '.$oe->getMessage(),$oe->getCode(),1);

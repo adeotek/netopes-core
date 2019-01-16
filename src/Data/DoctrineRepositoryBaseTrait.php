@@ -39,7 +39,7 @@ trait DoctrineRepositoryBaseTrait {
 	 * @param bool        $forced
 	 */
 	protected function DbDebug($query,?string $label = NULL,?float $time = NULL,bool $forced = FALSE) {
-		if(!AppConfig::db_debug() && !$forced) { return; }
+		if(!AppConfig::GetValue('db_debug') && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';
 		if(is_object($query)) {
 			$lparams = '';
@@ -60,7 +60,7 @@ trait DoctrineRepositoryBaseTrait {
 			$lquery = $query;
 		}//if(is_object($query))
 		$lquery .= ($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
-		NApp::_Dlog($lquery,$llabel);
+		NApp::Dlog($lquery,$llabel);
 		if(AppConfig::db_debug2file()) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 	/**

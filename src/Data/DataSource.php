@@ -226,9 +226,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : $procedure;
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(AppConfig::db_debug()) {
-					NApp::_Dlog('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
-				}//if(AppConfig::db_debug())
+				if(AppConfig::GetValue('db_debug')) {
+					NApp::Dlog('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
+				}//if(AppConfig::GetValue('db_debug'))
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
@@ -261,7 +261,7 @@ class DataSource {
 					break;
 				default:
 				$extra_params['type'] = 'count';
-				$result = arr_change_key_case($this->adapter->ExecuteProcedure($procedure,$params,$extra_params),TRUE,CASE_LOWER);
+				$result = change_array_keys_case($this->adapter->ExecuteProcedure($procedure,$params,$extra_params),TRUE,CASE_LOWER);
 				$result = array('count'=>$result[0]['count']);
 				$extra_params['type'] = 'select';
 			unset($extra_params['out_params']);
@@ -310,9 +310,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(AppConfig::db_debug()) {
-					NApp::_Dlog('Cache loaded data for query: '.$query,'GetCountAndData');
-				}//if(AppConfig::db_debug())
+				if(AppConfig::GetValue('db_debug')) {
+					NApp::Dlog('Cache loaded data for query: '.$query,'GetCountAndData');
+				}//if(AppConfig::GetValue('db_debug'))
 				return $result;
 			}//if($result!==FALSE)
 		}//if($cache && NApp::_CacheDbCall())
@@ -321,7 +321,7 @@ class DataSource {
 		$count_select = strtolower(get_array_value($extra_params,'type','','is_string'))=='count-select';
 		if($count_select) {
 			$extra_params['type'] = 'count';
-			$result = arr_change_key_case($this->adapter->ExecuteQuery('SELECT COUNT(1) AS RCOUNT '.$query,$params,$extra_params),TRUE,CASE_LOWER);
+			$result = change_array_keys_case($this->adapter->ExecuteQuery('SELECT COUNT(1) AS RCOUNT '.$query,$params,$extra_params),TRUE,CASE_LOWER);
 			$result = array('count'=>$result[0]['rcount']);
 			$extra_params['type'] = 'select';
 			unset($extra_params['out_params']);
@@ -371,15 +371,15 @@ class DataSource {
 			$key = AppSession::GetNewUID($params_salt,'sha1',TRUE);
 			$ltag = is_string($tag) && strlen($tag) ? $tag : $procedure;
 			$result = self::GetCacheData($key,$ltag);
-			// NApp::_Dlog($result,$procedure.':'.$key);
+			// NApp::Dlog($result,$procedure.':'.$key);
 			if($result!==FALSE) {
-				if(AppConfig::db_debug()) {
-					NApp::_Dlog('Cache loaded data for procedure: '.$procedure,'GetProcedureData');
-				}//if(AppConfig::db_debug())
+				if(AppConfig::GetValue('db_debug')) {
+					NApp::Dlog('Cache loaded data for procedure: '.$procedure,'GetProcedureData');
+				}//if(AppConfig::GetValue('db_debug'))
 				return $result;
 			}//if($result!==FALSE)
 			$result = $this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
-			// NApp::_Dlog($result,$procedure);
+			// NApp::Dlog($result,$procedure);
 			self::SetCacheData($key,(is_null($result) ? [] : $result),$ltag);
 		} else {
 			$result = $this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
@@ -407,13 +407,13 @@ class DataSource {
                 if(strlen($rdb_password)) { $redis->auth($rdb_password); }
                 if(!$redis->select($rdb_index)) { throw new AppException('Unable to select Redis database[1]!'); }
             } catch(\RedisException $re) {
-                NApp::_Elog($re->getMessage(),'RedisException');
+                NApp::Elog($re->getMessage(),'RedisException');
                 $redis = NULL;
             } catch(AppException $xe) {
-                NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
+                NApp::Elog($xe->getMessage(),'NETopes\Core\AppException');
                 $redis = NULL;
             } catch(\Exception $e) {
-                NApp::_Elog($e->getMessage(), 'Exception');
+                NApp::Elog($e->getMessage(), 'Exception');
                 $redis = NULL;
             }//END try
         }//if(strlen($rdb_server) && $rdb_port>0)
@@ -449,9 +449,9 @@ class DataSource {
 			$ltag = is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
 			$result = self::GetCacheData($key,$ltag);
 			if($result!==FALSE) {
-				if(AppConfig::db_debug()) {
-					NApp::_Dlog('Cache loaded data for query: '.$query,'GetQueryData');
-				}//if(AppConfig::db_debug())
+				if(AppConfig::GetValue('db_debug')) {
+					NApp::Dlog('Cache loaded data for query: '.$query,'GetQueryData');
+				}//if(AppConfig::GetValue('db_debug'))
 				return $result;
 			}//if($result!==FALSE)
 			$result = $this->adapter->ExecuteQuery($query,$params,$extra_params);
@@ -471,31 +471,31 @@ class DataSource {
 	 * @static
 	 */
 	public static function GetCacheData($key,$tag = NULL) {
-		// NApp::_Dlog($key,'GetCacheData');
+		// NApp::Dlog($key,'GetCacheData');
 		if(!is_string($key) || !strlen($key)) { return FALSE; }
 		$lkey = is_string($tag) && strlen($tag) ? $tag.':'.$key : $key;
 		$result = FALSE;
 		$handled = FALSE;
-		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
+		if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
 				try {
                 $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
                 if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
 					try {
 						$result = $redis->get($lkey);
-						// NApp::_Dlog($result,'$result[raw]');
+						// NApp::Dlog($result,'$result[raw]');
 						if(is_string($result) && strlen($result)) { $result = @unserialize($result); }
 						$handled = TRUE;
 					} catch(\Exception $e) {
 						$result = FALSE;
 					}//END try
 				} catch(\RedisException $re) {
-					NApp::_Elog($re->getMessage(),'RedisException');
+					NApp::Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
+					NApp::Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
-					NApp::_Elog($e->getMessage(),'Exception');
+					NApp::Elog($e->getMessage(),'Exception');
 				}//END try
-		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
+		}//if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
 			if(!file_exists(NApp::_GetCachePath().'dataadapters/'.$fname)) { return FALSE; }
@@ -522,7 +522,7 @@ class DataSource {
 	 * @static
 	 */
 	public static function SetCacheData($key,$data = NULL,$tag = NULL,$count_select = FALSE) {
-		// NApp::_Dlog($key,'SetCacheData');
+		// NApp::Dlog($key,'SetCacheData');
 		if(!is_string($key) || !strlen($key)) { return FALSE; }
 		if(is_string($tag) && strlen($tag)) {
 			$lkey = $tag.':'.$key;
@@ -530,7 +530,7 @@ class DataSource {
 			$lkey = $key;
 		}//if(is_string($tag) && strlen($tag))
 		$handled = FALSE;
-		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
+		if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
 				try {
                 $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
                 if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
@@ -538,25 +538,25 @@ class DataSource {
 						if(is_null($data)) {
 							$result = $redis->delete($tag.':'.$key);
 						} else {
-							// NApp::_Dlog(serialize($data),'Cache data');
+							// NApp::Dlog(serialize($data),'Cache data');
 							$result = $redis->set($lkey,@serialize($data));
-							// NApp::_Dlog($key,'Cache set');
+							// NApp::Dlog($key,'Cache set');
 						}//if(is_null($data))
-						if(AppConfig::db_debug()) {
-							NApp::_Dlog('Cache data stored to REDIS for: '.$lkey,'SetCacheData');
-						}//if(AppConfig::db_debug())
+						if(AppConfig::GetValue('db_debug')) {
+							NApp::Dlog('Cache data stored to REDIS for: '.$lkey,'SetCacheData');
+						}//if(AppConfig::GetValue('db_debug'))
 						$handled = TRUE;
 					} catch(\Exception $e) {
 						$result = NULL;
 					}//END try
 				} catch(\RedisException $re) {
-					NApp::_Elog($re->getMessage(),'RedisException');
+					NApp::Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
+					NApp::Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
-					NApp::_Elog($e->getMessage(),'Exception');
+					NApp::Elog($e->getMessage(),'Exception');
 				}//END try
-		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
+		}//if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			$fname = str_replace(':','][',$lkey).'.cache';
 			if(is_null($data)) {
@@ -570,9 +570,9 @@ class DataSource {
 				}//if(!file_exists(NApp::_GetCachePath().'dataadapters'))
 				$result = file_put_contents(NApp::_GetCachePath().'dataadapters/'.$fname,serialize($data));
 			}//if(is_null($data))
-			if(AppConfig::db_debug()) {
-				NApp::_Dlog('Cache data stored to FILES for: '.$lkey,'SetCacheData');
-			}//if(AppConfig::db_debug())
+			if(AppConfig::GetValue('db_debug')) {
+				NApp::Dlog('Cache data stored to FILES for: '.$lkey,'SetCacheData');
+			}//if(AppConfig::GetValue('db_debug'))
 		}//if(!$handled)
 		return ($result!==0 && $result!==FALSE);
 	}//public static function SetCacheData
@@ -586,10 +586,10 @@ class DataSource {
 	 * @static
 	 */
 	public static function UnsetCacheData($tag,$key = NULL) {
-		// NApp::_Dlog(['tag'=>$tag,'key'=>$key],'UnsetCacheData');
+		// NApp::Dlog(['tag'=>$tag,'key'=>$key],'UnsetCacheData');
 		if(!is_string($tag) || !strlen($tag)) { return FALSE; }
 		$handled = FALSE;
-		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
+		if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
 				try {
                 $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
                 if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
@@ -597,32 +597,32 @@ class DataSource {
 						if(strlen($key)) {
 							$result = $redis->delete($tag.':'.$key);
 						} else {
-							// NApp::_Dlog($redis->keys($tag.':*'),'tags');
+							// NApp::Dlog($redis->keys($tag.':*'),'tags');
 							$result = $redis->delete($redis->keys($tag.':*'));
 						}//if(strlen($key))
 						$handled = TRUE;
-						if(AppConfig::db_debug()) {
-							NApp::_Dlog('Cache data deleted ['.print_r($result,1).'] for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-						}//if(AppConfig::db_debug())
+						if(AppConfig::GetValue('db_debug')) {
+							NApp::Dlog('Cache data deleted ['.print_r($result,1).'] for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
+						}//if(AppConfig::GetValue('db_debug'))
 					} catch(\Exception $e) {
 						$result = NULL;
 					}//END try
 				} catch(\RedisException $re) {
-					NApp::_Elog($re->getMessage(),'RedisException');
+					NApp::Elog($re->getMessage(),'RedisException');
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
+					NApp::Elog($xe->getMessage(),'NETopes\Core\AppException');
 				} catch(\Exception $e) {
-					NApp::_Elog($e->getMessage(),'Exception');
+					NApp::Elog($e->getMessage(),'Exception');
 				}//END try
-		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
+		}//if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE))
 		if(!$handled) {
 			if(file_exists(NApp::_GetCachePath().'dataadapters/')) {
 				$filter = $key.']['.(strlen($tag) ? $tag : '*').'.cache';
 				array_map('unlink',glob(NApp::_GetCachePath().'dataadapters/'.$filter));
 			}//if(file_exists(NApp::_GetCachePath().'dataadapters/'.$fname))
-			if(AppConfig::db_debug()) {
-				NApp::_Dlog('Cache data deleted for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-			}//if(AppConfig::db_debug())
+			if(AppConfig::GetValue('db_debug')) {
+				NApp::Dlog('Cache data deleted for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
+			}//if(AppConfig::GetValue('db_debug'))
 			$result = TRUE;
 		}//if(!$handled)
 		return ($result!==0 && $result!==FALSE);
@@ -636,7 +636,7 @@ class DataSource {
 	 */
 	public static function ClearAllCache() {
 		$result = NULL;
-		if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE)) {
+		if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
 				try {
                 $redis = static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
                 if(!is_object($redis)) { throw new AppException('Invalid Redis instance!'); }
@@ -646,23 +646,23 @@ class DataSource {
 						$result = FALSE;
 					}//END try
 				} catch(\RedisException $re) {
-					NApp::_Elog($re->getMessage(),'RedisException');
+					NApp::Elog($re->getMessage(),'RedisException');
 					$result = FALSE;
 				} catch(AppException $xe) {
-					NApp::_Elog($xe->getMessage(),'NETopes\Core\AppException');
+					NApp::Elog($xe->getMessage(),'NETopes\Core\AppException');
 					$result = FALSE;
 				} catch(\Exception $e) {
-					NApp::_Elog($e->getMessage(),'Exception');
+					NApp::Elog($e->getMessage(),'Exception');
 					$result = FALSE;
 				}//END try
-		}//if(AppConfig::app_cache_redis() && class_exists('\Redis',FALSE))
+		}//if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE))
 		try {
 			if(file_exists(NApp::_GetCachePath().'dataadapters')) {
 				array_map('unlink', glob(NApp::_GetCachePath().'dataadapters/*.cache'));
 				if(is_null($result)) { $result = TRUE; }
 			}//if(file_exists(NApp::_GetCachePath().'dataadapters'))
 		} catch(\Exception $e) {
-			NApp::_Elog($e->getMessage(),'Exception');
+			NApp::Elog($e->getMessage(),'Exception');
 			if($result) { $result = FALSE; }
 		}//END try
 		return $result;

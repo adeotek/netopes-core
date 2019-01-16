@@ -270,11 +270,11 @@ abstract class Control {
 		$result = '';
 		if($this->container) { $result .= "\t\t\t\t".'<span class="input-group-btn">'."\n"; }
 		if(strlen($this->dynamic_target)) {
-			if(NApp::ajax() && is_object(NApp::arequest())) {
-				NApp::arequest()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
+			if(NApp::ajax() && is_object(NApp::Ajax())) {
+				NApp::Ajax()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
 			} else {
 				$result .= "\t"."<script type=\"text/javascript\">AppendDynamicModal('{$this->dynamic_target}');</script>"."\n";
-			}//if(NApp::ajax() && is_object(NApp::arequest()))
+			}//if(NApp::ajax() && is_object(NApp::Ajax()))
 		}//if(strlen($this->dynamic_target))
 		foreach($this->ctrl_actions as $act) {
 			$act_params = $act['params'];
@@ -492,9 +492,9 @@ abstract class Control {
 				$lonclick_scr = $this->onclick_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
 			if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func)) {
-				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
+				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
 			} else {
-				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr);
+				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr);
 			}//if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func))
 		}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
@@ -530,7 +530,7 @@ abstract class Control {
 			} else {
 				$onchange_str = $this->onchange_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onchange_str);
+			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onchange_str);
 		}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -564,7 +564,7 @@ abstract class Control {
 			} else {
 				$onkeypress_str = $this->onkeypress_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onkeypress_str);
+			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onkeypress_str);
 		}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -660,7 +660,7 @@ abstract class Control {
 	 * @access protected
 	 */
 	protected function ProcessCustomActions() {
-		// NApp::_Dlog($this->custom_actions,'$this->custom_actions');
+		// NApp::Dlog($this->custom_actions,'$this->custom_actions');
 		if(!is_array($this->custom_actions) || !count($this->custom_actions)) { return NULL; }
 		$result = '';
 		foreach($this->custom_actions as $ca) {
@@ -687,13 +687,13 @@ abstract class Control {
 						$ca_command .= $ce_arr[0];
 					}//if(count($ce_arr)>1)
 				}//END foreach
-				$ca_params['onclick'] = NApp::arequest()->Prepare($ca_command,$this->loader);
+				$ca_params['onclick'] = NApp::Ajax()->Prepare($ca_command,$this->loader);
 			}//if($acommand)
 			$ca_ctrl = new $ca_type($ca_params);
 			if(get_array_value($ca,'clear_base_class',FALSE,'bool')){ $ca_ctrl->ClearBaseClass(); }
 			$result .= $ca_ctrl->Show();
 		}//END foreach
-		// NApp::_Dlog($result,'custom_actions>$result');
+		// NApp::Dlog($result,'custom_actions>$result');
 		return $result;
 	}//END protected function ProcessCustomActions
 	/**

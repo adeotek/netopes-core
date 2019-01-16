@@ -111,7 +111,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 }//if(sqlsrv_rows_affected($result)>0)
                 $spid = $spid[0]['SPID'];
             }//if(is_resource($result) && ($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)))
-            NApp::_Dlog($spid,'SPID');
+            NApp::Dlog($spid,'SPID');
         }//if($this->debug)
 		*/
 		if(is_resource($result)){ sqlsrv_free_stmt($result); }
@@ -162,7 +162,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			if(isset($WarningsReturnAsErrors) && is_numeric($WarningsReturnAsErrors)) {
 				sqlsrv_configure('WarningsReturnAsErrors',$WarningsReturnAsErrors);
 			}//if(isset($WarningsReturnAsErrors) && is_numeric($WarningsReturnAsErrors))
-			//NApp::_Dlog(NApp::TimerShow('sqlsrv_connect'),'sqlsrv_connect');
+			//NApp::Dlog(NApp::TimerShow('sqlsrv_connect'),'sqlsrv_connect');
 		} catch(\Exception $e) {
 			throw new  AppException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",8001,1,__FILE__,__LINE__,'sqlsrv',0);
 		}//END try
@@ -478,7 +478,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			throw new  AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
 		}//END try
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function SqlSrvExecuteQuery
     /**
      * Prepares the command string to be executed
@@ -644,7 +644,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//END try
 		//if(strlen($tran_name)==0) { $this->SqlSrvCommitTran(); }
 		$this->DbDebug($query.$sql_params4dbg,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function SqlSrvExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

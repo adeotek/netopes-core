@@ -145,7 +145,7 @@ class SmartComboBox extends Control {
 			    }//if($s_values->count())
 				$tagauid = \NETopes\Core\AppSession::GetNewUID($this->tag_id,'md5');
 				NApp::_SetSessionAcceptedRequest($tagauid);
-				$cns = NApp::current_namespace();
+				$cns = NApp::GetCurrentNamespace();
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
 				$ac_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ac_module) && strlen($ac_method)) {
@@ -156,7 +156,7 @@ class SmartComboBox extends Control {
 					if(is_array($ac_params_arr) && count($ac_params_arr)) {
 						foreach($ac_params_arr as $acpk=>$acpv) { $ac_params .= '&'.$acpk.'='.rawurlencode($acpv); }
 					}//if(is_array($ac_params_arr) && count($ac_params_arr))
-					$rpp = get_array_value($this->data_source,'rows_limit',20,'is_not0_numeric');
+					$rpp = get_array_value($this->data_source,'rows_limit',10,'is_not0_numeric');
 					$ac_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
 					if(is_array($ac_js_params) && count($ac_js_params)) {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp}";
@@ -168,7 +168,7 @@ class SmartComboBox extends Control {
 					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
 					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tag_id}').data('hasError','0');\n"; }
 					$js_script .= "\t\t\tajax: {
-						url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
+						url: xAppWebLink+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
@@ -215,9 +215,9 @@ class SmartComboBox extends Control {
 				throw new AppException('Invalid SmartComboBox load type!');
 		}//END switch
 		$js_script .= "\t\t})";
-		// NApp::_Dlog($this->tag_id,'$this->tag_id');
-		// NApp::_Dlog($js_script,'$js_script');
-		// NApp::_Dlog($litems,'$litems');
+		// NApp::Dlog($this->tag_id,'$this->tag_id');
+		// NApp::Dlog($js_script,'$js_script');
+		// NApp::Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		$s_multiple = '';
@@ -254,14 +254,14 @@ class SmartComboBox extends Control {
                 $rOptions[''][] = "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
             }//if(is_string($this->group_field) && strlen($this->group_field))
 		}//END foreach
-		// NApp::_Dlog($rOptions,'$rOptions');
+		// NApp::Dlog($rOptions,'$rOptions');
 		$rOptionsStr = '';
 		foreach(array_keys($rOptions) as $group) {
 		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
             $rOptionsStr .= implode('',$rOptions[$group]);
             if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
 		}//END foreach
-		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
+		// NApp::Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
 		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tag_id)) : '').'">'."\n";
 		$result .= $rOptionsStr;

@@ -47,7 +47,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
 			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
-			// NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+			// NApp::Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 		} catch(\Exception $e){
 			throw new AppException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
@@ -242,7 +242,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function MySqlExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -396,7 +396,7 @@ class MySqlAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function MySqlExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

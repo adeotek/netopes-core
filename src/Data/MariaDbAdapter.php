@@ -52,7 +52,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
 			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
-			//NApp::_Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+			//NApp::Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 			if(isset($connection['tables_prefix']) && is_string($connection['tables_prefix']) && strlen($connection['tables_prefix'])) { $this->tables_prefix = $connection['tables_prefix']; }
 		} catch(\Exception $e){
@@ -248,7 +248,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function MariaDbExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -402,7 +402,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function MariaDbExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

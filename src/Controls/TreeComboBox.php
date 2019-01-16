@@ -58,7 +58,7 @@ class TreeComboBox extends Control {
 		} else {
 			$ddstyle = ' style="display: none;'.($lwidth ? ' width: '.$lwidth.'px;' : '').'"';
 		}//if($this->dropdown_width)
-		// NApp::_Dlog($ddstyle,'$ddstyle');
+		// NApp::Dlog($ddstyle,'$ddstyle');
 		$lstyle = strlen($this->style) ? ' style="'.$lalign.' '.$this->style.'"' : '';
 		$ltabindex = (is_numeric($this->tabindex) && $this->tabindex>0) ? ' tabindex="'.$this->tabindex.'"' : '';
 		$lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
@@ -120,7 +120,7 @@ class TreeComboBox extends Control {
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		    NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+            NApp::_ExecJs("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::GetCurrentNamespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;

@@ -152,7 +152,7 @@ class AppView {
 	 * @access public
 	 */
 	public function __construct(array $params,$module = NULL,?string $containerType = NULL) {
-	    $this->_debug = AppConfig::debug();
+	    $this->_debug = AppConfig::GetValue('debug');
 		$this->_params = $params;
 		if(is_object($module)) {
 			$this->module = $module;
@@ -698,9 +698,9 @@ class AppView {
         }//if($this->_isModal && $this->_modalAutoJs)
 		if(strlen($mainContainer)) {
 		    if($this->_debug && strpos($mainContainer,'{{CONTENT}}')===FALSE) { NApp::_Wlog('{{CONTENT}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-	        if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{{TARGETID}}')===FALSE) { NApp::_Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-            if($this->_debug && count($this->_actions) && strpos($mainContainer,'{{ACTIONS}}')===FALSE) { NApp::_Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_containerType.']!'); }
-            if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{{TITLE}}')===FALSE) { NApp::_Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+	        if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{{TARGETID}}')===FALSE) { NApp::Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+            if($this->_debug && count($this->_actions) && strpos($mainContainer,'{{ACTIONS}}')===FALSE) { NApp::Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_containerType.']!'); }
+            if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{{TITLE}}')===FALSE) { NApp::Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_containerType.']!'); }
             $mainContainer = str_replace('{{TITLE}}',$this->_title,$mainContainer);
             $mainContainer = str_replace('{{TARGETID}}',$this->_targetId,$mainContainer);
             $mainContainer = str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$mainContainer);

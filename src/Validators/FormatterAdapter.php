@@ -42,7 +42,7 @@ class FormatterAdapter {
         if(is_null($value)) { return NULL; }
         $method = convert_to_camel_case($mode);
         if(!method_exists(static::class,$method)) {
-            NApp::_Elog('Invalid formatter adapter method ['.static::class.'::'.$method.']!');
+            NApp::Elog('Invalid formatter adapter method ['.static::class.'::'.$method.']!');
             return is_string($value) ? $prefix.$value.$sufix : NULL;
         }//if(!method_exists(static::class,$method))
         $reflection = new \ReflectionMethod(static::class,$method);

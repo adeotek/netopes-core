@@ -77,7 +77,7 @@ class DataProvider {
      * @static
      */
 	public static function GetDataSource(string $ds_name,$connection = NULL,?string $mode = NULL,bool $existing_only = FALSE) {
-		$ns_prefix = AppConfig::app_root_namespace().'\\'.self::$nsPath;
+		$ns_prefix = AppConfig::GetValue('app_root_namespace').'\\'.self::$nsPath;
 		$ds_arr = explode('\\',trim($ds_name,'\\'));
 		$ds_type = array_shift($ds_arr);
 		$ds_class = trim($ds_name,'\\');
@@ -104,7 +104,7 @@ class DataProvider {
 			}//if(strlen($mode))
 			$ds_full_name = NULL;
 			if($dbmode=='Doctrine') {
-				$entity = '\\'.trim(AppConfig::doctrine_entities_namespace(),'\\').'\\'.$ds_class;
+				$entity = '\\'.trim(AppConfig::GetValue('doctrine_entities_namespace'),'\\').'\\'.$ds_class;
 				if(class_exists($entity)) {
 					if(!$entity::$isCustomDS) { $ds_full_name = '\NETopes\Core\Data\DoctrineDataSource'; }
 				}//if(class_exists($entity))
@@ -331,7 +331,7 @@ class DataProvider {
 		$emKey = serialize($conn);
 		if(is_array(self::$entity_managers) && isset(self::$entity_managers[$emKey]) && is_object(self::$entity_managers[$emKey])) { return self::$entity_managers[$emKey]; }
 		if(!is_array(self::$entity_managers)) { self::$entity_managers = []; }
-		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::app_path(),$conn,$platform);
+		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::$app_path,$conn,$platform);
 		return self::$entity_managers[$emKey];
 	}//END public static function GetEntityManager
 }//END class DataProvider

@@ -41,7 +41,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 */
 	protected function Init($connection) {
 		try {
-			$this->connection = new SQLite3(NApp::app_path().$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
+			$this->connection = new SQLite3(NApp::$app_path.$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
 		} catch(Exception $e) {
 			throw new AException("SQLITE failed to open file: ".$connection['db_path'].$connection['db_name'].' ('.$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
 		}//END try
@@ -197,7 +197,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 			throw new AException("SQLITE execute query failed: ".$e->getMessage()." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',$e->getCode());
 		}//END try
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
 	}//END public function SqLiteExecuteQuery
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

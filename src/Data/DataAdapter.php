@@ -84,16 +84,18 @@ abstract class DataAdapter {
 	 * @abstract
 	 */
 	abstract protected function Init($connection);
-	/**
-	 * Database class constructor
-	 *
-	 * @param  array $connection Database connection array
-	 * @throws \NETopes\Core\AppException
-	 * @return void
-	 * @access public
-	 */
+
+    /**
+     * Database class constructor
+     *
+     * @param  array $connection Database connection array
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     * @return void
+     * @access public
+     */
 	protected function __construct($connection) {
-		$this->debug = AppConfig::db_debug();
+		$this->debug = AppConfig::GetValue('db_debug');
 		$this->debug2file = AppConfig::db_debug2file();
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
@@ -143,7 +145,7 @@ abstract class DataAdapter {
 		if(!$this->debug && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';
 		$lquery = $query.($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
-		NApp::_Dlog($lquery,$llabel);
+		NApp::Dlog($lquery,$llabel);
 		if($this->debug2file) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 }//END abstract class BaseAdapter

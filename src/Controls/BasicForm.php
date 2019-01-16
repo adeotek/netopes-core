@@ -395,7 +395,7 @@ class BasicForm {
 				$cspan = $c_span>1 ? ' colspan="'.($c_span+($c_span-1)).'"' : '';
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!$c_type || !class_exists($c_type)) {
-					NApp::_Elog('Control class ['.$c_type.'] not found!');
+					NApp::Elog('Control class ['.$c_type.'] not found!');
 					$result .= "\t\t".'<td'.$cspan.$cstyle.'>&nbsp;</td>'."\n";
 					continue;
 				}//if(!$c_type || !class_exists($c_type))
@@ -520,7 +520,7 @@ class BasicForm {
 				if(strlen($c_type)) {
 					$c_type = '\NETopes\Core\Controls\\'.$c_type;
 					if(!class_exists($c_type)) {
-						NApp::_Elog('Control class ['.$c_type.'] not found!');
+						NApp::Elog('Control class ['.$c_type.'] not found!');
 						$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 						continue;
 					}//if(!class_exists($c_type))

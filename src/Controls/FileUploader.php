@@ -83,12 +83,12 @@ class FileUploader extends Control {
 			case 'bootstrap4':
 				$bclass = ' class="'.(strlen($this->button_class) ? $this->button_class : 'btn btn-info btn-xs').'"';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::GetCurrentNamespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 			default:
 				$bclass = strlen($this->button_class) ? ' class="'.$this->button_class.'"' : '';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::GetCurrentNamespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 		}//END switch
 		$onclick = (!$this->disabled ? ' onclick="$(\'#'.$this->tag_id.'\').click()"' : ' disabled="disabled"');

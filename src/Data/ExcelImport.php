@@ -236,7 +236,7 @@ class ExcelImport {
 		} catch(AppException $e) {
 			$row['_has_error'] = 1;
 			$row['_error'] = $e->getMessage();
-			NApp::_Elog($e->getMessage(),'row['.$row['_rowno'].']');
+			NApp::Elog($e->getMessage(),'row['.$row['_rowno'].']');
 			return FALSE;
 		}//END try
 	}//END protected function ProcessDataRow

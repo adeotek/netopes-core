@@ -41,7 +41,7 @@ class KVList extends Control {
             try {
                 $lvalues = @json_decode($lvalues,TRUE);
             } catch(Exception $e) {
-                NApp::_Elog($e->getMessage());
+                NApp::Elog($e->getMessage());
                 $lvalues = [];
             }//END try
         }//if(is_string($lvalues) && strlen($lvalues))

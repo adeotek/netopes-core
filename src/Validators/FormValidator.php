@@ -91,7 +91,7 @@ class FormValidator {
         foreach($this->formElements as $element) {
             $key = get_array_value($element,'validation_key',get_array_value($element,'tag_name','','is_string'),'is_string');
             if(!strlen($key)) {
-                NApp::_Dlog('Invalid form element key: '.print_r($element));
+                NApp::Dlog('Invalid form element key: '.print_r($element));
                 continue;
             }//if(!strlen($key))
             $deafultValue = NULL;
