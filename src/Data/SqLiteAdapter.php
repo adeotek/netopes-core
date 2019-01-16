@@ -41,7 +41,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 */
 	protected function Init($connection) {
 		try {
-			$this->connection = new SQLite3(NApp::$app_path.$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
+			$this->connection = new SQLite3(NApp::$appPath.$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
 		} catch(Exception $e) {
 			throw new AException("SQLITE failed to open file: ".$connection['db_path'].$connection['db_name'].' ('.$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
 		}//END try

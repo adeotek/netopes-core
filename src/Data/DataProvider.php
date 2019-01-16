@@ -92,7 +92,7 @@ class DataProvider {
 			} elseif(is_string($connection) && strlen($connection)) {
 				$conn = self::GetConnectionArray($connection);
 			} else {
-				$conn = self::GetConnectionArray(NApp::default_db_connection());
+				$conn = self::GetConnectionArray(NApp::$default_db_connection);
 			}//if((is_array($connection) && count($connection)))
 			if(!is_array($conn) || count($conn)==0) { throw new AppException('Invalid database connection',E_ERROR,1); }
 			$dbtype = get_array_value($conn,'db_type','','is_string');
@@ -325,13 +325,13 @@ class DataProvider {
 		} elseif(is_string($connection) && strlen($connection)) {
 			$conn = self::GetConnectionArray($connection);
 		} else {
-			$conn = self::GetConnectionArray(NApp::default_db_connection());
+			$conn = self::GetConnectionArray(NApp::$default_db_connection);
 		}//if((is_array($connection) && count($connection)))
 		if(!is_array($conn) || !count($conn)) { throw new AppException('Invalid database connection!',E_ERROR,1); }
 		$emKey = serialize($conn);
 		if(is_array(self::$entity_managers) && isset(self::$entity_managers[$emKey]) && is_object(self::$entity_managers[$emKey])) { return self::$entity_managers[$emKey]; }
 		if(!is_array(self::$entity_managers)) { self::$entity_managers = []; }
-		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::$app_path,$conn,$platform);
+		self::$entity_managers[$emKey] = DoctrineAdapter::GetEntityManager(NApp::$appPath,$conn,$platform);
 		return self::$entity_managers[$emKey];
 	}//END public static function GetEntityManager
 }//END class DataProvider

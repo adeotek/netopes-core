@@ -2487,7 +2487,7 @@ class TableView {
 				return;
 			}//if(!file_exists($cachefile))
 			$export_data = unserialize(file_get_contents($cachefile));
-			 // NApp::Log2File(print_r($export_data,TRUE),NApp::$app_path.AppConfig::GetValue('logs_path').'/test.log');
+			 // NApp::Log2File(print_r($export_data,TRUE),NApp::$appPath.AppConfig::GetValue('logs_path').'/test.log');
 			// NApp::Dlog(NApp::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
 			if(!is_array($export_data) || !count($export_data)) { return; }
 			$excel = new ExcelExport($export_data);

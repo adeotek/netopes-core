@@ -410,8 +410,8 @@ class Module {
         // NApp::Dlog($fName,'$fName');
 		// NApp::Dlog($themeDir,'$themeDir');
         if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath)) {
-            if(!file_exists(NApp::$app_path.'/'.trim($themeModulesViewsPath,'/\\'))) { throw new AppException('Invalid views theme path!'); }
-            $baseDir = NApp::$app_path.'/'.trim($themeModulesViewsPath,'/\\').DIRECTORY_SEPARATOR;
+            if(!file_exists(NApp::$appPath.'/'.trim($themeModulesViewsPath,'/\\'))) { throw new AppException('Invalid views theme path!'); }
+            $baseDir = NApp::$appPath.'/'.trim($themeModulesViewsPath,'/\\').DIRECTORY_SEPARATOR;
             // NApp::Dlog($baseDir,'$baseDir');
             // NApp::Dlog($this->class,'$this->class');
             $mPathArr = explode('\\',trim($this->class,'\\'));
@@ -434,7 +434,7 @@ class Module {
                 }//if($parents)
             }//if($baseDir)
             // Get theme view file
-            $mFullPath = NApp::$app_path.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
+            $mFullPath = NApp::$appPath.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$mPath;
             if($themeDir && !$baseDir) {
                 // NApp::Dlog($mFullPath.'/'.$themeDir.$fName,'Check[T.C]');
                 if(file_exists($mFullPath.'/'.$themeDir.$fName)) { return $mFullPath.'/'.$themeDir.$fName; }
@@ -447,7 +447,7 @@ class Module {
                 foreach($parents as $parent) {
                     // NApp::Dlog($parent,'$parent');
                     $pPath = get_array_value($parent,'path','','is_string');
-                    $pFullPath = NApp::$app_path.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$pPath;
+                    $pFullPath = NApp::$appPath.DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.$pPath;
                     // Get from parent theme dir
                     if($themeDir && !$baseDir) {
                         // NApp::Dlog($pFullPath.'/'.$themeDir.$fName,'Check[T.P]');

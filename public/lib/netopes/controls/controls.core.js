@@ -446,7 +446,7 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
 	let lval = encodeURIComponent(val);
-	let aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
+	let aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
 	let luid = '';
 	let lparams = hide_parents_checkbox ? '&hpc=1' : '';
 	if(uid || uid.length>0) { luid += '&uid='+uid; }
@@ -498,7 +498,7 @@ function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,
 
 function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,checkboxes,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
-	let aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
+	let aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
 	let luid = '';
 	let lparams = hide_parents_checkbox ? '&hpc=1' : '';
 	if(uid || uid.length>0) { luid += '&uid='+uid; }

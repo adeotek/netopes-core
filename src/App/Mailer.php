@@ -142,7 +142,7 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::$app_path.AppConfig::GetValue('logs_path').'/emails_debug.log');
+				],1),NApp::$appPath.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
@@ -157,7 +157,7 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::$app_path.AppConfig::GetValue('logs_path').'/emails_debug.log');
+				],1),NApp::$appPath.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			if($result) { return $result; }
 			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,0);

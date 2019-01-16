@@ -168,7 +168,7 @@ class SmartComboBox extends Control {
 					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
 					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tag_id}').data('hasError','0');\n"; }
 					$js_script .= "\t\t\tajax: {
-						url: xAppWebLink+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
+						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,

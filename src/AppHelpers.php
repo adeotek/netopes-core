@@ -21,7 +21,27 @@ class AppHelpers {
     /**
      * @var array
      */
-    private static $globals = [];
+    protected static $_globals = [];
+    /**
+     * Get current namespace section relative path (with theme)
+     *
+     * @param  string $themeDir Optional theme directory
+     * For non-web namespaces overwrites configuration theme
+     * @return string Returns the current namespace section relative path
+     * For non-web namespaces includes theme directory
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function GetSectionPath($themeDir = NULL) {
+		$relativePath = '/templates/'.NApp::$currentNamespace.NApp::$currentSectionFolder;
+		if(NApp::$currentNamespace=='web') {
+			$relativePath .= (is_string($themeDir) && strlen($themeDir) ? '/themes/'.$themeDir : '').'/';
+		} else {
+			$app_theme = AppConfig::GetValue('app_theme');
+			$relativePath .= '/themes/'.(is_string($themeDir) && strlen($themeDir) ? $themeDir : (is_string($app_theme) && strlen($app_theme) && $app_theme!='_default' ? $app_theme : 'default')).'/';
+		}//if(NApp::$currentNamespace=='web')
+		return $relativePath;
+	}//END public static function GetSectionPath
     /**
      * Get application non-public repository path
      *
@@ -30,11 +50,9 @@ class AppHelpers {
      * @throws \NETopes\Core\AppException
      */
 	public static function GetRepositoryPath() {
-		$repository_path = AppConfig::GetValue('repository_path');
-		if(is_string($repository_path) && strlen($repository_path) && file_exists($repository_path)) {
-			return rtrim($repository_path,'/\\').'/';
-		}//if(is_string($repository_path) && strlen($repository_path) && file_exists($repository_path))
-		return NApp::$app_path.'/repository/';
+		$repositoryPath = AppConfig::GetValue('repository_path');
+		if(is_string($repositoryPath) && strlen($repositoryPath) && file_exists($repositoryPath)) { return rtrim($repositoryPath,'/\\').'/'; }
+		return NApp::$appPath.'/repository/';
 	}//END public static function GetRepositoryPath
     /**
      * Get application cache path
@@ -44,15 +62,23 @@ class AppHelpers {
      * @throws \NETopes\Core\AppException
      */
 	public static function GetCachePath() {
-		$cache_path = AppConfig::GetValue('app_cache_path');
-		if(is_string($cache_path) && strlen($cache_path) && file_exists($cache_path)) {
-			return rtrim($cache_path,'/\\').'/';
-		}//if(is_string($cache_path) && strlen($cache_path) && file_exists($cache_path))
-		if(!file_exists(NApp::$app_path.'/.cache')) {
-			mkdir(NApp::$app_path.'/.cache',755);
-		}//if(!file_exists(NApp::$app_path.'/.cache'))
-		return NApp::$app_path.'/.cache/';
+		$cachePath = AppConfig::GetValue('app_cache_path');
+		if(is_string($cachePath) && strlen($cachePath) && file_exists($cachePath)) { return rtrim($cachePath,'/\\').'/'; }
+		if(!file_exists(NApp::$appPath.'/.cache')) {
+			mkdir(NApp::$appPath.'/.cache',755);
+		}//if(!file_exists(NApp::$appPath.'/.cache'))
+		return NApp::$appPath.'/.cache/';
 	}//END public static function GetCachePath
+    /**
+     * Set global parameters data
+     *
+     * @param array|null $data
+     * @return void
+     * @access public
+     */
+	public static function SetGlobals(?array $data): void {
+		static::$_globals = $data;
+	}//END public static function SetGlobals
     /**
 	 * description
 	 *
@@ -63,8 +89,8 @@ class AppHelpers {
 	 * @access public
 	 */
 	public static function GetGlobalVar($key,$defaultValue = NULL,$validation = NULL) {
-	    return get_array_value(self::$globals,$key,$defaultValue,$validation);
-	}//END public static function _GetGlobalVar
+	    return get_array_value(static::$_globals,$key,$defaultValue,$validation);
+	}//END public static function GetGlobalVar
 	/**
 	 * description
 	 *
@@ -75,8 +101,8 @@ class AppHelpers {
 	 */
 	public static function SetGlobalVar($key,$value) {
 		if(!is_numeric($key) && (!is_string($key) || !strlen($key))) { return FALSE; }
-		if(!is_array(self::$globals)) { self::$globals = []; }
-		self::$globals[$key] = $value;
+		if(!is_array(static::$_globals)) { static::$_globals = []; }
+		static::$_globals[$key] = $value;
 		return TRUE;
 	}//END public static function SetGlobalVar
 	/**
@@ -89,7 +115,7 @@ class AppHelpers {
 	 * @access public
 	 */
 	public function _GetRequestParamValue($key,$defaultValue = NULL,$validation = NULL) {
-		return get_array_value(self::$globals,['req_params',$key],$defaultValue,$validation);
+		return get_array_value(static::$_globals,['req_params',$key],$defaultValue,$validation);
 	}//END public function _GetRequestParamValue
 	/**
 	 * description
@@ -98,29 +124,29 @@ class AppHelpers {
 	 * @access public
 	 */
 	public static function ProcessRequestParams() {
-		if(!is_array(self::$globals)) { self::$globals = []; }
-		if(!array_key_exists('req_params',self::$globals) || !is_array(self::$globals['req_params'])) { self::$globals['req_params'] = []; }
+		if(!is_array(static::$_globals)) { static::$_globals = []; }
+		if(!array_key_exists('req_params',static::$_globals) || !is_array(static::$_globals['req_params'])) { static::$_globals['req_params'] = []; }
 		$url = NApp::Url();
 		$uripage = $url->GetParamElement('page');
 		$uripag = $url->GetParamElement('pag');
-		self::$globals['req_params']['id_page'] = is_numeric($uripage) ? $uripage : NULL;
-		self::$globals['req_params']['pagination'] = is_numeric($uripag) ? $uripag : NULL;
+		static::$_globals['req_params']['id_page'] = is_numeric($uripage) ? $uripage : NULL;
+		static::$_globals['req_params']['pagination'] = is_numeric($uripag) ? $uripag : NULL;
 		$urlid = strtolower(trim($url->GetParamElement('urlid'),'/'));
 		if(strpos($urlid,'/')===FALSE) {
-			self::$globals['req_params']['category'] = NULL;
-			self::$globals['req_params']['subcategories'] = NULL;
-			self::$globals['req_params']['page'] = $urlid;
+			static::$_globals['req_params']['category'] = NULL;
+			static::$_globals['req_params']['subcategories'] = NULL;
+			static::$_globals['req_params']['page'] = $urlid;
 		} else {
 			$urlid_arr = explode('/',$urlid);
 			$e_page = array_pop($urlid_arr);
 			$e_cat = array_shift($urlid_arr);
 			$e_scat = is_array($urlid_arr) && count($urlid_arr) ? implode('/',$urlid_arr) : NULL;
-			self::$globals['req_params']['category'] = $e_cat;
-			self::$globals['req_params']['subcategories'] = $e_scat;
-			self::$globals['req_params']['page'] = $e_page;
+			static::$_globals['req_params']['category'] = $e_cat;
+			static::$_globals['req_params']['subcategories'] = $e_scat;
+			static::$_globals['req_params']['page'] = $e_page;
 		}//if(strpos($urlid,'/')===FALSE)
-		self::$globals['req_params']['module'] = $url->GetParam('module');
-		self::$globals['req_params']['action'] = $url->GetParam('a');
+		static::$_globals['req_params']['module'] = $url->GetParam('module');
+		static::$_globals['req_params']['action'] = $url->GetParam('a');
 	}//END public static function _ProcessRequestParams
 	/**
 	 * Add javascript code to the dynamic js queue (executed at the end of the current request)
@@ -140,15 +166,16 @@ class AppHelpers {
 			self::SetGlobalVar('dynamic_js_scripts',$dynamic_js_scripts);
 		}//if(!$dynamic && NApp::IsAjax() && NApp::IsValidAjaxRequest())
 	}//END public static function AddJsScript
-	/**
-	 * Get dynamic javascript to be executed
-	 *
-	 * @return string Returns scripts to be executed
-	 * @access public
-	 */
-	public static function GetDynamicJs() {
+    /**
+     * Get dynamic javascript to be executed
+     *
+     * @param bool $asArray
+     * @return string|array Returns scripts to be executed
+     * @access public
+     */
+	public static function GetDynamicJs(bool $asArray = FALSE) {
 		$scripts = self::GetGlobalVar('dynamic_js_scripts',[],'is_array');
-		if(!count($scripts)) { return NULL; }
+		if($asArray || !count($scripts)) { return $scripts; }
 		$html_data = '';
 		$data = '';
 		foreach($scripts as $s) {
@@ -246,4 +273,38 @@ class AppHelpers {
 				break;
 		}//END switch
 	}//END public static function GetFrameworkVersion
+	/**
+     * Initializes KCFinder session parameters
+     *
+     * @param array $params
+     * @return void
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function InitializeKCFinder($params = NULL) {
+		if(!AppSession::WithSession() || !AppConfig::GetValue('use_kc_finder')) { return; }
+		$type = get_array_value($params,'type','','is_string');
+		switch(strtolower($type)) {
+			case 'public':
+				AppSession::SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/public','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/public','__KCFINDER',NULL,FALSE);
+				break;
+			case 'app':
+				AppSession::SetGlobalParam('disabled',(static::$login_status && static::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/app','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/app','__KCFINDER',NULL,FALSE);
+				break;
+			case 'cms':
+			default:
+				$section_folder = get_array_value($params,'section_folder',static::GetParam('section_folder'),'is_string');
+				$zone_code = get_array_value($params,'zone_code',static::GetParam('zone_code'),'is_string');
+				// TODO: fix multi instance
+				AppSession::SetGlobalParam('disabled',(static::$login_status && static::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				break;
+		}//END switch
+		static::$_SessionCommit(FALSE,TRUE,TRUE,NULL,'__KCFINDER',FALSE);
+	}//END public static function InitializeKCFinder
 }//END class AppHelpers

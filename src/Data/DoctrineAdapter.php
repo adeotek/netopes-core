@@ -127,6 +127,6 @@ class DoctrineAdapter extends DataAdapter {
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {
-		$this->em = self::GetEntityManager(NApp::$app_path,$connection,$this->platform);
+		$this->em = self::GetEntityManager(NApp::$appPath,$connection,$this->platform);
 	}//END protected function Init
 }//END class DoctrineAdapter extends DataSource

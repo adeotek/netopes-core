@@ -684,4 +684,62 @@ class AppSession {
 		    unset(self::$data[$lkey]);
 		}//if(isset($namespace))
 	}//END public static function UnsetParam
+    /**
+     * description
+     *
+     * @param string      $uid
+     * @param string|null $namespace
+     * @return mixed
+     * @access public
+     */
+	public static function GetSessionAcceptedRequest(string $uid,?string $namespace = NULL) {
+	    if(strlen($namespace)) { return isset(static::$data[$namespace]['xURLRequests'][$uid]) ? static::$data[$namespace]['xURLRequests'][$uid] : NULL; }
+		return isset(static::$data['xURLRequests'][$uid]) ? static::$data['xURLRequests'][$uid] : NULL;
+	}//END public static function GetSessionAcceptedRequest
+    /**
+     * description
+     *
+     * @param string|null $uid
+     * @param string|null $namespace
+     * @return string
+     * @access public
+     */
+	public static function SetSessionAcceptedRequest(?string $uid,?string $namespace = NULL): string {
+		if(is_null($uid)) { $uid = static::GetNewUID(NULL,'md5'); }
+		if(strlen($namespace)) {
+		    static::$data[$namespace]['xURLRequests'][$uid] = TRUE;
+		} else {
+		    static::$data['xURLRequests'][$uid] = TRUE;
+		}//if(strlen($namespace))
+		return $uid;
+	}//END public static function SetSessionAcceptedRequest
+    /**
+     * description
+     *
+     * @param string      $uid
+     * @param string|null $namespace
+     * @return void
+     * @access public
+     */
+	public static function UnsetSessionAcceptedRequest(string $uid,?string $namespace = NULL): void {
+		if(strlen($namespace)) {
+		    unset(static::$data[$namespace]['xURLRequests'][$uid]);
+		} else {
+		    unset(static::$data['xURLRequests'][$uid]);
+		}//if(strlen($namespace))
+	}//END public static function UnsetSessionAcceptedRequest
+    /**
+     * description
+     *
+     * @param string      $uid
+     * @param bool        $reset
+     * @param string|null $namespace
+     * @return bool
+     * @access public
+     */
+	public static function CheckSessionAcceptedRequest(string $uid,bool $reset = FALSE,?string $namespace = NULL): bool {
+		$result = static::GetSessionAcceptedRequest($uid,$namespace);
+		if($reset===TRUE) { static::UnsetSessionAcceptedRequest($uid,$namespace); }
+		return ($result===TRUE);
+	}//END public static function CheckSessionAcceptedRequest
 }//END class AppSession
