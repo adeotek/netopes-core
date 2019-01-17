@@ -36,7 +36,6 @@ interface IApp {
 	 *
 	 * @return bool Application (session if started) state
 	 * @access public
-     * @static
 	 */
 	public static function GetAppState(): bool;
 	/**
@@ -44,7 +43,6 @@ interface IApp {
 	 *
 	 * @return string|null
 	 * @access public
-	 * @static
 	 */
 	public static function GetPhash(): ?string;
 	/**
@@ -53,7 +51,6 @@ interface IApp {
 	 * @param  string $value The new value for phash property
 	 * @return void
 	 * @access public
-	 * @static
 	 */
 	public static function SetPhash(?string $value): void;
 	/**
@@ -63,13 +60,12 @@ interface IApp {
 	 * @return ITheme|null
 	 * @access public
 	 */
-	public function GetTheme(string $theme = ''): ?ITheme;
+	public static function GetTheme(string $theme = ''): ?ITheme;
 	/**
 	 * Get current user ID
 	 *
 	 * @return int|null Returns current user ID
 	 * @access public
-     * @static
 	 */
 	public static function GetCurrentUserId(): ?int;
 }//END interface IApp

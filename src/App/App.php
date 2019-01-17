@@ -15,7 +15,6 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppHelpers;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataProvider;
 
 /**
   * Class App
@@ -84,16 +83,6 @@ abstract class App implements IApp {
 	 * @access public
 	 */
 	public static $defaultDbConnection = NULL;
-	/**
-	 * @var    bool|null Login status
-	 * @access public
-	 */
-	public static $loginStatus = NULL;
-	/**
-	 * @var    int User status
-	 * @access public
-	 */
-	public static $userStatus = 0;
 	/**
 	 * @var    \NETopes\Core\App\ITheme Current theme object instance
 	 * @access public
@@ -528,6 +517,15 @@ abstract class App implements IApp {
     public static function IsValidAjaxRequest(): bool {
 	    return (is_object(static::$_ajaxRequest) && is_subclass_of(static::$_ajaxRequest,BaseRequest::class));
 	}//END public static function IsValidAjaxRequest
+    /**
+     * Set the AJAX object
+     *
+     * @param $value
+     * @access public
+     */
+	public static function SetAjaxRequest($value): void {
+		static::$_ajaxRequest = $value;
+	}//END public static function SetAjaxRequest
 	/**
      * Initialize AJAX Request object
      *
@@ -753,6 +751,15 @@ HTML;
 		AppHelpers::InitializeKCFinder();
         static::$appOptionsLoaded = TRUE;
     }//END public static function LoadAppSettings
+    /**
+     * Get user login status
+     *
+     * @return boolean UserSession login status
+     * @access public
+     */
+	public static function GetLoginStatus(): bool {
+		return UserSession::$loginStatus;
+	}//END public static function GetLoginStatus
     /**
      * Get database cache state
      *
