@@ -648,7 +648,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$query = $this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$bind_params,$transaction);
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
-		//if($this->debug2file) { NApp::_Write2LogFile('Query: '.$query,'debug'); }
+		//if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
 		$final_result = NULL;
 		try {
 			if(is_resource($transaction)) {

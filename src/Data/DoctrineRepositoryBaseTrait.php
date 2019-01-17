@@ -61,7 +61,7 @@ trait DoctrineRepositoryBaseTrait {
 		}//if(is_object($query))
 		$lquery .= ($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
 		NApp::Dlog($lquery,$llabel);
-		if(AppConfig::db_debug2file()) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
+		if(AppConfig::GetValue('db_debug2file')) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 	/**
      * Finds entities by a set of criteria.

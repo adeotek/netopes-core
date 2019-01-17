@@ -747,7 +747,7 @@ HTML;
 	public static function LoadAppSettings(bool $notFromDb = FALSE,?array $params = NULL): void {
         if(static::$appOptionsLoaded) { return; }
         UserSession::LoadAppSettings($notFromDb,$params,static::$_appAccessKey);
-        NApp::$theme = static::GetTheme();
+        static::$theme = static::GetTheme();
 		AppHelpers::InitializeKCFinder();
         static::$appOptionsLoaded = TRUE;
     }//END public static function LoadAppSettings
@@ -988,6 +988,19 @@ HTML;
 		}//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
 		static::$debugger->Debug($value,$label,Debugger::DBG_INFO);
 	}//END public static function Ilog
+	/**
+	 * Add entry to log file
+	 *
+	 * @param  string|array $msg Text to be written to log
+	 * @param  string|null $file Custom log file complete name (path + name)
+	 * @param  string|null $scriptName Name of the file that sent the message to log (optional)
+	 * @return bool|string Returns TRUE for success or error message on failure
+	 * @access public
+	 * @static
+	 */
+	public static function Log2File($msg,?string $file = NULL,?string $scriptName = NULL) {
+        return Debugger::Log2File($msg,$file,$scriptName);
+    }//END public static function Log2File
     /**
      * Writes a message in one of the application log files
      *
@@ -1004,12 +1017,12 @@ HTML;
 		$lpath = (strlen($path) ? rtrim($path,'/') : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path')).'/';
 		switch(strtolower($type)) {
 			case 'error':
-				return Debugger::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('errors_log_file')));
+				return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('errors_log_file')));
 			case 'debug':
-				return Debugger::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('debugging_log_file')));
+				return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('debugging_log_file')));
 			case 'log':
 			default:
-				return Debugger::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('log_file')));
+				return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('log_file')));
 		}//switch(strtolower($type))
 	}//END public function WriteToLog
 	/**

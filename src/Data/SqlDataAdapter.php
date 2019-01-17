@@ -34,7 +34,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 */
 	protected function __construct($connection) {
 		$this->debug = AppConfig::GetValue('db_debug');
-		$this->debug2file = AppConfig::db_debug2file();
+		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \NETopes\Core\AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];

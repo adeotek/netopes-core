@@ -541,7 +541,7 @@ class PdfDocument {
 			$this->WriteData();
 			if(get_array_value($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
 		} catch(\Exception $e){
-			NApp::_Write2LogFile($e->getMessage(),'error');
+			NApp::Write2LogFile($e->getMessage(),'error');
 			NApp::Elog($e->getMessage());
 			echo $e->getMessage();
 			return FALSE;

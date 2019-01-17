@@ -130,10 +130,10 @@ class Translation {
 					]);
 				} catch(AppException $e) {
 					NApp::Elog($e->getMessage(),'LanguageInit');
-					NApp::_Write2LogFile($e->getFullMessage(),'error');
+					NApp::Write2LogFile($e->getFullMessage(),'error');
 				}//END try
 			} else {
-				NApp::_Write2LogFile("|Module[{$lmodule}]|Method[{$lmethod}]|Key[{$lkey}]",'debug',NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::GetCurrentNamespace()."_{$llang_code}.log");
+				NApp::Write2LogFile("|Module[{$lmodule}]|Method[{$lmethod}]|Key[{$lkey}]",'debug',NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::GetCurrentNamespace()."_{$llang_code}.log");
 			}//if(AppConfig::GetValue('auto_insert_missing_translations'))
 			return "[{$lkey}]";
 		}//if(...

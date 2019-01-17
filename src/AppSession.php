@@ -159,7 +159,7 @@ class AppSession {
      */
 	public static function ConfigAndStartSession($absolute_path,$domain,$session_timeout,$session_id = NULL,$log_file = NULL) {
 		self::$session_started = FALSE;
-		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silent_mode = TRUE; }
+		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silentMode = TRUE; }
 		$errors = [];
 		$dbg_data = '';
 		$session_name = AppConfig::GetValue('session_name');
@@ -256,7 +256,7 @@ class AppSession {
 				}//try
 			}//if(class_exists('\Memcached',FALSE))
 		}//if(!$initialized && self::$session_memcached===TRUE)
-		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silent_mode = FALSE; }
+		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silentMode = FALSE; }
 		if(!self::$session_started) {
 			ini_set('session.save_handler','files');
 			$session_file_path = AppConfig::GetValue('session_file_path');

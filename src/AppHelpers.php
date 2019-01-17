@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core;
 use NApp;
+use NETopes\Core\App\UserSession;
 
 /**
  * Class AppHelpers
@@ -126,12 +127,11 @@ class AppHelpers {
 	public static function ProcessRequestParams() {
 		if(!is_array(static::$_globals)) { static::$_globals = []; }
 		if(!array_key_exists('req_params',static::$_globals) || !is_array(static::$_globals['req_params'])) { static::$_globals['req_params'] = []; }
-		$url = NApp::Url();
-		$uripage = $url->GetParamElement('page');
-		$uripag = $url->GetParamElement('pag');
+		$uripage = NApp::Url()->GetParamElement('page');
+		$uripag = NApp::Url()->GetParamElement('pag');
 		static::$_globals['req_params']['id_page'] = is_numeric($uripage) ? $uripage : NULL;
 		static::$_globals['req_params']['pagination'] = is_numeric($uripag) ? $uripag : NULL;
-		$urlid = strtolower(trim($url->GetParamElement('urlid'),'/'));
+		$urlid = strtolower(trim(NApp::Url()->GetParamElement('urlid'),'/'));
 		if(strpos($urlid,'/')===FALSE) {
 			static::$_globals['req_params']['category'] = NULL;
 			static::$_globals['req_params']['subcategories'] = NULL;
@@ -145,8 +145,8 @@ class AppHelpers {
 			static::$_globals['req_params']['subcategories'] = $e_scat;
 			static::$_globals['req_params']['page'] = $e_page;
 		}//if(strpos($urlid,'/')===FALSE)
-		static::$_globals['req_params']['module'] = $url->GetParam('module');
-		static::$_globals['req_params']['action'] = $url->GetParam('a');
+		static::$_globals['req_params']['module'] = NApp::Url()->GetParam('module');
+		static::$_globals['req_params']['action'] = NApp::Url()->GetParam('a');
 	}//END public static function _ProcessRequestParams
 	/**
 	 * Add javascript code to the dynamic js queue (executed at the end of the current request)
@@ -287,24 +287,24 @@ class AppHelpers {
 		switch(strtolower($type)) {
 			case 'public':
 				AppSession::SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/public','__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/public','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',NApp::$appBaseUrl.'/repository/public','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',NApp::$appPublicPath.'/repository/public','__KCFINDER',NULL,FALSE);
 				break;
 			case 'app':
-				AppSession::SetGlobalParam('disabled',(static::$login_status && static::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/app','__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/app','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('disabled',(UserSession::$loginStatus && NApp::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',NApp::$appBaseUrl.'/repository/app','__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',NApp::$appPublicPath.'/repository/app','__KCFINDER',NULL,FALSE);
 				break;
 			case 'cms':
 			default:
-				$section_folder = get_array_value($params,'section_folder',static::GetParam('section_folder'),'is_string');
-				$zone_code = get_array_value($params,'zone_code',static::GetParam('zone_code'),'is_string');
+				$section_folder = get_array_value($params,'section_folder',NApp::GetParam('section_folder'),'is_string');
+				$zone_code = get_array_value($params,'zone_code',NApp::GetParam('zone_code'),'is_string');
 				// TODO: fix multi instance
-				AppSession::SetGlobalParam('disabled',(static::$login_status && static::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadURL',static::$app_web_link.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
-				AppSession::SetGlobalParam('uploadDir',static::$app_public_path.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('disabled',(UserSession::$loginStatus && NApp::GetParam('user_hash')) ? FALSE : TRUE,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadURL',NApp::$appBaseUrl.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
+				AppSession::SetGlobalParam('uploadDir',NApp::$appPublicPath.'/repository/'.$section_folder.'/'.$zone_code,'__KCFINDER',NULL,FALSE);
 				break;
 		}//END switch
-		static::$_SessionCommit(FALSE,TRUE,TRUE,NULL,'__KCFINDER',FALSE);
+		NApp::SessionCommit(FALSE,TRUE,TRUE,NULL,'__KCFINDER',FALSE);
 	}//END public static function InitializeKCFinder
 }//END class AppHelpers

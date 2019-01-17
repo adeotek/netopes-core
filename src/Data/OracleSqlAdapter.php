@@ -472,7 +472,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		$sql_params4dbg = $sql_params ? '>>Param: '.print_r($sql_params,TRUE) : '';
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
-		//if($this->debug2file) { NApp::_Write2LogFile('Query: '.$query,'debug'); }
+		//if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
 		if(strlen($tran_name)) {
 			if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
 				$transaction = $tran_name;

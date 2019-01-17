@@ -96,7 +96,7 @@ abstract class DataAdapter {
      */
 	protected function __construct($connection) {
 		$this->debug = AppConfig::GetValue('db_debug');
-		$this->debug2file = AppConfig::db_debug2file();
+		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbname = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];
@@ -146,6 +146,6 @@ abstract class DataAdapter {
 		$llabel = strlen($label) ? $label : 'DbDebug';
 		$lquery = $query.($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
 		NApp::Dlog($lquery,$llabel);
-		if($this->debug2file) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
+		if($this->debug2file) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 }//END abstract class BaseAdapter

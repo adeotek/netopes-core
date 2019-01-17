@@ -220,7 +220,7 @@ class UserSession {
             NApp::SetPageParam('language_code',strtolower($appdata->getProperty('lang_code')));
             NApp::Url()->SetParam('language',strtolower($appdata->getProperty('lang_code')));
 		}//if($notFromDb)
-		if(static::$currentNamespace=='web') { return; }
+		if(NApp::$currentNamespace=='web') { return; }
 		//Load user rights
 		if(static::$loginStatus && !$notFromDb) {
 			$ur_ts = NApp::GetParam('user_rights_revoked_ts');

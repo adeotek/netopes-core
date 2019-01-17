@@ -6,10 +6,12 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    2.6.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppException;
+
 /**
  * Class Debugger
  *
@@ -345,29 +347,29 @@ class Debugger {
 	 * Add entry to log file
 	 *
 	 * @param  string|array $msg Text to be written to log
-	 * @param  string $file Custom log file complete name (path + name)
-	 * @param  string $script_name Name of the file that sent the message to log (optional)
+	 * @param  string|null $file Custom log file complete name (path + name)
+	 * @param  string|null $scriptName Name of the file that sent the message to log (optional)
 	 * @return bool|string Returns TRUE for success or error message on failure
 	 * @access public
 	 * @static
 	 */
-	public static function Log2File($msg,$file = '',$script_name = '') {
+	public static function Log2File($msg,?string $file = NULL,?string $scriptName = NULL) {
 		$lf = strlen($file) ? $file : 'unknown.log';
 		try {
-			$lfile = fopen($lf,'a');
-			if(!$lfile) { throw new AppException("Unable to open log file [{$file}]!",E_WARNING,1); }
-			if(is_array($msg) && count($msg)>0) {
-				$script_name = (array_key_exists('file',$msg) && strlen($msg['file'])) ? $msg['file'] : (strlen($script_name) ? $script_name : __FILE__);
-				$script_name .= (array_key_exists('line',$msg) && strlen($msg['line'])) ? ' (ln: '.$msg['line'].')' : '';
+			$fileHandler = fopen($lf,'a');
+			if(!$fileHandler) { throw new AppException("Unable to open log file [{$file}]!",E_WARNING,1); }
+			if(is_array($msg) && count($msg)) {
+				$scriptName = (array_key_exists('file',$msg) && strlen($msg['file'])) ? $msg['file'] : (strlen($scriptName) ? $scriptName : __FILE__);
+				$scriptName .= (array_key_exists('line',$msg) && strlen($msg['line'])) ? ' (ln: '.$msg['line'].')' : '';
 				$type = (array_key_exists('type',$msg) && strlen($msg['type'])) ? ' #'.strtoupper($msg['type']).((array_key_exists('no',$msg) && strlen($msg['no'])) ? ':'.strtoupper($msg['no']) : '').'#' : '';
 				$message = (array_key_exists('message',$msg) && strlen($msg['message'])) ? $msg['message'] : '';
 			} else {
-				$script_name = strlen($script_name) ? $script_name : __FILE__;
+				$scriptName = strlen($scriptName) ? $scriptName : __FILE__;
 				$type = ' #LOG#';
 				$message = $msg;
-			}//if(is_array($msg) && count($msg)>0)
-			fwrite($lfile,'#'.date('Y-m-d H:i:s')."# <{$script_name}>{$type} {$message}\n");
-			fclose($lfile);
+			}//if(is_array($msg) && count($msg))
+			fwrite($fileHandler,'#'.date('Y-m-d H:i:s')."# <{$scriptName}>{$type} {$message}\n");
+			fclose($fileHandler);
 			return TRUE;
 		} catch(AppException $e) {
 			return $e->getMessage();
