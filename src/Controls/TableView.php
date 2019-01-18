@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -593,7 +593,7 @@ class TableView {
 		// NApp::Dlog($daparams,'$daparams');
 		// NApp::Dlog($daeparams,'$daeparams');
 		$data = DataProvider::Get($this->data_source,$this->ds_method,$daparams,$daeparams,FALSE,$this->ds_out_params);
-		NApp::_SetPageParam($this->tag_id.'#ds_out_params',$this->ds_out_params);
+		NApp::SetPageParam($this->tag_id.'#ds_out_params',$this->ds_out_params);
 		if(!is_object($data)) { return new DataSet(); }
 		return $data;
 	}//END private function GetData
@@ -668,9 +668,9 @@ class TableView {
 		}//if($this->exportable && $this->export_all && $this->with_pagination)
 		if($this->export_button) {
 			if($this->compact_mode) {
-				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
 			} else {
-				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::app_web_link().'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
 			}//if($this->compact_mode)
 		}//if($this->export_button)
 		if(strlen($this->data_source) && strlen($this->ds_method)) {
@@ -893,10 +893,10 @@ class TableView {
 						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
 						if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
 							$ctrl_params['timepicker'] = TRUE;
-							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::_GetParam('date_separator').'MM'.NApp::_GetParam('date_separator').'yyyy HH'.NApp::_GetParam('time_separator').'mm'.NApp::_GetParam('time_separator').'ss"';
+							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy HH'.NApp::GetParam('time_separator').'mm'.NApp::GetParam('time_separator').'ss"';
 						} else {
 							$ctrl_params['timepicker'] = FALSE;
-							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::_GetParam('date_separator').'MM'.NApp::_GetParam('date_separator').'yyyy"';
+							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy"';
 						}//if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj'))
 						$ctrl_params['align'] = 'center';
 						$ctrl_filter_value = new DatePicker($ctrl_params);
@@ -1692,9 +1692,9 @@ class TableView {
 					$c_t_height = get_array_value($tooltip,'height',100,'is_not0_numeric');
 					$c_t_path = get_array_value($tooltip,'path','','is_string');
 					if(strlen($c_t_path) && strlen($c_t_dbdata) && file_exists(NApp::$app_public_path.rtrim($c_t_path,'/').'/'.$c_t_dbdata)) {
-						$c_tooltip = NApp::app_web_link().rtrim($c_t_path,'/').'/'.$c_t_dbdata;
+						$c_tooltip = NApp::$appBaseUrl.rtrim($c_t_path,'/').'/'.$c_t_dbdata;
 					} else {
-						$c_tooltip = NApp::app_web_link().'/repository/no-photo-300.png';
+						$c_tooltip = NApp::$appBaseUrl.'/repository/no-photo-300.png';
 					}//if(strlen($c_t_path) && strlen($c_tooltip) && file_exists(NApp::app_public_path.rtrim($c_t_path,'/').'/'.$c_tooltip))
 					$c_tt_label = get_array_value($tooltip,'label','','is_string');
 					$c_tooltip = "<div class=\"clsDGToolTip\" style=\"width: {$c_t_width}px; height: {$c_t_height}px; background: transparent url({$c_tooltip}) no-repeat center center; background-size: {$c_t_width}px auto;\"></div>";
@@ -1805,7 +1805,7 @@ class TableView {
 					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
 					if($has_child) {
 						$t_s_val = $r_tree_state ? 1 : 0;
-						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::app_web_link().AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
+						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
 					}//if($has_child)
@@ -1940,7 +1940,7 @@ class TableView {
 						$values[$vl] = array('id'=>$ids_arr[$kl],'key'=>$vl,'value'=>$values_arr[$kl]);
 					}//END foreach
 				} catch(AppException $e) {
-					NApp::Elog($e->getMessage(),'TableView::SetRow');
+					NApp::Elog($e);
 					throw $e;
 				}//END try
 				foreach($iterator as $it) {
@@ -2132,9 +2132,9 @@ class TableView {
 			switch($sessact) {
 				case 'page':
 					$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
-					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
+					$ssortby = NApp::GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
-					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
+					$this->filters = NApp::GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'sort':
 					$this->current_page = $params->safeGet('page',1,'is_numeric');
@@ -2142,11 +2142,11 @@ class TableView {
 						'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
 						'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
 					);
-					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
+					$this->filters = NApp::GetPageParam($this->sessionHash.'#filters');
 					break;
 				case 'filters':
 					$this->current_page = $params->safeGet('page',1,'is_numeric');
-					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
+					$ssortby = NApp::GetPageParam($this->sessionHash.'#sortby');
 					$this->sortby = get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby ;
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
@@ -2159,11 +2159,11 @@ class TableView {
 					$this->filters = $this->ProcessActiveFilters($params);
 					break;
 				default:
-					$this->current_page = NApp::_GetPageParam($this->sessionHash.'#currentpage');
+					$this->current_page = NApp::GetPageParam($this->sessionHash.'#currentpage');
 					if(!$this->current_page) {
 						$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
 					}//if(!$this->current_page)
-					$ssortby = NApp::_GetPageParam($this->sessionHash.'#sortby');
+					$ssortby = NApp::GetPageParam($this->sessionHash.'#sortby');
 					if(!get_array_value($ssortby,'column',NULL,'is_notempty_string')) {
 						$this->sortby = array(
 							'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
@@ -2172,15 +2172,15 @@ class TableView {
 					} else {
 						$this->sortby = $ssortby;
 					}//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
-					$this->filters = NApp::_GetPageParam($this->sessionHash.'#filters');
+					$this->filters = NApp::GetPageParam($this->sessionHash.'#filters');
 					if(!$this->filters) {
 						$this->filters = $this->ProcessActiveFilters($params);
 					}//if(!$this->filters)
 					break;
 			}//END switch
-			NApp::_SetPageParam($this->sessionHash.'#currentpage',$this->current_page);
-			NApp::_SetPageParam($this->sessionHash.'#sortby',$this->sortby);
-			NApp::_SetPageParam($this->sessionHash.'#filters',$this->filters);
+			NApp::SetPageParam($this->sessionHash.'#currentpage',$this->current_page);
+			NApp::SetPageParam($this->sessionHash.'#sortby',$this->sortby);
+			NApp::SetPageParam($this->sessionHash.'#filters',$this->filters);
 		} else {
 			$this->current_page = $params->safeGet('page',$this->current_page,'is_numeric');
 			$this->sortby = array(
@@ -2221,16 +2221,16 @@ class TableView {
 					'layouts'=>array($this->export_data),
 					'summarize'=>$this->with_totals,
 				);
-				$cachefile = NApp::_GetCachePath().'datagrid/'.$this->chash.'.tmpexp';
+				$cachefile = AppHelpers::GetCachePath().'datagrid/'.$this->chash.'.tmpexp';
 				//NApp::Dlog($cachefile,'$cachefile');
 				try {
-					if(!file_exists(NApp::_GetCachePath().'datagrid')) {
-						mkdir(NApp::_GetCachePath().'datagrid',755);
-					}//if(!file_exists(NApp::_GetCachePath().'datagrid'))
+					if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
+						mkdir(AppHelpers::GetCachePath().'datagrid',755);
+					}//if(!file_exists(AppHelpers::GetCachePath().'datagrid'))
 					if(file_exists($cachefile)) { unlink($cachefile); }
 					file_put_contents($cachefile,serialize($params));
 				} catch(\Exception $e) {
-					NApp::Elog($e->getMessage(),'TableView::CreateExportCacheFile');
+					NApp::Elog($e);
 					$this->export_button = FALSE;
 					$this->export_data = NULL;
 				}//END try
@@ -2447,22 +2447,22 @@ class TableView {
 			'layouts'=>array($this->export_data),
 			'summarize'=>$this->with_totals,
 		);
-		$cachefile = NApp::_GetCachePath().'datagrid/'.$this->chash.'_all.tmpexp';
+		$cachefile = AppHelpers::GetCachePath().'datagrid/'.$this->chash.'_all.tmpexp';
 		// NApp::Dlog($cachefile,'$cachefile');
 		try {
-			if(!file_exists(NApp::_GetCachePath().'datagrid')) {
-				mkdir(NApp::_GetCachePath().'datagrid',755);
-			}//if(!file_exists(NApp::_GetCachePath().'datagrid'))
+			if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
+				mkdir(AppHelpers::GetCachePath().'datagrid',755);
+			}//if(!file_exists(AppHelpers::GetCachePath().'datagrid'))
 			if(file_exists($cachefile)) { unlink($cachefile); }
 			file_put_contents($cachefile,serialize($params));
 		} catch(\Exception $e) {
-			NApp::Elog($e->getMessage(),'TableView::ExportAll');
+			NApp::Elog($e);
 			$output = FALSE;
 		}//END try
 		$this->export_data = $tmp_export_data;
 		$this->export_only = FALSE;
 		if(!$output) { return; }
-		$url = NApp::app_web_link().'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&exportall=1&chash='.$this->chash;
+		$url = NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->chash;
 		NApp::Ajax()->ExecuteJs("OpenUrl('{$url}',true)");
 	}//END public function ExportAll
 	/**
@@ -2480,7 +2480,7 @@ class TableView {
 		if(!$chash) { return; }
 		$export_all = get_array_value($params,'exportall',FALSE,'bool');
 		//NApp::StartTimeTrack('TableViewExportData');
-		$cachefile = NApp::_GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
+		$cachefile = AppHelpers::GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
 		try {
 			if(!file_exists($cachefile)) {
 				NApp::Elog('File '.$cachefile.' not found !','TableView::GetExportCacheFile');
@@ -2493,7 +2493,7 @@ class TableView {
 			$excel = new ExcelExport($export_data);
 			// NApp::Dlog(NApp::ShowTimeTrack('TableViewExportData'),'BP:END');
 		} catch(AppException $e) {
-			NApp::Elog($e->getMessage(),'TableView::GetExportCacheFile');
+			NApp::Elog($e);
 			throw $e;
 		}//END try
 	}//END public static function ExportData

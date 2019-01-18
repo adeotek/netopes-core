@@ -1,10 +1,10 @@
 <?php
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
-class DoctrineBaseRepository extends EntityRepository {
-	use DoctrineRepositoryStandardTrait;
+class BaseRepository extends EntityRepository {
+	use RepositoryStandardTrait;
 	public function getSearchResults(string $term,array $targets = [],array $params = [],int $rowNum = 10,?array $sort = NULL) {
         $qb = $this->createQueryBuilder('e');
 		foreach($params as $pn=>$pv) {
@@ -36,4 +36,4 @@ class DoctrineBaseRepository extends EntityRepository {
         $this->DbDebug($qb->getQuery(),'getSearchResults');
         return $qb->getQuery()->getResult();
     }//END public function getSearchResults
-}//END class DoctrineBaseRepository extends EntityRepository
+}//END class BaseRepository extends EntityRepository

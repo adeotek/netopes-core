@@ -6,10 +6,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.6.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 
 /**
@@ -73,6 +74,11 @@ class Debugger {
 	 * @access     protected
 	 */
 	protected $js_console_password = '';
+	/**
+	 * @var        boolean Show exception trace on Elog
+	 * @access     public
+	 */
+	public $showExceptionsTrace = FALSE;
 	/**
 	 * @var        string Relative path to the logs folder
 	 * @access     public
@@ -305,24 +311,34 @@ class Debugger {
 		}//if($file===TRUE)
 		$this->Debug($value,$label,self::DBG_WARNING);
 	}//END public function Wlog
-	/**
-	 * Displays a value in the debugger plugin as an error message
-	 *
-	 * @param  mixed $value Value to be displayed by the debug objects
-	 * @param  string $label Label assigned tot the value to be displayed
-	 * @param  boolean $file Output file name
-	 * @param  boolean $path Output file path
-	 * @return void
-	 * @access public
-	 * @throws \Exception
-	 */
-	public function Elog($value,$label = '',$file = FALSE,$path = FALSE) {
+    /**
+     * Displays a value in the debugger plugin as an error message
+     *
+     * @param  mixed  $value Value to be displayed by the debug objects
+     * @param  string $label Label assigned tot the value to be displayed
+     * @param bool    $showExceptionsTrace
+     * @param  bool   $file Output file name
+     * @param  bool   $path Output file path
+     * @return void
+     * @throws \Exception
+     * @access public
+     */
+	public function Elog($value,?string $label = NULL,bool $showExceptionsTrace = FALSE,bool $file = FALSE,bool $path = FALSE) {
 		if($file===TRUE) {
 			$dbg = debug_backtrace();
 			$caller = array_shift($dbg);
 			$label = '['.($path===TRUE ? $caller['file'] : basename($caller['file'])).':'.$caller['line'].']'.$label;
 		}//if($file===TRUE)
-		$this->Debug($value,$label,self::DBG_ERROR);
+		if($value instanceof \Exception) {
+            if($showExceptionsTrace || $this->showExceptionsTrace) {
+                $this->Debug($value->getMessage(),$label??get_class($value),self::DBG_ERROR);
+            } else {
+                $this->Debug('MESSAGE>> '.$value->getMessage(),$label??get_class($value),self::DBG_ERROR);
+                $this->Debug('TRACE>> '.$value->getTrace(),$label??get_class($value),self::DBG_ERROR);
+            }//if($showExceptionsTrace || $this->showExceptionsTrace)
+		} else {
+		    $this->Debug($value,$label,self::DBG_ERROR);
+		}//if($value instanceof \Exception)
 	}//END public function Elog
 	/**
 	 * Displays a value in the debugger plugin as an info message

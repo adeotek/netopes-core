@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 /**
@@ -197,7 +197,7 @@ class SqLiteAdapter extends SqlDataAdapter {
 			throw new AException("SQLITE execute query failed: ".$e->getMessage()." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',$e->getCode());
 		}//END try
 		$this->DbDebug($query,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function SqLiteExecuteQuery
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

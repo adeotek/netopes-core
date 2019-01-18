@@ -8,9 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.6.0.0
+ * @version    3.0.0.0
  * @filesource
  */
+use NETopes\Core\AppException;
+
 /**
  * Class ErrorHandler
  *
@@ -58,13 +60,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 */
 	public static $silentMode = FALSE;
 	/**
-	 * @var    bool Re-throw warnings as \NETopes\Core\AppException
+	 * @var    bool Re-throw warnings as AppException
 	 * @access public
 	 * @static
 	 */
 	public static $rethrowWarnings = TRUE;
 	/**
-	 * @var    bool Re-throw notices as \NETopes\Core\AppException
+	 * @var    bool Re-throw notices as AppException
 	 * @access public
 	 * @static
 	 */
@@ -128,21 +130,19 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		return $result;
 	}//END public static function GetErrors
 	/**
-	 * Adds an exception (of \NETopes\Core\AppException type) to the error stack
+	 * Adds an exception (of AppException type) to the error stack
 	 *
-	 * @param \NETopes\Core\AppException $exception The exception to be added to the stack
+	 * @param AppException $exception The exception to be added to the stack
 	 * @return void
-	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
-	public static function AddError(\NETopes\Core\AppException $exception) {
-		if(!is_object($exception) || get_class($exception)!=='NETopes\Core\AppException') { throw new \NETopes\Core\AppException('Invalid exception !',E_WARNING,0); }
+	public static function AddError(AppException $exception) {
 		$errFile = str_replace(_NAPP_ROOT_PATH,'',$exception->getFile());
 		if(!is_array(self::$errorsStack)) { self::$errorsStack = []; }
 		self::$errorsStack[] = array('errMessage'=>$exception->getMessage(),'errNo'=>$exception->getCode(),'errFile'=>$errFile,'errLine'=>$exception->getLine());
 		if(class_exists('NApp') && NApp::GetDebuggerState()) {
-			NApp::Elog($exception->getMessage().' -> file: '.$errFile.' -> line: '.$exception->getLine(),'Error['.$exception->getCode().']');
+			NApp::Elog($exception,'Error['.$exception->getCode().'] in file '.$errFile.' at line '.$exception->getLine());
 			if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace'); }
 		}//if(class_exists('NApp') && NApp::GetDebuggerState())
 	}//END public static function AddError
@@ -155,7 +155,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @param  int|null    $errLine Error location (line)
 	 * @param  array       $errContext Error context
 	 * @return void
-	 * @throws \NETopes\Core\AppException
+	 * @throws AppException
 	 * @access public
 	 * @static
 	 */
@@ -167,11 +167,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errorsStack)) { self::$errorsStack = []; }
 					self::$errorsStack[] = array('errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::Elog("$errMessage -> file: $errFile -> line: $errLine","Error[$errNo]");
-						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
+					    $errException = new AppException($errMessage,$errNo,0,$errFile,$errLine);
+					    NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'BACKTRACE>>'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \NETopes\Core\AppException($errMessage,$errNo,0,$errFile,$errLine);
+					throw new AppException($errMessage,$errNo,0,$errFile,$errLine);
 				}//if(self::IsSilent() || self::$rethrow_notices!==TRUE)
 				break;
 			case E_WARNING:
@@ -186,11 +187,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errorsStack)) { self::$errorsStack = []; }
 					self::$errorsStack[] = array('errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::Elog("$errMessage -> file: $errFile -> line: $errLine","Error[$errNo]");
-						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
+						$errException = new AppException($errMessage,$errNo,0,$errFile,$errLine);
+					    NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'BACKTRACE>>'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \NETopes\Core\AppException($errMessage,$errNo,0,$errFile,$errLine);
+					throw new AppException($errMessage,$errNo,0,$errFile,$errLine);
 				}//if(!$ibase_error && (self::IsSilent() || self::$rethrow_warnings!==TRUE))
 				break;
 			default:
@@ -198,11 +200,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 					if(!is_array(self::$errorsStack)) { self::$errorsStack = []; }
 					self::$errorsStack[] = array('errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine);
 					if(class_exists('NApp') && NApp::GetDebuggerState()) {
-						NApp::Elog("$errMessage -> file: $errFile -> line: $errLine","Error[$errNo]");
-						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace:'); }
+						$errException = new AppException($errMessage,$errNo,0,$errFile,$errLine);
+					    NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+						if(self::$backtrace) { NApp::Elog(debug_backtrace(),'BACKTRACE>>'); }
 					}//if(class_exists('NApp') && NApp::GetDebuggerState())
 				} else {
-					throw new \NETopes\Core\AppException($errMessage,$errNo,1,$errFile,$errLine);
+					throw new AppException($errMessage,$errNo,1,$errFile,$errLine);
 				}//if(self::IsSilent())
 				break;
 		}//END switch
@@ -214,21 +217,21 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \NETopes\Core\AppException
+	 * @throws AppException
 	 */
 	public static function ExceptionHandlerFunction($exception) {
-		if(get_class($exception)!='NETopes\Core\AppException') {
+		if($exception instanceof AppException) {
+		    $e = $exception;
+		} else {
 			switch(get_class($exception)) {
 				case 'PDOException':
-					$e = new \NETopes\Core\AppException($exception->getMessage(),E_ERROR,1,$exception->getFile(),$exception->getLine(),'pdo',$exception->getCode(),$exception->errorInfo);
+					$e = new AppException($exception->getMessage(),E_ERROR,1,$exception->getFile(),$exception->getLine(),'pdo',$exception->getCode(),$exception->errorInfo);
 					break;
 				default:
-					$e = new \NETopes\Core\AppException($exception->getMessage(),$exception->getCode(),1,$exception->getFile(),$exception->getLine());
+					$e = new AppException($exception->getMessage(),$exception->getCode(),1,$exception->getFile(),$exception->getLine());
 					break;
 			}//END switch
-		} else {
-			$e = $exception;
-		}//if(get_class($exception)!='NETopes\Core\AppException')
+		}//if($exception instanceof AppException)
 		if(self::IsSilent()) {
 			self::AddError($e);
 		} else {
@@ -242,7 +245,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @access public
 	 * @static
-	 * @throws \NETopes\Core\AppException
+	 * @throws AppException
 	 */
 	public static function ShutDownHandlerFunction(bool $output = TRUE) {
 		if(!$output) { return; }
@@ -250,7 +253,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		$e = error_get_last();
 		if(is_array($e) && count($e)) {
 			$errFile = str_replace(_NAPP_ROOT_PATH,'',$e['file']);
-			self::AddError(new \NETopes\Core\AppException($e['message'],$e['type'],0,$errFile,$e['line']));
+			self::AddError(new AppException($e['message'],$e['type'],0,$errFile,$e['line']));
 		}//if(is_array($e) && count($e))
 		if(!self::IsSilent() && self::HasErrors()) { self::ShowErrors(); }
 		self::$shutdown = TRUE;
@@ -259,14 +262,14 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * Processes the errors stack (optionaly adding a last error)
 	 * and sends errors to be displayed or logged
 	 *
-	 * @param \NETopes\Core\AppException $exception The last exception to be added to the stack
+	 * @param AppException $exception The last exception to be added to the stack
 	 * befor showing error
 	 * @return void
-	 * @throws \NETopes\Core\AppException
+	 * @throws AppException
 	 * @access public
 	 * @static
 	 */
-	public static function ShowErrors(\NETopes\Core\AppException $exception = NULL) {
+	public static function ShowErrors(AppException $exception = NULL) {
 		if(is_object($exception)) { self::AddError($exception); }
 		if(!is_array(self::$errorsStack) || !count(self::$errorsStack)) { return; }
 		if(count(self::$errorsStack)==1) {

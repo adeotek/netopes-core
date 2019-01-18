@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -41,7 +41,7 @@ class SimplePageControl extends Control {
 		return NApp::Ajax()->Prepare($run_str);
 	}//END protected function AreqRun
 	protected function SetControl(): ?string {
-		$limit = NApp::_GetParam('rows_per_page');
+		$limit = NApp::GetParam('rows_per_page');
 		$limit = (is_numeric($limit)>0 && $limit>0) ? $limit : 20;
 		$pages_no = ($this->totalrows>0 ? ceil($this->totalrows/$limit) : 1);
 		$cpage = (is_numeric($this->current_page) && $this->current_page<>0) ? $this->current_page : 1;

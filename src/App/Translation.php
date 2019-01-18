@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -42,8 +42,8 @@ class Translation {
 	protected static function GetTranslationCacheFile($langcode,$loop = TRUE) {
 		if(!$langcode) { return NULL; }
 		if(NApp::GetCurrentNamespace()=='web') {
-			$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : 0;
-			$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : 0;
+			$id_section = NApp::GetParam('id_section') ? NApp::GetParam('id_section') : 0;
+			$id_zone = NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : 0;
 			$cnamespace = 'site_strings';
 			$lfile = 'lang_'.$langcode.'_'.$id_section.'_'.$id_zone.'.cache';
 		} else {
@@ -53,7 +53,7 @@ class Translation {
 			$lfile = 'lang_'.$langcode.'.cache';
 		}//if(NApp::current_namespace=='web')
 		$lpath = NApp::$app_public_path.'/templates/'.NApp::GetCurrentNamespace().NApp::current_section_folder().'/resources/';
-		if(NApp::_GetParam('translation_cache_is_dirty')==1 && file_exists($lpath.$lfile)) { unlink($lpath.$lfile); }
+		if(NApp::GetParam('translation_cache_is_dirty')==1 && file_exists($lpath.$lfile)) { unlink($lpath.$lfile); }
 		if(!file_exists($lpath.$lfile)) {
 			$tarray = NULL;
 			try {
@@ -62,7 +62,7 @@ class Translation {
 					'zone_id'=>$id_zone,
 					'for_label'=>$cnamespace,
 					'lang_code'=>$langcode,
-					'reset_dirty'=>NApp::_GetParam('translation_cache_is_dirty'),
+					'reset_dirty'=>NApp::GetParam('translation_cache_is_dirty'),
 				]);
 				$tarray = convert_db_array_to_tree($items,array('module','method','name','value'),FALSE);
 			} catch(AppException $e) {
@@ -111,8 +111,8 @@ class Translation {
 			if(AppConfig::GetValue('auto_insert_missing_translations')) {
 				try {
 					if(NApp::GetCurrentNamespace()=='web') {
-						$id_section = NApp::_GetParam('id_section') ? NApp::_GetParam('id_section') : NULL;
-						$id_zone = NApp::_GetParam('id_zone') ? NApp::_GetParam('id_zone') : NULL;
+						$id_section = NApp::GetParam('id_section') ? NApp::GetParam('id_section') : NULL;
+						$id_zone = NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : NULL;
 						$cnamespace = 'site_strings';
 					} else {
 						$id_section = NULL;
@@ -129,7 +129,7 @@ class Translation {
 						'in_method'=>strlen($lmethod) ? $lmethod : NULL,
 					]);
 				} catch(AppException $e) {
-					NApp::Elog($e->getMessage(),'LanguageInit');
+					NApp::Elog($e);
 					NApp::Write2LogFile($e->getFullMessage(),'error');
 				}//END try
 			} else {

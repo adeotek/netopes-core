@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -99,10 +99,10 @@ class PdfReport {
 	public function __construct(&$params = []) {
 		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \NETopes\Core\AppException('Invalid object parameters !',E_ERROR,1); }
 		//reset($params);
-		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
-		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::_GetParam('group_separator');
-		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::_GetParam('date_separator');
-		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::_GetParam('time_separator');
+		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::GetParam('decimal_separator');
+		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::GetParam('group_separator');
+		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::GetParam('date_separator');
+		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::GetParam('time_separator');
 		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::_GetLanguageCode();
 		set_time_limit(3600);
         $this->pdf = new PdfCreator('P','mm','A4',TRUE);

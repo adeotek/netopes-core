@@ -6,18 +6,19 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppException;
+
 /**
  * Base Base Doctrine data adapter class
  *
  * @package  NETopes\Core\Data
  * @access   public
  */
-class DoctrineDataSource extends DataSource {
+class DataSource extends \NETopes\Core\Data\DataSource {
 	/**
      * Execute a repository method and get returned data
      *
@@ -188,4 +189,4 @@ class DoctrineDataSource extends DataSource {
 		}//END try
 		return TRUE;
 	}//END public function UnsetItem
-}//END class System extends DataSource
+}//END class DataSource extends \NETopes\Core\Data\DataSource

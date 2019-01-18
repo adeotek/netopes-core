@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -51,7 +51,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
 		try {
 			//NApp::StartTimeTrack('mysqli_connect');
-			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbname))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
+			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbName))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
 			//NApp::Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 			if(isset($connection['tables_prefix']) && is_string($connection['tables_prefix']) && strlen($connection['tables_prefix'])) { $this->tables_prefix = $connection['tables_prefix']; }
@@ -248,7 +248,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function MariaDbExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -402,7 +402,7 @@ class MariaDbAdapter extends SqlDataAdapter {
 		}//if(strlen($tran_name)==0)
 		*/
 		$this->DbDebug($query,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function MariaDbExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

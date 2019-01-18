@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
@@ -83,7 +83,7 @@ class FormatterAdapter {
      */
     public static function Datetime($value,?array $regionals = NULL): ?string {
 	    if(!is_object($value) && (!is_string($value) || !strlen($value))) { return $value; }
-		$timezone = get_array_value($regionals,'timezone',NApp::_GetParam('timezone'),'?is_notempty_string');
+		$timezone = get_array_value($regionals,'timezone',NApp::GetParam('timezone'),'?is_notempty_string');
 		$format = get_array_value($regionals,'format',NULL,'?is_notempty_string');
 		$dateOnly = get_array_value($regionals,'date_only',FALSE,'bool');
 		$timeOnly = get_array_value($regionals,'time_only',FALSE,'bool');
@@ -97,7 +97,7 @@ class FormatterAdapter {
      */
     public static function DatetimeNosec($value,?array $regionals = NULL): ?string {
         $format = NApp::_GetTimeFormat(TRUE);
-        if(strpos($format,NApp::_GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::_GetParam('time_separator').'s','',$format); }
+        if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
         $format = NApp::_GetDateFormat(TRUE).' '.$format;
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }
@@ -137,7 +137,7 @@ class FormatterAdapter {
      */
     public static function TimeNosec($value,?array $regionals = NULL): ?string {
         $format = NApp::_GetTimeFormat(TRUE);
-        if(strpos($format,NApp::_GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::_GetParam('time_separator').'s','',$format); }
+        if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }
         return static::Datetime($value,$regionals);
@@ -178,8 +178,8 @@ class FormatterAdapter {
     public static function FsizeMB($value,?array $regionals = NULL): ?string {
 	    if(!is_numeric($value)) { return $value; }
 	    $decimalsNo = get_array_value($regionals,'decimals_no',3,'is_string');
-	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$groupSeparator = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$groupSeparator = get_array_value($regionals,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$value = $value / 1024 / 1024;
 		return number_format($value,$decimalsNo,$decimalSeparator,$groupSeparator).' MB';
 	}//END public static function FsizeMB
@@ -242,8 +242,8 @@ class FormatterAdapter {
     public static function Numeric($value,?array $regionals = NULL): ?string {
 	    if(!is_numeric($value)) { return $value; }
 	    $decimalsNo = get_array_value($regionals,'decimals_no',6,'is_string');
-	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$groupSeparator = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$groupSeparator = get_array_value($regionals,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		return number_format($value,$decimalsNo,$decimalSeparator,$groupSeparator);
 	}//END public static function Numeric
 	/**

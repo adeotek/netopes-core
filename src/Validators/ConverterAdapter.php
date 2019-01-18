@@ -58,7 +58,7 @@ class ConverterAdapter {
      */
 	public static function DateTimeToObject($date,?string $sourceFormat = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
 	    if($date instanceof \DateTime) { return clone $date; }
-	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
+	    $timezone = strlen($timezone) ? $timezone : NApp::GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::GetValue('server_timezone');
 	    if(is_numeric($date)) {
             if(!($dt = new \DateTime('now',new \DateTimeZone($timezone)))) { return NULL; }
@@ -110,7 +110,7 @@ class ConverterAdapter {
      * @static
      */
 	public static function DateTimeToDbFormat($date,?string $sourceFormat = NULL,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
-	    $timezone = strlen($timezone) ? $timezone : NApp::_GetParam('timezone');
+	    $timezone = strlen($timezone) ? $timezone : NApp::GetParam('timezone');
 		$timezone = strlen($timezone) ? $timezone : AppConfig::GetValue('server_timezone');
 	    $dt = static::DateTimeToObject($date,$sourceFormat,$timezone,FALSE);
 	    if(is_null($dt)) { return NULL; }
@@ -224,8 +224,8 @@ class ConverterAdapter {
 	 */
 	public static function NumberToStandardFormat($number,?string $decimalSeparator = NULL,?string $groupSeparator = NULL): ?string {
 		if(!is_scalar($number) || !strlen($number)) { return NULL; }
-		$decimalSeparator = strlen($decimalSeparator) ? $decimalSeparator : NApp::_GetParam('decimal_separator');
-		$groupSeparator = isset($groupSeparator) ? $groupSeparator : NApp::_GetParam('group_separator');
+		$decimalSeparator = strlen($decimalSeparator) ? $decimalSeparator : NApp::GetParam('decimal_separator');
+		$groupSeparator = isset($groupSeparator) ? $groupSeparator : NApp::GetParam('group_separator');
 		return str_replace($decimalSeparator,'.',str_replace($groupSeparator,'',$number));
 	}//END public static function NumberToStandardFormat
     /**

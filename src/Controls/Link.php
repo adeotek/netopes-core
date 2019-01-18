@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -34,7 +34,7 @@ class Link extends Control {
 		if(!strlen($this->hash_separator)) { $this->hash_separator = '|'; }
 		if(!is_string($this->href) || !strlen($this->href)) {
 			if(!is_string($this->domain) || !strlen($this->domain) || trim($this->domain)=='-') {
-				$this->href = NApp::app_web_link().'/';
+				$this->href = NApp::$appBaseUrl.'/';
 			} else {
 				$this->href = NApp::url()->GetAppWebProtocol().$this->domain.NApp::url()->GetUrlFolder().'/';
 			}//if(!is_string($this->domain) || !strlen($this->domain) || trim($this->domain)=='-')
@@ -62,7 +62,7 @@ class Link extends Control {
 		if(is_array($this->session_params) && count($this->session_params)) {
 			$shash = rawurlencode(AppSession::GetNewUID($this->tag_id.serialize($this->session_params),'sha1',TRUE));
 			$namespace = get_array_value($this->url_params,'namespace','','is_string');
-			NApp::_SetParam($shash,$this->session_params,FALSE,$namespace);
+			NApp::SetParam($shash,$this->session_params,FALSE,$namespace);
 			$url_params = 'shash='.$shash;
 		}//if(is_array($this->session_params) && count($this->session_params))
 		if(is_array($this->url_params)) {

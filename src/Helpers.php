@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.6.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core;
@@ -289,10 +289,10 @@ class Helpers {
      */
     public static function ping($host,$port = 80,$timeout = 10) {
         $ts = microtime(true);
-        $errno = $errstr = NULL;
+        $errorNo = $errorMessage = NULL;
         try {
-            $sconn = fSockOpen($host,$port,$errno,$errstr,$timeout);
-            if(!$sconn || $errno) { return 'Timeout/Error: ['.$errno.'] '.$errstr; }
+            $sconn = fSockOpen($host,$port,$errorNo,$errorMessage,$timeout);
+            if(!$sconn || $errorNo) { return 'Timeout/Error: ['.$errorNo.'] '.$errorMessage; }
             return round(((microtime(true) - $ts) * 1000), 0).' ms';
         } catch(\Exception $e) {
             return 'Exception: '.$e->getMessage();

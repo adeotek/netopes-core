@@ -97,13 +97,13 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		// $time = microtime(TRUE);
 		try {
 			if($persistent) {
-				$this->connection = ibase_pconnect($connection['db_server'].$db_port.':'.$this->dbname,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
+				$this->connection = ibase_pconnect($connection['db_server'].$db_port.':'.$this->dbName,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
 			} else {
-				$this->connection = ibase_connect($connection['db_server'].$db_port.':'.$this->dbname,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
+				$this->connection = ibase_connect($connection['db_server'].$db_port.':'.$this->dbName,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
 			}//if($persistent)
-			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbname.']','Connection',$time);
+			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbName.']','Connection',$time);
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbName} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 	}//END protected function Init
 	/**
@@ -125,7 +125,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 				$result = TRUE;
 			}//if(ibase_close($this->connection))
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: {$this->dbName} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 		return $result;
 	}//END protected function FirebirdSqlCloseConnection
@@ -248,13 +248,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			} else {
 				$blob_handle = ibase_blob_create($this->connection);
 			}//if(is_resource($transaction))
-			if($blob_handle===FALSE) {
-				throw new Exception('Invalid blob handle!');
-			}
+			if($blob_handle===FALSE) { throw new \Exception('Invalid blob handle!'); }
 			ibase_blob_add($blob_handle,$param);
 			$blob_id = ibase_blob_close($blob_handle);
 		} catch(\Exception $e) {
-			NApp::Elog($e->getMessage());
+			NApp::Elog($e);
 			$blob_id = NULL;
 		}//END try
 		return $blob_id;
@@ -375,27 +373,28 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$result .= ' '.$conditionString.' '.$filterValue;
         return $result;
 	}//END private function GetFilterCondition
-	/**
-	 * Prepares the query string for execution
-	 *
-	 * @param  string $query The query string (by reference)
-	 * @param  array  $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array  $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int    $firstrow Integer to limit number of returned rows
-	 * (if used with 'last_row' represents the offset of the returned rows)
-	 * @param  int    $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'first_row')
-	 * @param  array  $sort An array of fields to compose ORDER BY clause
-	 * @param  array  $filters An array of condition to be applied in WHERE clause
-	 * @param null    $raw_query
-	 * @param null    $bind_params
-	 * @param null    $transaction
-	 * @return void
-	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 */
+    /**
+     * Prepares the query string for execution
+     *
+     * @param  string $query The query string (by reference)
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'last_row' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'first_row')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $bind_params
+     * @param null    $transaction
+     * @return void
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     * @access public
+     */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
 		    foreach($params as $k=>$p) {
@@ -519,29 +518,30 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function FirebirdSqlExecuteQuery
-	/**
-	 * Prepares the command string to be executed
-	 *
-	 * @param  string $procedure The name of the stored procedure
-	 * @param  array  $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array  $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int    $firstrow Integer to limit number of returned rows
-	 * (if used with 'last_row' represents the offset of the returned rows)
-	 * @param  int    $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'first_row')
-	 * @param  array  $sort An array of fields to compose ORDER BY clause
-	 * @param  array  $filters An array of condition to be applied in WHERE clause
-	 * @param null    $raw_query
-	 * @param null    $bind_params
-	 * @param null    $transaction
-	 * @return string|resource Returns processed command string or the statement resource
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
+    /**
+     * Prepares the command string to be executed
+     *
+     * @param  string $procedure The name of the stored procedure
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'last_row' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'first_row')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $bind_params
+     * @param null    $transaction
+     * @return string|resource Returns processed command string or the statement resource
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     * @access protected
+     */
 	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
 			if(count($params)) {
@@ -685,7 +685,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function FirebirdSqlExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
@@ -734,4 +734,3 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		return static::FirebirdSqlEscapeString($param);
 	}//END public function EscapeString
 }//END class FirebirdSqlDbAdapter extends SqlDataAdapter
-?>

@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.6.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core;
@@ -161,7 +161,7 @@ class AppSession {
 		self::$session_started = FALSE;
 		if(class_exists('\ErrorHandler')) { \ErrorHandler::$silentMode = TRUE; }
 		$errors = [];
-		$dbg_data = '';
+		$dbgData = '';
 		$session_name = AppConfig::GetValue('session_name');
 		ini_set('session.use_cookies',1);
 		ini_set('session.cookie_lifetime',0);
@@ -177,7 +177,7 @@ class AppSession {
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
 						session_id($session_id);
-						$dbg_data .= 'Set new session id: '.$session_id."\n";
+						$dbgData .= 'Set new session id: '.$session_id."\n";
 					}//if(is_string($session_id) && strlen($session_id))
 					session_start();
 				} catch(\Exception $e) {
@@ -190,10 +190,10 @@ class AppSession {
 					if(count($errors)>0) {
 						self::$session_started = FALSE;
 						if($log_file) { Debugger::Log2File(print_r($errors,1),$absolute_path.$log_file); }
-						$dbg_data .= 'Session start [handler: Redis] errors: '.print_r($errors,1)."\n";
+						$dbgData .= 'Session start [handler: Redis] errors: '.print_r($errors,1)."\n";
 					} else {
 						self::$session_started = TRUE;
-						$dbg_data .= 'Session start done [handler: Redis]'."\n";
+						$dbgData .= 'Session start done [handler: Redis]'."\n";
 					}//if(count($errors)>0)
 				}//try
 			}//if(class_exists('\Redis',FALSE))
@@ -208,7 +208,7 @@ class AppSession {
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
 						session_id($session_id);
-						$dbg_data .= 'Set new session id: '.$session_id."\n";
+						$dbgData .= 'Set new session id: '.$session_id."\n";
 					}//if(is_string($session_id) && strlen($session_id))
 					session_start();
 				} catch(\Exception $e) {
@@ -221,10 +221,10 @@ class AppSession {
 					if(count($errors)>0) {
 						self::$session_started = FALSE;
 						if($log_file) { Debugger::Log2File(print_r($errors,1),$absolute_path.$log_file); }
-						$dbg_data .= 'Session start [handler: Memcached] errors: '.print_r($errors,1)."\n";
+						$dbgData .= 'Session start [handler: Memcached] errors: '.print_r($errors,1)."\n";
 					} else {
 						self::$session_started = TRUE;
-						$dbg_data .= 'Session start done [handler: Memcached]'."\n";
+						$dbgData .= 'Session start done [handler: Memcached]'."\n";
 					}//if(count($errors)>0)
 				}//try
 			} elseif(class_exists('\Memcache',FALSE)) {
@@ -235,7 +235,7 @@ class AppSession {
 					if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 					if(is_string($session_id) && strlen($session_id)) {
 						session_id($session_id);
-						$dbg_data .= 'Set new session id: '.$session_id."\n";
+						$dbgData .= 'Set new session id: '.$session_id."\n";
 					}//if(is_string($session_id) && strlen($session_id))
 					session_start();
 				} catch(\Exception $e) {
@@ -248,10 +248,10 @@ class AppSession {
 					if(count($errors)>0) {
 						self::$session_started = FALSE;
 						if($log_file) { Debugger::Log2File(print_r($errors,1),$absolute_path.$log_file); }
-						$dbg_data .= 'Session start [handler: Memcache] errors: '.print_r($errors,1)."\n";
+						$dbgData .= 'Session start [handler: Memcache] errors: '.print_r($errors,1)."\n";
 					} else {
 						self::$session_started = TRUE;
-						$dbg_data .= 'Session start done [handler: Memcache]'."\n";
+						$dbgData .= 'Session start done [handler: Memcache]'."\n";
 					}//if(count($errors)>0)
 				}//try
 			}//if(class_exists('\Memcached',FALSE))
@@ -270,13 +270,13 @@ class AppSession {
 			if(is_string($session_name) && strlen($session_name)) { session_name($session_name); }
 			if(is_string($session_id) && strlen($session_id)) {
 				session_id($session_id);
-				$dbg_data .= 'Set new session id: '.$session_id."\n";
+				$dbgData .= 'Set new session id: '.$session_id."\n";
 			}//if(is_string($session_id) && strlen($session_id))
 			session_start();
 			self::$session_started = TRUE;
-			$dbg_data .= 'Session started [handler: Files]'."\n";
+			$dbgData .= 'Session started [handler: Files]'."\n";
 		}//if(!$initialized)
-		return $dbg_data;
+		return $dbgData;
 	}//END public static function ConfigAndStartSession
     /**
      * Initiate/re-initiate session and read session data
@@ -291,8 +291,8 @@ class AppSession {
      */
 	public static function SessionStart(string $path = '',?bool $do_not_keep_alive = NULL,$ajax = FALSE) {
 		if(!self::$with_session) { return; }
-		$dbg_data = '>> '.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'console')."\n";
-		$dbg_data .= 'Session started: '.(self::$session_started ? 'TRUE' : 'FALSE')."\n";
+		$dbgData = '>> '.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'console')."\n";
+		$dbgData .= 'Session started: '.(self::$session_started ? 'TRUE' : 'FALSE')."\n";
 		$absolute_path = _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH;
 		$cremoteaddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
 		$cdomain = strtolower((array_key_exists('SERVER_NAME',$_SERVER) && $_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
@@ -300,14 +300,14 @@ class AppSession {
 		$cuseragent = array_key_exists('HTTP_USER_AGENT',$_SERVER) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN USER AGENT';
 		$session_timeout = AppConfig::GetValue('session_timeout');
 		$log_file = AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('errors_log_file');
-		if(!self::$session_started) { $dbg_data .= self::ConfigAndStartSession($absolute_path,$cdomain,$session_timeout,NULL,$log_file); }
-		$dbg_data .= 'Session ID: '.session_id()."\n";
-		$dbg_data .= 'Session age: '.(isset($_SESSION['X_SCAT']) ? (time()-$_SESSION['X_SCAT']) : 'N/A')."\n";
-		$dbg_data .= 'Last request: '.(isset($_SESSION['X_SEXT']) ? (time()-$_SESSION['X_SEXT']) : 'N/A')."\n";
-		$dbg_data .= 'X_SKEY: '.(isset($_SESSION['X_SKEY']) ? $_SESSION['X_SKEY'] : 'N/A')."\n";
+		if(!self::$session_started) { $dbgData .= self::ConfigAndStartSession($absolute_path,$cdomain,$session_timeout,NULL,$log_file); }
+		$dbgData .= 'Session ID: '.session_id()."\n";
+		$dbgData .= 'Session age: '.(isset($_SESSION['X_SCAT']) ? (time()-$_SESSION['X_SCAT']) : 'N/A')."\n";
+		$dbgData .= 'Last request: '.(isset($_SESSION['X_SEXT']) ? (time()-$_SESSION['X_SEXT']) : 'N/A')."\n";
+		$dbgData .= 'X_SKEY: '.(isset($_SESSION['X_SKEY']) ? $_SESSION['X_SKEY'] : 'N/A')."\n";
 		$session_key = AppConfig::GetValue('session_key');
         if(!isset($_SESSION['X_SEXT']) || !isset($_SESSION['X_SKEY']) || ($_SESSION['X_SEXT']+$session_timeout)<time() || $_SESSION['X_SKEY']!=self::GetNewUID($session_key.session_id(),'sha256',TRUE)) {
-            $dbg_data .= 'Do: SESSION RESET'."\n";
+            $dbgData .= 'Do: SESSION RESET'."\n";
         	$_SESSION = [];
 		    setcookie(session_name(),'',time()-4200,'/',$cdomain);
 			session_destroy();
@@ -317,17 +317,17 @@ class AppSession {
 			ini_set('session.gc_maxlifetime',$session_timeout);
 			ini_set('session.cache_expire',$session_timeout/60);
 			$new_session_id = self::GetNewUID($cfulldomain.$cuseragent.$cremoteaddress,'sha256');
-			$dbg_data .= self::ConfigAndStartSession($absolute_path,$cdomain,$session_timeout,$new_session_id,$log_file);
+			$dbgData .= self::ConfigAndStartSession($absolute_path,$cdomain,$session_timeout,$new_session_id,$log_file);
 			$_SESSION['X_SCAT'] = time();
 			$_SESSION['SESSION_ID'] = session_id();
-			$dbg_data .= 'Session ID (new): '.session_id()."\n";
+			$dbgData .= 'Session ID (new): '.session_id()."\n";
 		}//if(!isset($_SESSION['X_SEXT']) || !isset($_SESSION['X_SKEY']) || ($_SESSION['X_SEXT']+self::$session_timeout)<time() || $_SESSION['X_SKEY']!=self::GetNewUID(self::$session_key.session_id(),'sha256',TRUE))
 		set_time_limit(AppConfig::GetValue('request_time_limit'));
 		$_SESSION['X_SKEY'] = self::GetNewUID($session_key.session_id(),'sha256',TRUE);
-		$dbg_data .= 'Do not keep alive: '.($do_not_keep_alive!==TRUE && $do_not_keep_alive!==1 ? 'FALSE' : 'TRUE')."\n";
+		$dbgData .= 'Do not keep alive: '.($do_not_keep_alive!==TRUE && $do_not_keep_alive!==1 ? 'FALSE' : 'TRUE')."\n";
 		if($do_not_keep_alive!==TRUE && $do_not_keep_alive!==1) { $_SESSION['X_SEXT'] = time(); }
-		// vprint($dbg_data);
-		// self::Log2File($dbg_data,$absolute_path.AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('debugging_log_file'));
+		// vprint($dbgData);
+		// self::Log2File($dbgData,$absolute_path.AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('debugging_log_file'));
 		self::$data = $_SESSION;
 		self::$initial_data = self::$data;
 		if(AppConfig::GetValue('async_session') && $ajax) { AppSession::SessionClose(); }

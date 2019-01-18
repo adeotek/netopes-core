@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -48,27 +48,27 @@ class Url {
 	 * @access     protected
 	 * @static
 	 */
-	protected static $url_path = NULL;
+	protected static $urlPath = NULL;
 	/**
 	 * @var    string Application web protocol (http/https)
 	 * @access protected
 	 */
-	protected $app_web_protocol = NULL;
+	protected $appWebProtocol = NULL;
 	/**
 	 * @var    string Application domain (auto-set on constructor)
 	 * @access protected
 	 */
-	protected $app_domain = NULL;
+	protected $appDomain = NULL;
 	/**
 	 * @var    string Application folder inside www root (auto-set on constructor)
 	 * @access protected
 	 */
-	protected $url_folder = NULL;
+	protected $urlFolder = NULL;
 	/**
 	 * @var    string Application base url: domain + path + url id (auto-set on constructor)
 	 * @access protected
 	 */
-	protected $url_base = NULL;
+	protected $urlBase = NULL;
 	/**
 	 * @var    array GET (URL) data
 	 * @access public
@@ -78,60 +78,60 @@ class Url {
 	 * @var    array GET (URL) special parameters list
 	 * @access public
 	 */
-	public $special_params = array('language','urlid');
+	public $specialParams = array('language','urlid');
 	/**
 	 * @var    string URL virtual path
 	 * @access public
 	 */
-	public $url_virtual_path = NULL;
+	public $urlVirtualPath = NULL;
 	/**
 	 * Extracts the URL path of the application.
 	 *
-	 * @param      string $startup_path Entry point file absolute path
+	 * @param      string $startupPath Entry point file absolute path
 	 * @return     string Returns the URL path of the application.
 	 * @access     public
 	 * @static
 	 */
-	public static function ExtractUrlPath($startup_path = NULL) {
-		if(strlen($startup_path)) {
-			self::$url_path = str_replace('\\','/',(str_replace(_NAPP_ROOT_PATH._NAPP_PUBLIC_ROOT_PATH,'',$startup_path)));
-			self::$url_path = trim(str_replace(trim(self::$url_path,'/'),'',trim(dirname($_SERVER['SCRIPT_NAME']),'/')),'/');
-			self::$url_path = trim(self::$url_path.'/'.trim(_NAPP_PUBLIC_PATH,'\/'),'\/');
+	public static function ExtractUrlPath($startupPath = NULL) {
+		if(strlen($startupPath)) {
+			self::$urlPath = str_replace('\\','/',(str_replace(_NAPP_ROOT_PATH._NAPP_PUBLIC_ROOT_PATH,'',$startupPath)));
+			self::$urlPath = trim(str_replace(trim(self::$urlPath,'/'),'',trim(dirname($_SERVER['SCRIPT_NAME']),'/')),'/');
+			self::$urlPath = trim(self::$urlPath.'/'.trim(_NAPP_PUBLIC_PATH,'\/'),'\/');
 		} else {
-			self::$url_path = trim(dirname($_SERVER['SCRIPT_NAME']),'\/');
-		}//if(strlen($startup_path))
-		return (strlen(self::$url_path) ? '/'.self::$url_path : '');
+			self::$urlPath = trim(dirname($_SERVER['SCRIPT_NAME']),'\/');
+		}//if(strlen($startupPath))
+		return (strlen(self::$urlPath) ? '/'.self::$urlPath : '');
 	}//END public static function ExtractUrlPath
 	/**
 	 * Gets the base URL of the application.
 	 *
-	 * @param	   string $startup_path Startup absolute path
+	 * @param	   string $startupPath Startup absolute path
 	 * @return     string Returns the base URL of the application.
 	 * @access     public
 	 * @static
 	 */
-	public static function GetRootUrl($startup_path = NULL) {
-		$app_web_protocol = (isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
-		$app_domain = strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
-		$url_folder = self::ExtractUrlPath($startup_path);
-		return $app_web_protocol.$app_domain.$url_folder;
+	public static function GetRootUrl($startupPath = NULL) {
+		$appWebProtocol = (isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
+		$appDomain = strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
+		$urlFolder = self::ExtractUrlPath($startupPath);
+		return $appWebProtocol.$appDomain.$urlFolder;
 	}//END public static function GetRootUrl
 	/**
 	 * AppUrl constructor.
 	 *
-	 * @param string $app_domain
-	 * @param string $app_web_protocol
-	 * @param string $url_folder
+	 * @param string $appDomain
+	 * @param string $appWebProtocol
+	 * @param string $urlFolder
 	 */
-	public function __construct(string $app_domain,string $app_web_protocol,string $url_folder) {
-		$this->app_domain = $app_domain;
-		$this->app_web_protocol = $app_web_protocol;
-		$this->url_folder = strlen(trim($url_folder,'\/ ')) ? '/'.trim($url_folder,'\/ ') : '';
+	public function __construct(string $appDomain,string $appWebProtocol,string $urlFolder) {
+		$this->appDomain = $appDomain;
+		$this->appWebProtocol = $appWebProtocol;
+		$this->urlFolder = strlen(trim($urlFolder,'\/ ')) ? '/'.trim($urlFolder,'\/ ') : '';
 		if(isset($_SERVER['REQUEST_URI'])) {
 			$uri_len = strpos($_SERVER['REQUEST_URI'],'?')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'?') : (strpos($_SERVER['REQUEST_URI'],'#')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'#') : strlen($_SERVER['REQUEST_URI']));
-			$this->url_base = $this->app_web_protocol.$this->app_domain.substr($_SERVER['REQUEST_URI'],0,$uri_len);
+			$this->urlBase = $this->appWebProtocol.$this->appDomain.substr($_SERVER['REQUEST_URI'],0,$uri_len);
 		} else {
-			$this->url_base = $this->app_web_protocol.$this->app_domain;
+			$this->urlBase = $this->appWebProtocol.$this->appDomain;
 		}//if(isset($_SERVER['REQUEST_URI']))
 		$this->data = is_array($_GET) ? $this->SetParams($_GET) : [];
 	}//END public function __construct
@@ -139,31 +139,31 @@ class Url {
 	 * @return string
 	 */
 	public function GetCurrentUrl(): string {
-		return $this->app_web_protocol.$this->app_domain.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
+		return $this->appWebProtocol.$this->appDomain.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
 	}//END public function GetCurrentUrl
 	/**
 	 * @return string
 	 */
 	public function GetWebLink(): string {
-		return $this->app_web_protocol.$this->app_domain.$this->url_folder;
+		return $this->appWebProtocol.$this->appDomain.$this->urlFolder;
 	}//END public function GetWebLink
 	/**
 	 * @return string
 	 */
 	public function GetAppWebProtocol(): string {
-		return $this->app_web_protocol;
+		return $this->appWebProtocol;
 	}//END public function GetAppWebProtocol
 	/**
 	 * @return string
 	 */
 	public function GetAppDomain(): string {
-		return $this->app_domain;
+		return $this->appDomain;
 	}//END public function GetAppDomain
 	/**
 	 * @return string
 	 */
 	public function GetUrlFolder(): string {
-		return $this->url_folder;
+		return $this->urlFolder;
 	}//END public function GetUrlFolder
 	/**
 	 * description
@@ -390,9 +390,9 @@ class Url {
 				if(is_null($urlid)) {
 					$urlid = array_key_exists('urlid',$this->data) ? $this->ParamToString($this->data['urlid']) : NULL;
 				}//if(is_null($urlid))
-				return $this->GetWebLink().'/'.(strlen($this->url_virtual_path) ? $this->url_virtual_path.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
+				return $this->GetWebLink().'/'.(strlen($this->urlVirtualPath) ? $this->urlVirtualPath.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
 			case self::URL_FORMAT_FRIENDLY_ORIGINAL:
-				return $this->url_base;
+				return $this->urlBase;
 			case self::URL_FORMAT_FULL:
 				return $this->GetWebLink().'/index.php';
 			case self::URL_FORMAT_SHORT:
@@ -422,9 +422,9 @@ class Url {
 					$anchor = $this->ParamToString($v);
 					continue;
 				}//if($k=='anchor')
-				if(($lurl_format==self::URL_FORMAT_FRIENDLY || $lurl_format==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->special_params)) { continue; }
+				if(($lurl_format==self::URL_FORMAT_FRIENDLY || $lurl_format==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->specialParams)) { continue; }
 				$val = $this->ParamToString($v);
-				if(in_array($k,$this->special_params) && !$val) { continue; }
+				if(in_array($k,$this->specialParams) && !$val) { continue; }
 				$prefix = '&';
 				if($first) {
 					$first = FALSE;

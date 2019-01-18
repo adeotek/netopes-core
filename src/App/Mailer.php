@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -48,8 +48,8 @@ class Mailer {
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
 		if(!is_array($settings) || !count($settings)) {
-			$id_section = get_array_value($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
-			$id_zone = get_array_value($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
+			$id_section = get_array_value($params,'id_section',NApp::GetParam('id_section'),'is_numeric');
+			$id_zone = get_array_value($params,'id_zone',NApp::GetParam('id_zone'),'is_numeric');
 			$items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
 				'section_id'=>(is_numeric($id_section) ? $id_section : NULL),
 				'zone_id'=>(is_numeric($id_zone) ? $id_zone : NULL),
@@ -147,7 +147,7 @@ class Mailer {
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
 		} catch(\Exception $e) {
-			NApp::Elog($e->getMessage(),'$mailer->send::Exception');
+			NApp::Elog($e);
 			$result = strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
 			if(self::$debug) {
 				NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
@@ -182,4 +182,3 @@ class Mailer {
 		return self::SendSMTPEmail($subject,$afrom,$ato,$msg,$settings,$abcc,[],[],$acc,$reply_to);
 	}//END public static function SimpleSendSMTPEmail
 }//END class Mailer
-?>

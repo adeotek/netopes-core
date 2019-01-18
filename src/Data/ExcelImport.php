@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -93,8 +93,8 @@ class ExcelImport {
     public function __construct(array $fields,array $params = []) {
 		if(!count($fields)) { throw new AppException('Invalid ExcelImport fields list!',E_ERROR,1); }
 		$this->fields = $fields;
-        $this->dsep = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$this->gsep = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+        $this->dsep = get_array_value($params,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$this->gsep = get_array_value($params,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$this->ds_name = get_array_value($params,'ds_name','','is_notempty_string');
 		$this->ds_method = get_array_value($params,'ds_method','','is_notempty_string');
 		$this->ds_params = get_array_value($params,'ds_params',[],'is_array');
@@ -236,7 +236,7 @@ class ExcelImport {
 		} catch(AppException $e) {
 			$row['_has_error'] = 1;
 			$row['_error'] = $e->getMessage();
-			NApp::Elog($e->getMessage(),'row['.$row['_rowno'].']');
+			NApp::Elog($e,'row['.$row['_rowno'].']');
 			return FALSE;
 		}//END try
 	}//END protected function ProcessDataRow

@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -189,10 +189,10 @@ class PdfDocument {
 	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->decimal_separator = NApp::_GetParam('decimal_separator');
-		$this->group_separator = NApp::_GetParam('group_separator');
-		$this->date_separator = NApp::_GetParam('date_separator');
-		$this->time_separator = NApp::_GetParam('time_separator');
+		$this->decimal_separator = NApp::GetParam('decimal_separator');
+		$this->group_separator = NApp::GetParam('group_separator');
+		$this->date_separator = NApp::GetParam('date_separator');
+		$this->time_separator = NApp::GetParam('time_separator');
 		$this->langcode = NApp::_GetLanguageCode();
 		$this->file_name = date('YmdHis').'.pdf';
 		if(is_array($params) && count($params)) {
@@ -542,7 +542,7 @@ class PdfDocument {
 			if(get_array_value($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
 		} catch(\Exception $e){
 			NApp::Write2LogFile($e->getMessage(),'error');
-			NApp::Elog($e->getMessage());
+			NApp::Elog($e);
 			echo $e->getMessage();
 			return FALSE;
 		}//END try

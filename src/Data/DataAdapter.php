@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -16,6 +16,7 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 use NETopes\Core\AppException;
 use NApp;
+
 /**
  * DbAdapter is the base abstract class for all database adapters
  *
@@ -31,7 +32,7 @@ abstract class DataAdapter {
      * @access protected
      * @static
      */
-	protected static $DatabaseAdapterInstances = [];
+	protected static $_dbAdapterInstances = [];
 	/**
 	 * @var    bool Debug flag for database calls
 	 * TRUE - with debug and FALSE - no debug
@@ -53,27 +54,27 @@ abstract class DataAdapter {
 	 * @var    string Database name
 	 * @access protected
 	 */
-	protected $dbname = NULL;
+	protected $dbName = NULL;
 	/**
 	 * @var    string Database type
 	 * @access protected
 	 */
-	protected $dbtype = NULL;
+	protected $dbType = NULL;
 	/**
 	 * @var    array Database transactions array
 	 * @access protected
 	 */
 	protected $transactions = [];
 	/**
-	 * @var    type description
+	 * @var    bool description
 	 * @access protected
 	 */
-	protected $use_pdo = FALSE;
+	protected $usePdo = FALSE;
 	/**
 	 * @var    int Flag for setting the result keys case
 	 * @access public
 	 */
-	public $results_keys_case = CASE_LOWER;
+	public $resultsKeysCase = CASE_LOWER;
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
@@ -98,9 +99,9 @@ abstract class DataAdapter {
 		$this->debug = AppConfig::GetValue('db_debug');
 		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new AppException('Incorect database connection',E_ERROR,1); }
-		$this->dbname = $connection['db_name'];
-		$this->dbtype = $connection['db_type'];
-		$this->results_keys_case = get_array_value($connection,'results_keys_case',$this->results_keys_case,'is_integer');
+		$this->dbName = $connection['db_name'];
+		$this->dbType = $connection['db_type'];
+		$this->resultsKeysCase = get_array_value($connection,'resultsKeysCase',$this->resultsKeysCase,'is_integer');
 		$this->Init($connection);
 	}//END protected function __construct
 	/**
@@ -116,11 +117,11 @@ abstract class DataAdapter {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !$type) { return NULL; }
 		$dbclass = get_called_class();
 		$dbiname = AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
-		if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection)) {
+		if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection)) {
 			if($existing_only) { return NULL; }
-			self::$DatabaseAdapterInstances[$dbiname] = new $dbclass($connection);
-		}//if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection))
-		return self::$DatabaseAdapterInstances[$dbiname];
+			self::$_dbAdapterInstances[$dbiname] = new $dbclass($connection);
+		}//if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection))
+		return self::$_dbAdapterInstances[$dbiname];
 	}//END public static function GetInstance
 	/**
 	 * Gets the database name
@@ -130,7 +131,7 @@ abstract class DataAdapter {
 	 * @access public
 	 */
 	public function GetName(): string {
-		return $this->dbname;
+		return $this->dbName;
 	}//END public function GetName
 	/**
 	 * Gets the database connection object

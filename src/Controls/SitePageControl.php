@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
@@ -30,7 +30,7 @@
 			parent::__construct($params);
 		}//END public function __construct
 		protected function SetControl(): ?string {
-			$limit = NApp::_GetParam('rows_per_page');
+			$limit = NApp::GetParam('rows_per_page');
 			$limit = $limit>0 ? $limit : 20; //crapa cu division by zero daca nu are inregistrare in admin_user_options
 			$totalnrofpages = ceil($this->totalrows/$limit);
 			$cpage = (is_numeric($this->current_page) && $this->current_page>0) ? $this->current_page : -1;

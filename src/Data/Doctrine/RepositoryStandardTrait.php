@@ -1,14 +1,15 @@
 <?php
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\Query;
 use NETopes\Core\AppException;
+
 /**
- * Trait DoctrineRepositoryStandardTrait
+ * Trait RepositoryStandardTrait
  *
  * @package NETopes\Core\Data
  */
-trait DoctrineRepositoryStandardTrait {
-	use DoctrineRepositoryBaseTrait;
+trait RepositoryStandardTrait {
+	use RepositoryBaseTrait;
 	/**
 	 * @param array  $params
 	 * @return array|null
@@ -151,4 +152,4 @@ trait DoctrineRepositoryStandardTrait {
             throw new AppException($e->getMessage(),$e->getCode(),1);
         }//END try
     }//END public function findFiltered
-}//END trait DoctrineRepositoryStandardTrait
+}//END trait RepositoryStandardTrait

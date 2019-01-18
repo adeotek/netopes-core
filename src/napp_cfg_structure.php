@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
@@ -90,6 +90,10 @@ $_NAPP_CONFIG_STRUCTURE = [
 //START NETopes base configuration
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
+    // Modules (controllers) namespace prefix
+    'app_modules_namespace_prefix'=>['access'=>'readonly','default'=>'Modules\\','validation'=>'is_string'],
+    // Data sources namespace prefix
+    'app_data_sources_namespace_prefix'=>['access'=>'readonly','default'=>'DataSources\\','validation'=>'is_string'],
     // Use custom modules and data sources autoloader
     'use_custom_autoloader'=>['access'=>'readonly','default'=>TRUE,'validation'=>'bool'],
     // Relative path to NETopes javascript files (linux style)
@@ -169,6 +173,8 @@ $_NAPP_CONFIG_STRUCTURE = [
 //START Logs & errors reporting
     // Debug mode on/off
     'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
+    // Show exception trace data
+    'show_exceptions_trace'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Database debug mode on/off
     'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
     // Database debug to file on/off

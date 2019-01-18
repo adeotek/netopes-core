@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 /**
@@ -59,9 +59,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 			$tns .= " (SERVER = ".strtoupper($connection['db_server_type']).")";
 		}//if(isset($connection['db_server_type']) && strlen($connection['db_server_type']))
 		if(isset($connection['db_conn_type']) && strlen($connection['db_conn_type'])) {
-			$tns .= " ({$connection['db_conn_type']} = {$this->dbname})";
+			$tns .= " ({$connection['db_conn_type']} = {$this->dbName})";
 		} else {
-			$tns .= " (SERVICE_NAME = {$this->dbname})";
+			$tns .= " (SERVICE_NAME = {$this->dbName})";
 		}//if(isset($connection['db_conn_type']) && strlen($connection['db_conn_type']))
 		$tns .= "))";
 		vprint('$tns: '.$tns);
@@ -72,9 +72,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 				$dbe = oci_error();
 				throw new AException("FAILED TO CONNECT TO DATABASE: ({$dbe['message']})",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 			}//if(!is_resource($this->connection))
-			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbname.']','Connection',$time);
+			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbName.']','Connection',$time);
 		} catch(Exception $e) {
-			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
+			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 		}//END try
 	}//END protected function Init
 	/**
@@ -277,7 +277,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function OracleExecuteQuery
 	/**
 	 * Prepares the command string to be executed
@@ -512,7 +512,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query.$sql_params4dbg,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function OracleExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

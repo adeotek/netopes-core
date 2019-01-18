@@ -8,10 +8,10 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
@@ -20,15 +20,16 @@ use Doctrine\DBAL\Connection;
 use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+
 /**
-	 * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
-	 *
-	 * This class contains all methods for interacting with FirebirdSQL database.
-	 *
-	 * @package  NETopes\Database
-	 * @access   public
-	 */
-class DoctrineAdapter extends DataAdapter {
+ * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
+ *
+ * This class contains all methods for interacting with FirebirdSQL database.
+ *
+ * @package  NETopes\Database
+ * @access   public
+ */
+class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 	/**
 	 * @var EntityManager
 	 */
@@ -129,4 +130,4 @@ class DoctrineAdapter extends DataAdapter {
 	protected function Init($connection) {
 		$this->em = self::GetEntityManager(NApp::$appPath,$connection,$this->platform);
 	}//END protected function Init
-}//END class DoctrineAdapter extends DataSource
+}//END class DataAdapter extends \NETopes\Core\Data\DataAdapter

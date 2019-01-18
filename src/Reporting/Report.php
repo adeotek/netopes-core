@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -106,10 +106,10 @@ class Report extends ExcelExport {
 			$this->export_file_name = GibberishAES::enc(get_array_value($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
 			$this->excel_export = $this->CreateCacheExcelFile($params);
 		}//if($this->excel_export && $this->report_run_type=='export')
-		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
-		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::_GetParam('group_separator');
-		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::_GetParam('date_separator');
-		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::_GetParam('time_separator');
+		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::GetParam('decimal_separator');
+		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::GetParam('group_separator');
+		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::GetParam('date_separator');
+		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::GetParam('time_separator');
 		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::_GetLanguageCode();
 		$this->result = '';
 		foreach($params['layouts'] as $layout) {
@@ -297,7 +297,7 @@ class Report extends ExcelExport {
 	protected function CreateCacheExcelFile(&$params) {
 		if(!strlen($this->cached_file)) { return FALSE; }
 		try {
-			$cf_path = NApp::_GetCachePath().'reports';
+			$cf_path = AppHelpers::GetCachePath().'reports';
 			if(!file_exists($cf_path)) { mkdir($cf_path,0755,TRUE); }
 			if(file_exists($cf_path.'/'.$this->cached_file)) { unlink($cf_path.'/'.$this->cached_file); }
 			$params['output'] = TRUE;
@@ -326,10 +326,10 @@ class Report extends ExcelExport {
 		return number_format((is_numeric($value) ? $value : 0),2,$this->decimal_separator,$this->group_separator).' %';
 	}//END protected function PercentFormat2
 	protected function DateFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),TRUE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone'),TRUE);
 	}//END protected function DateFormat
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),FALSE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone'),FALSE);
 	}//END protected function DateTimeFormat
 	protected function NoTimezoneDateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);

@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -112,7 +112,7 @@ class GroupCheckBox extends Control {
                 } else {
                     $i_active = strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
                 }//if($this->disabled || $this->readonly)
-                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
+                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
             }//END foreach
         } else {
             $result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";

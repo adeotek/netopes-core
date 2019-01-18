@@ -6,8 +6,13 @@ use Countable;
 use JsonSerializable;
 use IteratorAggregate;
 use ArrayAccess;
-interface Collection extends Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess
-{
+
+/**
+ * Interface Collection
+ *
+ * @package NETopes\Core\Data
+ */
+interface Collection extends Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess {
 	/**
      * Adds an element at the end of the collection.
      *
@@ -205,5 +210,4 @@ interface Collection extends Traversable, Countable, JsonSerializable, IteratorA
 	 * @since 5.4.0
 	 */
 	public function jsonSerialize();
-}
-?>
+}//END interface Collection extends Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess

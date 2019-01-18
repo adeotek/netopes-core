@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -388,7 +388,7 @@ JS;
         try {
             $items = $this->LoadAssociatedItems();
         } catch(AppException $e) {
-            NApp::Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
         $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
@@ -519,7 +519,7 @@ JS;
         try {
             $items = $this->LoadAssignableItems();
         } catch(AppException $e) {
-            NApp::Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
         $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
@@ -576,7 +576,7 @@ JS;
         try {
             $items = $this->LoadLiveVersionItems();
         } catch(AppException $e) {
-            NApp::Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
         if($items===FALSE) { return NULL; }

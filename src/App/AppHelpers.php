@@ -6,12 +6,13 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.6.0.0
+ * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core;
+namespace NETopes\Core\App;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppSession;
 use NApp;
-use NETopes\Core\App\UserSession;
 
 /**
  * Class AppHelpers
@@ -190,6 +191,24 @@ class AppHelpers {
 		}//END foreach
 		return $html_data.'<script type="text/javascript">'."\n".$data."\n".'</script>'."\n";
 	}//END public static function GetDynamicJs
+	/**
+	 * Converts the rights revoked database array to an nested array
+	 * (on 3 levels - module=>method=>rights_revoked)
+	 *
+	 * @param $array
+	 * @return array
+	 * @access public
+	 * @static
+	 */
+	public static function ConvertRightsRevokedArray($array) {
+		if(!is_array($array) || !count($array)) { return []; }
+		$result = [];
+		foreach($array as $line) {
+			if(!strlen($line['module']) || !strlen($line['method'])) { continue; }
+			$result[$line['module']][$line['method']] = $line;
+		}//END foreach
+		return $result;
+	}//END public static function ConvertRightsRevokedArray
 	/**
      * Gets the application copyright
      *

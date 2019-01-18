@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
@@ -30,11 +30,11 @@
 		}//END public function __construct
 		protected function SetControl(): ?string {
 			$result = '';
-			$rpp = NApp::_GetParam('rows_per_page');
+			$rpp = NApp::GetParam('rows_per_page');
 			$rpp = $rpp>0 ? $rpp : 20;
 			$p_no = ceil($this->totalrows/$rpp);
 			if(!$this->withcount || !$this->current_page) {
-				$p_current_arr = NApp::_GetParam($this->module.$this->method.$this->phash);
+				$p_current_arr = NApp::GetParam($this->module.$this->method.$this->phash);
 				$withcount = get_array_value($p_current_arr,'fullpagination',0,'is_numeric');
 				$p_current = get_array_value($p_current_arr,'current_page',1,'is_numeric');
 			} else {

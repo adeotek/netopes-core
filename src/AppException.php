@@ -8,10 +8,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core;
+
 /**
  * Class AppException
  *
@@ -33,19 +34,19 @@ final class AppException extends \ErrorException {
 	 * @param  string Stores the original exception message
 	 * @access protected
 	 */
-	protected $original_message = NULL;
+	protected $originalMessage = NULL;
 	/**
 	 * @param  mixed External error code
 	 * (used generally for database exceptions)
 	 * @access protected
 	 */
-	protected $ext_code = NULL;
+	protected $externalCode = NULL;
 	/**
 	 * @param  array More exception information
 	 * (inherited from PDOException)
 	 * @access public
 	 */
-	public $error_info = [];
+	public $errorInfo = [];
     /**
      * Get AppException instance from another exception instance
      *
@@ -53,7 +54,7 @@ final class AppException extends \ErrorException {
      * @return \NETopes\Core\AppException
      */
     public static function GetInstance($e): AppException {
-	    if(!is_object($e)) { return new AppException('Unknown exception!'); }
+	    if(!is_object($e) || !($e instanceof \Exception)) { return new AppException('Unknown exception!'); }
 	    return new AppException($e->getMessage(),$e->getCode(),1,$e->getFile(),$e->getLine());
 	}//END public static function GetInstance
     /**
@@ -67,19 +68,19 @@ final class AppException extends \ErrorException {
      * @param  string $file Exception location (file)
      * @param  int    $line Exception location (line)
      * @param  string $type Exception type
-     * @param  mixed  $ext_code Extra error code
-     * @param  array  $error_info PDO specific error information
+     * @param  mixed  $externalCode Extra error code
+     * @param  array  $errorInfo PDO specific error information
      * @param  \Exception|null $previous
      * @access public
      */
-	public function __construct($message,$code = -1,$severity = 1,$file = NULL,$line = NULL,$type = 'app',$ext_code = NULL,$error_info = [],$previous = NULL) {
+	public function __construct($message,$code = -1,$severity = 1,$file = NULL,$line = NULL,$type = 'app',$externalCode = NULL,$errorInfo = [],$previous = NULL) {
 		$this->type = strtolower($type);
-		$this->ext_code = $ext_code;
-		$this->error_info = $error_info;
-		$this->original_message = $message;
+		$this->externalCode = $externalCode;
+		$this->errorInfo = $errorInfo;
+		$this->originalMessage = $message;
 		switch($this->type) {
 			case 'firebird':
-				$this->ext_code = is_numeric($this->ext_code) ?  $this->ext_code*(-1) : $this->ext_code;
+				$this->externalCode = is_numeric($this->externalCode) ?  $this->externalCode*(-1) : $this->externalCode;
 				break;
 		  	case 'mysql':
 		  	case 'mongodb':
@@ -87,12 +88,12 @@ final class AppException extends \ErrorException {
 			case 'sqlsrv':
 				break;
 			case 'pdo':
-				switch($this->ext_code) {
+				switch($this->externalCode) {
 					case 'HY000':
-						if(is_array($this->error_info) && count($this->error_info)>2) {
-							$this->ext_code = is_numeric($this->error_info[1]) ?  $this->error_info[1]*(-1) : $this->error_info[1];
-							$message = 'SQL ERROR: '.$this->error_info[2];
-						}//if(is_array($this->error_info) && count($this->error_info)>2)
+						if(is_array($this->errorInfo) && count($this->errorInfo)>2) {
+							$this->externalCode = is_numeric($this->errorInfo[1]) ?  $this->errorInfo[1]*(-1) : $this->errorInfo[1];
+							$message = 'SQL ERROR: '.$this->errorInfo[2];
+						}//if(is_array($this->errorInfo) && count($this->errorInfo)>2)
 						break;
 					default:
 						break;
@@ -112,7 +113,7 @@ final class AppException extends \ErrorException {
 	 * @final
 	 */
 	final public function getExtCode() {
-		return $this->ext_code;
+		return $this->externalCode;
 	}//END public function getExtCode
 	/**
 	 * Gets the original exception message
@@ -122,7 +123,7 @@ final class AppException extends \ErrorException {
 	 * @final
 	 */
 	final public function getOriginalMessage() {
-		return $this->original_message;
+		return $this->originalMessage;
 	}//END public function getOriginalMessage
 	/**
 	 * Sets the original exception message
@@ -134,7 +135,7 @@ final class AppException extends \ErrorException {
 	 * @final
 	 */
 	final public function setOriginalMessage($message) {
-		$this->original_message = $message;
+		$this->originalMessage = $message;
 	}//END public function setOriginalMessage
 	/**
 	 * Gets the full exception message

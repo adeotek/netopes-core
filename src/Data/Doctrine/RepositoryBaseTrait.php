@@ -1,20 +1,20 @@
 <?php
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
 use NETopes\Core\AppException;
+
 /**
- * Trait DoctrineRepositoryBaseTrait
+ * Trait RepositoryBaseTrait
  *
  * @package NETopes\Core\Data
  */
-trait DoctrineRepositoryBaseTrait {
+trait RepositoryBaseTrait {
 	/**
 	 * @return array
 	 */
-	public function getOperators(): array
-	{
+	public function getOperators(): array {
         return [
             '=='=>'eq',
             '>'=>'gt',
@@ -32,12 +32,13 @@ trait DoctrineRepositoryBaseTrait {
             'between'=>'between',
         ];
     }
-	/**
-	 * @param             $query
-	 * @param null|string $label
-	 * @param float|null  $time
-	 * @param bool        $forced
-	 */
+    /**
+     * @param             $query
+     * @param null|string $label
+     * @param float|null  $time
+     * @param bool        $forced
+     * @throws \NETopes\Core\AppException
+     */
 	protected function DbDebug($query,?string $label = NULL,?float $time = NULL,bool $forced = FALSE) {
 		if(!AppConfig::GetValue('db_debug') && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';
@@ -110,4 +111,4 @@ trait DoctrineRepositoryBaseTrait {
         }//if(strpos($rawName,'.')===FALSE)
         return $name;
     }//END public function getFieldName
-}//END trait DoctrineRepositoryBaseTrait
+}//END trait RepositoryBaseTrait

@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 /**
@@ -37,16 +37,16 @@ class MongoDbDbAdapter extends DataAdapter {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : ':27017';
 		try {
 			self::$napp->StartTimeTrack('mongodb_connect');
-			$mg_conn = new MongoClient('mongodb://'.$connection['db_user'].':'.get_array_value($connection,'db_password','','is_string').'@'.$connection['db_server'].$db_port.'/'.$this->dbname);
-			$mg_dbname = $this->dbname;
+			$mg_conn = new MongoClient('mongodb://'.$connection['db_user'].':'.get_array_value($connection,'db_password','','is_string').'@'.$connection['db_server'].$db_port.'/'.$this->dbName);
+			$mg_dbname = $this->dbName;
 			$this->connection = $mg_conn->$mg_dbname;
 			self::$napp->Dlog(self::$napp->ShowTimeTrack('mongodb_connect'),'mongodb_connect');
 		} catch(MongoConnectionException $e) {
-			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
+			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		} catch(MongoException $e){
-			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
+			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		} catch(Exception $e) {
-			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
+			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		}//END try
 	}//END protected function Init
 	/**

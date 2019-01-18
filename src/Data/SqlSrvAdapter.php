@@ -8,13 +8,15 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NETopes\Core\AppConfig;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 use NApp;
+
 /**
  * SqlSrvDatabase is implementing the MS SQL database
  *
@@ -128,10 +130,10 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 */
 	protected function Init($connection): void {
 		$dbconnect_options = array(
-			'APP'=>NApp::_GetAppName(),
+			'APP'=>AppConfig::GetValue('app_name'),
 			'UID'=>$connection['db_user'],
 			'PWD'=>get_array_value($connection,'db_password','','is_string'),
-			'Database'=>$this->dbname,
+			'Database'=>$this->dbName,
 			'CharacterSet'=>get_array_value($connection,'CharacterSet','UTF-8','is_notempty_string'),
 			'TrustServerCertificate'=>1,
 			'ReturnDatesAsStrings'=>get_array_value($connection,'ReturnDatesAsStrings',TRUE,'bool'),
@@ -164,7 +166,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			}//if(isset($WarningsReturnAsErrors) && is_numeric($WarningsReturnAsErrors))
 			//NApp::Dlog(NApp::TimerShow('sqlsrv_connect'),'sqlsrv_connect');
 		} catch(\Exception $e) {
-			throw new  AppException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",8001,1,__FILE__,__LINE__,'sqlsrv',0);
+			throw new  AppException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",8001,1,__FILE__,__LINE__,'sqlsrv',0);
 		}//END try
 	}//END protected function Init
     /**
@@ -270,6 +272,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
     /**
      * @param array $condition
      * @return string
+     * @throws \Exception
      */
     private function GetFilterCondition(array $condition): string {
         $cond = get_array_value($condition,'condition',NULL,'is_notempty_string');
@@ -371,6 +374,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $transaction
      * @return void
      * @access public
+     * @throws \Exception
      */
 	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
@@ -424,6 +428,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @return array|bool Returns database request result
      * @access public
      * @throws \NETopes\Core\AppException
+     * @throws \Exception
      */
 	public function SqlSrvExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -478,7 +483,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 			throw new  AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
 		}//END try
 		$this->DbDebug($query,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function SqlSrvExecuteQuery
     /**
      * Prepares the command string to be executed
@@ -499,6 +504,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $transaction
      * @return string|resource Returns processed command string or the statement resource
      * @access protected
+     * @throws \Exception
      */
 	protected function SqlSrvPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$sql_params = NULL,$transaction = NULL) {
 		$parameters = '';
@@ -571,28 +577,29 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//END switch
 		return $query;
 	}//END protected function SqlSrvPrepareProcedureStatement
-	/**
-	 * Executs a stored procedure against the database
-	 *
-	 * @param  string $procedure The name of the stored procedure
-	 * @param  array  $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array  $out_params An array of output params
-	 * @param  string $tran_name Name of transaction in which the query will run
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int    $firstrow Integer to limit number of returned rows
-	 * (if used with 'last_row' represents the offset of the returned rows)
-	 * @param  int    $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'first_row')
-	 * @param  array  $sort An array of fields to compose ORDER BY clause
-	 * @param  array  $filters An array of condition to be applied in WHERE clause
-	 * @param bool    $log
-	 * @param null    $results_keys_case
-	 * @param null    $custom_tran_params
-	 * @return array|bool Returns database request result
-	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 */
+    /**
+     * Executs a stored procedure against the database
+     *
+     * @param  string $procedure The name of the stored procedure
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $tran_name Name of transaction in which the query will run
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'last_row' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'first_row')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param bool    $log
+     * @param null    $results_keys_case
+     * @param null    $custom_tran_params
+     * @return array|bool Returns database request result
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     * @access public
+     */
 	public function SqlSrvExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
 		if(!is_array($out_params)) { $out_params = []; }
@@ -644,7 +651,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		}//END try
 		//if(strlen($tran_name)==0) { $this->SqlSrvCommitTran(); }
 		$this->DbDebug($query.$sql_params4dbg,'Query',$time);
-		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function SqlSrvExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects

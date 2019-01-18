@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -48,7 +48,7 @@ class CkEditor extends Control {
             try {
                 $lextraconfig = json_encode($this->extra_config);
             } catch(\Exception $je) {
-                NApp::Elog($je->getMessage());
+                NApp::Elog($e);
                 $lextraconfig = 'undefined';
             }//END try
         } elseif(is_string($this->extra_config) && strlen($this->extra_config)) {

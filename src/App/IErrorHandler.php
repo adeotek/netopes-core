@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -37,17 +37,17 @@ interface IErrorHandler {
 	/**
 	 * Method called through set_error_handler() on error
 	 *
-	 * @param  int         $errno Error code
-	 * @param  string      $errstr Error location (file)
-	 * @param  string|null $errfile
-	 * @param  int|null    $errline Error location (line)
+	 * @param  int         $errorNo Error code
+	 * @param  string      $errorMessage Error location (file)
+	 * @param  string|null $errorFile
+	 * @param  int|null    $errorLine Error location (line)
 	 * @param  array       $errcontext Error context
 	 * @return void
 	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 * @static
 	 */
-	public static function ErrorHandlerFunction(int $errno = -1,string $errstr = 'Unknown error',?string $errfile = NULL,?int $errline = NULL,array $errcontext = []);
+	public static function ErrorHandlerFunction(int $errorNo = -1,string $errorMessage = 'Unknown error',?string $errorFile = NULL,?int $errorLine = NULL,array $errcontext = []);
 	/**
 	 * Method called through set_exception_handler() on exception thrown
 	 *
@@ -69,4 +69,3 @@ interface IErrorHandler {
 	 */
 	public static function ShutDownHandlerFunction(bool $output = TRUE);
 }//END interface IErrorHandler
-?>

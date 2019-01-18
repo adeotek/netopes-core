@@ -6,15 +6,16 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
-use NETopes\Core\Validators\Validator;
+use NETopes\Core\Controls\ControlsHelpers\ControlsHelpers;
 use NETopes\Core\AppException;
 use GibberishAES;
 use NApp;
+
 /**
  * Module class
  *
@@ -64,10 +65,11 @@ class Module {
      * Get class name with relative namespace
      *
      * @return string
+     * @throws \NETopes\Core\AppException
      */
-    public static final function class(): string {
-	    return trim(str_replace(AppConfig::GetValue('app_root_namespace').'\\'.ModulesProvider::$nsPath,'',static::class),'\\');
-	}//END public static final function class
+    public static final function getShortClassName(): string {
+	    return trim(str_replace(AppConfig::GetValue('app_root_namespace').'\\'.AppConfig::GetValue('app_modules_namespace_prefix'),'',static::class),'\\');
+	}//END public static final function getShortClassName
 	/**
 	 * Module class initializer
 	 *
@@ -76,39 +78,28 @@ class Module {
 	 */
 	protected function _Init() {
 	}//END protected function _Init
-	/**
-	 * Method to be invoked before a standard method call
-	 *
-	 * @param  array $params An array of parameters
-	 * @return bool  Returns TRUE by default
-	 * If FALSE is return the call is canceled
-	 * @access protected
-	 */
+    /**
+     * Method to be invoked before a standard method call
+     *
+     * @param \NETopes\Core\App\Params|array|null $params Parameters
+     * @return bool  Returns TRUE by default
+     * If FALSE is return the call is canceled
+     * @access protected
+     */
 	protected function _BeforeExec($params = NULL) {
 		return TRUE;
 	}//END protected function _BeforeExec
-	/**
-	 * Module class constructor
-	 *
-	 * @return void
-	 * @access protected
-	 */
+    /**
+     * Module class constructor
+     *
+     * @throws \NETopes\Core\AppException
+     * @return void
+     * @access protected
+     */
 	protected final function __construct() {
 	    $this->viewsExtension = AppConfig::GetValue('app_views_extension');
 		$this->_Init();
 	}//END protected final function __construct
-	/**
-	 * Magic getter for [module] virtual property
-	 *
-	 * @param string $name
-	 * @return mixed Returns $this
-	 * @access public
-	 * @throws \NETopes\Core\AppException
-	 */
-	public function __get(string $name) {
-	    if($name==='module') { throw new AppException('Undefined module property ['.$name.']!',E_ERROR,1); }
-		return $this;
-	}//END public function __call
 	/**
 	 * Module class method call
 	 *
@@ -150,18 +141,18 @@ class Module {
 	 * @access public
 	 * @static
 	 */
-	public static function GetDRights($module,$method = '',$type = 'All') {
-		if(NApp::_GetParam('sadmin')==1) { return FALSE; }
+	public static function GetDRights(string $module,string $method = '',string $type = 'All') {
+		if(NApp::GetParam('sadmin')==1) { return FALSE; }
 		// NApp::Dlog($module,'$module');
 		// NApp::Dlog($method,'$method');
 		// NApp::Dlog($type,'$type');
-		if(is_null($module) || is_null($method) || !strlen($type)) { return NULL; }
-		$module = $module=='Module' ? '' : $module;
-		$rights = NApp::_GetParam('user_rights_revoked');
+		if(!strlen($type)) { return NULL; }
+		$module = $module==='Module' ? '' : $module;
+		$rights = NApp::GetParam('user_rights_revoked');
 		$rights = get_array_value($rights,[$module,$method],NULL,'is_array');
 		// NApp::Dlog($rights,'$rights');
 		if(is_null($rights)) { return NULL; }
-		if(get_array_value($rights,'state',0,'is_numeric')!=1 || (get_array_value($rights,'sadmin',0,'is_numeric')==1 && NApp::_GetParam('sadmin')!=1)) { return TRUE; }
+		if(get_array_value($rights,'state',0,'is_integer')!=1 || (get_array_value($rights,'sadmin',0,'is_integer')==1 && NApp::GetParam('sadmin')!=1)) { return TRUE; }
 		if(strtolower($type)=='all') { return $rights; }
 		// NApp::Dlog(get_array_value($rights,strtolower('d'.$type),NULL,'bool'),'dright');
 		return get_array_value($rights,strtolower('d'.$type),NULL,'bool');
@@ -184,56 +175,25 @@ class Module {
 		}//if(!array_key_exists($name,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$name]))
 		return self::$ModuleInstances[$class];
 	}//END public static function GetInstance
-    /**
-     * description
-     *
-     * @param null $firstRow
-     * @param null $lastRow
-     * @param null $currentPage
-     * @param null $rpp
-     * @return array
-     * @access public
-     * @static
-     * @throws \NETopes\Core\AppException
-     */
-	public static function GlobalGetPaginationParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$rpp = NULL) {
-		$cpage = is_numeric($currentPage) ? $currentPage : 1;
-		if($cpage==-1){
-			$firstRow = -1;
-			$lastRow = -1;
-			return array('first_row'=>$firstRow,'last_row'=>$lastRow);
-		}//if($cpage==-1)
-		if(is_numeric($rpp) && $rpp>0) {
-			$lrpp = $rpp;
-		} else {
-			$lrpp = Validator::ValidateValue(NApp::_GetParam('rows_per_page'),20,'is_not0_integer');
-		}//if(is_numeric($rpp) && $rpp>0)
-		if(Validator::IsValidValue($firstRow,'is_not0_integer')) {
-			$lastRow = $firstRow + $lrpp - 1;
-		} else {
-			$firstRow = ($cpage - 1) * $lrpp + 1;
-			$lastRow = $firstRow + $lrpp - 1;
-		}//if(Validator::IsValidValue($firstrow,NULL,'is_not0_numeric'))
-		return array('first_row'=>$firstRow,'last_row'=>$lastRow);
-	}//END public static function GlobalGetPaginationParams
+
 	/**
 	 * description
 	 *
 	 * @param string $method
-	 * @param mixed  $params
+	 * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @param null|string $dynamicTargetId
-	 * @param bool   $reset_session_params
-	 * @param mixed  $before_call
+	 * @param bool   $resetSessionParams
+	 * @param mixed  $beforeCall
 	 * @return mixed return description
 	 * @throws \NETopes\Core\AppException
 	 * @access public
 	 */
-	public function Exec(string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $reset_session_params = FALSE,$before_call = NULL) {
-		$o_before_call = is_object($before_call) ? $before_call : new Params($before_call);
-		if($o_before_call->count() && !$this->_BeforeExec($before_call)) { return FALSE; }
+	public function Exec(string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $resetSessionParams = FALSE,$beforeCall = NULL) {
+		$o_before_call = is_object($beforeCall) ? $beforeCall : new Params($beforeCall);
+		if($o_before_call->count() && !$this->_BeforeExec($beforeCall)) { return FALSE; }
 		$o_params = is_object($params) ? $params : new Params($params);
 		if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) { NApp::Ajax()->SetDynamicTarget($dynamicTargetId); }
-		if($reset_session_params) { $this->SetSessionParamValue(NULL,$method); }
+		if($resetSessionParams) { $this->SetSessionParamValue(NULL,$method); }
 		return $this->$method($o_params);
 	}//END public function Exec
     /**
@@ -244,7 +204,7 @@ class Module {
      * @access public
      */
 	public function AddJsScript(string $script): void {
-		NApp::_ExecJs($script);
+		AppHelpers::AddJsScript($script);
 	}//END public function AddJsScript
 	/**
      * Get module current method
@@ -255,54 +215,55 @@ class Module {
 	public function GetCurrentMethod(): string {
 		return call_back_trace(2);
 	}//END public function GetCurrentMethod
-	/**
-	 * description
-	 *
-	 * @param null  $def_value
-	 * @param  type $method = '',$module = '' param description
-	 * @param null  $page_hash
-	 * @param null  $key
-	 * @return mixed
-	 * @access public
-	 */
-	public function GetSessionParamValue($def_value = NULL,$method = NULL,$page_hash = NULL,$key = NULL) {
+    /**
+     * description
+     *
+     * @param null        $defaultValue
+     * @param string|null $method
+     * @param string|null $pHash
+     * @param null        $key
+     * @return mixed
+     * @access public
+     */
+	public function GetSessionParamValue($defaultValue = NULL,?string $method = NULL,?string $pHash = NULL,$key = NULL) {
 		if($key) {
-			$result = NApp::_GetParam($key);
-			return ($result ? $result : $def_value);
+			$result = NApp::GetParam($key);
+			return ($result ? $result : $defaultValue);
 		}//if($key)
 		$lmethod = $method ? $method : call_back_trace();
-		$pagehash = $page_hash ? $page_hash : $this->phash;
-		$result = NApp::_GetParam($this->name.$lmethod.$pagehash);
-		return ($result ? $result : $def_value);
+		$pagehash = $pHash ? $pHash : $this->phash;
+		$result = NApp::GetParam($this->name.$lmethod.$pagehash);
+		return ($result ? $result : $defaultValue);
 	}//END public function GetSessionParamValue
-	/**
-	 * description
-	 *
-	 * @param       $value
-	 * @param  type $method = '',$module = '' param description
-	 * @param null  $page_hash
-	 * @param null  $key
-	 * @return void
-	 * @access public
-	 */
-	public function SetSessionParamValue($value,$method = NULL,$page_hash = NULL,$key = NULL) {
+    /**
+     * description
+     *
+     * @param             $value
+     * @param string|null $method
+     * @param string|null $pHash
+     * @param null        $key
+     * @return void
+     * @access public
+     */
+	public function SetSessionParamValue($value,?string $method = NULL,?string $pHash = NULL,$key = NULL) {
 		if($key) {
-			NApp::_SetParam($key,$value);
+			NApp::SetParam($key,$value);
 			return;
 		}//if($key)
 		$lmethod = $method ? $method : call_back_trace();
-		$pagehash = $page_hash ? $page_hash : $this->phash;
-		NApp::_SetParam($this->name.$lmethod.$pagehash,$value);
+		$pagehash = $pHash ? $pHash : $this->phash;
+		NApp::SetParam($this->name.$lmethod.$pagehash,$value);
 	}//END public function SetSessionParamValue
-	/**
-	 * description
-	 *
-	 * @param object|null $params
-	 * @return void
-	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 */
+    /**
+     * description
+     *
+     * @param \NETopes\Core\App\Params|array|null $params Parameters
+     * @return void
+     * @throws \NETopes\Core\AppException
+     * @access public
+     */
 	public function SetFilter($params = NULL) {
+	    if(!is_object($params)) { $params = new Params($params); }
 		$method = $params->safeGet('method','Listing','is_notempty_string');
 		$pagehash = $params->safeGet('phash','','is_string');
 		$target = $params->safeGet('target','','is_string');
@@ -332,23 +293,24 @@ class Module {
     /**
      * description
      *
-     * @param null        $firstrow
-     * @param null        $lastrow
-     * @param null        $current_page
-     * @param object|null $params Parameters object (instance of [Params])
+     * @param null                     $firstRow
+     * @param null                     $lastRow
+     * @param null                     $currentPage
+     * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @return array
-     * @access public
      * @throws \NETopes\Core\AppException
+     * @access public
      */
-	public function GetPaginationParams(&$firstrow = NULL,&$lastrow = NULL,$current_page = NULL,$params = NULL) {
-		$cpage = is_numeric($current_page) ? $current_page : $params->safeGet('current_page',1,'is_integer');
-		$firstrow = $params->safeGet('first_row',0,'is_integer');
-		return self::GlobalGetPaginationParams($firstrow,$lastrow,$cpage);
+	public function GetPaginationParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$params = NULL) {
+	    if(!is_object($params)) { $params = new Params($params); }
+		$cpage = is_numeric($currentPage) ? $currentPage : $params->safeGet('current_page',1,'is_integer');
+		$firstRow = $params->safeGet('first_row',0,'is_integer');
+		return ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$cpage);
 	}//END public function GetPaginationParams
 	/**
 	 * description
 	 *
-	 * @param object|null $params Parameters object (instance of [Params])
+	 * @param \NETopes\Core\App\Params|array|null $params Parameters
 	 * @return void
 	 * @access public
 	 * @throws \NETopes\Core\AppException
@@ -358,7 +320,7 @@ class Module {
 		$targetid = $params->safeGet('targetid','','is_string');
 		if($params->safeGet('modal',TRUE,'bool')) {
 			$callback = $params->safeGet('callback','','is_string');
-			if($callback) { GibberishAES::enc($callback ,'cmf'); }
+			if($callback) { \GibberishAES::enc($callback ,'cmf'); }
 			$dynamic = intval($params->safeGet('dynamic',TRUE,'bool'));
 			NApp::Ajax()->ExecuteJs("CloseModalForm('{$callback}','{$targetid}','{$dynamic}');");
 		} elseif(strlen($targetid)) {
@@ -510,24 +472,6 @@ class Module {
 		// NApp::Dlog($result,'GetViewFile::'.$name);
 		return $result;
 	}//END public function GetViewFile
-	/**
-	 * Converts the rights revoked database array to an nested array
-	 * (on 3 levels - module=>method=>rights_revoked)
-	 *
-	 * @param $array
-	 * @return array
-	 * @access public
-	 * @static
-	 */
-	public static function ConvertRightsRevokedArray($array) {
-		if(!is_array($array) || !count($array)) { return []; }
-		$result = [];
-		foreach($array as $line) {
-			if(!strlen($line['module']) || !strlen($line['method'])) { continue; }
-			$result[$line['module']][$line['method']] = $line;
-		}//END foreach
-		return $result;
-	}//END public static function ConvertRightsRevokedArray
     /**
      * @param      $data
      * @param null $label
@@ -556,12 +500,11 @@ class Module {
 		return $this->debugData[$current_method][$label];
 	}//END protected function GetDebugData
     /**
-     * @param null $params
+     * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @return array|mixed|null
      * @throws \NETopes\Core\AppException
      */
     public function GetCallDebugData($params = NULL) {
-	    /** @var \NETopes\Core\App\Params $params */
 		$clear = $params->safeGet('clear',FALSE,'bool');
 		$method = $params->safeGet('method',NULL,'is_string');
 		$result = NULL;

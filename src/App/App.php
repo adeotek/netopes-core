@@ -6,14 +6,13 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
 use NETopes\Ajax\BaseRequest;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NETopes\Core\AppHelpers;
 use NETopes\Core\AppSession;
 
 /**
@@ -627,10 +626,10 @@ HTML;
 	 * @return void
 	 * @access public
 	 */
-	public static function ExecJs(string $value,bool $dynamic = FALSE) {
+	public static function AddJsScript(string $value,bool $dynamic = FALSE) {
 		if(!strlen($value)) { return; }
 		AppHelpers::AddJsScript($value,$dynamic);
-	}//END public static function _ExecJs
+	}//END public static function AddJsScript
 	/**
 	 * Get dynamic javascript to be executed
 	 *
@@ -894,6 +893,7 @@ HTML;
 		if(is_object(static::$debugger)) { return static::$debugger->IsEnabled(); }
 		$tmpPath = isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
 		static::$debugger = new Debugger(AppConfig::GetValue('debug'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),$tmpPath,AppConfig::GetValue('debug_console_password'));
+		static::$debugger->showExceptionsTrace = AppConfig::GetValue('show_exceptions_trace');
 		static::$debugger->log_file = AppConfig::GetValue('log_file');
 		static::$debugger->errors_log_file = AppConfig::GetValue('errors_log_file');
 		static::$debugger->debug_log_file = AppConfig::GetValue('debug_log_file');
@@ -953,20 +953,21 @@ HTML;
 	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned to the value to be displayed
+     * @param bool    $showExceptionsTrace
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
 	 * @access public
 	 * @throws \Exception
 	 */
-	public static function Elog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
+	public static function Elog($value,?string $label = NULL,bool $showExceptionsTrace = FALSE,bool $file = FALSE,bool $path = FALSE) {
 		if(!is_object(static::$debugger)) { return; }
 		if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
 			$caller = array_shift($dbg);
-			$label = (isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
+			$label = (isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label??($value instanceof \Exception ? get_class($value) : ''));
 		}//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
-		static::$debugger->Debug($value,$label,Debugger::DBG_ERROR);
+		static::$debugger->Elog($value,$label,$showExceptionsTrace,FALSE,FALSE);
 	}//END public static function Elog
 	/**
 	 * Displays a value in the debugger plug-in as an info message

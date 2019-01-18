@@ -8,10 +8,10 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
- namespace NETopes\Core\App;
+ namespace NETopes\Core;
 /**
  * Class Translation
  *
@@ -184,4 +184,3 @@ class ImagesHelpers {
 		return $image_name;
 	}//END public static function resizeImage
 }//END class ImagesHelpers
-?>

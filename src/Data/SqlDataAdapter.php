@@ -8,7 +8,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -36,9 +36,9 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$this->debug = AppConfig::GetValue('db_debug');
 		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \NETopes\Core\AppException('Incorect database connection',E_ERROR,1); }
-		$this->dbname = $connection['db_name'];
+		$this->dbName = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];
-		$this->results_keys_case = get_array_value($connection,'results_keys_case',$this->results_keys_case,'is_integer');
+		$this->resultsKeysCase = get_array_value($connection,'results_keys_case',$this->resultsKeysCase,'is_integer');
 		if(array_key_exists('use_pdo',$connection) && $connection['use_pdo'] && extension_loaded('pdo_mssql')) {
 			$this->use_pdo = TRUE;
 			$this->connection = $this->SetPdoConnection($connection);
@@ -56,7 +56,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 */
 	public function SetConnection($connection) {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !array_key_exists('db_type',$connection) || !$connection['db_type']) { return FALSE; }
-		$this->dbname = $connection['db_name'];
+		$this->dbName = $connection['db_name'];
 		$this->dbtype = $connection['db_type'];
 		if(array_key_exists('use_pdo',$connection) && $connection['use_pdo'] && extension_loaded('pdo_firebird')) {
 			$this->use_pdo = TRUE;
