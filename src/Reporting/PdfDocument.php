@@ -193,7 +193,7 @@ class PdfDocument {
 		$this->group_separator = NApp::GetParam('group_separator');
 		$this->date_separator = NApp::GetParam('date_separator');
 		$this->time_separator = NApp::GetParam('time_separator');
-		$this->langcode = NApp::_GetLanguageCode();
+		$this->langcode = NApp::GetLanguageCode();
 		$this->file_name = date('YmdHis').'.pdf';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {

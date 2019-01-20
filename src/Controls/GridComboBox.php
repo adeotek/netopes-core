@@ -216,7 +216,7 @@
 			if(get_array_value($lparams,'return',FALSE,'bool')) { return $datagrid->Show($s_params); }
 			echo $datagrid->Show($s_params);
 			if(!get_array_value($lparams,'open',FALSE,'bool')) { return; }
-			NApp::_ExecJs("GCBODDBtnClick('{$this->tag_id}',1);");
+			NApp::AddJsScript("GCBODDBtnClick('{$this->tag_id}',1);");
 		}//END public function ShowDropDown
 	}//END class GridComboBox extends Control
 ?>

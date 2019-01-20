@@ -37,10 +37,10 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new \NETopes\Core\AppException('Incorect database connection',E_ERROR,1); }
 		$this->dbName = $connection['db_name'];
-		$this->dbtype = $connection['db_type'];
+		$this->dbType = $connection['db_type'];
 		$this->resultsKeysCase = get_array_value($connection,'results_keys_case',$this->resultsKeysCase,'is_integer');
 		if(array_key_exists('use_pdo',$connection) && $connection['use_pdo'] && extension_loaded('pdo_mssql')) {
-			$this->use_pdo = TRUE;
+			$this->usePdo = TRUE;
 			$this->connection = $this->SetPdoConnection($connection);
 		} else {
 			$this->Init($connection);
@@ -57,9 +57,9 @@ abstract class SqlDataAdapter extends DataAdapter {
 	public function SetConnection($connection) {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !array_key_exists('db_type',$connection) || !$connection['db_type']) { return FALSE; }
 		$this->dbName = $connection['db_name'];
-		$this->dbtype = $connection['db_type'];
+		$this->dbType = $connection['db_type'];
 		if(array_key_exists('use_pdo',$connection) && $connection['use_pdo'] && extension_loaded('pdo_firebird')) {
-			$this->use_pdo = TRUE;
+			$this->usePdo = TRUE;
 			$this->connection = $this->SetPdoConnection($connection);
 		} else {
 			$this->Init($connection);
@@ -73,11 +73,11 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function CloseConnection() {
-		if($this->use_pdo || !method_exists($this,$this->dbtype.'CloseConnection')) {
+		if($this->usePdo || !method_exists($this,$this->dbType.'CloseConnection')) {
 			$this->connection = NULL;
 			return TRUE;
-		}//if($this->use_pdo || !method_exists($this,$this->dbtype.'CloseConnection'))
-		$method = $this->dbtype.'CloseConnection';
+		}//if($this->usePdo || !method_exists($this,$this->dbType.'CloseConnection'))
+		$method = $this->dbType.'CloseConnection';
 		return $this::$method();
 	}//END public function CloseConnection
 	/**
@@ -100,7 +100,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetPdoConnection($connection) {
-		if($this->dbtype=='MongoDb') { throw new \NETopes\Core\AppException('MongoDB PDO not implemented!',E_ERROR,1,NULL,NULL,'pdo',0); }
+		if($this->dbType=='MongoDb') { throw new \NETopes\Core\AppException('MongoDB PDO not implemented!',E_ERROR,1,NULL,NULL,'pdo',0); }
 		$conn = NULL;
 		try {
 			$conn_str = strtolower($connection['db_type']).':dbname='.$connection['db_server'].':'.$connection['db_name'].';charset=UTF8';
@@ -119,8 +119,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function SetGlobalVariables($params = NULL) {
-		if($this->use_pdo) { return FALSE; }
-		$method = $this->dbtype.str_replace(__CLASS__.'::','',__METHOD__);
+		if($this->usePdo) { return FALSE; }
+		$method = $this->dbType.str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$method($params);
 	}//END public function SetGlobalVariables
 	/**
@@ -133,7 +133,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function BeginTran(&$name = NULL,$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
-		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
+		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$method($name,$log,$overwrite,$custom_tran_params);
 	}//END public function BeginTran
 	/**
@@ -144,7 +144,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function RollbackTran($name = NULL,$log = FALSE) {
-		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
+		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$method($name,$log);
 	}//END public function RollbackTran
 	/**
@@ -155,7 +155,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @access public
 	 */
 	public function CommitTran($name = NULL,$log = FALSE,$preserve = FALSE) {
-		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
+		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$method($name,$log,$preserve);
 	}//END public function CommitTran
 	/**
@@ -188,7 +188,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
 		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
 		$log = get_array_value($extra_params,'log',FALSE,'bool');
-		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
+		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
 		$results_keys_case = get_array_value($extra_params,'results_keys_case',NULL,'is_integer');
 		$custom_tran_params = get_array_value($extra_params,'custom_tran_params',NULL,'isset');
 		return $this::$method($query,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
@@ -223,7 +223,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$filters = get_array_value($extra_params,'filters',NULL,'is_notempty_array');
 		$out_params = get_array_value($extra_params,'out_params',[],'is_array');
 		$log = get_array_value($extra_params,'log',FALSE,'bool');
-		$method = ($this->use_pdo ? 'Pdo' : $this->dbtype).str_replace(__CLASS__.'::','',__METHOD__);
+		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
 		$results_keys_case = get_array_value($extra_params,'results_keys_case',NULL,'is_numeric');
 		$custom_tran_params = get_array_value($extra_params,'custom_tran_params',NULL,'isset');
 		$result = $this::$method($procedure,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
@@ -250,7 +250,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
 		$this->debug2file = get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
 		$log = get_array_value($extra_params,'log',FALSE,'bool');
-		$cmethod = $this->dbtype.str_replace(__CLASS__.'::','',__METHOD__);
+		$cmethod = $this->dbType.str_replace(__CLASS__.'::','',__METHOD__);
 		return $this::$cmethod($method,$property,$params,$extra_params,$log);
 	}//END public function ExecuteQuery
 	public function PdoBeginTran($name,$log = TRUE,$overwrite = TRUE) {
@@ -301,7 +301,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	public function PdoExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$log = FALSE) {
 		$time = microtime(TRUE);
 		$trans = FALSE;
-		$method = $this->dbtype.'PrepareQuery';
+		$method = $this->dbType.'PrepareQuery';
 		self::$method($query,$params,$out_params,$type,$firstrow,$lastrow,$sort);
 		$conn = $this->pdo_connection;
 		if(strlen($tran_name)>0) {
@@ -330,7 +330,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	public function PdoExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE) {
 		$time = microtime(TRUE);
 		$trans = FALSE;
-		$method = $this->dbtype.'PrepareProcedureStatement';
+		$method = $this->dbType.'PrepareProcedureStatement';
 		$query = self::$method($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
 		$conn = $this->connection;
 		if(strlen($tran_name)>0) {

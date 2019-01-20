@@ -12,7 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
 use NApp;
@@ -25,6 +25,8 @@ use NApp;
  * @access   public
  */
 class ComboBox extends Control {
+    use TControlDataSource;
+    use TControlFields;
     /**
 	 * SmartComboBox constructor.
 	 *
@@ -53,7 +55,7 @@ class ComboBox extends Control {
 	 */
 	protected function SetControl(): ?string {
         $this->ProcessActions();
-        $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+        $litems = DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         $placeholderFieldName = (is_string($this->display_field) ? $this->display_field : '__text__');
         $ph_class = '';
         $t_required = '';
@@ -88,9 +90,9 @@ class ComboBox extends Control {
 				break;
 			case 'value':
 			    if(is_array($this->value)) {
-                    $this->value = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+                    $this->value = DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
                 } elseif(!is_object($this->value)) {
-                    $this->value = DataSource::ConvertArrayToDataSet([],VirtualEntity::class);
+                    $this->value = DataSourceHelpers::ConvertArrayToDataSet([],VirtualEntity::class);
                 }//if(is_array($this->value))
 				if(is_object($this->value) && $this->value->count()) {  $litems->merge($this->value->toArray()); }
 				break;

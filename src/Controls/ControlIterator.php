@@ -14,9 +14,9 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
-use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
+
 /**
  * Control iterator control
  *
@@ -123,7 +123,7 @@ class ControlIterator extends Control {
                 break;
         }//END switch
         if(is_object($this->items)) { return $this->items; }
-        return DataSource::ConvertArrayToDataSet($items,VirtualEntity::class);
+        return DataSourceHelpers::ConvertArrayToDataSet($items,VirtualEntity::class);
     }//END protected function GetItems
     /**
      * @return string|null
@@ -156,11 +156,11 @@ class ControlIterator extends Control {
             if(class_exists($controlClass)) {
             foreach($this->items as $k=>$v) {
                 if(is_array($this->conditions) && count($this->conditions)) {
-                    $iconditions = self::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
-                    if(!self::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
+                    $iconditions = ControlsHelpers::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
+                    if(!ControlsHelpers::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
                 }//if(is_array($this->conditions) && count($this->conditions))
                 if(is_array($this->params)) {
-                    $lparams = self::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
+                    $lparams = ControlsHelpers::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
                 } else {
                     $lparams = [];
                 }//if(is_array($this->params))

@@ -109,7 +109,7 @@ class TabControl {
 				$js_command = NApp::Ajax()->Prepare($tcontent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
 				if(get_array_value($tab,'autoload',TRUE,'bool')) {
-					NApp::_ExecJs($js_command);
+					NApp::AddJsScript($js_command);
 				}//if(get_array_value($tab,'autoload',TRUE,'bool'))
 				break;
 			case 'control':
@@ -269,7 +269,7 @@ class TabControl {
 	            }
 			});
 		";
-		NApp::_ExecJs($js_script);
+		NApp::AddJsScript($js_script);
 		return $result;
 	}//END private function SetControl
 	/**

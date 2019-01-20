@@ -103,7 +103,7 @@ class PdfReport {
 		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::GetParam('group_separator');
 		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::GetParam('date_separator');
 		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::GetParam('time_separator');
-		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::_GetLanguageCode();
+		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::GetLanguageCode();
 		set_time_limit(3600);
         $this->pdf = new PdfCreator('P','mm','A4',TRUE);
 		$this->pdf->SetCreator(PDF_CREATOR);

@@ -13,6 +13,7 @@
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
@@ -248,7 +249,7 @@ abstract class AssociationManager {
                 assocManagerFilterElements{$funcSufix}(this);
             });
 JS;
-        NApp::_ExecJs($js);
+        NApp::AddJsScript($js);
     }//END protected function GetFilterJs
     /**
      * @param string $tagId
@@ -318,7 +319,7 @@ JS;
                 $('#{$this->sis_box_tagid}').disableSelection();
 JS;
         }//if($this->sortable)
-        NApp::_ExecJs($sis_js);
+        NApp::AddJsScript($sis_js);
     }//END protected function SetAssociatedItemsJs
     /**
      * Get associated item display name
@@ -391,7 +392,7 @@ JS;
             NApp::Elog($e);
             $items = [];
         }//END try
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsAssociatedItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->associated_box_title.'</span>'."\n";
         $result .= $this->GetAssociatedItemsSummary($items);
@@ -448,7 +449,7 @@ JS;
 				});
 			});
 JS;
-        NApp::_ExecJs($ais_js);
+        NApp::AddJsScript($ais_js);
     }//END protected function SetAssignableItemsJs
     /**
      * Get associated item display name
@@ -522,7 +523,7 @@ JS;
             NApp::Elog($e);
             $items = [];
         }//END try
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsAssignableItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->assignable_box_title.'</span>'."\n";
         $result .= $this->GetAssignableItemsSummary($items);
@@ -580,7 +581,7 @@ JS;
             $items = [];
         }//END try
         if($items===FALSE) { return NULL; }
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsLiveVersionItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->live_version_box_title.'</span>'."\n";
         $result .= $this->GetLiveVersionItemsSummary($items);
@@ -682,7 +683,7 @@ JS;
         }
 JS;
         if($return) { return $return; }
-            NApp::_ExecJs($js);
+            NApp::AddJsScript($js);
         $this->jsInitialized = TRUE;
         return NULL;
     }//END protected function GetFilterHelperJs

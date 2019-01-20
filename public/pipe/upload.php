@@ -135,10 +135,10 @@ class UploadHandler {
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             //// NETopes: custom
-            'upload_dir' => NApp::$app_public_path.'/repository/'.NApp::GetCurrentNamespace().'/temporary/',
+            'upload_dir' => NApp::$appPublicPath.'/repository/'.NApp::$currentNamespace.'/temporary/',
             // 'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             //// NETopes: custom
-            'upload_url' => NApp::$appBaseUrl.'/repository/'.NApp::GetCurrentNamespace().'/temporary/',
+            'upload_url' => NApp::$appBaseUrl.'/repository/'.NApp::$currentNamespace.'/temporary/',
             // 'upload_url' => $this->get_full_url().'/files/',
             'input_stream' => 'php://input',
             'user_dirs' => false,

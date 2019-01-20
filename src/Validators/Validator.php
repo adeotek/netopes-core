@@ -357,7 +357,7 @@ class Validator {
      * @throws \Exception
      */
 	public static function ConvertDateTimeToAppFormat($date,?string $timezone = NULL,bool $dateOnly = FALSE): ?string {
-		$format = $dateOnly ? NApp::_GetDateFormat(TRUE) : NApp::_GetDateTimeFormat(TRUE);
+		$format = $dateOnly ? NApp::GetDateFormat(TRUE) : NApp::GetDateTimeFormat(TRUE);
 		return call_user_func(static::GetConverterAdapter('DateTimeToFormat'),$date,$format,$timezone);
 	}//END public static function ConvertDateTimeToAppFormat
 	/**
@@ -390,11 +390,11 @@ class Validator {
 	public static function ConvertDateTime($date,$timezone = NULL,bool $dateOnly = FALSE,bool $timeOnly = FALSE,?string $format = NULL): ?string {
 		if(!strlen($format)) {
 			if($timeOnly===TRUE) {
-			    $format = NApp::_GetTimeFormat(TRUE);
+			    $format = NApp::GetTimeFormat(TRUE);
 			} elseif($dateOnly===TRUE) {
-			    $format = NApp::_GetDateFormat(TRUE);
+			    $format = NApp::GetDateFormat(TRUE);
 			} else {
-			    $format = NApp::_GetDateTimeFormat(TRUE);
+			    $format = NApp::GetDateTimeFormat(TRUE);
 			}//if($timeOnly===TRUE)
 		}//if(!strlen($format))
 		return call_user_func(static::GetConverterAdapter('DateTimeToFormat'),$date,$format,$timezone);

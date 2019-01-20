@@ -441,7 +441,7 @@ abstract class App implements IApp {
 	 */
 	public static function IsOutputBufferStarted(): bool {
 		return static::$_appObStarted;
-	}//END public function IsOutputBufferStarted
+	}//END public static function IsOutputBufferStarted
 	/**
      * @return bool
      * @throws \NETopes\Core\AppException
@@ -470,11 +470,11 @@ abstract class App implements IApp {
 	 * @param bool $clear
      * @return string|null
      */
-	public function GetOutputBufferContent(bool $clear = TRUE): ?string {
+	public static function GetOutputBufferContent(bool $clear = TRUE): ?string {
 		if(!static::$_appObStarted) { return NULL; }
 		if($clear===TRUE) { return ob_get_clean(); }
 		return ob_get_contents();
-	}//END public function GetOutputBufferContent
+	}//END public static function GetOutputBufferContent
     /**
 	 * @param bool $end
 	 * @return bool
@@ -637,7 +637,8 @@ HTML;
 	 * @access public
 	 */
 	public static function GetDynamicJs(): ?string {
-        return AppHelpers::GetDynamicJs();
+        $result = AppHelpers::GetDynamicJs();
+        return (is_array($result) ? implode(' ',$result) : $result);
     }//END public static function GetDynamicJs
 	/**
 	 * Gets the URL object
@@ -734,6 +735,29 @@ HTML;
 		header('Location:'.$url);
 		if($exit) { static::FlushOutputBuffer(); exit(); }
 	}//END public static function FullRedirect
+	/**
+     * Get current namespace section relative path (with theme)
+     *
+     * @param  string $themeDir Optional theme directory
+     * For non-web namespaces overwrites configuration theme
+     * @return string Returns the current namespace section relative path
+     * For non-web namespaces includes theme directory
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function GetSectionPath($themeDir = NULL) {
+		return AppHelpers::GetSectionPath($themeDir);
+	}//END public static function GetSectionPath
+    /**
+     * Get application non-public repository path
+     *
+     * @return string
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
+	public static function GetRepositoryPath() {
+	    return AppHelpers::GetRepositoryPath();
+    }//END public static function GetRepositoryPath
 	/**
      * Loads application settings from database or from request parameters
      *
@@ -965,7 +989,7 @@ HTML;
 		if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
 			$dbg = debug_backtrace();
 			$caller = array_shift($dbg);
-			$label = (isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label??($value instanceof \Exception ? get_class($value) : ''));
+			$label = (isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label??($value instanceof \Throwable ? get_class($value) : ''));
 		}//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
 		static::$debugger->Elog($value,$label,$showExceptionsTrace,FALSE,FALSE);
 	}//END public static function Elog
@@ -1025,7 +1049,7 @@ HTML;
 			default:
 				return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('log_file')));
 		}//switch(strtolower($type))
-	}//END public function WriteToLog
+	}//END public static function WriteToLog
 	/**
 	 * Load instance specific configuration options (into protected $instanceConfig property)
 	 *

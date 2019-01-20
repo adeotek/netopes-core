@@ -4,7 +4,7 @@
  *
  * Control class for generating basic forms
  *
- * @package    NETopes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
@@ -12,17 +12,16 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\App\ITheme;
+use NETopes\Core\AppException;
+use NETopes\Core\Data\DataSourceHelpers;
+use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
 use NApp;
-use NETopes\Core\Data\DataSource;
+
 /**
- * BasicForm control class
+ * Class BasicForm
  *
- * Control class for generating basic forms
- *
- * @package  NETopes\Controls
- * @access   public
+ * @package NETopes\Core\Controls
  */
 class BasicForm {
 	/**
@@ -188,7 +187,7 @@ class BasicForm {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if(!is_numeric($this->cols_no) || $this->cols_no<=0) { $this->cols_no = 1; }
-		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property,$this->field_name_property_case);
+		$this->field_conditions = DataSourceHelpers::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],VirtualEntity::class,$this->field_name_property,$this->field_name_property_case);
 	}//END public function __construct
     /**
      * @param array $action
@@ -219,6 +218,7 @@ class BasicForm {
      * @param int|null $row
      * @param int|null $column
      * @param bool     $overwrite
+     * @throws \NETopes\Core\AppException
      */
     public function AddControl(array $control,?int $row = NULL,?int $column = NULL,bool $overwrite = FALSE): void {
         if(!is_array($this->content)) { $this->content = []; }
@@ -433,12 +433,13 @@ class BasicForm {
 		if(strlen($this->sub_form_tagid)) { $result .= '</div>'."\n"; }
 		return $result;
 	}//END protected function GetTableControl
-	/**
-	 * Gets the form content as bootstrap3 form
-	 *
-	 * @return string
-	 * @access protected
-	 */
+    /**
+     * Gets the form content as bootstrap3 form
+     *
+     * @return string
+     * @access protected
+     * @throws \NETopes\Core\AppException
+     */
 	protected function GetBootstrap3Control(): string {
 		$ltabindex = 101;
 		$lclass = trim($this->base_class.' '.$this->class);
@@ -588,12 +589,13 @@ class BasicForm {
         $result .= '</div></div>'."\n";
         return $result;
 	}//END protected function GetBootstrap3Control
-	/**
-	 * Sets the output buffer value
-	 *
-	 * @return string|null
-	 * @access protected
-	 */
+    /**
+     * Sets the output buffer value
+     *
+     * @return string|null
+     * @access protected
+     * @throws \NETopes\Core\AppException
+     */
 	protected function SetControl(): ?string {
 		if(!is_array($this->content) || !count($this->content)) { return NULL; }
 		switch($this->theme_type) {
@@ -607,12 +609,13 @@ class BasicForm {
 				return $this->GetTableControl();
 		}//END switch
 	}//END private function SetControl
-	/**
-	 * Gets the output buffer content
-	 *
-	 * @return string Returns the output buffer content (html)
-	 * @access public
-	 */
+    /**
+     * Gets the output buffer content
+     *
+     * @return string Returns the output buffer content (html)
+     * @access public
+     * @throws \NETopes\Core\AppException
+     */
 	public function Show() {
 		return $this->SetControl();
 	}//END public function Show

@@ -181,7 +181,7 @@ class DataProvider {
 		$keyfield = get_array_value($extra_params,'keyfield','id','is_notempty_string');
 		unset($extra_params['keyfield']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
-		return DataSource::ConvertResultsToKeyValue($result,$keyfield);
+		return DataSourceHelpers::ConvertResultsToKeyValue($result,$keyfield);
 	}//END public static function GetKeyValueArray
 	/**
 	 * Get data from data source method
@@ -201,7 +201,7 @@ class DataProvider {
 		$entity = get_array_value($extra_params,'entity_class',VirtualEntity::class,'is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
-		return DataSource::ConvertResultsToDataSet($result,$entity);
+		return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
 	}//END public static function Get
 	/**
 	 * Call a data source method and return a key-value DataSet
@@ -222,7 +222,7 @@ class DataProvider {
 		$entity = get_array_value($extra_params,'entity_class',VirtualEntity::class,'is_notempty_string');
 		unset($extra_params['entity_class']);
 		$result = self::GetKeyValueArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
-		return DataSource::ConvertResultsToDataSet($result,$entity);
+		return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
 	}//END public static function GetKeyValue
 	/**
 	 * description

@@ -71,10 +71,10 @@ class DataSourceHelpers {
 	public static function ConvertArrayToDataSet($data = [],$entityClass = NULL,?string $fieldToUseAsKey = NULL,?int $case = CASE_LOWER) {
 		if(!is_array($data)) {
 		    if($fieldToUseAsKey===NULL) { return $data; }
-		    return static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,FALSE,$case);
+		    return DataSourceHelpers::ConvertResultsToKeyValue($data,$fieldToUseAsKey,FALSE,$case);
 		}//if(!is_array($data))
 		if(!is_string($entityClass) || !strlen($entityClass) || !class_exists($entityClass)) {
-		    $result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
+		    $result = DataSourceHelpers::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
 		} else {
 			if(count($data)) {
 			    $fElement = reset($data);
@@ -83,7 +83,7 @@ class DataSourceHelpers {
                 } else {
 					if(is_object($fElement)) {
 					    if(isset($fieldToUseAsKey)) {
-				        	$result = static::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
+				        	$result = DataSourceHelpers::ConvertResultsToKeyValue($data,$fieldToUseAsKey,TRUE,$case);
 					    } else {
 					        $result = new DataSet($data);
 					    }//if(isset($fieldToUseAsKey))

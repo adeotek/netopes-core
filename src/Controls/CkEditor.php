@@ -54,7 +54,7 @@ class CkEditor extends Control {
         } elseif(is_string($this->extra_config) && strlen($this->extra_config)) {
             $lextraconfig = '{'.trim($this->extra_config,'}{').'}';
         }//if(is_array($this->extra_config))
-        NApp::_ExecJs("CreateCkEditor('{$this->phash}','{$this->tag_id}',false,".$lextraconfig.$lwidth.$lheight.");");
+        NApp::AddJsScript("CreateCkEditor('{$this->phash}','{$this->tag_id}',false,".$lextraconfig.$lwidth.$lheight.");");
         return $result;
     }//END protected function SetControl
     /**

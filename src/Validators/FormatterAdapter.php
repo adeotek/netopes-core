@@ -96,9 +96,9 @@ class FormatterAdapter {
      * @throws \Exception
      */
     public static function DatetimeNosec($value,?array $regionals = NULL): ?string {
-        $format = NApp::_GetTimeFormat(TRUE);
+        $format = NApp::GetTimeFormat(TRUE);
         if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
-        $format = NApp::_GetDateFormat(TRUE).' '.$format;
+        $format = NApp::GetDateFormat(TRUE).' '.$format;
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }
         return static::Datetime($value,$regionals);
@@ -136,7 +136,7 @@ class FormatterAdapter {
      * @throws \Exception
      */
     public static function TimeNosec($value,?array $regionals = NULL): ?string {
-        $format = NApp::_GetTimeFormat(TRUE);
+        $format = NApp::GetTimeFormat(TRUE);
         if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }

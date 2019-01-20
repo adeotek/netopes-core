@@ -74,7 +74,7 @@ class ConverterAdapter {
 	            } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s|T)[0-9]{2}:[0-9]{2}:[0-9]{2}$/',$date)) {
 	                 $sourceFormat = 'Y-m-d H:i:s';
 	            } else {
-	                $sourceFormat = NApp::_GetDateTimeFormat(TRUE);
+	                $sourceFormat = NApp::GetDateTimeFormat(TRUE);
 	                if(strpos($date,' ')===FALSE && strpos($date,'T')===FALSE) {
 	                    $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : '');
 	                } elseif(substr($sourceFormat,-2)==':s' && preg_match('/(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
@@ -164,7 +164,7 @@ class ConverterAdapter {
     public static function ToAppDatetime($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
-        return $dt->format(NApp::_GetDateTimeFormat(TRUE));
+        return $dt->format(NApp::GetDateTimeFormat(TRUE));
 	}//END public static function ToAppDatetime
     /**
      * @param mixed       $value
@@ -174,7 +174,7 @@ class ConverterAdapter {
     public static function ToAppDate($value): ?string {
         $dt = static::DateTimeToObject($value);
         if(is_null($dt)) { return NULL; }
-        return $dt->format(NApp::_GetDateFormat(TRUE));
+        return $dt->format(NApp::GetDateFormat(TRUE));
 	}//END public static function ToAppDate
     /**
      * @param mixed $value
@@ -182,7 +182,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToDbDatetime($value): ?string {
-        $dt = static::DateTimeToObject($value,NApp::_GetDateTimeFormat(TRUE));
+        $dt = static::DateTimeToObject($value,NApp::GetDateTimeFormat(TRUE));
         if(is_null($dt)) { return NULL; }
         return $dt->format('Y-m-d H:i:s');
 	}//END public static function ToDbDatetime
@@ -192,7 +192,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToDbDate($value): ?string {
-        $dt = static::DateTimeToObject($value,NApp::_GetDateFormat(TRUE));
+        $dt = static::DateTimeToObject($value,NApp::GetDateFormat(TRUE));
         if(is_null($dt)) { return NULL; }
         return $dt->format('Y-m-d');
 	}//END public static function ToDbDate
@@ -202,7 +202,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToSodDatetime($value): ?string {
-        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(TRUE),NULL,1);
+        return static::DateTimeToDbFormat($value,NApp::GetDateTimeFormat(TRUE),NULL,1);
 	}//END public static function ToSodDatetime
 	/**
      * @param mixed $value
@@ -210,7 +210,7 @@ class ConverterAdapter {
      * @throws \Exception
      */
     public static function ToEodDatetime($value): ?string {
-        return static::DateTimeToDbFormat($value,NApp::_GetDateTimeFormat(TRUE),NULL,2);
+        return static::DateTimeToDbFormat($value,NApp::GetDateTimeFormat(TRUE),NULL,2);
 	}//END public static function ToEodDatetime
 	/**
 	 * Converts a number to standard format
@@ -241,7 +241,7 @@ class ConverterAdapter {
      * @static
      */
 	public static function NumberToWords(float $value,?string $currency = NULL,?string $subCurrency = NULL,?string $langCode = NULL,bool $useIntl = TRUE): ?string {
-		$langCode = strlen($langCode) ? $langCode : NApp::_GetLanguageCode();
+		$langCode = strlen($langCode) ? $langCode : NApp::GetLanguageCode();
 		if(!is_numeric($value) || !strlen($langCode)) { return NULL; }
 		$decimals = intval((round($value,2) * 100) % 100);
 		$value = intval($value);

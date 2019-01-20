@@ -32,7 +32,7 @@ class KVList extends Control {
         else { $this->postable = FALSE; }
         if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('KVList'); }
         if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
-        if(is_array($this->lang_items)) { $this->lang_items = DataSource::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
+        if(is_array($this->lang_items)) { $this->lang_items = DataSourceHelpers::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct
     protected function SetControlInstance($with_translations = FALSE,$values = NULL,$lang = NULL) {
         $this->ProcessActions();
@@ -100,7 +100,7 @@ class KVList extends Control {
             }//END foreach
             $result .= '</div>'."\n";
             $js_script = "$('#{$this->tag_id}').accordion();";
-            NApp::_ExecJs($js_script);
+            NApp::AddJsScript($js_script);
         } else {
             $result = $this->SetControlInstance();
         }//if(is_iterable($this->lang_items) && count($this->lang_items))

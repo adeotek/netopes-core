@@ -11,8 +11,8 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
-use NETopes\Core\Controls\ControlsHelpers\ControlsHelpers;
 use NETopes\Core\AppException;
+use NETopes\Core\Controls\ControlsHelpers;
 use GibberishAES;
 use NApp;
 

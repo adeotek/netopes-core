@@ -2,9 +2,7 @@
 /**
  * Data grid control file
  *
- * description
- *
- * @package    NETopes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
@@ -12,10 +10,12 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\App\AppHelpers;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSource;
@@ -27,12 +27,9 @@ use NETopes\Core\AppException;
 use NApp;
 use Translate;
 /**
- * Data grid control
+ * Class TableView
  *
- * description
- *
- * @package  NETopes\Controls
- * @access   public
+ * @package NETopes\Core\Controls
  */
 class TableView {
 	/**
@@ -365,7 +362,7 @@ class TableView {
 	 * @access protected
 	 */
 	protected function GetThis($encrypted = TRUE) {
-		if($encrypted){ return GibberishAES::enc(serialize($this),$this->chash); }
+		if($encrypted) { return GibberishAES::enc(serialize($this),$this->chash); }
 		return serialize($this);
 	}//END protected function GetThis
     /**
@@ -482,14 +479,15 @@ class TableView {
 		if(!$exec_callback || !strlen($js_callback)) { return NApp::Ajax()->Prepare($call,$this->loader); }
 		return NApp::Ajax()->PrepareWithCallback($call,$js_callback,$this->loader);
 	}//END protected function GetActionCommand
-	/**
-	 * Gets the processed data call params
-	 *
+    /**
+     * Gets the processed data call params
+     *
      * @param null $params
      * @param null $extra_params
      * @return void Returns data call params array
-	 * @access protected
-	 */
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
 	protected function ProcessDataCallParams(&$params = NULL,&$extra_params = NULL) {
 		$params = array_merge((is_array($this->ds_params) ? $this->ds_params : []),$params);
 		$extra_params = array_merge((is_array($this->ds_extra_params) ? $this->ds_extra_params : []),$extra_params);
@@ -555,7 +553,7 @@ class TableView {
 		if($this->with_pagination && !$this->export_only) {
 			$extra_params['type'] = 'count-select';
 			$firstrow = $lastrow = NULL;
-			Module::GlobalGetPaginationParams($firstrow,$lastrow,$this->current_page);
+			ControlsHelpers::GetPaginationParams($firstrow,$lastrow,$this->current_page);
 			$extra_params['first_row'] = $firstrow;
 			$extra_params['last_row'] = $lastrow;
 		}//if($this->with_pagination && !$this->export_only)
@@ -583,7 +581,7 @@ class TableView {
 			if(is_object($this->data)) {
 				$result = $this->data;
 			} else {
-				$result = DataSource::ConvertResultsToDataSet($this->data,'\NETopes\Core\Data\VirtualEntity');
+				$result = DataSourceHelpers::ConvertResultsToDataSet($this->data, VirtualEntity::class);
 			}//if(is_object($this->data))
 			$result->total_count = $result->count();
 			return $result;
@@ -597,14 +595,15 @@ class TableView {
 		if(!is_object($data)) { return new DataSet(); }
 		return $data;
 	}//END private function GetData
-	/**
-	 * Process the active filters (adds/removes filters)
-	 *
-	 * @param  array $params An array of parametrs for processing
-	 * @return array Returns the updated filters array
-	 * @access protected
-	 */
-	protected function ProcessActiveFilters($params) {
+    /**
+     * Process the active filters (adds/removes filters)
+     *
+     * @param \NETopes\Core\App\Params $params Parameters for processing
+     * @return array Returns the updated filters array
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
+	protected function ProcessActiveFilters(Params $params) {
 		$action = $params->safeGet('faction',NULL,'is_notempty_string');
 		// NApp::Dlog($action,'$action');
 		if(!$action || ($action!='add' && $action!='remove' && $action!='clear')) { return $this->filters; }
@@ -668,9 +667,9 @@ class TableView {
 		}//if($this->exportable && $this->export_all && $this->with_pagination)
 		if($this->export_button) {
 			if($this->compact_mode) {
-				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
 			} else {
-				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::GetCurrentNamespace().'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
+				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
 			}//if($this->compact_mode)
 		}//if($this->export_button)
 		if(strlen($this->data_source) && strlen($this->ds_method)) {
@@ -701,15 +700,15 @@ class TableView {
 		foreach($this->filters as $f) { if(get_array_value($f,'type','','is_string').''==$key.'') { return TRUE; } }
 		return FALSE;
 	}//protected function CheckIfFilterIsActive
-	/**
-	 * Gets the filter box html
-	 *
-	 * @param null $params
-	 * @return string|null Returns the filter box html
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
-	protected function GetFilterBox($params = NULL): ?string {
+    /**
+     * Gets the filter box html
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return string|null Returns the filter box html
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
+	protected function GetFilterBox(Params $params = NULL): ?string {
 		// NApp::Dlog($params,'GetFilterBox>>$params');
 		// NApp::Dlog($this->filters,'GetFilterBox>>$this->filters');
 		if(!$this->with_filter && $this->hide_actions_bar) { return NULL; }
@@ -1000,7 +999,11 @@ class TableView {
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetPaginationBox($items): ?string {
-		$records_no = $items->getTotalCount();
+	    if(method_exists($items,'getTotalCount')) {
+	        $records_no = $items->getTotalCount();
+        } else {
+	        $records_no = count($items);
+        }//if(method_exists($items,'getTotalCount'))
 		if(!$this->with_pagination) {
 			if($this->hide_status_bar) { return NULL; }
 			//$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
@@ -1246,14 +1249,14 @@ class TableView {
 				foreach($v['actions'] as $act) {
 					if(get_array_value($act,'hidden',FALSE,'bool')) { continue; }
 					$aparams = get_array_value($act,'params',[],'is_array');
-					$aparams = Control::ReplaceDynamicParams($aparams,$row);
+					$aparams = ControlsHelpers::ReplaceDynamicParams($aparams,$row);
 					// Check conditions for displaing action
 					$conditions = get_array_value($aparams,'conditions',NULL,'is_array');
-					if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) { continue; }
+					if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) { continue; }
 					$atype = get_array_value($act,'type','DivButton','is_notempty_string');
 					$atype = '\NETopes\Core\Controls\\'.$atype;
 					if(!class_exists($atype)) {
-						\NApp::Elog('Control class ['.$atype.'] not found!');
+						NApp::Elog('Control class ['.$atype.'] not found!');
 						continue;
 					}//if(!class_exists($atype))
 					$a_dright = get_array_value($act,'dright','','is_string');
@@ -1276,11 +1279,11 @@ class TableView {
 						$aparams['onclick'] = NApp::Ajax()->Prepare($acommand,$this->loader);
 					}//if($acommand)
 					$btn_action = new $atype($aparams);
-					if(get_array_value($act,'clear_base_class',FALSE,'bool')){ $btn_action->ClearBaseClass(); }
+					if(get_array_value($act,'clear_base_class',FALSE,'bool')) { $btn_action->ClearBaseClass(); }
 					$result .= $btn_action->Show();
 					$embedded_form = get_array_value($act,'embedded_form','','is_string');
 					if(strlen($embedded_form)) {
-						$this->row_embedded_form[] = Control::ReplaceDynamicParams($embedded_form,$row);
+						$this->row_embedded_form[] = ControlsHelpers::ReplaceDynamicParams($embedded_form,$row);
 					}//if(strlen($embedded_form))
 				}//END foreach
 				break;
@@ -1289,7 +1292,7 @@ class TableView {
 				$params_prefix = '';
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					if($type=='conditional_control') {
 						$params_prefix = 'alt_';
 					} else {
@@ -1324,10 +1327,10 @@ class TableView {
 				    $c_type_s = get_array_value($v,$params_prefix.'control_type',NULL,'is_notempty_string');
                     $c_type = '\NETopes\Core\Controls\\'.$c_type_s;
                     if(!$c_type_s || !class_exists($c_type)) {
-                        \NApp::Elog('Control class ['.$c_type.'] not found!');
+                        NApp::Elog('Control class ['.$c_type.'] not found!');
                         continue;
                     }//if(!$c_type_s || !class_exists($c_type))
-                    $c_params = Control::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
+                    $c_params = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
                     if($is_iterator) {
                         $c_params['value'] = $row->getProperty($c_params['value'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
                     } elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($c_params['value']) && isset($v['db_field'])) {
@@ -1335,7 +1338,7 @@ class TableView {
                     }//if($is_iterator)
                     if(isset($c_params['tag_id'])) {
                         $key_value = $row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
-                        $key_value = strlen($key_value) ? $key_value : \NETopes\Core\AppSession::GetNewUID();
+                        $key_value = strlen($key_value) ? $key_value : AppSession::GetNewUID();
                         $c_params['tag_id'] .= '_'.$key_value;
                     }//if(isset($c_params['tag_id']))
                     $p_pafreq = get_array_value($v,$params_prefix.'control_pafreq',NULL,'is_array');
@@ -1367,7 +1370,7 @@ class TableView {
 			case 'value':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1392,7 +1395,7 @@ class TableView {
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+					$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
@@ -1402,7 +1405,7 @@ class TableView {
 			case 'sum':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1437,7 +1440,7 @@ class TableView {
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+					$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
@@ -1447,20 +1450,20 @@ class TableView {
 			case '__rowno':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
 				$c_value = $result = isset($row->__rowno) ? $row->__rowno : NULL;
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+					$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					$this->export_data['data'][$row->__rowid][$name] = $c_value;
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
 				break;
 			case 'multi-value':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1479,7 +1482,7 @@ class TableView {
 						$this->SetCellSubTotal($name,$m_value,'count');
 					}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 					$c_def_value = get_array_value($v,'default_value','','is_string');
-					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+					$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
 					$m_value = $this->FormatValue($m_value,$c_format,$c_def_value);
 				} else {
 					$m_value = get_array_value($v,'default_value',NULL,'is_string');
@@ -1492,7 +1495,7 @@ class TableView {
 			case 'indexof':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1505,9 +1508,9 @@ class TableView {
 				}//if($ci_def_value && is_null($ci_value))
 				$ci_values = get_array_value($v,'values_collection',NULL,'isset');
 				if(is_array($ci_values)) {
-                    $ci_values = DataSource::ConvertArrayToDataSet($ci_values,VirtualEntity::class);
+                    $ci_values = DataSourceHelpers::ConvertArrayToDataSet($ci_values,VirtualEntity::class);
                 } elseif(!is_object($ci_values) || !is_iterable($ci_values)) {
-                    $ci_values = DataSource::ConvertArrayToDataSet([],VirtualEntity::class);
+                    $ci_values = DataSourceHelpers::ConvertArrayToDataSet([],VirtualEntity::class);
                 }//if(is_array($this->value))
 				$i_field = get_array_value($v,'index_field','name','is_notempty_string');
 				$ci_def_value = get_array_value($v,'default_value',NULL,'is_string');
@@ -1523,7 +1526,7 @@ class TableView {
 			case 'relation':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1561,7 +1564,7 @@ class TableView {
 				}//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
 				$result = $c_value;
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-					$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+					$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
 					if(strlen($c_format) && $c_data_type=='numeric') {
 						if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') { $c_value = $c_value/100; }
 					}//if(strlen($c_format) && $c_data_type=='numeric')
@@ -1596,7 +1599,7 @@ class TableView {
 			case 'translate':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1614,7 +1617,7 @@ class TableView {
 			case 'checkbox':
 				// Check conditions for displaing action
 				$conditions = get_array_value($v,'conditions',NULL,'is_array');
-				if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions)) {
+				if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
 					$result = NULL;
 					break;
 				}//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
@@ -1691,7 +1694,7 @@ class TableView {
 					$c_t_width = get_array_value($tooltip,'width',100,'is_not0_numeric');
 					$c_t_height = get_array_value($tooltip,'height',100,'is_not0_numeric');
 					$c_t_path = get_array_value($tooltip,'path','','is_string');
-					if(strlen($c_t_path) && strlen($c_t_dbdata) && file_exists(NApp::$app_public_path.rtrim($c_t_path,'/').'/'.$c_t_dbdata)) {
+					if(strlen($c_t_path) && strlen($c_t_dbdata) && file_exists(NApp::$appPublicPath.rtrim($c_t_path,'/').'/'.$c_t_dbdata)) {
 						$c_tooltip = NApp::$appBaseUrl.rtrim($c_t_path,'/').'/'.$c_t_dbdata;
 					} else {
 						$c_tooltip = NApp::$appBaseUrl.'/repository/no-photo-300.png';
@@ -1765,12 +1768,12 @@ class TableView {
 		}//if($cell_type!='actions')
 		$c_class = get_array_value($v,'class','','is_string');
 		$c_tooltip = $this->GetToolTip($row,$c_class,get_array_value($v,'tooltip',NULL,'isset'));
-		$c_cond_format_class = get_array_value($v,'conditional_class','','is_string','class');
+		$c_cond_format_class = get_array_value($v,['conditional_class','class'],'','is_string');
 		$c_cond_format_conditions = get_array_value($v,['conditional_class','conditions'],[],'is_array');
 		if(strlen($c_cond_format_class) && count($c_cond_format_conditions)) {
-			if($this->CheckRowConditions($row,$c_cond_format_conditions)) {
+			if(ControlsHelpers::CheckRowConditions($row,$c_cond_format_conditions)) {
 				$c_class = trim($c_class.' '.$c_cond_format_class);
-			}//if($this->CheckRowConditions($row,$c_cond_format_conditions))
+			}//if(ControlsHelpers::CheckRowConditions($row,$c_cond_format_conditions))
 		}//if(strlen($c_cond_format_class) && count($c_cond_format_conditions))
 		if($cell_type=='actions') { $c_class = trim('act-col '.$c_class); }
 		$c_class = $c_class ? ' class="'.$c_class.'"' : '';
@@ -1812,7 +1815,7 @@ class TableView {
 				}//if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string'))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$c_def_value = get_array_value($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
 				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
 					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
@@ -1831,7 +1834,7 @@ class TableView {
 				$t_value = '';
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$c_def_value = get_array_value($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
 				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
 					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
@@ -1849,7 +1852,7 @@ class TableView {
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$c_def_value = get_array_value($v,'default_value','','is_string');
-				$c_format = Control::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
+				$c_format = ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
 				$c_cond_format = get_array_value($v,'conditional_format',NULL,'is_notempty_array');
 				if($c_cond_format) {
 					$c_cf_field = get_array_value($c_cond_format,'field','','is_string');
@@ -1908,7 +1911,7 @@ class TableView {
 			$r_cc = FALSE;
 			$r_cc_class = get_array_value($this->row_conditional_class,'class','','is_string');
 			$r_cc_cond = get_array_value($this->row_conditional_class,'conditions',NULL,'is_array');
-			if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond)) {
+			if(strlen($r_cc_class) && ControlsHelpers::CheckRowConditions($row,$r_cc_cond)) {
 				$r_cclass = ($r_cclass ? ' ' : '').$r_cc_class;
 				$r_cc = TRUE;
 			}//if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond))
@@ -1984,12 +1987,13 @@ class TableView {
 		}//if(!$this->export_only)
 		return $result;
 	}//END protected function SetRow
-	/**
-	 * Gets the total row html
-	 *
-	 * @return string Returns the total row html
-	 * @access protected
-	 */
+    /**
+     * Gets the total row html
+     *
+     * @return string Returns the total row html
+     * @access protected
+     * @throws \NETopes\Core\AppException
+     */
 	protected function SetTotalRow() {
 		if(!is_array($this->totals) || !count($this->totals)) { return NULL; }
 		$result = "\t\t\t".'<tr class="tr-totals">'."\n";
@@ -2037,19 +2041,19 @@ class TableView {
 		$result .= "\t\t\t".'</tr>'."\n";
 		return $result;
 	}//END protected function SetTotalRow
-	/**
-	 * Gets the table html iterating data array
-	 *
-	 * @param DataSet $data
-	 * @param array $params
-	 * @param null $r_cclass
-	 * @param null $lvl
-	 * @param null $id_parent
-	 * @return string Returns the table html
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
-	protected function IterateData($data,&$params,$r_cclass = NULL,$lvl = NULL,$id_parent = NULL) {
+    /**
+     * Gets the table html iterating data array
+     *
+     * @param DataSet                  $data
+     * @param \NETopes\Core\App\Params $params
+     * @param null                     $r_cclass
+     * @param null                     $lvl
+     * @param null                     $id_parent
+     * @return string Returns the table html
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
+	protected function IterateData($data,Params $params,$r_cclass = NULL,$lvl = NULL,$id_parent = NULL) {
 		// NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$r_cclass),'IterateData');
 		if(!is_object($data) || !count($data)) { return NULL; }
 		$result = '';
@@ -2085,7 +2089,7 @@ class TableView {
 				}//END foreach
 			} else {
 				$firstrow = $lastrow = NULL;
-				Module::GlobalGetPaginationParams($firstrow,$lastrow,$this->current_page);
+				ControlsHelpers::GetPaginationParams($firstrow,$lastrow,$this->current_page);
 				$rowid = 0;
 				foreach($data as $row) {
 					$row->__rowid = $rowid;
@@ -2117,14 +2121,15 @@ class TableView {
 		}//if(is_null($lvl) || $lvl==1)
 		return $result;
 	}//END protected function IterateData
-	/**
-	 * Gets the persistent state from session, if it is the case
-	 *
-	 * @param null $params
-	 * @return void
-	 * @access protected
-	 */
-	protected function LoadState($params = NULL) {
+    /**
+     * Gets the persistent state from session, if it is the case
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
+	protected function LoadState(Params $params = NULL) {
 		// NApp::Dlog($params,'LoadState>>$params');
 		// NApp::Dlog($this->sessionHash,'$this->sessionHash');
 		if($this->persistent_state) {
@@ -2190,15 +2195,15 @@ class TableView {
 			$this->filters = $this->ProcessActiveFilters($params);
 		}//if($this->persistent_state)
 	}//END protected function LoadState
-	/**
-	 * Sets the output buffer value
-	 *
-	 * @param null $params
-	 * @return string|null
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
-	protected function SetControl($params = NULL): ?string {
+    /**
+     * Sets the output buffer value
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     * @access protected
+     */
+	protected function SetControl(Params $params = NULL): ?string {
 		// NApp::Dlog($params,'SetControl>>$params');
 		$this->LoadState($params);
 		// NApp::Dlog($this->filters,'SetControl>>$this->filters');
@@ -2368,11 +2373,11 @@ class TableView {
     /**
 	 * Gets the control's content (html)
 	 *
-	 * @param  array $params An array of parameters
+	 * @param  Params|array|null $params An array of parameters
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
-	 * * other passthrough params
+	 * * other pass through params
 	 * @return string Returns the control's content (html)
 	 * @access public
 	 * @throws \NETopes\Core\AppException
@@ -2394,7 +2399,7 @@ class TableView {
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
-	 * * other passthrough params
+	 * * other pass through params
 	 * @return string Returns the control's filters box content
 	 * @access public
 	 * @throws \NETopes\Core\AppException
@@ -2417,15 +2422,15 @@ class TableView {
 	public function SetBaseClass($value) {
 		$this->base_class = strlen($value) ? $value : $this->base_class;
 	}//END public function SetBaseClass
-	/**
-	 * Sets new value for base class property
-	 *
-     * @param null $params
-	 * @return void
-	 * @throws \NETopes\Core\AppException
+    /**
+     * Sets new value for base class property
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return void
+     * @throws \NETopes\Core\AppException
      * @access public
-	 */
-	public function ExportAll($params = NULL) {
+     */
+	public function ExportAll(Params $params = NULL) {
 		// NApp::Dlog($params,'ExportAll');
 		$phash = $params->safeGet('phash',NULL,'is_notempty_string');
 		$output = $params->safeGet('output',FALSE,'bool');

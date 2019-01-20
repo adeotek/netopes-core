@@ -34,7 +34,7 @@ class TimePicker extends Control {
 		$this->plugin = is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
-		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
+		if(!strlen($this->locale)) { $this->locale = NApp::GetLanguageCode(); }
 		if(!strlen($this->format)) { $this->format = 'HH:mm'; }
 		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 5; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
@@ -131,8 +131,8 @@ class TimePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
@@ -174,8 +174,8 @@ class TimePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap4Control

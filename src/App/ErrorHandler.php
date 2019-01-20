@@ -130,22 +130,46 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 		return $result;
 	}//END public static function GetErrors
 	/**
-	 * Adds an exception (of AppException type) to the error stack
+	 * Adds an Exception or an Error to the error stack
 	 *
-	 * @param AppException $exception The exception to be added to the stack
+	 * @param \Throwable $e The exception/error to be added to the stack
 	 * @return void
 	 * @access public
 	 * @static
 	 */
-	public static function AddError(AppException $exception) {
-		$errFile = str_replace(_NAPP_ROOT_PATH,'',$exception->getFile());
+	public static function AddError(\Throwable $e) {
+		$errFile = str_replace(_NAPP_ROOT_PATH,'',$e->getFile());
 		if(!is_array(self::$errorsStack)) { self::$errorsStack = []; }
-		self::$errorsStack[] = array('errMessage'=>$exception->getMessage(),'errNo'=>$exception->getCode(),'errFile'=>$errFile,'errLine'=>$exception->getLine());
+		self::$errorsStack[] = ['errMessage'=>$e->getMessage(),'errNo'=>$e->getCode(),'errFile'=>$errFile,'errLine'=>$e->getLine()];
 		if(class_exists('NApp') && NApp::GetDebuggerState()) {
-			NApp::Elog($exception,'Error['.$exception->getCode().'] in file '.$errFile.' at line '.$exception->getLine());
+			NApp::Elog($e,'Error['.$e->getCode().'] in file '.$errFile.' at line '.$e->getLine());
 			if(self::$backtrace) { NApp::Elog(debug_backtrace(),'Backtrace'); }
 		}//if(class_exists('NApp') && NApp::GetDebuggerState())
 	}//END public static function AddError
+	/**
+	 * Method called through set_exception_handler() on exception thrown
+	 *
+	 * @param  \Throwable $exception The thrown exception
+	 * @return void
+	 * @access public
+	 * @throws AppException
+	 */
+	public static function ExceptionHandlerFunction($exception) {
+	    if($exception instanceof AppException) {
+	        $e = $exception;
+        } elseif($exception instanceof \Error) {
+            $e = AppException::GetInstance($exception,'php');
+	    } elseif($exception instanceof \PDOException) {
+	        $e = AppException::GetInstance($exception,'pdo');
+	    } else {
+	        $e = AppException::GetInstance($exception,'other');
+	    }//if($exception instanceof AppException)
+		if(self::IsSilent()) {
+			self::AddError($e);
+		} else {
+			self::ShowErrors($e);
+		}//if(self::IsSilent())
+	}//END public static function ExceptionHandlerFunction
 	/**
 	 * Method called through set_error_handler() on error
 	 *
@@ -210,34 +234,6 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 				break;
 		}//END switch
 	}//END public static function ErrorHandlerFunction
-	/**
-	 * Method called through set_exception_handler() on exception thrown
-	 *
-	 * @param  object $exception The thrown exception
-	 * @return void
-	 * @access public
-	 * @static
-	 * @throws AppException
-	 */
-	public static function ExceptionHandlerFunction($exception) {
-		if($exception instanceof AppException) {
-		    $e = $exception;
-		} else {
-			switch(get_class($exception)) {
-				case 'PDOException':
-					$e = new AppException($exception->getMessage(),E_ERROR,1,$exception->getFile(),$exception->getLine(),'pdo',$exception->getCode(),$exception->errorInfo);
-					break;
-				default:
-					$e = new AppException($exception->getMessage(),$exception->getCode(),1,$exception->getFile(),$exception->getLine());
-					break;
-			}//END switch
-		}//if($exception instanceof AppException)
-		if(self::IsSilent()) {
-			self::AddError($e);
-		} else {
-			self::ShowErrors($e);
-		}//if(self::IsSilent())
-	}//END public static function ExceptionHandlerFunction
 	/**
 	 * Method called through register_shutdown_function() on shutdown
 	 *
@@ -356,19 +352,19 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 			$error_str = \GibberishAES::enc($error_str,'HTML');
 			if(NApp::ajax()) {
 				if(NApp::IsValidAjaxRequest() && !self::$shutdown) {
-					NApp::Ajax()->ExecuteJs(self::$jsShowError."('{$error_str}',true);");
+					NApp::AddJsScript(self::$jsShowError."('{$error_str}',true);");
 				} else {
 					$result = '<input type="hidden" class="IPEPText" value="'.$error_str.'">';
 					echo $result;
 				}//if(NApp::IsValidAjaxRequest() && !self::$shutdown)
 			} else {
-				NApp::_ExecJs(self::$jsShowError."('{$error_str}.',TRUE);");
+				NApp::AddJsScript(self::$jsShowError."('{$error_str}.',TRUE);");
 			}//if(NApp::ajax())
 		} else {
 			$result = "\t".'<div style="background-color: #CF0000; color: #FFFFFF; padding: 5px; font-size: 16px; text-align: center;">'."\n";
 			$result .= "\t\t".'<strong>Error</strong>'."\n";
 			$result .= "\t\t".'<div style="background-color: #FFFFFF; color: #CF0000; padding: 10px; font-size: 14px; text-align: left;">'."\n";
-			$result .= "\t\t\t".'<span>'.str_replace(array('\\'),array('/'),$error_str).'</span>'."\n";
+			$result .= "\t\t\t".'<span>'.str_replace('\\','/',$error_str).'</span>'."\n";
 			$result .= "\t\t".'</div>'."\n";
 			$result .= "\t".'</div>'."\n";
 			echo $result;

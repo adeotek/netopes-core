@@ -10,7 +10,6 @@
  * @filesource
  */
 namespace NETopes\Core\App;
-use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 
 /**
@@ -40,7 +39,7 @@ class Debugger {
 	 * @var    array List of debugging plug-ins. To activate/inactivate an plug-in, change the value for "active" key corresponding to that plug-in.
 	 * @access protected
 	 */
-	protected $debug_extensions = [
+	protected $debugExtensions = [
 		'Firefox'=>['QuantumPHP'=>['active'=>FALSE,'js'=>FALSE]],
 		'Chrome'=>[
 			'PhpConsole'=>['active'=>TRUE,'js'=>FALSE],
@@ -57,23 +56,23 @@ class Debugger {
 	 * @var    array Array containing debugging plug-ins objects.
 	 * @access protected
 	 */
-	protected $debug_objects = FALSE;
+	protected $debugObjects = FALSE;
 	/**
 	 * @var    array Array containing debugging plug-ins JavaScripts.
 	 * @access protected
 	 */
-	protected $debug_scripts = [];
+	protected $debugScripts = [];
 	/**
 	 * @var    array Array containing started debug timers.
 	 * @access protected
 	 * @static
 	 */
-	protected static $debug_timers = [];
+	protected static $debugTimers = [];
 	/**
 	 * @var        string Browser console password (extension)
 	 * @access     protected
 	 */
-	protected $js_console_password = '';
+	protected $jsConsolePassword = '';
 	/**
 	 * @var        boolean Show exception trace on Elog
 	 * @access     public
@@ -83,69 +82,69 @@ class Debugger {
 	 * @var        string Relative path to the logs folder
 	 * @access     public
 	 */
-	public $logs_path = '.logs';
+	public $logsPath = '.logs';
 	/**
 	 * @var        string Name of the main log file
 	 * @access     public
 	 */
-	public $log_file = 'app.log';
+	public $logFile = 'app.log';
 	/**
 	 * @var        string Name of the errors log file
 	 * @access     public
 	 */
-	public $errors_log_file = 'errors.log';
+	public $errorsLogFile = 'errors.log';
 	/**
 	 * @var        string Name of the debugging log file
 	 * @access     public
 	 */
-	public $debug_log_file = 'debug.log';
+	public $debugLogFile = 'debug.log';
 	/**
 	 * Debugger class constructor
 	 *
 	 * @param  boolean $debug Debug mode TRUE/FALSE
-	 * @param  string  $logs_path Logs directory relative path
-	 * @param  string  $tmp_path Temp directory absolute path
+	 * @param  string  $logsPath Logs directory relative path
+	 * @param  string  $tmpPath Temp directory absolute path
 	 * (must be outside document root)
-	 * @param null     $console_password
+	 * @param null     $consolePassword
 	 * @throws \Exception
 	 * @access public
 	 */
-    public function __construct($debug,$logs_path = NULL,$tmp_path = NULL,$console_password = NULL) {
+    public function __construct($debug,$logsPath = NULL,$tmpPath = NULL,$consolePassword = NULL) {
 		if($debug!==TRUE) { return; }
-		if(strlen($console_password)) { $this->js_console_password = $console_password; }
-		if(strlen($logs_path)) { $this->logs_path = $logs_path; }
+		if(strlen($consolePassword)) { $this->jsConsolePassword = $consolePassword; }
+		if(strlen($logsPath)) { $this->logsPath = $logsPath; }
 		if(array_key_exists('HTTP_USER_AGENT',$_SERVER) && preg_match('/Chrome/',$_SERVER['HTTP_USER_AGENT'])===1) {
-			$this->LoggerInit('Chrome',$tmp_path);
+			$this->LoggerInit('Chrome',$tmpPath);
 		} elseif(array_key_exists('HTTP_USER_AGENT',$_SERVER) && preg_match('/Firefox/',$_SERVER['HTTP_USER_AGENT'])===1) {
-			$this->LoggerInit('Firefox',$tmp_path);
+			$this->LoggerInit('Firefox',$tmpPath);
 		} else {
-			$this->LoggerInit('Other',$tmp_path);
+			$this->LoggerInit('Other',$tmpPath);
 		}//if(...
-		$this->enabled = (is_array($this->debug_objects) && count($this->debug_objects));
+		$this->enabled = (is_array($this->debugObjects) && count($this->debugObjects));
 	}//END protected function __construct
 	/**
 	 * Enable PHP browser logger
 	 *
 	 * @param  string $browser_type Browser type extracted from HTTP_USER_AGENT
-	 * @param  string $tmp_path Temp directory absolute path
+	 * @param  string $tmpPath Temp directory absolute path
 	 * @return void
 	 * @access protected
 	 * @throws \Exception
 	 */
-	protected function LoggerInit($browser_type,$tmp_path = NULL) {
-		if(!is_string($browser_type) || !strlen($browser_type) || !is_array($this->debug_extensions) || !count($this->debug_extensions) || !array_key_exists($browser_type,$this->debug_extensions) || !is_array($this->debug_extensions[$browser_type]) || !count($this->debug_extensions[$browser_type])) { return; }
-		foreach($this->debug_extensions[$browser_type] as $dk=>$dv) {
+	protected function LoggerInit($browser_type,$tmpPath = NULL) {
+		if(!is_string($browser_type) || !strlen($browser_type) || !is_array($this->debugExtensions) || !count($this->debugExtensions) || !array_key_exists($browser_type,$this->debugExtensions) || !is_array($this->debugExtensions[$browser_type]) || !count($this->debugExtensions[$browser_type])) { return; }
+		foreach($this->debugExtensions[$browser_type] as $dk=>$dv) {
 			if($dv['active']!==TRUE) { continue; }
 			switch($dk) {
 				case 'PhpConsole':
 					if(!class_exists('\PhpConsole\Connector')) { continue; }
-					\PhpConsole\Connector::setPostponeStorage(new \PhpConsole\Storage\File((strlen($tmp_path) ? rtrim($tmp_path,'/') : '').'/phpcons.data'));
-					$this->debug_objects[$dk] = \PhpConsole\Connector::getInstance();
+					\PhpConsole\Connector::setPostponeStorage(new \PhpConsole\Storage\File((strlen($tmpPath) ? rtrim($tmpPath,'/') : '').'/phpcons.data'));
+					$this->debugObjects[$dk] = \PhpConsole\Connector::getInstance();
 					if(\PhpConsole\Connector::getInstance()->isActiveClient()) {
-						$this->debug_objects[$dk]->setServerEncoding('UTF-8');
-						if(isset($this->js_console_password) && strlen($this->js_console_password)) { $this->debug_objects[$dk]->setPassword($this->js_console_password); }
+						$this->debugObjects[$dk]->setServerEncoding('UTF-8');
+						if(isset($this->jsConsolePassword) && strlen($this->jsConsolePassword)) { $this->debugObjects[$dk]->setPassword($this->jsConsolePassword); }
 					} else {
-						$this->debug_objects[$dk] = NULL;
+						$this->debugObjects[$dk] = NULL;
 					}//if(\PhpConsole\Connector::getInstance()->isActiveClient())
 					break;
 				case 'QuantumPHP':
@@ -159,11 +158,11 @@ class Debugger {
 							break;
 						default:
 							\QuantumPHP::$MODE = 1;
-							if(!is_array($this->debug_scripts)) { $this->debug_scripts = []; }
-							$this->debug_scripts[$dk] = 'QuantumPHP.min.js';
+							if(!is_array($this->debugScripts)) { $this->debugScripts = []; }
+							$this->debugScripts[$dk] = 'QuantumPHP.min.js';
 							break;
 					}//END swith
-					$this->debug_objects[$dk] = $dk;
+					$this->debugObjects[$dk] = $dk;
 					break;
 			}//END switch
 		}//END foreach
@@ -175,8 +174,8 @@ class Debugger {
 	 * @access public
 	 */
 	public function SendData() {
-		if($this->enabled && is_array($this->debug_objects)) {
-			foreach($this->debug_objects as $dk=>$dv) {
+		if($this->enabled && is_array($this->debugObjects)) {
+			foreach($this->debugObjects as $dk=>$dv) {
 				switch($dk) {
 					case 'QuantumPHP':
 							\QuantumPHP::send();
@@ -185,7 +184,7 @@ class Debugger {
 						break;
 				}//END switch
 			}//END foreach
-		}//if($this->enabled && is_array($this->debug_objects))
+		}//if($this->enabled && is_array($this->debugObjects))
 	}//END public function SendData
 	/**
 	 * Get debugging plug-ins JavaScripts to be loaded
@@ -194,7 +193,7 @@ class Debugger {
 	 * @access public
 	 */
 	public function GetScripts() {
-		return ($this->enabled ? $this->debug_scripts : []);
+		return ($this->enabled ? $this->debugScripts : []);
 	}//END public function GetScripts
 	/**
 	 * Get enabled state
@@ -219,13 +218,13 @@ class Debugger {
 	 * @throws \Exception
 	 */
 	public function Debug($value,$label = '',$type = self::DBG_DEBUG,$file = FALSE,$path = FALSE) {
-		if(!$this->enabled || !is_array($this->debug_objects)) { return; }
+		if(!$this->enabled || !is_array($this->debugObjects)) { return; }
 		if($file===TRUE) {
 			$dbg = debug_backtrace();
 			$caller = array_shift($dbg);
 			$label = '['.($path===TRUE ? $caller['file'] : basename($caller['file'])).':'.$caller['line'].']'.$label;
 		}//if($file===TRUE)
-		foreach($this->debug_objects as $dn=>$do) {
+		foreach($this->debugObjects as $dn=>$do) {
 				switch($dn) {
 					case 'PhpConsole':
 					if(is_object($do)) {
@@ -329,16 +328,16 @@ class Debugger {
 			$caller = array_shift($dbg);
 			$label = '['.($path===TRUE ? $caller['file'] : basename($caller['file'])).':'.$caller['line'].']'.$label;
 		}//if($file===TRUE)
-		if($value instanceof \Exception) {
+		if($value instanceof \Throwable) {
             if($showExceptionsTrace || $this->showExceptionsTrace) {
-                $this->Debug($value->getMessage(),$label??get_class($value),self::DBG_ERROR);
+                $this->Debug($value->getMessage(),($label??get_class($value)).':MESSAGE>> ',self::DBG_ERROR);
+                $this->Debug($value->getTrace(),($label??get_class($value)).':TRACE>> ',self::DBG_ERROR);
             } else {
-                $this->Debug('MESSAGE>> '.$value->getMessage(),$label??get_class($value),self::DBG_ERROR);
-                $this->Debug('TRACE>> '.$value->getTrace(),$label??get_class($value),self::DBG_ERROR);
+                $this->Debug($value->getMessage(),$label??get_class($value),self::DBG_ERROR);
             }//if($showExceptionsTrace || $this->showExceptionsTrace)
 		} else {
 		    $this->Debug($value,$label,self::DBG_ERROR);
-		}//if($value instanceof \Exception)
+		}//if($value instanceof \Throwable)
 	}//END public function Elog
 	/**
 	 * Displays a value in the debugger plugin as an info message
@@ -402,15 +401,15 @@ class Debugger {
 	 * @access public
 	 */
 	public function Write2LogFile($msg,$type = 'log',$file = '',$path = '') {
-		$lpath = (is_string($path) && strlen($path) ? rtrim($path,'/') : $this->logs_path).'/';
+		$lpath = (is_string($path) && strlen($path) ? rtrim($path,'/') : $this->logsPath).'/';
 		switch(strtolower($type)) {
 			case 'error':
-				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->errors_log_file));
+				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->errorsLogFile));
 			case 'debug':
-				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->debug_log_file));
+				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->debugLogFile));
 			case 'log':
 			default:
-				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->log_file));
+				return self::Log2File($msg,$lpath.(strlen($file) ? $file : $this->logFile));
 		}//switch(strtolower($type))
 	}//END public function WriteToLog
 	/**
@@ -423,7 +422,7 @@ class Debugger {
 	 */
 	public static function StartTimeTrack($name) {
 		if(!$name) { return FALSE; }
-		self::$debug_timers[$name] = microtime(TRUE);
+		self::$debugTimers[$name] = microtime(TRUE);
 		return TRUE;
 	}//END public static function TimerStart
 	/**
@@ -436,9 +435,9 @@ class Debugger {
 	 * @static
 	 */
 	public static function ShowTimeTrack($name,$stop = TRUE) {
-		if(!$name || !array_key_exists($name,self::$debug_timers)) { return NULL; }
-		$time = self::$debug_timers[$name];
-		if($stop) { unset(self::$debug_timers[$name]); }
+		if(!$name || !array_key_exists($name,self::$debugTimers)) { return NULL; }
+		$time = self::$debugTimers[$name];
+		if($stop) { unset(self::$debugTimers[$name]); }
 		return (microtime(TRUE)-$time);
 	}//END public static function TimerStart
 }//END class Debugger

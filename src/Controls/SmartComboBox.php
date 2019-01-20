@@ -12,13 +12,15 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NApp;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use Translate;
+use NApp;
+
 /**
  * ComboBox control
  *
@@ -32,6 +34,8 @@ use Translate;
  * @access   public
  */
 class SmartComboBox extends Control {
+    use TControlDataSource;
+    use TControlFields;
 	/**
 	 * @var null|string
 	 */
@@ -105,7 +109,7 @@ class SmartComboBox extends Control {
 		} elseif(is_numeric($this->minimum_input_length) && $this->minimum_input_length>0) {
 			$js_script .= "\t\t\tminimumInputLength: {$this->minimum_input_length},\n";
 		}//if($this->load_type=='ajax')
-		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+		$litems = DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
 			    $s_values = $this->selected_value;
@@ -113,7 +117,7 @@ class SmartComboBox extends Control {
                 $s_values = new DataSet([$this->selected_value]);
             }//if(is_iterable($this->selected_value))
         } elseif(is_array($this->selected_value)) {
-            $s_values = DataSource::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
+            $s_values = DataSourceHelpers::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
         } else {
             if(is_scalar($this->selected_value)) {
                 $s_values = [[
@@ -123,7 +127,7 @@ class SmartComboBox extends Control {
             } else {
                 $s_values = [];
             }//if(is_scalar($this->selected_value))
-            $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
+            $s_values = DataSourceHelpers::ConvertArrayToDataSet($s_values,VirtualEntity::class);
         }//if(is_object($this->selected_value))
 		switch($this->load_type) {
 			case 'ajax':
@@ -143,9 +147,9 @@ class SmartComboBox extends Control {
                         $initData[] = $s_item;
                     }//END foreach
 			    }//if($s_values->count())
-				$tagauid = \NETopes\Core\AppSession::GetNewUID($this->tag_id,'md5');
-				NApp::_SetSessionAcceptedRequest($tagauid);
-				$cns = NApp::GetCurrentNamespace();
+				$tagauid = AppSession::GetNewUID($this->tag_id,'md5');
+				AppSession::SetSessionAcceptedRequest($tagauid);
+				$cns = NApp::$currentNamespace;
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
 				$ac_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ac_module) && strlen($ac_method)) {
@@ -204,7 +208,7 @@ class SmartComboBox extends Control {
 				if(is_object($this->value) && $this->value->count()) {
 				    $litems->merge($this->value->toArray());
 				} elseif(is_array($this->value) && count($this->value)) {
-				    $lValue = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+				    $lValue = DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
 				    $litems->merge($lValue->toArray());
 				}//if(is_object($this->value) && $this->value->count())
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {

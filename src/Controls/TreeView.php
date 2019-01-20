@@ -62,8 +62,8 @@ class TreeView extends Control {
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		    $this->checkboxs = $this->checkboxs ? TRUE : FALSE;
-		    NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitFancyTree('{$this->tag_id}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::GetCurrentNamespace()."','{$this->uid}',{$this->encrypted},".intval($this->checkboxs).",".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+		    AppSession::SetSessionAcceptedRequest($this->uid);
+            NApp::AddJsScript("InitFancyTree('{$this->tag_id}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::$currentNamespace."','{$this->uid}',{$this->encrypted},".intval($this->checkboxs).",".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		return $result;
     }//END protected function SetControl

@@ -209,6 +209,30 @@ class AppHelpers {
 		}//END foreach
 		return $result;
 	}//END public static function ConvertRightsRevokedArray
+    /**
+     * @param string|null $type
+     * @param mixed       $data
+     * @param string|null $content
+     */
+    public static function OutputResponse(?string $type = NULL,$data = NULL,?string $content = NULL): void {
+	    switch(strtolower($type)) {
+            case 'json':
+                header('Content-type: application/json');
+                echo json_encode($data);
+                break;
+            case 'jsonp':
+                header('Content-type: application/jsonp');
+                echo json_encode($data);
+                break;
+            case 'php':
+                echo serialize($data);
+                break;
+            case 'html':
+            default:
+                echo utf8_encode($content.(is_string($data) ? $data : ''));
+                break;
+        }//END switch
+	}//END public static function OutputResponse
 	/**
      * Gets the application copyright
      *
@@ -216,10 +240,10 @@ class AppHelpers {
      * @access public
      * @throws \NETopes\Core\AppException
      */
-	public function GetAppCopyright() {
+	public static function GetAppCopyright() {
 		$copyright = AppConfig::GetValue('app_copyright');
 		return ($copyright ? $copyright : '&copy; ').date('Y');
-	}//END public function GetAppCopyright
+	}//END public static function GetAppCopyright
     /**
      * Gets the current application version
      *

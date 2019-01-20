@@ -713,7 +713,7 @@ class AppView {
 		}//if(strlen($mainContainer))
 		if($return) { return $content; }
 		echo $content;
-		if(count($this->_jsScripts)) { NApp::_ExecJs($this->GetJsScript()); }
+		if(count($this->_jsScripts)) { NApp::AddJsScript($this->GetJsScript()); }
 		return NULL;
 	}//END public function Render
     /**

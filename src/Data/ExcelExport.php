@@ -20,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
+
 /**
  * Excel export class
  *
@@ -155,7 +156,7 @@ class ExcelExport {
 		$this->group_separator = get_array_value($params,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$this->date_separator = get_array_value($params,'date_separator',NApp::GetParam('date_separator'),'is_string');
 		$this->time_separator = get_array_value($params,'time_separator',NApp::GetParam('time_separator'),'is_string');
-		$this->langcode = get_array_value($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
+		$this->langcode = get_array_value($params,'lang_code',NApp::GetLanguageCode(),'is_string');
 		$this->timezone = get_array_value($params,'timezone',NApp::GetParam('timezone'),'is_notempty_string');
 		$file_type = get_array_value($params,'version','xlsx','is_notempty_string');
 		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('ExcelExport: Invalid output file type!',E_ERROR,1); }

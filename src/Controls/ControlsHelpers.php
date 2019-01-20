@@ -4,14 +4,14 @@
  *
  * Static helpers for controls
  *
- * @package    NETopes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core\Controls\ControlsHelpers;
+namespace NETopes\Core\Controls;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
@@ -21,7 +21,7 @@ use NApp;
 /**
  * Class ControlsHelpers
  *
- * @package NETopes\Core\Controls\ControlsHelpers
+ * @package NETopes\Core\Controls
  */
 class ControlsHelpers {
     /**

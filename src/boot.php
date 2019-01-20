@@ -26,7 +26,7 @@ if(strlen($custom_error_handler) && class_exists($custom_error_handler) && array
     register_shutdown_function(['ErrorHandler','ShutDownHandlerFunction']);
 }//if(strlen($custom_error_handler) && class_exists($custom_error_handler) && array_key_exists('NETopes\Core\App\IErrorHandler',class_implements($custom_error_handler)))
 // END START ErrorHandler Setup
-if(!\NETopes\Core\AppConfig::GetValue('use_custom_autoloader')) {
+if(!\NETopes\Core\AppConfig::GetValue('use_internal_autoloader')) {
     require_once(__DIR__.'/napp_autoload.php');
     spl_autoload_register('_napp_autoload');
-}//if(!\NETopes\Core\AppConfig::GetValue('use_custom_autoloader'))
+}//if(!\NETopes\Core\AppConfig::GetValue('use_internal_autoloader'))

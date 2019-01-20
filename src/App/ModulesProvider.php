@@ -43,10 +43,15 @@ class ModulesProvider {
         $mDir = array_pop($mArr);
         $cName = '\\'.implode('\\',$mArr).'\\'.($bName==$mDir ? $bName.'Custom' : $mDir).'\\'.$bName.'Custom';
         $custom = TRUE;
-        if(!class_exists($cName)) {
+        try {
+            if(!class_exists($cName)) {
+                $cName = $mName;
+                $custom = FALSE;
+            }//if(!class_exists($cName))
+        } catch(\Exception $ne) {
             $cName = $mName;
             $custom = FALSE;
-        }//if(!class_exists($cName))
+        }//END try
 		return $cName::GetInstance($name,$cName,$custom);
 	}//END public static function GetModule
     /**
