@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NApp;
@@ -216,7 +217,7 @@ class PdfDocument {
 		set_time_limit(1800);
         $this->pdf = new PdfCreator($this->orientation,'mm',$this->page_size,$this->unicode,$this->charset);
 		$this->pdf->SetCreator('NETopes');
-        $this->pdf->SetAuthor(NApp::_GetAppName());
+        $this->pdf->SetAuthor(AppConfig::GetValue('app_name'));
 		switch($this->type) {
 			case X_STOCK_DOC_TYPE_PDF:
 			case X_PAY_DOC_TYPE_PDF:

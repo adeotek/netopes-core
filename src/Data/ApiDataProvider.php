@@ -128,7 +128,7 @@ class ApiDataProvider {
 					'domain'=>(array_key_exists('website',$target) ? $target['website'] : ''),
 					'post_params'=>array(
 							'type'=>rawurlencode(GibberishAES::enc($rtype,$taccesskey)),
-							'access_key'=>rawurlencode(GibberishAES::enc(NApp::_GetMyAccessKey().NApp::_GetApiSeparator().time(),$taccesskey)),
+							'access_key'=>rawurlencode(GibberishAES::enc(NApp::GetMyAccessKey().NApp::GetApiSeparator().time(),$taccesskey)),
 							'params'=>rawurlencode($pparams)
 						),
 					'get_params'=>array('dbg'=>NApp::$debug)
@@ -149,13 +149,13 @@ class ApiDataProvider {
 					echo '<strong>API Call raw result ('.$rtype.'):</strong><br/>';
 					var_dump($response); echo '<br/><br/>';
 				}//if(NApp::$debug)*/
-				$result_data = explode(NApp::_GetApiSeparator(),$response);
+				$result_data = explode(AppConfig::GetValue('api_separator'),$response);
 				if(NApp::$debug && FALSE) {
 					echo '<strong>API Call non result output ('.$rtype.'):</strong><br/>';
 					echo get_array_value($result_data,0).'<br/>'.get_array_value($result_data,2).'<br/><br/>';
 				}//if(NApp::$debug)
 				if(is_array($result_data) && count($result_data)>=2 && $result_data[1]) {
-					$target['result'] = unserialize(GibberishAES::dec($result_data[1],NApp::_GetMyAccessKey()));
+					$target['result'] = unserialize(GibberishAES::dec($result_data[1],NApp::GetMyAccessKey()));
 				} else {
 					$target['result'] = FALSE;
 				}//if(is_array($result_data) && count($result_data)>=2 && $result_data[1])

@@ -516,10 +516,10 @@ class AppView {
 	    if($containerType===NULL) { return NULL; }
 	    $containerMethod = 'Get'.(strlen($containerType) ? ucfirst($containerType) : 'Default').'Container';
 		if(strlen($this->_theme)) {
-			$themeObj = NApp::_GetTheme($this->_theme);
+			$themeObj = NApp::GetTheme($this->_theme);
 		} else {
 			$themeObj = NApp::$theme;
-			if(is_null($themeObj)) { $themeObj = NApp::_GetTheme(); }
+			if(is_null($themeObj)) { $themeObj = NApp::GetTheme(); }
 		}//if(strlen($this->theme))
         if(!is_object($themeObj)) {
 		    if($this->_debug) { NApp::Wlog('Invalid view object ['.$this->_theme.']!'); }
