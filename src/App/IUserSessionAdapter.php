@@ -35,19 +35,17 @@ interface IUserSessionAdapter {
      */
 	public static function LoadAppSettings(bool $notFromDb = FALSE,?array $params = NULL,?string &$appAccessKey = NULL): void;
     /**
-     * This function checks the authenticity
-     * of the login information in the database
-     * and creates the session effectively logging in the user.
+     * This function authenticates an user and updates the session data
      *
-     * @param string      $username
-     * @param string      $password
-     * @param int         $remember
-     * @param string|null $loginNamespace
-     * @param bool        $allowNullCompany
+     * @param string                              $username
+     * @param string                              $password
+     * @param bool                                $remember
+     * @param \NETopes\Core\App\Params|array|null $extraParams
      * @return bool|null Returns TRUE if login is successful or FALSE otherwise
      * @throws \NETopes\Core\AppException
+     * @access public
      */
-	public static function Login(string $username,string $password,int $remember = 0,?string $loginNamespace = NULL,bool $allowNullCompany = FALSE): ?bool;
+	public static function Login(string $username,string $password,bool $remember = FALSE,$extraParams = NULL): ?bool;
 	/**
 	 * Method called on user logout action for clearing the session
 	 * and the login cookie

@@ -109,7 +109,6 @@ class UserSessionAdapter implements IUserSessionAdapter {
             NApp::SetPageParam('id_account',$appdata->getProperty('id_account'));
             NApp::SetParam('account_type',$appdata->getProperty('account_type'));
             NApp::SetParam('account_name',$appdata->getProperty('account_name'));
-            NApp::SetParam('access_key',$appdata->getProperty('access_key'));
             $appAccessKey = $appdata->getProperty('access_key');
             NApp::SetParam('account_timezone',$appdata->getProperty('account_timezone',AppConfig::GetValue('server_timezone'),'is_notempty_string'));
             NApp::SetParam('id_entity',$appdata->getProperty('id_entity'));
@@ -160,20 +159,18 @@ class UserSessionAdapter implements IUserSessionAdapter {
 		}//if(UserSession::$loginStatus && !$notFromDb)
 	}//END public static function LoadAppSettings
     /**
-     * This function checks the authenticity
-     * of the login information in the database
-     * and creates the session effectively logging in the user.
+     * This function authenticates an user and updates the session data
      *
-     * @param string      $username
-     * @param string      $password
-     * @param int         $remember
-     * @param string|null $loginNamespace
-     * @param bool        $allowNullCompany
+     * @param string                              $username
+     * @param string                              $password
+     * @param bool                                $remember
+     * @param \NETopes\Core\App\Params|array|null $extraParams
      * @return bool|null Returns TRUE if login is successful or FALSE otherwise
      * @throws \NETopes\Core\AppException
      * @access public
      */
-	public static function Login(string $username,string $password,int $remember = 0,?string $loginNamespace = NULL,bool $allowNullCompany = FALSE): ?bool {
+	public static function Login(string $username,string $password,bool $remember = FALSE,$extraParams = NULL): ?bool {
+	    $params = $extraParams instanceof Params ? $extraParams : new Params(is_array($extraParams) ? $extraParams : []);
 		UserSession::$loginStatus = FALSE;
 		$tries = NApp::GetParam('login_tries');
         if(is_numeric($tries) && $tries>=0) {
@@ -187,14 +184,14 @@ class UserSessionAdapter implements IUserSessionAdapter {
             return UserSession::$loginStatus;
         }//if($tries>50)
         if(!is_string($password) || !strlen($password)) { return FALSE; }
-        $namespace = (strlen($loginNamespace) ? $loginNamespace : (strlen(NApp::$loginNamespace) ? NApp::$loginNamespace : NApp::$currentNamespace));
+        $namespace = $params->safeGet('login_namespace',NApp::$loginNamespace,'is_notempty_string');
 		switch($namespace) {
 			case 'web':
 				$userData = DataProvider::Get('Cms\Users','GetLogin',[
 					'section_id'=>(NApp::GetParam('id_section') ? NApp::GetParam('id_section') : NULL),
 					'zone_id'=>(NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : NULL),
 					'for_username'=>$username,
-					'allow_null_company'=>intval($allowNullCompany),
+					'allow_null_company'=>intval($params->safeGet('allow_null_company',FALSE,'bool')),
 					'web_session'=>UserSession::GetHashFromCookie('websession'),
 				]);
 				break;

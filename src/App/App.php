@@ -277,12 +277,12 @@ abstract class App implements IApp {
 		return static::$_appState;
 	}//END public static function GetAppState
 	/**
-	 * Gets the account API security key (auto loaded on LoadAppOptions() method)
+	 * Gets the account API security key (auto loaded on LoadAppSettings() method)
 	 *
-	 * @return string Returns account API security key
+	 * @return string|null Returns account API security key
 	 * @access public
 	 */
-	public static function GetMyAccessKey() {
+	public static function GetMyAccessKey(): ?string {
 		return static::$_appAccessKey;
 	}//END public static function GetMyAccessKey
 	/**
