@@ -170,10 +170,12 @@ function ShowModalForm(width,title,close_callback,targetid) {
 		closeOnEscape: false,
 		dragStop: function(event,ui) { $(this).dialog({height:'auto'}); },
 		close: function() {
-			if(close_callback) {
+			if(typeof(close_callback)==='function') {
+				close_callback();
+			} else if(typeof(close_callback)==='string' && close_callback.length>0) {
 				eval(close_callback);
 			} else {
-				var d_close_callback = $(this).attr('data-close-callback');
+				let d_close_callback = $(this).attr('data-close-callback');
 				if(d_close_callback) { eval (d_close_callback); }
             }
             if(targetid!=='modal') {
