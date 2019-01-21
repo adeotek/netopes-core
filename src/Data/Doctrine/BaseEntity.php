@@ -1,9 +1,7 @@
 <?php
 /**
  * BaseEntity class file
- *
  * Base for all entities implementations
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,14 +11,10 @@
  */
 namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppException;
-
 /**
  * BaseEntity class
- *
  * Base for all entities implementations
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 abstract class BaseEntity {
 	/**
@@ -29,11 +23,9 @@ abstract class BaseEntity {
 	public static $isCustomDS = FALSE;
 	/**
 	 * VirtualEntity dynamic method call
-	 *
 	 * @param string $name
 	 * @param array  $arguments
 	 * @return mixed
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call($name,array $arguments) {
@@ -49,28 +41,24 @@ abstract class BaseEntity {
 	}//END public function __call
 	/**
 	 * Get property value by name
-	 *
 	 * @param string|null $name
 	 * @param null   $default_value
 	 * @param string|null $validation
 	 * @param bool   $strict
 	 * @return mixed
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function getProperty(?string $name,$default_value = NULL,?string $validation = NULL,bool $strict = FALSE) {
 		return $this->GetPropertyValue($name,$strict,$default_value,$validation);
 	}//END public function getProperty
 	/**
 	 * BaseEntity dynamic getter method
-	 *
 	 * @param  string|null $name The name of the property
 	 * @param bool    $strict
 	 * @param null    $default_value
 	 * @param string|null $validation
 	 * @return mixed Returns the value of the property
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetPropertyValue(?string $name,bool $strict = FALSE,$default_value = NULL,?string $validation = NULL) {
 		$key = convert_to_camel_case($name,TRUE);
@@ -87,11 +75,9 @@ abstract class BaseEntity {
 	}//END protected function GetPropertyValue
 	/**
 	 * Check if property exists
-	 *
 	 * @param  string $name The name of the property
 	 * @param  bool   $not_null
 	 * @return bool Returns TRUE if property exists
-	 * @access public
      */
 	public function hasProperty(?string $name,bool $not_null = FALSE): bool {
 		$key = convert_to_camel_case($name,TRUE);
@@ -109,7 +95,6 @@ abstract class BaseEntity {
 	}//END public function hasProperty
     /**
      * Get data array
-     *
      * @param bool $originalNames
      * @return array
      */

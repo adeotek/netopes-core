@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes DateTime helpers trait file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -10,16 +9,13 @@
  * @filesource
  */
 namespace NETopes\Core\Validators;
-
 /**
  * Trait TDateTimeHelpers
- *
  * @package NETopes\Core
  */
 trait TDateTimeHelpers {
     /**
      * Converts a date from unix timestamp to excel serial
-     *
      * @param  mixed   $date The date to be converted in unix time stamp format
      * or in string format (if string the $ts_input param must be set to FALSE)
      * @param  string|null $timezone The time zone for the string data to be converted
@@ -48,7 +44,6 @@ trait TDateTimeHelpers {
     }//END public static function datetimeToExcelTimestamp
     /**
      * Converts a date from excel serial to unix time stamp
-     *
      * @param  float       $date The date to be converted from excel serial format
      * @param  string|null $timezone User's time zone
      * @param  string|null $newTimezone The time zone for the string data to be converted

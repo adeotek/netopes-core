@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes application helpers class file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,10 +12,8 @@ namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 use NApp;
-
 /**
  * Class AppHelpers
- *
  * @package NETopes\Core
  */
 class AppHelpers {
@@ -26,12 +23,10 @@ class AppHelpers {
     protected static $_globals = [];
     /**
      * Get current namespace section relative path (with theme)
-     *
      * @param  string $themeDir Optional theme directory
      * For non-web namespaces overwrites configuration theme
      * @return string Returns the current namespace section relative path
      * For non-web namespaces includes theme directory
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetSectionPath($themeDir = NULL) {
@@ -46,9 +41,7 @@ class AppHelpers {
 	}//END public static function GetSectionPath
     /**
      * Get application non-public repository path
-     *
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetRepositoryPath() {
@@ -58,9 +51,7 @@ class AppHelpers {
 	}//END public static function GetRepositoryPath
     /**
      * Get application cache path
-     *
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetCachePath() {
@@ -73,33 +64,27 @@ class AppHelpers {
 	}//END public static function GetCachePath
     /**
      * Set global parameters data
-     *
      * @param array|null $data
      * @return void
-     * @access public
      */
 	public static function SetGlobals(?array $data): void {
 		static::$_globals = $data;
 	}//END public static function SetGlobals
     /**
 	 * description
-	 *
 	 * @param      $key
 	 * @param null $defaultValue
 	 * @param null $validation
 	 * @return mixed
-	 * @access public
 	 */
 	public static function GetGlobalVar($key,$defaultValue = NULL,$validation = NULL) {
 	    return get_array_value(static::$_globals,$key,$defaultValue,$validation);
 	}//END public static function GetGlobalVar
 	/**
 	 * description
-	 *
 	 * @param $key
 	 * @param $value
 	 * @return bool
-	 * @access public
 	 */
 	public static function SetGlobalVar($key,$value) {
 		if(!is_numeric($key) && (!is_string($key) || !strlen($key))) { return FALSE; }
@@ -109,21 +94,17 @@ class AppHelpers {
 	}//END public static function SetGlobalVar
 	/**
 	 * description
-	 *
 	 * @param      $key
 	 * @param null $defaultValue
 	 * @param null $validation
 	 * @return mixed
-	 * @access public
 	 */
 	public function GetRequestParamValue($key,$defaultValue = NULL,$validation = NULL) {
 		return get_array_value(static::$_globals,['req_params',$key],$defaultValue,$validation);
 	}//END public function GetRequestParamValue
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public static function ProcessRequestParams() {
 		if(!is_array(static::$_globals)) { static::$_globals = []; }
@@ -151,11 +132,9 @@ class AppHelpers {
 	}//END public static function _ProcessRequestParams
 	/**
 	 * Add javascript code to the dynamic js queue (executed at the end of the current request)
-	 *
 	 * @param  string $value Javascript code
 	 * @param bool    $dynamic
 	 * @return void
-	 * @access public
 	 */
 	public static function AddJsScript(string $value,bool $dynamic = FALSE) {
 		if(!strlen($value)) { return; }
@@ -169,10 +148,8 @@ class AppHelpers {
 	}//END public static function AddJsScript
     /**
      * Get dynamic javascript to be executed
-     *
      * @param bool $asArray
      * @return string|array Returns scripts to be executed
-     * @access public
      */
 	public static function GetDynamicJs(bool $asArray = FALSE) {
 		$scripts = self::GetGlobalVar('dynamic_js_scripts',[],'is_array');
@@ -194,11 +171,8 @@ class AppHelpers {
 	/**
 	 * Converts the rights revoked database array to an nested array
 	 * (on 3 levels - module=>method=>rights_revoked)
-	 *
 	 * @param $array
 	 * @return array
-	 * @access public
-	 * @static
 	 */
 	public static function ConvertRightsRevokedArray($array) {
 		if(!is_array($array) || !count($array)) { return []; }
@@ -235,9 +209,7 @@ class AppHelpers {
 	}//END public static function OutputResponse
 	/**
      * Gets the application copyright
-     *
      * @return string Returns the application copyright
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetAppCopyright() {
@@ -246,7 +218,6 @@ class AppHelpers {
 	}//END public static function GetAppCopyright
     /**
      * Gets the current application version
-     *
      * @param  string $type Specifies the return type:
      * - NULL or empty string (default) for return as string
      * - 'array' for return as array (key-value)
@@ -254,7 +225,6 @@ class AppHelpers {
      * - 'minor' for return only the minor version as int
      * - 'build' for return only the build version as int
      * @return mixed Returns the application version as a string or an array or a specific part of the version
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetVersion($type = NULL) {
@@ -282,7 +252,6 @@ class AppHelpers {
 	}//END public static function GetVersion
     /**
      * Gets the current application framework version
-     *
      * @param  string $type Specifies the return type:
      * - NULL or empty string (default) for return as string
      * - 'array' for return as array (key-value)
@@ -290,7 +259,6 @@ class AppHelpers {
      * - 'minor' for return only the minor version as int
      * - 'build' for return only the build version as int
      * @return mixed Returns the application framework version
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetFrameworkVersion($type = NULL) {
@@ -318,10 +286,8 @@ class AppHelpers {
 	}//END public static function GetFrameworkVersion
 	/**
      * Initializes KCFinder session parameters
-     *
      * @param array $params
      * @return void
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function InitializeKCFinder($params = NULL) {

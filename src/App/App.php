@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes application main class file.
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,156 +13,124 @@ use NETopes\Ajax\BaseRequest;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
-
 /**
   * Class App
-  *
   * @package  NETopes\Core
-  * @access   public
   */
 abstract class App implements IApp {
     /**
 	 * @var    bool Flag for output buffering (started or not)
-	 * @access protected
 	 */
 	protected static $_appObStarted = FALSE;
 	/**
 	 * @var    bool State of session before current request (TRUE for existing session or FALSE for newly initialized)
-	 * @access protected
 	 */
 	protected static $_appState = FALSE;
 	/**
      * @var    string Account API security key (auto-loaded on LoadAppOptions() method)
-     * @access protected
      */
 	protected static $_appAccessKey = NULL;
 	/**
 	 * @var    \NETopes\Ajax\Request Object for ajax requests processing
-	 * @access public
 	 */
 	protected static $_ajaxRequest = NULL;
 	/**
 	 * @var    \NETopes\Core\App\Url Object for application URL processing
-	 * @access public
 	 */
 	protected static $_url = NULL;
 	/**
 	 * @var    bool Flag to indicate if the request is ajax or not
-	 * @access public
 	 */
 	protected static $_isAjax = FALSE;
 	/**
 	 * @var    string Page (browser tab) hash
-	 * @access public
 	 */
 	protected static $_pHash = NULL;
 	/**
 	 * @var    string Application absolute path (auto-set on start)
-	 * @access public
 	 */
 	public static $appAbsolutePath = NULL;
 	/**
 	 * @var    string Application non-public path (auto-set on start)
-	 * @access public
 	 */
 	public static $appPath = NULL;
 	/**
 	 * @var    string Application public path (auto-set on start)
-	 * @access public
 	 */
 	public static $appPublicPath = NULL;
 	/**
 	 * @var    string Application base URL (auto-set on start)
-	 * @access public
 	 */
 	public static $appBaseUrl = NULL;
 	/**
 	 * @var    string|null Name of the default database connection (from Configs/Connections.inc)
-	 * @access public
 	 */
 	public static $defaultDbConnection = NULL;
 	/**
 	 * @var    \NETopes\Core\App\ITheme Current theme object instance
-	 * @access public
 	 */
 	public static $theme = NULL;
 	/**
 	 * @var    bool Flag indicating if GUI was loaded or not
-	 * @access public
 	 */
 	public static $guiLoaded = FALSE;
 	/**
 	 * @var    bool Flag for setting silent errors
-	 * @access public
 	 */
 	public static $silentErrors = FALSE;
 	/**
 	 * @var    bool Debug mode
-	 * @access public
 	 */
 	public static $debug = FALSE;
 	/**
 	 * @var    \NETopes\Core\App\Debugger Object for debugging
-	 * @access public
 	 */
 	public static $debugger = NULL;
 	/**
 	 * @var    bool Flag to indicate if the request should keep the session alive
-	 * @access public
 	 */
 	public static $keepAlive = TRUE;
 	/**
 	 * @var    bool If set TRUE, name-space session will be cleared at commit
-	 * @access public
 	 */
 	public static $clearNamespaceSession = FALSE;
     /**
      * @var    string Current namespace
-     * @access public
      */
 	public static $currentNamespace = NULL;
     /**
      * @var    string Current section folder
-     * @access public
      */
 	public static $currentSectionFolder = NULL;
     /**
      * @var    bool TRUE if current namespace requires login
-     * @access public
      */
 	public static $requiresLogin = NULL;
     /**
      * @var    string Namespace to be used for login
-     * @access public
      */
 	public static $loginNamespace = NULL;
     /**
      * @var    bool With sections
-     * @access public
      */
 	public static $withSections = TRUE;
 	/**
 	 * @var    string Start page
-	 * @access public
 	 */
 	public static $startPage = '';
 	/**
 	 * @var    string Logged in start page
-	 * @access public
 	 */
 	public static $loggedInStartPage = '';
 	/**
 	 * @var    bool Application database stored option load state
-	 * @access public
 	 */
 	public static $appOptionsLoaded = FALSE;
 	/**
      * Load domain specific configuration
-     *
      * @param bool $isCli
      * @return void
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected static function LoadDomainConfig(bool $isCli = FALSE): void {
         global $_DOMAINS_CONFIG;
@@ -190,7 +157,6 @@ abstract class App implements IApp {
 	}//END protected static function LoadDomainConfig
     /**
      * Application initializer method
-     *
      * @param  bool      $isAjax Optional flag indicating whether is an ajax request or not
      * @param  array     $params An optional key-value array containing to be assigned to non-static properties
      * (key represents name of the property and value the value to be assigned)
@@ -200,7 +166,6 @@ abstract class App implements IApp {
      * @return void
      * @throws \NETopes\Core\AppException
      * @throws \Exception
-     * @access public
      */
 	public static function Start(bool $isAjax = FALSE,array $params = [],bool $sessionInit = TRUE,$doNotKeepAlive = NULL,bool $isCli = FALSE): void {
 	    if(is_array($params) && count($params)) {
@@ -269,50 +234,40 @@ abstract class App implements IApp {
 	}//END public static function Start
 	/**
 	 * Gets application state
-     *
 	 * @return bool Application (session if started) state
-	 * @access public
 	 */
 	public static function GetAppState(): bool {
 		return static::$_appState;
 	}//END public static function GetAppState
 	/**
 	 * Gets the account API security key (auto loaded on LoadAppSettings() method)
-	 *
 	 * @return string|null Returns account API security key
-	 * @access public
 	 */
 	public static function GetMyAccessKey(): ?string {
 		return static::$_appAccessKey;
 	}//END public static function GetMyAccessKey
 	/**
 	 * Page hash getter
-	 *
 	 * @return string|null
-	 * @access public
 	 */
 	public static function GetPhash(): ?string {
 		return static::$_pHash;
 	}//END public static function GetPhash
 	/**
 	 * Page hash setter
-	 *
 	 * @param  string $value The new value for phash property
 	 * @return void
-	 * @access public
 	 */
 	public static function SetPhash(?string $value): void {
 		static::$_pHash = $value;
 	}//END public static function SetPhash
     /**
      * Gets a parameter from the temporary session
-     *
      * @param  string     $key The name of the parameter
      * @param bool        $pHash The page hash (default FALSE, global context)
      * If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return mixed  Returns the parameter value or NULL
-     * @access public
      * @throws \NETopes\Core\AppException
      */
     public static function GetParam(string $key,$pHash = FALSE,?string $namespace = NULL) {
@@ -322,13 +277,11 @@ abstract class App implements IApp {
 	}//END public static function GetParam
     /**
      * Gets a parameter from the temporary session
-     *
      * @param  string     $key The name of the parameter
      * @param  string     $pHash The page hash (default NULL)
      * If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return mixed  Returns the parameter value or NULL
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetPageParam(string $key,$pHash = NULL,?string $namespace = NULL) {
@@ -336,14 +289,12 @@ abstract class App implements IApp {
 	}//END public static function GetPageParam
 	/**
 	 * Sets a parameter to the temporary session
-	 *
 	 * @param  string $key The name of the parameter
 	 * @param  mixed  $val The value of the parameter
 	 * @param bool    $pHash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
 	 * @param string|null    $namespace
 	 * @return void
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public static function SetParam(string $key,$val,$pHash = FALSE,?string $namespace = NULL) {
@@ -353,14 +304,12 @@ abstract class App implements IApp {
 	}//END public static function SetParam
 	/**
 	 * Sets a parameter to the temporary session
-	 *
 	 * @param  string $key The name of the parameter
 	 * @param  mixed  $val The value of the parameter
 	 * @param  string $pHash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
 	 * @param string|null    $namespace
 	 * @return void
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public static function SetPageParam(string $key,$val,$pHash = NULL,?string $namespace = NULL) {
@@ -368,13 +317,11 @@ abstract class App implements IApp {
 	}//END public static function SetPageParam
 	/**
 	 * Delete a parameter from the temporary session
-	 *
 	 * @param  string $key The name of the parameter
 	 * @param bool    $pHash The page hash (default FALSE, global context)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
 	 * @param null    $namespace
 	 * @return void
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public static function UnsetParam($key,$pHash = FALSE,$namespace = NULL) {
@@ -384,13 +331,11 @@ abstract class App implements IApp {
 	}//END public static function UnsetParam
 	/**
 	 * Delete a parameter from the temporary session
-	 *
 	 * @param  string $key The name of the parameter
 	 * @param  string $pHash The page hash (default NULL)
 	 * If FALSE is passed, the main (NApp property) page hash will not be used
 	 * @param null    $namespace
 	 * @return void
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public static function UnsetPageParam($key,$pHash = NULL,$namespace = NULL) {
@@ -398,7 +343,6 @@ abstract class App implements IApp {
 	}//END public static function UnsetPageParam
 	/**
      * Commit the temporary session into the session
-     *
      * @param  bool   $clear If TRUE is passed the session will be cleared
      * @param  bool   $preserveOutputBuffer If true output buffer is preserved
      * @param  bool   $showErrors Display errors TRUE/FALSE
@@ -407,7 +351,6 @@ abstract class App implements IApp {
      * @param  bool   $reload Reload session data after commit
      * @return void
      * @poaram bool $reload Reload session after commit (default TRUE)
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function SessionCommit(bool $clear = FALSE,bool $preserveOutputBuffer = FALSE,bool $showErrors = TRUE,?string $key = NULL,?string $phash = NULL,bool $reload = TRUE) {
@@ -421,14 +364,12 @@ abstract class App implements IApp {
 	}//END public static function SessionCommit
     /**
      * Commit the namespace temporary session into the session
-     *
      * @param bool|null   $clear
      * @param bool        $preserveOutputBuffer
      * @param bool        $showErrors
      * @param string|null $namespace
      * @param string|null $phash
      * @return void
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function NamespaceSessionCommit(?bool $clear = NULL,bool $preserveOutputBuffer = FALSE,bool $showErrors = TRUE,?string $namespace = NULL,?string $phash = NULL) {
@@ -491,47 +432,37 @@ abstract class App implements IApp {
 	}//END public static function ClearOutputBuffer
 	/**
 	 * Gets the AJAX flag
-	 *
 	 * @return bool Returns is AJAX flag
-	 * @access public
 	 */
 	public static function IsAjax(): bool {
 		return static::$_isAjax;
 	}//END public static function IsAjax
 	/**
 	 * Gets the AJAX object
-	 *
 	 * @return \NETopes\Ajax\BaseRequest Returns AJAX object
-	 * @access public
 	 */
 	public static function Ajax() {
 		return static::$_ajaxRequest;
 	}//END public static function Ajax
 	/**
      * Check if AJAX request object is valid
-     *
      * @return bool
-     * @access public
      */
     public static function IsValidAjaxRequest(): bool {
 	    return (is_object(static::$_ajaxRequest) && is_subclass_of(static::$_ajaxRequest,BaseRequest::class));
 	}//END public static function IsValidAjaxRequest
     /**
      * Set the AJAX object
-     *
      * @param $value
-     * @access public
      */
 	public static function SetAjaxRequest($value): void {
 		static::$_ajaxRequest = $value;
 	}//END public static function SetAjaxRequest
 	/**
      * Initialize AJAX Request object
-     *
      * @param  array  $postParams Default parameters to be send via post on ajax requests
      * @param  string $subSession Sub-session key/path
      * @return bool
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function AjaxRequestInit(array $postParams = [],$subSession = NULL): bool {
@@ -545,12 +476,10 @@ abstract class App implements IApp {
 	}//END public static function AjaxRequestInit
     /**
      * Execute AJAX request class method
-     *
      * @param array $postParams
      * @param null  $subSession
      * @return void
      * @throws \NETopes\Core\AppException
-     * @static
      */
     public static function ExecuteAjaxRequest(array $postParams = [],$subSession = NULL): void {
 	    if(!AppConfig::GetValue('app_use_ajax_extension')) { die('Invalid AJAX request!'); }
@@ -561,7 +490,6 @@ abstract class App implements IApp {
 	}//END public static function ExecuteAjaxRequest
 	/**
      * Initialize NETopes application javascript
-     *
      * @param bool $output
      * @return string|null
      * @throws \NETopes\Core\AppException
@@ -574,7 +502,6 @@ abstract class App implements IApp {
 	}//END public static function JsInit
     /**
      * Get NETopes application javascript constants
-     *
      * @return string
      * @throws \NETopes\Core\AppException
      */
@@ -595,7 +522,6 @@ HTML;
 	}//END public static function GetJsConstants
     /**
      * Get NETopes application javascript
-     *
      * @return string
      * @throws \NETopes\Core\AppException
      */
@@ -620,11 +546,9 @@ HTML;
 	}//END public static function GetJsScripts
 	/**
 	 * Add javascript code to the dynamic js queue (executed at the end of the current request)
-	 *
 	 * @param  string $value Javascript code
 	 * @param bool    $dynamic
 	 * @return void
-	 * @access public
 	 */
 	public static function AddJsScript(string $value,bool $dynamic = FALSE) {
 		if(!strlen($value)) { return; }
@@ -632,9 +556,7 @@ HTML;
 	}//END public static function AddJsScript
 	/**
 	 * Get dynamic javascript to be executed
-	 *
 	 * @return string Returns scripts to be executed
-	 * @access public
 	 */
 	public static function GetDynamicJs(): ?string {
         $result = AppHelpers::GetDynamicJs();
@@ -642,18 +564,14 @@ HTML;
     }//END public static function GetDynamicJs
 	/**
 	 * Gets the URL object
-	 *
 	 * @return \NETopes\Core\App\Url Returns URL object
-	 * @access public
 	 */
 	public static function Url() {
 		return static::$_url;
 	}//END public static function Url
     /**
      * Gets the previous visited URL
-     *
      * @return string Returns previous URL or home URL
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetPreviousUrl() {
@@ -662,14 +580,12 @@ HTML;
 	}//END public static function GetPreviousUrl
 	/**
 	 * Gets the application base link with or without language path
-	 *
 	 * @param string|null    $uri
 	 * @param  string $namespace Namespace for generating app_web_link or NULL for current namespace
 	 * @param  bool   $base If set to TRUE will return only base link (app_web_link property) else will return base link + language path
 	 * @param string|bool|null    $langCode
 	 * @return string The link of the application (with or without language path)
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public static function GetAppBaseUrl(?string $uri = NULL,?string $namespace = NULL,bool $base = FALSE,$langCode = NULL): string {
 		$namespace = $namespace ? $namespace : static::$currentNamespace;
@@ -696,13 +612,11 @@ HTML;
 	}//END public static function GetAppBaseUrl
 	/**
 	 * Redirect to a url
-	 *
 	 * @param  string $url Target URL for the redirect
 	 * (if empty or null, the redirect will be made to the application root url)
 	 * @param  bool $doNotCommitSession Flag for bypassing session commit on redirect
 	 * @param  bool $exit Flag for stopping or not the request execution
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function Redirect(?string $url = NULL,bool $doNotCommitSession = FALSE,bool $exit = TRUE) {
@@ -720,13 +634,11 @@ HTML;
 	}//END public static function Redirect
 	/**
 	 * Redirect to a url by modifying headers
-	 *
 	 * @param  string $url Target URL for the redirect
 	 * (if empty or null, the redirect will be made to the application root url)
 	 * @param  bool $doNotCommitSession Flag for bypassing session commit on redirect
 	 * @param  bool $exit Flag for stopping or not the request execution
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function FullRedirect(?string $url = NULL,bool $doNotCommitSession = FALSE,bool $exit = TRUE) {
@@ -737,12 +649,10 @@ HTML;
 	}//END public static function FullRedirect
 	/**
      * Get current namespace section relative path (with theme)
-     *
      * @param  string $themeDir Optional theme directory
      * For non-web namespaces overwrites configuration theme
      * @return string Returns the current namespace section relative path
      * For non-web namespaces includes theme directory
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetSectionPath($themeDir = NULL) {
@@ -750,9 +660,7 @@ HTML;
 	}//END public static function GetSectionPath
     /**
      * Get application non-public repository path
-     *
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetRepositoryPath() {
@@ -760,21 +668,17 @@ HTML;
     }//END public static function GetRepositoryPath
     /**
 	 * Get current user ID
-	 *
 	 * @return int|null Returns current user ID
-	 * @access public
 	 */
 	public static function GetCurrentUserId(): ?int {
 	    return UserSession::GetCurrentUserId();
     }//END public static function GetCurrentUserId
 	/**
      * Loads application settings from database or from request parameters
-     *
      * @param bool       $notFromDb
      * @param array|null $params
      * @return void
      * @throws \Exception
-     * @access public
      */
 	public static function LoadAppSettings(bool $notFromDb = FALSE,?array $params = NULL): void {
         if(static::$appOptionsLoaded) { return; }
@@ -785,18 +689,14 @@ HTML;
     }//END public static function LoadAppSettings
     /**
      * Get user login status
-     *
      * @return boolean UserSession login status
-     * @access public
      */
 	public static function GetLoginStatus(): bool {
 		return UserSession::$loginStatus;
 	}//END public static function GetLoginStatus
     /**
      * Get database cache state
-     *
      * @return boolean TRUE is database caching is active for this namespace, FALSE otherwise
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function CacheDbCall() {
@@ -804,9 +704,7 @@ HTML;
 	}//END public static function CacheDbCall
     /**
      * Get current language ID
-     *
      * @return int|null Returns current language ID
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetLanguageId() {
@@ -819,9 +717,7 @@ HTML;
 	}//END public static function GetLanguageId
     /**
      * Get current language code
-     *
      * @return string Returns current language code
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetLanguageCode() {
@@ -832,11 +728,9 @@ HTML;
 	}//END public static function GetLanguageCode
     /**
      * Gets multi-language flag
-     *
      * @param string|null $namespace Namespace to test if is multi-language
      * If NULL or empty, current namespace is used
      * @return bool Returns multi-language flag
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function IsMultiLanguage(?string $namespace = NULL) {
@@ -846,10 +740,8 @@ HTML;
 	}//END public static function IsMultiLanguage
     /**
      * Get application (user) date format string
-     *
      * @param bool $forPhp
      * @return string|null
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetDateFormat(bool $forPhp = FALSE): ?string {
@@ -863,10 +755,8 @@ HTML;
 	}//END public static function GetDateFormat
     /**
      * Get application (user) time format string
-     *
      * @param bool $forPhp
      * @return string|null
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetTimeFormat(bool $forPhp = FALSE): ?string {
@@ -880,10 +770,8 @@ HTML;
 	}//END public static function GetTimeFormat
     /**
      * Get application (user) datetime format string
-     *
      * @param bool $forPhp
      * @return string|null
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetDateTimeFormat(bool $forPhp = FALSE): ?string {
@@ -896,7 +784,6 @@ HTML;
      * @param null|string $validation
      * @param int|null    $contextId
      * @return string|null
-     * @access public
      * @throws \NETopes\Core\AppException
      */
     public static function GetIOption(string $option,string $section = '',$defValue = NULL,?string $validation = NULL,?int $contextId = NULL): ?string {
@@ -908,7 +795,6 @@ HTML;
      * @param array $data
      * @param bool  $raw
      * @return array
-     * @access public
      * @throws \NETopes\Core\AppException
      */
     public static function SetInstanceConfigData(array $data,bool $raw): array {
@@ -916,10 +802,8 @@ HTML;
 	}//END public static function SetInstanceConfigData
 	/**
 	 * Initialize debug environment
-	 *
 	 * @return bool
 	 * @throws \Exception
-	 * @access public
 	 */
     public static function InitDebugger() {
 		if(AppConfig::GetValue('debug')!==TRUE || !class_exists('\NETopes\Core\App\Debugger')) { return FALSE; }
@@ -934,22 +818,18 @@ HTML;
 	}//END public static function InitDebugger
 	/**
 	 * Get debugger state
-	 *
 	 * @return bool Returns TRUE if debugger is started, FALSE otherwise
-	 * @access public
 	 */
     public static function GetDebuggerState() {
 		return is_object(static::$debugger) && static::$debugger->IsEnabled();
     }//END public static function GetDebuggerState
 	/**
 	 * Displays a value in the debugger plug-in as a debug message
-	 *
 	 * @param  mixed   $value Value to be displayed by the debug objects
 	 * @param  string  $label Label assigned to the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function Dlog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
@@ -963,13 +843,11 @@ HTML;
 	}//END public static function Dlog
 	/**
 	 * Displays a value in the debugger plug-in as a warning message
-	 *
 	 * @param  mixed   $value Value to be displayed by the debug objects
 	 * @param  string  $label Label assigned to the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function Wlog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
@@ -983,14 +861,12 @@ HTML;
 	}//END public static function Wlog
 	/**
 	 * Displays a value in the debugger plug-in as an error message
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned to the value to be displayed
      * @param bool    $showExceptionsTrace
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function Elog($value,?string $label = NULL,bool $showExceptionsTrace = FALSE,bool $file = FALSE,bool $path = FALSE) {
@@ -1004,13 +880,11 @@ HTML;
 	}//END public static function Elog
 	/**
 	 * Displays a value in the debugger plug-in as an info message
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned to the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public static function Ilog($value,?string $label = NULL,bool $file = FALSE,bool $path = FALSE) {
@@ -1024,26 +898,21 @@ HTML;
 	}//END public static function Ilog
 	/**
 	 * Add entry to log file
-	 *
 	 * @param  string|array $msg Text to be written to log
 	 * @param  string|null $file Custom log file complete name (path + name)
 	 * @param  string|null $scriptName Name of the file that sent the message to log (optional)
 	 * @return bool|string Returns TRUE for success or error message on failure
-	 * @access public
-	 * @static
 	 */
 	public static function Log2File($msg,?string $file = NULL,?string $scriptName = NULL) {
         return Debugger::Log2File($msg,$file,$scriptName);
     }//END public static function Log2File
     /**
      * Writes a message in one of the application log files
-     *
      * @param  string      $msg Text to be written to log
      * @param  string      $type Log type (log, error or debug) (optional)
      * @param  string|null $file Custom log file complete name (path + name) (optional)
      * @param string|null  $path
      * @return bool|string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function Write2LogFile(string $msg,string $type = 'log',?string $file = NULL,?string $path = NULL) {
@@ -1061,9 +930,7 @@ HTML;
 	}//END public static function WriteToLog
 	/**
 	 * Load instance specific configuration options (into protected $instanceConfig property)
-	 *
 	 * @return void
-	 * @access public
 	 */
 	protected static abstract function LoadInstanceConfig(): void;
 }//END class App implements IApp

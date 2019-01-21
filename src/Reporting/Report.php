@@ -1,9 +1,7 @@
 <?php
 /**
  * Report class file
- *
  * Used for generating in-page reports.
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,74 +13,58 @@ namespace NETopes\Core\Reporting;
 use GibberishAES;
 use NApp;
 use NETopes\Core\App\AppHelpers;
-
 /**
  * Reports class
- *
  * Used for generating in-page reports.
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class Report extends ExcelExport {
 	/**
 	 * @var    string HTML result string
-	 * @access protected
 	 */
 	protected $result = NULL;
 	/**
 	 * @var    string CSS class used for the main table container
-	 * @access protected
 	 */
 	protected $base_class = 'listing lineslisting span-cent';
 	/**
 	 * @var    string Report display name
-	 * @access protected
 	 */
 	protected $report_name = NULL;
 	/**
 	 * @var    array Report formats array
-	 * @access protected
 	 */
 	protected $r_formats = [];
 	/**
 	 * @var    bool Flag for turning excel export on/off
-	 * @access public
 	 */
 	public $excel_export = TRUE;
 	/**
 	 * @var    string The excel export file name
-	 * @access public
 	 */
 	protected $export_file_name = NULL;
 	/**
 	 * @var    string The cached excel export file name (including full path)
-	 * @access public
 	 */
 	protected $cached_file = '';
 	/**
 	 * @var    string The excel export download module
-	 * @access public
 	 */
 	protected $export_module = 'Statistics';
 	/**
 	 * @var    string The excel export download method
-	 * @access public
 	 */
 	protected $export_method = 'DownloadCachedFile';
 	/**
 	 * @var    int Report records number
-	 * @access public
 	 */
 	public $records_no = 0;
 	/**
 	 * @var    bool Flag for displaying or not the report records number
-	 * @access public
 	 */
 	public $display_records_no = TRUE;
 	/**
 	 * Class constructor function
-	 *
 	 * @param  array $params An array of params (required)
 	 * - 'version'(string): version of the excel data to be output
 	 * ('Excel2007'/'Excel5'/...)
@@ -91,7 +73,6 @@ class Report extends ExcelExport {
 	 * file will be saved (if NULL or empty, output will be
 	 * sent to the browser for download)
 	 * @return void
-	 * @access public
 	 */
 	//public function __construct(&$layout = [],&$data = [],&$class) {
 	public function __construct(&$params = []) {

@@ -1,9 +1,7 @@
 <?php
 /**
  * NETopes application configuration structure file
- *
  * Here are all the configuration elements definition for NETopes
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL

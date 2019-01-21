@@ -1,9 +1,7 @@
 <?php
 /**
  * FormValidator class file
- *
  * Class for validating forms
- *
  * @package    NETopes\Core\Validators
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,7 +14,6 @@ use NETopes\Core\App\Params;
 use NApp;
 /**
  * Class FormValidator
- *
  * @package NETopes\Core\Validators
  */
 class FormValidator {
@@ -34,10 +31,8 @@ class FormValidator {
     protected $errors = [];
     /**
      * FormValidator class constructor method
-     *
      * @param array|null                          $config Parameters array
      * @param \NETopes\Core\App\Params|array|null $data Form data array|Params collection
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function __construct($data = NULL,?array $config = NULL) {

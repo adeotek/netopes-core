@@ -1,9 +1,7 @@
 <?php
 /**
  * Data source Redis cache trait file
- *
  * This contains an methods for Redis data cache operations.
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,10 +15,8 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
 use Redis;
-
 /**
  * Class TDataSourceRedisCache
- *
  * @package NETopes\Core\Data
  */
 class RedisCacheHelpers {
@@ -66,12 +62,9 @@ class RedisCacheHelpers {
     }//END public static function GetRedisInstance
 	/**
 	 * Set data call cache
-	 *
 	 * @param  string $key The unique identifier key
 	 * @param  string $tag Cache key tag
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 * @static
      * @throws \NETopes\Core\AppException
 	 */
 	public static function GetCacheData($key,$tag = NULL) {
@@ -114,7 +107,6 @@ class RedisCacheHelpers {
 	}//public static function GetCacheData
 	/**
 	 * Set data call cache
-	 *
 	 * @param  string $key The unique identifier key
 	 * @param  mixed $data Data to be cached
 	 * If $data is NULL, the key will be deleted
@@ -122,8 +114,6 @@ class RedisCacheHelpers {
 	 * @param  boolean $countSelect If TRUE $data contains an array
 	 * like: ['count'=>total_records_no,'data'=>records]
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 * @static
      * @throws \NETopes\Core\AppException
 	 */
 	public static function SetCacheData($key,$data = NULL,$tag = NULL,$countSelect = FALSE) {
@@ -183,12 +173,9 @@ class RedisCacheHelpers {
 	}//public static function SetCacheData
 	/**
 	 * Delete data calls cache
-	 *
 	 * @param  string $key The unique identifier key
 	 * @param  string $tag Cache key tag
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 * @static
      * @throws \NETopes\Core\AppException
 	 */
 	public static function UnsetCacheData($tag,$key = NULL) {
@@ -235,10 +222,7 @@ class RedisCacheHelpers {
 	}//END public static function UnsetCacheData
 	/**
 	 * Clear all cached data
-	 *
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
-	 * @static
      * @throws \NETopes\Core\AppException
 	 */
 	public static function ClearAllCache() {

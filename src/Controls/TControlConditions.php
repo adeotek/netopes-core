@@ -1,7 +1,6 @@
 <?php
 /**
  * Control conditions trait file
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,20 +12,16 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\AppException;
 use NApp;
 use Translate;
-
 /**
  * Trait TControlConditions
- *
  * @package NETopes\Core\Controls
  */
 trait TControlConditions {
     /**
 	 * Check control conditions
-	 *
 	 * @param  array $conditions The conditions array
 	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function CheckConditions($conditions) {
 		$result = FALSE;

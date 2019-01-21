@@ -1,9 +1,7 @@
 <?php
 /**
  * NETopes AppException class file
- *
  * Definition of the custom exception class
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -12,14 +10,11 @@
  * @filesource
  */
 namespace NETopes\Core;
-
 /**
  * Class AppException
- *
  * Extends Exception and must be the only exception class
  * used in the application
  * @package  NETopes\Core
- * @access   public
  */
 final class AppException extends \Exception {
     /**
@@ -43,12 +38,10 @@ final class AppException extends \Exception {
 	/**
 	 * @var  array More exception information
 	 * (inherited from PDOException)
-	 *
 	 */
 	public $errorInfo = [];
     /**
      * Get AppException instance from another exception instance
-     *
      * @param \Throwable  $e
      * @param string|null $type
      * @param int         $severity
@@ -72,7 +65,6 @@ final class AppException extends \Exception {
      * @param  mixed  $externalCode Extra error code
      * @param  array  $errorInfo PDO specific error information
      * @param  \Throwable|null $previous
-     *
      */
 	public function __construct(string $message,int $code = -1,int $severity = 1,?string $file = NULL,?int $line = NULL,string $type = 'app',$externalCode = NULL,array $errorInfo = [],?\Throwable $previous = NULL) {
 		$this->severity = $severity;

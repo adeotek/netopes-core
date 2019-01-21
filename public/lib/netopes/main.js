@@ -1,10 +1,8 @@
 /**
  * NETopes AJAX javascript file.
- *
  * The NETopes AJAX javascript object used on ajax requests.
  * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
- *
  * @author     George Benjamin-Schonberger
  * @version    2.5.0.3
  */

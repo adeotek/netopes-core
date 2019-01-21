@@ -1,9 +1,7 @@
 <?php
 /**
  * Formatter adapter class file
- *
  * Class containing methods for formatting values
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,13 +13,11 @@ namespace NETopes\Core\Validators;
 use NApp;
 /**
  * Class FormatterAdapter
- *
  * @package NETopes\Core\Validators
  */
 class FormatterAdapter {
     /**
      * Format value
-     *
      * @param mixed       $value
      * @param string      $mode
      * @param array|null  $regionals
@@ -33,8 +29,6 @@ class FormatterAdapter {
      * @return string|null
      * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
-     * @access public
-     * @static
      */
 	public static final function Format($value,string $mode,?array $regionals = NULL,?string $prefix = NULL,?string $sufix = NULL,?string $defaultValue = NULL,?string $validation = NULL,bool $htmlEntities = FALSE): ?string {
 	    if(substr($mode,-4)==='-0dv') { $validation = (substr($validation,0,1)==='?' ? '?' : '').'is_not0_numeric'; }
@@ -220,12 +214,9 @@ class FormatterAdapter {
     }//END public static function LimitText
     /**
      * Format numeric value from NETopes format string
-     *
      * @param        $value
      * @param string $numberFormat
      * @return string|null
-     * @access public
-     * @static
      */
 	public static function NumberValue($value,string $numberFormat): ?string {
 		if(!is_numeric($value)) { return NULL; }

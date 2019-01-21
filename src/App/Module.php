@@ -1,7 +1,6 @@
 <?php
 /**
  * Module class file
- *
  * @package    NETopes\Modules
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,55 +14,43 @@ use NETopes\Core\AppException;
 use NETopes\Core\Controls\ControlsHelpers;
 use GibberishAES;
 use NApp;
-
 /**
  * Module class
- *
  * All applications modules extend this base class
- *
  * @package  NETopes\Modules
- * @access   public
  */
 class Module {
 	/**
 	 * @var    array Modules instances array
 	 * @access private
-	 * @static
 	 */
 	private static $ModuleInstances = [];
 	/**
 	 * @var    array Module instance debug data
-	 * @access protected
 	 */
 	protected $debugData = NULL;
     /**
 	 * @var    string Views files extension
-	 * @access public
 	 */
 	public $viewsExtension;
     /**
      * @var    string Short class name (called class without base prefix)
-     * @access public
      */
 	public $name;
     /**
      * @var    string Full qualified class name
-     * @access public
      */
 	public $class;
 	/**
 	 * @var    bool Is custom class (NameCustom extended class)
-	 * @access public
 	 */
 	public $custom = FALSE;
 	/**
 	 * @var    bool Page hash (window.name)
-	 * @access public
 	 */
 	public $phash = NULL;
     /**
      * Get class name with relative namespace
-     *
      * @return string
      * @throws \NETopes\Core\AppException
      */
@@ -72,29 +59,23 @@ class Module {
 	}//END public static final function getShortClassName
 	/**
 	 * Module class initializer
-	 *
 	 * @return void
-	 * @access protected
 	 */
 	protected function _Init() {
 	}//END protected function _Init
     /**
      * Method to be invoked before a standard method call
-     *
      * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @return bool  Returns TRUE by default
      * If FALSE is return the call is canceled
-     * @access protected
      */
 	protected function _BeforeExec($params = NULL) {
 		return TRUE;
 	}//END protected function _BeforeExec
     /**
      * Module class constructor
-     *
      * @throws \NETopes\Core\AppException
      * @return void
-     * @access protected
      */
 	protected final function __construct() {
 	    $this->viewsExtension = AppConfig::GetValue('app_views_extension');
@@ -102,11 +83,9 @@ class Module {
 	}//END protected final function __construct
 	/**
 	 * Module class method call
-	 *
 	 * @param string $name
 	 * @param array  $arguments
 	 * @return mixed
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call(string $name,$arguments) {
@@ -117,13 +96,10 @@ class Module {
 	}//END public function __call
 	/**
 	 * Module class static method call
-	 *
 	 * @param string $name
 	 * @param array  $arguments
 	 * @return mixed
-	 * @access public
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function __callStatic($name,$arguments) {
 		if(strpos($name,'DRights')===FALSE) { throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1); }
@@ -133,13 +109,10 @@ class Module {
 	}//END public static function __callStatic
 	/**
 	 * Gets the user rights
-	 *
 	 * @param string $module
 	 * @param string $method
 	 * @param string $type
 	 * @return mixed
-	 * @access public
-	 * @static
 	 */
 	public static function GetDRights(string $module,string $method = '',string $type = 'All') {
 		if(NApp::GetParam('sadmin')==1) { return FALSE; }
@@ -159,12 +132,10 @@ class Module {
 	}//END public static function GetDRights
 	/**
 	 * description
-	 *
 	 * @param string $name
 	 * @param string $class
 	 * @param bool   $custom
 	 * @return object
-	 * @access public
 	 */
 	public static function GetInstance(string $name,string $class,bool $custom = FALSE) {
 		if(!array_key_exists($class,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$class])) {
@@ -175,10 +146,8 @@ class Module {
 		}//if(!array_key_exists($name,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$name]))
 		return self::$ModuleInstances[$class];
 	}//END public static function GetInstance
-
 	/**
 	 * description
-	 *
 	 * @param string $method
 	 * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @param null|string $dynamicTargetId
@@ -186,7 +155,6 @@ class Module {
 	 * @param mixed  $beforeCall
 	 * @return mixed return description
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function Exec(string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $resetSessionParams = FALSE,$beforeCall = NULL) {
 		$o_before_call = is_object($beforeCall) ? $beforeCall : new Params($beforeCall);
@@ -198,32 +166,26 @@ class Module {
 	}//END public function Exec
     /**
      * Add JavaScript code to execution queue
-     *
      * @param string $script
      * @return void
-     * @access public
      */
 	public function AddJsScript(string $script): void {
 		AppHelpers::AddJsScript($script);
 	}//END public function AddJsScript
 	/**
      * Get module current method
-     *
      * @return string
-     * @access public
      */
 	public function GetCurrentMethod(): string {
 		return call_back_trace(2);
 	}//END public function GetCurrentMethod
     /**
      * description
-     *
      * @param null        $defaultValue
      * @param string|null $method
      * @param string|null $pHash
      * @param null        $key
      * @return mixed
-     * @access public
      */
 	public function GetSessionParamValue($defaultValue = NULL,?string $method = NULL,?string $pHash = NULL,$key = NULL) {
 		if($key) {
@@ -237,13 +199,11 @@ class Module {
 	}//END public function GetSessionParamValue
     /**
      * description
-     *
      * @param             $value
      * @param string|null $method
      * @param string|null $pHash
      * @param null        $key
      * @return void
-     * @access public
      */
 	public function SetSessionParamValue($value,?string $method = NULL,?string $pHash = NULL,$key = NULL) {
 		if($key) {
@@ -256,11 +216,9 @@ class Module {
 	}//END public function SetSessionParamValue
     /**
      * description
-     *
      * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @return void
      * @throws \NETopes\Core\AppException
-     * @access public
      */
 	public function SetFilter($params = NULL) {
 	    if(!is_object($params)) { $params = new Params($params); }
@@ -292,14 +250,12 @@ class Module {
 	}//END public function SetFilter
     /**
      * description
-     *
      * @param null                     $firstRow
      * @param null                     $lastRow
      * @param null                     $currentPage
      * @param \NETopes\Core\App\Params|array|null $params Parameters
      * @return array
      * @throws \NETopes\Core\AppException
-     * @access public
      */
 	public function GetPaginationParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$params = NULL) {
 	    if(!is_object($params)) { $params = new Params($params); }
@@ -309,10 +265,8 @@ class Module {
 	}//END public function GetPaginationParams
 	/**
 	 * description
-	 *
 	 * @param \NETopes\Core\App\Params|array|null $params Parameters
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function CloseForm($params = NULL) {
@@ -351,7 +305,6 @@ class Module {
 	}//END public static function GetParents
     /**
      * Gets the view full file name (including absolute path)
-     *
      * @param  string      $name View name (without extension)
      * @param  string|null $sub_dir View sub-directory or empty/NULL for none
      * @param  string|null $theme_dir View theme sub-directory
@@ -359,7 +312,6 @@ class Module {
      * @return string Returns view full name (including absolute path and extension)
      * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
-     * @access public
      */
 	private function ViewFileProvider(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
         $fName = (is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.$this->viewsExtension;
@@ -452,23 +404,21 @@ class Module {
 	}//private function ViewFileProvider
     /**
      * Gets the view full file name (including absolute path)
-     *
      * @param  string      $name View name (without extension)
      * @param  string|null $sub_dir View sub-directory or empty/NULL for none
      * @param  string|null $theme_dir View theme sub-directory
      * (if empty/NULL) application configuration will be used
      * @return string Returns view full name (including absolute path and extension)
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function GetViewFile(string $name,?string $sub_dir = NULL,?string $theme_dir = NULL) {
-		// NApp::StartTimeTrack('MGetViewFile');
+		// \NETopes\Core\App\Debugger::StartTimeTrack('MGetViewFile');
 		try {
 		    $result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
 		} catch(\ReflectionException $re) {
 		    throw AppException::GetInstance($re,'reflection',0);
 		}//END try
-		// NApp::Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
+		// NApp::Dlog(number_format(\NETopes\Core\App\Debugger::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
 		// NApp::Dlog($result,'GetViewFile::'.$name);
 		return $result;
 	}//END public function GetViewFile

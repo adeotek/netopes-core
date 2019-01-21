@@ -1,9 +1,7 @@
 <?php
 /**
  * NETopes application session class file
- *
  * The NETopes session class can be used for interacting with the session data.
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,51 +13,36 @@ namespace NETopes\Core;
 use NETopes\Core\App\Debugger;
 /**
  * Class AppSession
- *
  * @package  NETopes\Core
- * @access   public
  */
 class AppSession {
 	/**
 	 * @var    bool Use PHP session for current request
-	 * @access protected
-	 * @static
 	 */
 	protected static $withSession = NULL;
 	/**
 	 * @var    bool Flag for state of the session (started or not)
-	 * @access protected
-	 * @static
 	 */
 	protected static $sessionStarted = FALSE;
 	/**
 	 * @var    bool Flag for clearing session on commit
-	 * @access protected
-	 * @static
 	 */
 	protected static $markedForDeletion = FALSE;
 	/**
 	 * @var    array Session initial data
-	 * @access public
-	 * @static
 	 */
 	protected static $initialData = NULL;
 	/**
 	 * @var    array Session data
-	 * @access protected
-	 * @static
 	 */
 	protected static $data = NULL;
 	/**
 	 * GetNewUID method generates a new unique ID
-	 *
 	 * @param      string $salt A string to be added as salt to the generated unique ID (NULL and empty string means no salt will be used)
 	 * @param      string $algorithm The name of the algorithm used for unique ID generation (possible values are those in hash_algos() array - see: http://www.php.net/manual/en/function.hash-algos.php)
 	 * @param      bool   $notime Flag for salting with current micro-time
 	 * @param      bool   $raw Sets return type: hexits for FALSE (default) or raw binary for TRUE
 	 * @return     string Returns an unique ID as lowercase hex or raw binary representation if $raw is set to TRUE.
-	 * @access     public
-	 * @static
 	 */
 	public static function GetNewUID(?string $salt = NULL,string $algorithm = 'sha1',bool $notime = FALSE,bool $raw = FALSE): string
 	{
@@ -68,7 +51,6 @@ class AppSession {
 	}//END public static function GetNewUID
 	/**
 	 * Get with session flag
-	 *
 	 * @return bool
 	 */
 	public static function WithSession(): bool {
@@ -76,7 +58,6 @@ class AppSession {
 	}//END public static function WithSession
 	/**
 	 * Set with session flag
-	 *
 	 * @param bool $value
 	 */
 	public static function SetWithSession(bool $value): void {
@@ -84,7 +65,6 @@ class AppSession {
 	}//END public static function SetWithSession
     /**
      * Get session data
-     *
      * @return array
      */
 	public static function GetData(): array {
@@ -92,7 +72,6 @@ class AppSession {
 	}//END public static function GetData
     /**
      * Set session data
-     *
      * @param array $data
      */
 	public static function SetData(array $data): void {
@@ -100,31 +79,24 @@ class AppSession {
 	}//END public static function SetData
 	/**
 	 * Gets the session state befor current request (TRUE for existing session or FALSE for newly initialized)
-	 *
 	 * @return bool Session state (TRUE for existing session or FALSE for newly initialized)
-	 * @access public
 	 */
 	public static function GetState() {
 		return (self::$withSession && is_array(self::$data));
 	}//END public static function GetState
 	/**
 	 * Set clear session flag (on commit session will be cleared)
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public static function MarkForDeletion() {
 		self::$markedForDeletion = TRUE;
 	}//END public static function MarkForDeletion
     /**
      * Convert a string to the session keys case (set in configuration)
-     *
      * @param  string $input The string to be converted to the session case
      * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
      * FALSE - do not change case, NULL - use the configuration value
      * @return string|array The value converted to the session case
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function ConvertToSessionCase($input,$keysCase = NULL) {
@@ -146,15 +118,12 @@ class AppSession {
 	}//END public static function ConvertToSessionCase
     /**
      * Set session configuration
-     *
      * @param      $absolutePath
      * @param      $domain
      * @param      $sessionTimeout
      * @param null $sessionId
      * @param null $logFile
      * @return string
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function ConfigAndStartSession($absolutePath,$domain,$sessionTimeout,$sessionId = NULL,$logFile = NULL) {
@@ -280,13 +249,10 @@ class AppSession {
 	}//END public static function ConfigAndStartSession
     /**
      * Initiate/re-initiate session and read session data
-     *
      * @param string    $path URL path
      * @param bool|null $doNotKeepAlive
      * @param bool      $ajax Is AJAX request
      * @return void
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function SessionStart(string $path = '',?bool $doNotKeepAlive = NULL,$ajax = FALSE) {
@@ -334,7 +300,6 @@ class AppSession {
     }//END public static function SessionStart
     /**
      * Commit the temporary session into the session
-     *
      * @param  bool   $clear If TRUE is passed the session will be cleared
      * @param  bool   $showErrors Display errors TRUE/FALSE
      * @param  string $key Session key to commit (do partial commit)
@@ -342,8 +307,6 @@ class AppSession {
      * @param  bool   $reload Reload session data after commit
      * @return void
      * @poaram bool $reload Reload session after commit (default TRUE)
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function SessionCommit(bool $clear = FALSE,bool $showErrors = TRUE,?string $key = NULL,?string $phash = NULL,bool $reload = TRUE) {
@@ -417,11 +380,8 @@ class AppSession {
 	}//END public static function SessionCommit
 	/**
 	 * Close session for write
-	 *
 	 * @param bool $write
 	 * @return void
-	 * @access public
-	 * @static
 	 */
 	public static function SessionClose(bool $write = TRUE) {
 		if(!self::$sessionStarted) { return; }
@@ -434,13 +394,10 @@ class AppSession {
 	}//END public static function SessionClose
 	/**
 	 * Gets a session parameter at a certain path (path = a succession of keys of the session data array)
-	 *
 	 * @param  string $key The key of the searched parameter
 	 * @param  string $path An array containing the succession of keys for the searched parameter
 	 * @param  array $data The session data array to be searched
 	 * @return mixed Value of the parameter if it exists or NULL
-	 * @access protected
-	 * @static
 	 */
 	protected static function GetCustomParam($key,$path,$data) {
 		if(!is_array(self::$data)) { return NULL; }
@@ -457,7 +414,6 @@ class AppSession {
 	}//END protected static function GetCustomParam
     /**
      * Get a global parameter (a parameter from first level of the array) from the session data array
-     *
      * @param  string $key The key of the searched parameter
      * @param  string $phash The page hash (default NULL)
      * If FALSE is passed, the main (App property) page hash will not be used
@@ -465,8 +421,6 @@ class AppSession {
      * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
      * FALSE - do not change case, NULL - use the configuration value
      * @return mixed Returns the parameter value or NULL
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetGlobalParam($key,$phash = NULL,$path = NULL,$keysCase = NULL) {
@@ -483,7 +437,6 @@ class AppSession {
 	}//END public static function GetGlobalParam
     /**
      * Set a global parameter (a parameter from first level of the array) from the session data array
-     *
      * @param  string $key The key of the searched parameter
      * @param  mixed  $val The value to be set
      * @param  string $phash The page hash (default NULL)
@@ -492,8 +445,6 @@ class AppSession {
      * @param  mixed  @keys_case Custom session keys case: CASE_LOWER/CASE_UPPER,
      * FALSE - do not change case, NULL - use the configuration value
      * @return bool Returns TRUE on success or FALSE otherwise
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function SetGlobalParam($key,$val,$phash = NULL,$path = NULL,$keysCase = NULL) {
@@ -534,15 +485,12 @@ class AppSession {
 	}//END public static function SetGlobalParam
     /**
      * Delete a global parameter (a parameter from first level of the array) from the session data array
-     *
      * @param  string $key The key of the searched parameter
      * @param  string $phash The page hash (default NULL)
      * If FALSE is passed, the main (App property) page hash will not be used
      * @param null    $path
      * @param null    $keysCase
      * @return bool
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function UnsetGlobalParam($key,$phash = NULL,$path = NULL,$keysCase = NULL) {
@@ -580,7 +528,6 @@ class AppSession {
 	/**
      * Array merge with overwrite option (the 2 input arrays remains untouched).
      * The second array will overwrite the first.
-     *
      * @param   array $current First array to merge
      * @param   array $new Second array to merge
      * @param   bool  $overwrite Overwrite sitch: TRUE with overwrite (default), FALSE without overwrite
@@ -612,13 +559,11 @@ class AppSession {
     }//END public static function MergeSession
     /**
      * Gets a parameter from the temporary session
-     *
      * @param  string     $key The name of the parameter
      * @param string|null $phash The page hash (default FALSE, global context)
      * If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return mixed  Returns the parameter value or NULL
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function GetParam(string $key,?string $phash = NULL,?string $namespace = NULL) {
@@ -638,14 +583,12 @@ class AppSession {
 	}//END public static function GetParam
     /**
      * Sets a parameter to the temporary session
-     *
      * @param  string     $key The name of the parameter
      * @param  mixed      $val The value of the parameter
      * @param string|null $phash The page hash (default FALSE, global context)
      * If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return void
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function SetParam(string $key,$val,?string $phash = NULL,?string $namespace = NULL) {
@@ -665,13 +608,11 @@ class AppSession {
 	}//END public static function SetParam
     /**
      * Delete a parameter from the temporary session
-     *
      * @param  string        $key The name of the parameter
      * @param string|null    $phash The page hash (default FALSE, global context)
      * If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null    $namespace
      * @return void
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public static function UnsetParam($key,?string $phash = NULL,?string $namespace = NULL) {
@@ -690,11 +631,9 @@ class AppSession {
 	}//END public static function UnsetParam
     /**
      * description
-     *
      * @param string      $uid
      * @param string|null $namespace
      * @return mixed
-     * @access public
      */
 	public static function GetSessionAcceptedRequest(string $uid,?string $namespace = NULL) {
 	    if(strlen($namespace)) { return isset(static::$data[$namespace]['xURLRequests'][$uid]) ? static::$data[$namespace]['xURLRequests'][$uid] : NULL; }
@@ -702,11 +641,9 @@ class AppSession {
 	}//END public static function GetSessionAcceptedRequest
     /**
      * description
-     *
      * @param string|null $uid
      * @param string|null $namespace
      * @return string
-     * @access public
      */
 	public static function SetSessionAcceptedRequest(?string $uid,?string $namespace = NULL): string {
 		if(is_null($uid)) { $uid = static::GetNewUID(NULL,'md5'); }
@@ -719,11 +656,9 @@ class AppSession {
 	}//END public static function SetSessionAcceptedRequest
     /**
      * description
-     *
      * @param string      $uid
      * @param string|null $namespace
      * @return void
-     * @access public
      */
 	public static function UnsetSessionAcceptedRequest(string $uid,?string $namespace = NULL): void {
 		if(strlen($namespace)) {
@@ -734,12 +669,10 @@ class AppSession {
 	}//END public static function UnsetSessionAcceptedRequest
     /**
      * description
-     *
      * @param string      $uid
      * @param bool        $reset
      * @param string|null $namespace
      * @return bool
-     * @access public
      */
 	public static function CheckSessionAcceptedRequest(string $uid,bool $reset = FALSE,?string $namespace = NULL): bool {
 		$result = static::GetSessionAcceptedRequest($uid,$namespace);

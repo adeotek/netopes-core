@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes helpers class file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -10,16 +9,13 @@
  * @filesource
  */
 namespace NETopes\Core;
-
 /**
  * Class DataHelpers
- *
  * @package NETopes\Core
  */
 class DataHelpers {
     /**
      * SQL-like coalesce
-     *
      * @return  bool Returns first non-null argument
      */
     public static function coalesce() {
@@ -30,7 +26,6 @@ class DataHelpers {
     /**
      * SQL-like coalesce for strings
      * (empty string is considered null)
-     *
      * @param   mixed [ $arg ] Any number of arguments to be coalesced
      * Obs. Each argument will be checked after trim
      * @return  bool Returns first non-null, non-empty argument
@@ -46,7 +41,6 @@ class DataHelpers {
     }//END public static function stringCoalesce
     /**
      * Check if a string contains one or more strings.
-     *
      * @param   string $haystack The string to be searched.
      * @param   mixed $needle The string to be searched for.
      * To search for multiple strings, needle can be an array containing this strings.
@@ -72,7 +66,6 @@ class DataHelpers {
     /**
      * Remove all instances of white-spaces from both ends of the string,
      * as well as remove duplicate white-space characters inside the string
-     *
      * @param string $input Subject string
      * @param null   $what Optional undesired characters to be replaced
      * @param string $with Undesired characters replacement
@@ -109,7 +102,6 @@ class DataHelpers {
     }//END public static function br2nl
     /**
      * Replace last occurrence of a substring
-     *
      * @param string $search Substring to be replaced
      * @param string $replace Replacement string
      * @param string $str String to be processed
@@ -121,7 +113,6 @@ class DataHelpers {
     }//END public static function stringReplaceLast
     /**
      * Normalize string
-     *
      * @param string $input String to be normalized
      * @param bool $replace_diacritics Replace diacritics with ANSI corespondent (default TRUE)
      * @param bool $html_entities_decode Decode html entities (default TRUE)
@@ -143,10 +134,8 @@ class DataHelpers {
     }//END public static function normalizeString
     /**
      * Convert string from unknown character set to UTF-8
-     *
      * @param      string $value The string to be converted
      * @return     string Returns the converted string
-     * @access     public
      * @throws \Exception
      */
     public static function utf8Encode($value) {
@@ -157,7 +146,6 @@ class DataHelpers {
     }//END public static function utf8Encode
     /**
      * Returns a string containing a formatted number
-     *
      * @param float   $value The number to be formatted
      * @param  string $format The format string in NETopes style
      * (NETopes format: "[number of decimals]|[decimal separator|[group separator]|[sufix]"
@@ -171,7 +159,6 @@ class DataHelpers {
     }//END public static function numberFormat
     /**
      * Convert number (integer part) to words representation
-     *
      * @param float $value Number to be converted (only integer part will be processed)
      * @param string $langcode Language code
      * @return null|string
@@ -244,7 +231,6 @@ class DataHelpers {
     /**
      * String explode public static function based on standard php explode function.
      * Explode on two levels to generate a table-like array.
-     *
      * @param   string $str The string to be exploded.
      * @param   string $rsep The string used as row separator.
      * @param   string $csep The string used as column separator.
@@ -288,7 +274,6 @@ class DataHelpers {
     /**
      * Array merge with overwrite option (the 2 input arrays remains untouched).
      * The second array will overwrite the first.
-     *
      * @param   array $arr1 First array to merge
      * @param   array $arr2 Second array to merge
      * @param   bool  $overwrite Overwrite sitch: TRUE with overwrite (default), FALSE without overwrite
@@ -320,7 +305,6 @@ class DataHelpers {
     }//END public static function customArrayMerge
     /**
      * Read a CSV file and convert content to an associative array
-     *
      * @param string $file Input file full name (including path)
      * @param int $line_length Line length in characters (default 1000)
      * @param bool|array $with_header If TRUE first row will be considered table header, if FALSE no header
@@ -352,7 +336,6 @@ class DataHelpers {
     }//END public static function csvFileToArray
     /**
      * description
-     *
      * @param array|null $input
      * @param bool       $recursive
      * @param int        $case
@@ -373,7 +356,6 @@ class DataHelpers {
     }//END public static function changeArrayValuesCase
     /**
       * description
-      *
      * @param      $array
      * @param      $structure
      * @param null $uppercasekeys
@@ -403,7 +385,6 @@ class DataHelpers {
     }//END public static function convertDbArrayToTree
     /**
       * description
-      *
      * @param      $array
      * @param bool $return
      * @return array|null

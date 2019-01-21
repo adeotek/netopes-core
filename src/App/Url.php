@@ -1,9 +1,7 @@
 <?php
 /**
  * Class Url file.
- *
  * Application URL interaction class.
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,12 +12,9 @@
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\Helpers;
-
 /**
  * Class Url
- *
  * Application URL interaction class.
- *
  * @package NETopes\Core\App
  */
 class Url {
@@ -45,52 +40,40 @@ class Url {
 	const URL_FORMAT_SHORT = 3;
 	/**
 	 * @var        string The path included in the application URL
-	 * @access     protected
-	 * @static
 	 */
 	protected static $urlPath = NULL;
 	/**
 	 * @var    string Application web protocol (http/https)
-	 * @access protected
 	 */
 	protected $appWebProtocol = NULL;
 	/**
 	 * @var    string Application domain (auto-set on constructor)
-	 * @access protected
 	 */
 	protected $appDomain = NULL;
 	/**
 	 * @var    string Application folder inside www root (auto-set on constructor)
-	 * @access protected
 	 */
 	protected $urlFolder = NULL;
 	/**
 	 * @var    string Application base url: domain + path + url id (auto-set on constructor)
-	 * @access protected
 	 */
 	protected $urlBase = NULL;
 	/**
 	 * @var    array GET (URL) data
-	 * @access public
 	 */
 	public $data = [];
 	/**
 	 * @var    array GET (URL) special parameters list
-	 * @access public
 	 */
 	public $specialParams = array('language','urlid');
 	/**
 	 * @var    string URL virtual path
-	 * @access public
 	 */
 	public $urlVirtualPath = NULL;
 	/**
 	 * Extracts the URL path of the application.
-	 *
 	 * @param      string $startupPath Entry point file absolute path
 	 * @return     string Returns the URL path of the application.
-	 * @access     public
-	 * @static
 	 */
 	public static function ExtractUrlPath($startupPath = NULL) {
 		if(strlen($startupPath)) {
@@ -104,11 +87,8 @@ class Url {
 	}//END public static function ExtractUrlPath
 	/**
 	 * Gets the base URL of the application.
-	 *
 	 * @param	   string $startupPath Startup absolute path
 	 * @return     string Returns the base URL of the application.
-	 * @access     public
-	 * @static
 	 */
 	public static function GetRootUrl($startupPath = NULL) {
 		$appWebProtocol = (isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
@@ -118,7 +98,6 @@ class Url {
 	}//END public static function GetRootUrl
 	/**
 	 * AppUrl constructor.
-	 *
 	 * @param string $appDomain
 	 * @param string $appWebProtocol
 	 * @param string $urlFolder
@@ -167,11 +146,9 @@ class Url {
 	}//END public function GetUrlFolder
 	/**
 	 * description
-	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @param bool        $keysonly
 	 * @return string
-	 * @access public
 	 */
 	public function ParamToString($params,$keysonly = FALSE) {
     	if(is_array($params)) {
@@ -189,10 +166,8 @@ class Url {
 	}//END public function ParamToString
 	/**
 	 * description
-	 *
 	 * @param $param
 	 * @return array|null
-	 * @access public
 	 */
 	public function GetParamElements($param) {
 		$result = NULL;
@@ -214,12 +189,10 @@ class Url {
 	}//END public function GetParamElements
 	/**
 	 * Get elements for a parameter from the url data array
-	 *
 	 * @param      $key
 	 * @param bool $string
 	 * @param bool $keysonly
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetComplexParam($key,$string = FALSE,$keysonly = FALSE) {
 		$result = array_key_exists($key,$this->data) ? $this->data[$key] : NULL;
@@ -228,11 +201,9 @@ class Url {
 	}//END public function GetComplexParam
 	/**
 	 * Set a simple parameter into the url data array
-	 *
 	 * @param $key
 	 * @param $val
 	 * @return bool
-	 * @access public
 	 */
 	public function SetComplexParam($key,$val) {
 		if(!is_array($val) || !count($val)) { return FALSE; }
@@ -241,53 +212,43 @@ class Url {
 	}//END public function SetComplexParam
 	/**
 	 * Unset a parameter from the url data array
-	 *
 	 * @param $key
 	 * @return void
-	 * @access public
 	 */
 	public function UnsetComplexParam($key) {
 		unset($this->data[$key]);
 	}//END public function UnsetComplexParam
 	/**
 	 * Get a simple parameter from the url data array
-	 *
 	 * @param      $key
 	 * @param bool $full
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetParam($key,$full = FALSE) {
 		return $this->GetComplexParam($key,$full!==TRUE,TRUE);
 	}//END public function GetParam
 	/**
 	 * Set a simple parameter into the url data array
-	 *
 	 * @param $key
 	 * @param $val
 	 * @return bool
-	 * @access public
 	 */
 	public function SetParam($key,$val) {
 		return $this->SetComplexParam($key,array($val=>''));
 	}//END public function SetParam
 	/**
 	 * Unset a parameter from the url data array
-	 *
 	 * @param $key
 	 * @return void
-	 * @access public
 	 */
 	public function UnsetParam($key) {
 		$this->UnsetComplexParam($key);
 	}//END public function UnsetParam
 	/**
 	 * Gets n-th element from a parameter in the url data array
-	 *
 	 * @param     $key
 	 * @param int $position
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetParamElement($key,$position = 0) {
 		if(strlen($key)>0 && array_key_exists($key,$this->data)) {
@@ -308,12 +269,10 @@ class Url {
 	}//END public function GetParamElement
 	/**
 	 * Sets an element from a parameter in the url data array
-	 *
 	 * @param        $key
 	 * @param        $element
 	 * @param string $text
 	 * @return bool
-	 * @access public
 	 */
 	public function SetParamElement($key,$element,$text = '') {
 		if(is_null($key) || is_null($element)) { return FALSE; }
@@ -329,11 +288,9 @@ class Url {
 	}//END public function SetParamElement
 	/**
 	 * Removes an element from a parameter in the url data array
-	 *
 	 * @param $key
 	 * @param $element
 	 * @return bool
-	 * @access public
 	 */
 	public function UnsetParamElement($key,$element) {
 		if(is_null($key) || is_null($element)) { return FALSE; }
@@ -342,10 +299,8 @@ class Url {
 	}//END public function UnsetParamElement
 	/**
 	 * description
-	 *
 	 * @param $url
 	 * @return array
-	 * @access public
 	 */
 	public function SetParams($url) {
 		$result = array();
@@ -366,11 +321,9 @@ class Url {
 	}//END public function SetParams
     /**
      * description
-     *
      * @param int  $url_format
      * @param null $params
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function GetBase($url_format = self::URL_FORMAT_FRIENDLY,$params = NULL) {
@@ -404,11 +357,9 @@ class Url {
 	}//END public function GetBase
     /**
      * Create new application URL
-     *
      * @param object|null $params Parameters object (instance of [Params])
      * @param int         $url_format
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function GetNewUrl($params = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
@@ -437,12 +388,10 @@ class Url {
 	}//END public function GetNewUrl
     /**
      * description
-     *
      * @param null $params
      * @param null $rparams
      * @param int  $url_format
      * @return string
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function GetUrl($params = NULL,$rparams = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
@@ -462,11 +411,9 @@ class Url {
 	}//END public function GetUrl
 	/**
 	 * description
-	 *
 	 * @param      $key
 	 * @param null $element
 	 * @return bool
-	 * @access public
 	 */
 	public function ElementExists($key,$element = NULL) {
 		if(is_null($element)) {

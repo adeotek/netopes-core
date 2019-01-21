@@ -1,9 +1,7 @@
 <?php
 /**
  * MariaDb database implementation class file
- *
  * This file contains the implementing class for MariaDb SQL database.
- *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
@@ -15,24 +13,18 @@ namespace NETopes\Core\Data;
 use NETopes\Core\AppException;
 /**
  * MariaDbDatabase Is implementing the MariaDb database
- *
  * This class contains all methods for interacting with MariaDb database.
- *
  * @package  Hinter\NETopes\Database
- * @access   public
  */
 class MariaDbAdapter extends SqlDataAdapter {
 	/**
 	 * @var    string Tables prefix
-	 * @access public
 	 */
 	public $tables_prefix = NULL;
 	/**
 	 * Set global variables to a temporary table
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function MariaDbSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
@@ -41,18 +33,16 @@ class MariaDbAdapter extends SqlDataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection
 	 * @return void
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
 		try {
-			//NApp::StartTimeTrack('mysqli_connect');
+			//\NETopes\Core\App\Debugger::StartTimeTrack('mysqli_connect');
 			if(!($this->connection = new \mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbName))) { throw new \Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR); }
-			//NApp::Dlog(NApp::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+			//NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
 			if(!$this->connection->set_charset("utf8")) { throw new \Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR); }
 			if(isset($connection['tables_prefix']) && is_string($connection['tables_prefix']) && strlen($connection['tables_prefix'])) { $this->tables_prefix = $connection['tables_prefix']; }
 		} catch(\Exception $e){
@@ -61,39 +51,32 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//END protected function Init
 	/**
 	 * Begins a mysql transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param  bool $overwrite Flag for overwriting the transaction
 	 * if exists (defaul value FALSE)
 	 * @return object Returns the transaction instance
-	 * @access public
 	 */
 	public function MariaDbBeginTran($name,$log = TRUE,$overwrite = TRUE) {
 		return NULL;
 	}//END public function MariaDbBeginTran
 	/**
 	 * Rolls back a mysql transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function MariaDbRollbackTran($name,$log = TRUE) {
 		return FALSE;
 	}//END public function MariaDbRollbackTran
 	/**
 	 * Commits a mysql transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function MariaDbCommitTran($name,$log = TRUE,$preserve = FALSE) {
 		return FALSE;
 	}//END public function MariaDbCommitTran
 	/**
 	 * Prepares the query string for execution
-	 *
 	 * @param  string $query The query string (by reference)
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -109,7 +92,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $bind_params
 	 * @param null    $transaction
 	 * @return void
-	 * @access public
 	 */
 	public function MariaDbPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
@@ -183,7 +165,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//public function MariaDbPrepareQuery
 	/**
 	 * Executes a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -200,7 +181,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $results_keys_case
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
@@ -252,7 +232,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//END public function MariaDbExecuteQuery
 	/**
 	 * Prepares the command string to be executed
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -268,7 +247,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $bind_params
 	 * @param null    $transaction
 	 * @return string Returns processed command string
-	 * @access protected
 	 */
 	protected function MariaDbPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
@@ -297,7 +275,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//END protected function MariaDbPrepareProcedureStatement
 	/**
 	 * Executs a stored procedure against the database
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -314,7 +291,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param null    $results_keys_case
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
@@ -406,7 +382,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//END public function MariaDbExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -415,7 +390,6 @@ class MariaDbAdapter extends SqlDataAdapter {
 	 * @param  array  $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function MariaDbExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
@@ -423,11 +397,9 @@ class MariaDbAdapter extends SqlDataAdapter {
 	}//END public function MariaDbExecuteMethod
 	/**
 	 * Escapes MariaDb special charcaters from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
 	 */
 	public function EscapeString($param) {
 		$result = NULL;

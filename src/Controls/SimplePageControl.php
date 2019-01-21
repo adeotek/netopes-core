@@ -1,9 +1,7 @@
 <?php
 /**
  * Short desc
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,11 +14,8 @@ use NApp;
 use Translate;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class SimplePageControl extends Control {
 	public function __construct($params = NULL) {

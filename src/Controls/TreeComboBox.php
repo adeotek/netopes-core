@@ -1,9 +1,7 @@
 <?php
 /**
  * ComboBox control class file
- *
  * Standard ComboBox control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,41 +12,31 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppSession;
-
 /**
  * TreeComboBox control
- *
  * Tree ComboBox control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TreeComboBox extends Control {
 	/**
 	 * @var    array|null Data source configuration
-	 * @access public
 	 */
 	public $data_source = NULL;
 	/**
 	 * @var    bool Encrypt url parameters
-	 * @access public
 	 */
 	public $encrypted = NULL;
 	/**
 	 * Control class constructor
-	 *
 	 * @param  array $params An array of params
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
 	}//END public function __construct
 	/**
 	 * Set control HTML string
-	 *
 	 * @return string|null
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();

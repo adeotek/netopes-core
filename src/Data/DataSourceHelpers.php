@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes data source helpers class file
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -10,10 +9,8 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-
 /**
  * Class DataSourceHelpers
- *
  * @package NETopes\Core\Data
  */
 class DataSourceHelpers {
@@ -21,7 +18,6 @@ class DataSourceHelpers {
      * Replaces the keys (first level only) of the $results array
      * with the values of a specified key in the second level of the array
      * Obs. The $results array is usualy an results array from a database query.
-     *
      * @param  array  $results The array to be converted
      * @param  string $keyField The key for the second level value to be
      * set as the new main key.
@@ -29,8 +25,6 @@ class DataSourceHelpers {
      * @param bool    $convertToDataSet
      * @param int|null $case
      * @return array Returns the converted array
-     * @access public
-     * @static
      */
 	public static function ConvertResultsToKeyValue($results,?string $keyField = NULL,bool $convertToDataSet = FALSE,?int $case = NULL) {
 	    if(!is_iterable($results)) { return $results; }
@@ -59,14 +53,11 @@ class DataSourceHelpers {
 	}//END public static function ConvertResultsToKeyValue
     /**
      * Convert array to a DataSet of entities or row arrays
-     *
      * @param  array       $data The array to be converted
      * @param  string|null $entityClass Name of the entity class
      * @param null|string  $fieldToUseAsKey
      * @param int          $case
      * @return mixed Returns the DataSet or NULL on error
-     * @access public
-     * @static
      */
 	public static function ConvertArrayToDataSet($data = [],$entityClass = NULL,?string $fieldToUseAsKey = NULL,?int $case = CASE_LOWER) {
 		if(!is_array($data)) {
@@ -106,12 +97,9 @@ class DataSourceHelpers {
 	}//END public static function ConvertArrayToDataSet
 	/**
 	 * Convert results array to a DataSet of entities or row arrays
-	 *
 	 * @param  array $results The array to be converted
 	 * @param  string|null $entityClass Name of the entity class
 	 * @return mixed Returns the DataSet or unprocessed data if input is not an array
-	 * @access public
-	 * @static
 	 */
 	public static function ConvertResultsToDataSet($results = [],$entityClass = NULL) {
 		if(!is_array($results)) { return $results; }

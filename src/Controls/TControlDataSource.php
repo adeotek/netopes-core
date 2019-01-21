@@ -1,7 +1,6 @@
 <?php
 /**
  * Control data source trait file
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -11,21 +10,16 @@
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataProvider;
-
 /**
  * Trait TControlDataSource
- *
  * @package NETopes\Core\Controls
  */
 trait TControlDataSource {
     /**
      * Gets the records from the database
-     *
      * @param array $params
      * @return mixed Returns processed tab array
      * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
      */
 	protected function LoadData(array $params) {
 		if(!is_array($params) || !count($params)) { return NULL; }

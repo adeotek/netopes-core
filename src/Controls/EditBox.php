@@ -1,9 +1,7 @@
 <?php
 /**
  * EditBox class file
- *
  * File containing EditBox control class
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,9 +12,7 @@
 namespace NETopes\Core\Controls;
 /**
  * Class EditBox
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class EditBox extends Control {
     public function __construct($params = null){

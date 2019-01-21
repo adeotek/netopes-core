@@ -1,9 +1,7 @@
 <?php
 /**
  * DataAdapter database adapter class file
- *
  * This file contains the adapter class for Doctrine ORM.
- *
  * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -20,12 +18,9 @@ use Doctrine\DBAL\Connection;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
-
 /**
  * Class DataAdapter
- *
  * This class contains all methods for interacting with Doctrine ORM.
- *
  * @package  NETopes\Core\Data\Doctrine
  */
 class DataAdapter extends \NETopes\Core\Data\DataAdapter {
@@ -39,14 +34,11 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 	public $platform;
 	/**
 	 * Doctrine bootstrap
-	 *
 	 * @param  string $base_path
 	 * @param  array  $connection Database connection array
 	 * @param  object $platform
 	 * @return EntityManager
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function GetEntityManager($base_path,$connection,&$platform) {
 		$entities_path = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::GetValue('doctrine_entities_path'),'\/');
@@ -120,10 +112,8 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {

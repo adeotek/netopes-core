@@ -1,9 +1,7 @@
 <?php
 /**
  * short description
- *
  * description
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,9 +12,7 @@
  namespace NETopes\Core;
 /**
  * Class Translation
- *
  * Helper class for translating application resources
- *
  * @package NETopes\Core\App
  */
 class ImagesHelpers {

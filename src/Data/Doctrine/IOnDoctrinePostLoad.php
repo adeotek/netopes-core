@@ -1,9 +1,7 @@
 <?php
 /**
  * Doctrine entities lifecycle post-load event interface
- *
  * Implement for catching entities post-load event interface
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,14 +12,12 @@
 namespace NETopes\Core\Data\Doctrine;
 /**
  * Interface IOnDoctrinePostLoad
- *
  * @package NETopes\Core\Data\Doctrine
  */
 interface IOnDoctrinePostLoad {
     /**
      * Post-load event callback
      * Entity annotation must include [@]ORM\HasLifecycleCallbacks
-     *
      * @ORM\PrePersist
      */
     public function ExecuteOnPostLoad();

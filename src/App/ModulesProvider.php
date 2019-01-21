@@ -1,7 +1,6 @@
 <?php
 /**
  * Modules provider class file
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -12,22 +11,16 @@
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-
 /**
  * Class ModulesProvider
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 class ModulesProvider {
     /**
      * Get a module instance
-     *
      * @param  string $name Module name
      * @param  bool   $base If set to TRUE, gets the base module not the custom module (if there is one)
      * @return object Returns the module instance
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetModule($name,$base = FALSE) {
@@ -56,13 +49,10 @@ class ModulesProvider {
 	}//END public static function GetModule
     /**
      * Check if module method exists
-     *
      * @param  string $module Module name
      * @param  string $method Method to be searched
      * @param  bool   $base If set to TRUE, searches the base module only, not the custom one (if there is one)
      * @return bool Returns TRUE if the method exist of FALSE otherwise
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function ModuleMethodExists($module,$method,$base = FALSE) {
@@ -72,7 +62,6 @@ class ModulesProvider {
 	}//END public static function ModuleMethodExists
 	/**
 	 * Invoke a module method
-	 *
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
@@ -83,8 +72,6 @@ class ModulesProvider {
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
      * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function Exec(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $resetSessionParams = FALSE,$beforeCall = NULL) {
 		if(!self::ModuleMethodExists($module,$method)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }
@@ -101,7 +88,6 @@ class ModulesProvider {
 	}//END public static function Exec
 	/**
 	 * Invoke a module method (unsafe)
-	 *
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
@@ -112,8 +98,6 @@ class ModulesProvider {
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
      * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function ExecUnsafe(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $resetSessionParams = FALSE,$beforeCall = NULL) {
 		if(!self::ModuleMethodExists($module,$method)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }
@@ -122,7 +106,6 @@ class ModulesProvider {
 	}//END public static function ExecUnsafe
 	/**
 	 * Invoke a module method of the base module, not the custom one (if there is one)
-	 *
 	 * @param  string $module Module name
 	 * @param  string $method Method to be searched
 	 * @param  array  $params An array of parameters
@@ -133,8 +116,6 @@ class ModulesProvider {
 	 * If FALSE is supplied, the _BeforeCall method will not be invoked
 	 * @return mixed Returns the method result
      * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function ExecNonCustom(string $module,string $method,$params = NULL,?string $dynamicTargetId = NULL,bool $resetSessionParams = FALSE,$beforeCall = NULL) {
 		if(!self::ModuleMethodExists($module,$method,TRUE)) { throw new AppException("Undefined method [$method] in module [$module] !",E_ERROR,1); }

@@ -1,9 +1,7 @@
 <?php
 /**
  * Validator adapter class file
- *
  * Class containing methods for validating values
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,13 +13,11 @@ namespace NETopes\Core\Validators;
 use NApp;
 /**
  * Class ValidatorAdapter
- *
  * @package NETopes\Core\App
  */
 class ValidatorAdapter {
     /**
      * Validate value
-     *
      * @param mixed       $value
      * @param mixed|null  $defaultValue
      * @param string|null $validation
@@ -29,8 +25,6 @@ class ValidatorAdapter {
      * @param bool        $isValid
      * @return mixed
      * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
      */
 	public static final function Validate($value,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = FALSE) {
 		$value = strlen($sourceFormat) ? Validator::ConvertValue($value,$sourceFormat) : $value;

@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes application debugger class file.
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -11,12 +10,9 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppException;
-
 /**
  * Class Debugger
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 class Debugger {
     /**
@@ -37,7 +33,6 @@ class Debugger {
     const DBG_INFO = 'info';
 	/**
 	 * @var    array List of debugging plug-ins. To activate/inactivate an plug-in, change the value for "active" key corresponding to that plug-in.
-	 * @access protected
 	 */
 	protected $debugExtensions = [
 		'Firefox'=>['QuantumPHP'=>['active'=>FALSE,'js'=>FALSE]],
@@ -49,65 +44,52 @@ class Debugger {
 	];
 	/**
 	 * @var        boolean Debug mode on/off
-	 * @access     protected
 	 */
 	protected $enabled = FALSE;
 	/**
 	 * @var    array Array containing debugging plug-ins objects.
-	 * @access protected
 	 */
 	protected $debugObjects = FALSE;
 	/**
 	 * @var    array Array containing debugging plug-ins JavaScripts.
-	 * @access protected
 	 */
 	protected $debugScripts = [];
 	/**
 	 * @var    array Array containing started debug timers.
-	 * @access protected
-	 * @static
 	 */
 	protected static $debugTimers = [];
 	/**
 	 * @var        string Browser console password (extension)
-	 * @access     protected
 	 */
 	protected $jsConsolePassword = '';
 	/**
 	 * @var        boolean Show exception trace on Elog
-	 * @access     public
 	 */
 	public $showExceptionsTrace = FALSE;
 	/**
 	 * @var        string Relative path to the logs folder
-	 * @access     public
 	 */
 	public $logsPath = '.logs';
 	/**
 	 * @var        string Name of the main log file
-	 * @access     public
 	 */
 	public $logFile = 'app.log';
 	/**
 	 * @var        string Name of the errors log file
-	 * @access     public
 	 */
 	public $errorsLogFile = 'errors.log';
 	/**
 	 * @var        string Name of the debugging log file
-	 * @access     public
 	 */
 	public $debugLogFile = 'debug.log';
 	/**
 	 * Debugger class constructor
-	 *
 	 * @param  boolean $debug Debug mode TRUE/FALSE
 	 * @param  string  $logsPath Logs directory relative path
 	 * @param  string  $tmpPath Temp directory absolute path
 	 * (must be outside document root)
 	 * @param null     $consolePassword
 	 * @throws \Exception
-	 * @access public
 	 */
     public function __construct($debug,$logsPath = NULL,$tmpPath = NULL,$consolePassword = NULL) {
 		if($debug!==TRUE) { return; }
@@ -124,11 +106,9 @@ class Debugger {
 	}//END protected function __construct
 	/**
 	 * Enable PHP browser logger
-	 *
 	 * @param  string $browser_type Browser type extracted from HTTP_USER_AGENT
 	 * @param  string $tmpPath Temp directory absolute path
 	 * @return void
-	 * @access protected
 	 * @throws \Exception
 	 */
 	protected function LoggerInit($browser_type,$tmpPath = NULL) {
@@ -169,9 +149,7 @@ class Debugger {
 	}//END protected function LoggerInit
 	/**
 	 * Send data to browser
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function SendData() {
 		if($this->enabled && is_array($this->debugObjects)) {
@@ -188,25 +166,20 @@ class Debugger {
 	}//END public function SendData
 	/**
 	 * Get debugging plug-ins JavaScripts to be loaded
-	 *
 	 * @return array Returns an array of debugging plug-ins JavaScripts to be loaded
-	 * @access public
 	 */
 	public function GetScripts() {
 		return ($this->enabled ? $this->debugScripts : []);
 	}//END public function GetScripts
 	/**
 	 * Get enabled state
-	 *
 	 * @return bool Returns TRUE if enabled or FALSE otherwise
-	 * @access public
 	 */
 	public function IsEnabled() {
 		return $this->enabled;
 	}//END public function IsEnabled
 	/**
 	 * Displays a value in the debugger plugin
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned tot the value to be displayed
 	 * @param  string $type Debug type defined bay NETopes\Core\Debugger::DBG_... constants
@@ -214,7 +187,6 @@ class Debugger {
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function Debug($value,$label = '',$type = self::DBG_DEBUG,$file = FALSE,$path = FALSE) {
@@ -274,13 +246,11 @@ class Debugger {
 	}//END public function Debug
 	/**
 	 * Displays a value in the debugger plugin as a debug message
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned tot the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function Dlog($value,$label = '',$file = FALSE,$path = FALSE) {
@@ -293,13 +263,11 @@ class Debugger {
 	}//END public function Dlog
 	/**
 	 * Displays a value in the debugger plugin as a warning message
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned tot the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function Wlog($value,$label = '',$file = FALSE,$path = FALSE) {
@@ -312,7 +280,6 @@ class Debugger {
 	}//END public function Wlog
     /**
      * Displays a value in the debugger plugin as an error message
-     *
      * @param  mixed  $value Value to be displayed by the debug objects
      * @param  string $label Label assigned tot the value to be displayed
      * @param bool    $showExceptionsTrace
@@ -320,7 +287,6 @@ class Debugger {
      * @param  bool   $path Output file path
      * @return void
      * @throws \Exception
-     * @access public
      */
 	public function Elog($value,?string $label = NULL,bool $showExceptionsTrace = FALSE,bool $file = FALSE,bool $path = FALSE) {
 		if($file===TRUE) {
@@ -341,13 +307,11 @@ class Debugger {
 	}//END public function Elog
 	/**
 	 * Displays a value in the debugger plugin as an info message
-	 *
 	 * @param  mixed $value Value to be displayed by the debug objects
 	 * @param  string $label Label assigned tot the value to be displayed
 	 * @param  boolean $file Output file name
 	 * @param  boolean $path Output file path
 	 * @return void
-	 * @access public
 	 * @throws \Exception
 	 */
 	public function Ilog($value,$label = '',$file = FALSE,$path = FALSE) {
@@ -360,13 +324,10 @@ class Debugger {
 	}//END public function Ilog
 	/**
 	 * Add entry to log file
-	 *
 	 * @param  string|array $msg Text to be written to log
 	 * @param  string|null $file Custom log file complete name (path + name)
 	 * @param  string|null $scriptName Name of the file that sent the message to log (optional)
 	 * @return bool|string Returns TRUE for success or error message on failure
-	 * @access public
-	 * @static
 	 */
 	public static function Log2File($msg,?string $file = NULL,?string $scriptName = NULL) {
 		$lf = strlen($file) ? $file : 'unknown.log';
@@ -392,13 +353,11 @@ class Debugger {
 	}//END public static function AddToLog
 	/**
 	 * Writes a message in one of the application log files
-	 *
 	 * @param  string $msg Text to be written to log
 	 * @param  string $type Log type (log, error or debug) (optional)
 	 * @param  string $file Custom log file complete name (path + name) (optional)
 	 * @param string  $path
 	 * @return bool|string
-	 * @access public
 	 */
 	public function Write2LogFile($msg,$type = 'log',$file = '',$path = '') {
 		$lpath = (is_string($path) && strlen($path) ? rtrim($path,'/') : $this->logsPath).'/';
@@ -414,11 +373,8 @@ class Debugger {
 	}//END public function WriteToLog
 	/**
 	 * Starts a debug timer
-	 *
 	 * @param  string $name Name of the timer (required)
 	 * @return bool
-	 * @access public
-	 * @static
 	 */
 	public static function StartTimeTrack($name) {
 		if(!$name) { return FALSE; }
@@ -427,12 +383,9 @@ class Debugger {
 	}//END public static function TimerStart
 	/**
 	 * Displays a debug timer elapsed time
-	 *
 	 * @param  string $name Name of the timer (required)
 	 * @param  bool $stop Flag for stopping and destroying the timer (default TRUE)
 	 * @return double|null
-	 * @access public
-	 * @static
 	 */
 	public static function ShowTimeTrack($name,$stop = TRUE) {
 		if(!$name || !array_key_exists($name,self::$debugTimers)) { return NULL; }

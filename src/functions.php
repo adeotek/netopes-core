@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes helper functions file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -11,7 +10,6 @@
  */
 /**
  * Get short class name (without namespace)
- *
  * @param $class
  * @return  string Short class name
  */
@@ -21,7 +19,6 @@ function get_class_basename($class) {
 }//END function get_class_basename
 /**
  * Changes the case of the first letter of the string or for the first letter of each word in string.
- *
  * @param   string|null $str String to be processed.
  * @param   bool   $all If all param is set TRUE, all words in the string will be processed with ucfirst()
  * standard php function, otherwise just the first letter in string will be changed to upper.
@@ -44,7 +41,6 @@ function custom_ucfirst(?string $str,bool $all = TRUE,bool $lowercase = TRUE,?st
 }//END function custom_ucfirst
 /**
  * Converts a string of form [abcd_efgh_ijk] into a camelcase form [AbcdEfghIjk]
- *
  * @param  string $string String to be converted
  * @param  bool   $lower_first Flag to indicate if the first char should be lower case
  * @param bool    $namespaced
@@ -65,7 +61,6 @@ function convert_to_camel_case(?string $string,bool $lower_first = FALSE,bool $n
 }//END function convert_to_camel_case
 /**
  * Converts a camelcase string to one of form [abcd_efgh_ijk]
- *
  * @param  string $string String to be converted
  * @param  bool   $upper Flag to indicate if the result should be upper case
  * @return string Returns the string converted from camel case format or NULL on error
@@ -75,10 +70,8 @@ function convert_from_camel_case($string,$upper = FALSE) {
     $result = preg_replace('/(?<=\\w)(?=[A-Z])/','_$1',$result);
     return ($upper ? strtoupper($result) : strtolower($result));
 }//END function convert_from_camel_case
-
 /**
  * Change string case
- *
  * @param mixed    $input
  * @param int|null $case
  * @return  mixed
@@ -89,7 +82,6 @@ function change_case($input,?int $case = CASE_LOWER) {
 }//END function change_case
 /**
  * description
- *
  * @param      $input
  * @param bool $recursive
  * @param int  $case
@@ -107,7 +99,6 @@ function change_array_keys_case($input,bool $recursive = FALSE,int $case = CASE_
 }//END function change_array_keys_case
 /**
  * Validate variable value
- *
  * @param   mixed $value Variable to be validated
  * @param   mixed $defaultValue Default value to be returned if param is not validated
  * @param   string $validation Validation type
@@ -204,7 +195,6 @@ function validate_param($value,$defaultValue = NULL,?string $validation = NULL,b
 /**
  * Checks if a key exists in an array and validates its value
  * (if validation is set)
- *
  * @param   mixed $key Key to be checked
  * @param   array $array Array to be searched (passed by reference)
  * @param   string $validation Validation type
@@ -219,7 +209,6 @@ function check_array_key($key,&$array,?string $validation = NULL) {
 }//END function check_array_key
 /**
  * Extracts a value from a an multi-dimensional array
- *
  * @param   mixed $var Params array
  * (parsed as reference)
  * @param   string|array $key Key of the param to be returned
@@ -259,7 +248,6 @@ function get_array_value(&$var,$key,$defaultValue = NULL,?string $validation = N
 }//END function get_array_value
 /**
  * Extracts a param value from a params array
- *
  * @param   array $var Params array
  * (parsed as reference)
  * @param   string $key Key of the param to be returned
@@ -275,7 +263,6 @@ function get_array_param(&$var,$key,$defaultValue = NULL,?string $validation = N
 }//END function get_array_param
 /**
  * This returns the element from certain level of the backtrace stack.
- *
  * @param   integer $step The backtrace step index to be returned, starting from 0 (default 1)
  * @param   string $param Type of the return.
  * Values can be: "function" and "class" for returning full array of the specified step

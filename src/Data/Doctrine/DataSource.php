@@ -1,7 +1,6 @@
 <?php
 /**
  * Base Doctrine data source file
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -11,18 +10,13 @@
  */
 namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppException;
-
 /**
  * Base Base Doctrine data adapter class
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
 class DataSource extends \NETopes\Core\Data\DataSource {
 	/**
      * Execute a repository method and get returned data
-     *
-     * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -40,8 +34,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function CreateItem
     /**
 	 * Gets new project blank object
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return mixed
@@ -54,8 +46,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function CreateItem
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -83,8 +73,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
     }//END public function GetItems
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -97,8 +85,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function GetObjects
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -113,8 +99,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function GetItem
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -131,8 +115,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function GetItem
 	/**
 	 * Sets new project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return array
@@ -151,8 +133,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function SetItem
 	/**
 	 * Sets new project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return array
@@ -163,8 +143,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
 	}//END public function GetNewItem
 	/**
 	 * Unsets a project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return bool

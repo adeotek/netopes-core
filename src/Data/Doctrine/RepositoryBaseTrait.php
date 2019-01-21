@@ -4,10 +4,8 @@ use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
 use NETopes\Core\AppException;
-
 /**
  * Trait RepositoryBaseTrait
- *
  * @package NETopes\Core\Data
  */
 trait RepositoryBaseTrait {
@@ -66,10 +64,8 @@ trait RepositoryBaseTrait {
 	}//END protected function DbDebug
 	/**
      * Finds entities by a set of criteria.
-     *
      * @param array      $criteria
      * @property $_em
-     *
      * @return int The objects.
      */
     public function countBy(array $criteria) {
@@ -78,7 +74,6 @@ trait RepositoryBaseTrait {
     }//END public function countBy
     /**
      * Adds where conditions to the Query for searching all words in $searchTerm
-     *
      * @param \Doctrine\ORM\QueryBuilder $qb
      * @param string              $searchTerm
      * @param array               $searchFields

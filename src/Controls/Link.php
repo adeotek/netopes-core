@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,11 +15,8 @@ use NApp;
 use GibberishAES;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class Link extends Control {
 	protected $url_params = [];
@@ -42,9 +37,7 @@ class Link extends Control {
 	}//END public function __construct
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 */
 	protected function SetControl(): ?string {
 	    $ltooltip = '';

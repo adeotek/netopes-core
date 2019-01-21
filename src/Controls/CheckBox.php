@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,14 +12,10 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppConfig;
-
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class CheckBox extends Control {
     public function __construct($params = null){

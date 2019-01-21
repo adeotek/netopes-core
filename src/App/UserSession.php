@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes application user session class file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,12 +13,9 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
 use NApp;
-
 /**
  * Class UserSession
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 class UserSession {
     /**
@@ -44,7 +40,6 @@ class UserSession {
 	}//END public static function SetAdapterClass
     /**
      * Gets the login timeout in minutes
-     *
      * @return int Returns login timeout
      * @throws \NETopes\Core\AppException
      */
@@ -55,7 +50,6 @@ class UserSession {
 	}//END public static function GetLoginTimeout
     /**
      * Gets the login cookie hash
-     *
      * @param  string     $namespace The namespace for the cookie or NULL for current namespace
      * @param string|null $salt
      * @return string The name (hash) of the login cookie
@@ -68,7 +62,6 @@ class UserSession {
 	}//END public static function GetCookieHash
     /**
      * description
-     *
      * @param string|null $name
      * @param string|null $namespace
      * @param bool        $setIfMissing
@@ -91,7 +84,6 @@ class UserSession {
 	}//END public static function GetHashFromCookie
     /**
      * Set the login cookie
-     *
      * @param  string  $uHash The user hash
      * @param  integer $validity The cookie lifetime or NULL for default
      * @param  string  $cookieHash The name (hash) of the login cookie
@@ -114,9 +106,7 @@ class UserSession {
 	}//END public static function SetLoginCookie
 	/**
 	 * Get current user ID
-	 *
 	 * @return int|null Returns current user ID
-	 * @access public
 	 */
 	public static function GetCurrentUserId(): ?int {
 		$adapter = static::$adapterClass;
@@ -125,7 +115,6 @@ class UserSession {
 	}//END public static function GetCurrentUserId
     /**
      * Loads application settings from database or from request parameters
-     *
      * @param bool        $notFromDb
      * @param array|null  $params
      * @param string|null $appAccessKey
@@ -139,14 +128,12 @@ class UserSession {
 	}//END public static function LoadAppSettings
     /**
      * This function authenticates an user and updates the session data
-     *
      * @param string      $username
      * @param string      $password
      * @param bool                                $remember
      * @param \NETopes\Core\App\Params|array|null $extraParams
      * @return bool|null Returns TRUE if login is successful or FALSE otherwise
      * @throws \NETopes\Core\AppException
-     * @access public
      */
 	public static function Login(string $username,string $password,bool $remember = FALSE,$extraParams = NULL): ?bool {
 	    $adapter = static::$adapterClass;
@@ -156,11 +143,9 @@ class UserSession {
 	/**
 	 * Method called on user logout action for clearing the session
 	 * and the login cookie
-	 *
 	 * @param  string $namespace If passed, logs out the specified namespace
 	 * else logs out the current namespace
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function Logout(?string $namespace = NULL): void {

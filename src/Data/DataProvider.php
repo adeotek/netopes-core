@@ -1,9 +1,7 @@
 <?php
 /**
  * Data provider file
- *
  * All data request are made using the DataProvider class static methods.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,31 +15,24 @@ use NETopes\Core\AppException;
 use NETopes\Core\Data\Doctrine\DataSource as DoctrineDataSource;
 use NETopes\Core\Data\Doctrine\DataAdapter as DoctrineAdapter;
 use NApp;
-
 /**
   * DataProvider prepares and makes the data requests
-  *
   * All data request are made using the DataProvider class static methods.
-  *
   * @package  NETopes\Database
-  * @access   public
   */
 class DataProvider {
 	/**
 	 * @var    array An array containing the used connections arrays
 	 * @access private
-	 * @static
 	 */
 	private static $connectionsArrays = NULL;
 	/**
 	 * @var    array Entity managers instances array
 	 * @access private
-	 * @static
 	 */
 	private static $entityManagers = [];
 	/**
 	 * Gets the connection array by name from the connections.inc file
-	 *
 	 * @param  string $name Connection name
 	 * (name of the array in the connection.inc file)
 	 * @return array|bool Connection array
@@ -62,15 +53,12 @@ class DataProvider {
 	}//END private static function GetConnectionArray
     /**
      * description
-     *
      * @param string            $ds_name
      * @param array|string|null $connection
      * @param string|null       $mode
      * @param bool              $existing_only
      * @return object Adapter instance
      * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
      */
 	public static function GetDataSource(string $ds_name,$connection = NULL,?string $mode = NULL,bool $existing_only = FALSE) {
 		$ns_prefix = AppConfig::GetValue('app_root_namespace').'\\'.AppConfig::GetValue('app_data_sources_namespace_prefix');
@@ -113,14 +101,11 @@ class DataProvider {
 	}//END public static function GetDataSource
 	/**
 	 * Check if data adapter method exists
-	 *
 	 * @param  string $name Data adapter name
 	 * @param  string $method Method to be searched
      * @param null|string $mode
 	 * @return bool Returns TRUE if the method exist of FALSE otherwise
      * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function MethodExists(string $name,string $method,?string $mode = NULL): bool {
 		if(!strlen($name) || !strlen($method)) { return FALSE; }
@@ -129,7 +114,6 @@ class DataProvider {
 	}//END public static function MethodExists
 	/**
 	 * Get data from data source method
-	 *
 	 * @param  string $ds_name Data source name
 	 * @param  string $ds_method Data source method
 	 * @param  array $params An array of parameters to be passed to the method
@@ -137,8 +121,6 @@ class DataProvider {
 	 * @param  bool $debug Flag debug activation/deactivation on this method
 	 * @param  array $out_params An array passed by reference for the output parameters
 	 * @return array|bool Returns the data source method response
-	 * @access public
-	 * @static
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
@@ -165,7 +147,6 @@ class DataProvider {
 	/**
 	 * Call a data source method and return a key-value array
 	 * (one column values as keys for the rows array)
-	 *
 	 * @param  string $ds_name Data source name
 	 * @param  string $ds_method Data source method
 	 * @param  array $params An array of parameters to be passed to the method
@@ -173,8 +154,6 @@ class DataProvider {
 	 * @param  bool $debug Flag debug activation/deactivation on this method
 	 * @param  array $out_params An array passed by reference for the output parameters
 	 * @return array|bool Returns the data source method response
-	 * @access public
-	 * @static
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetKeyValueArray(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
@@ -185,7 +164,6 @@ class DataProvider {
 	}//END public static function GetKeyValueArray
 	/**
 	 * Get data from data source method
-	 *
 	 * @param  string $ds_name Data adapter name
 	 * @param  string $ds_method Data adapter method
 	 * @param  array $params An array of parameters to be passed to the method
@@ -193,8 +171,6 @@ class DataProvider {
 	 * @param  bool $debug Flag debug activation/deactivation on this method
 	 * @param  array $out_params An array passed by reference for the output parameters
 	 * @return mixed Returns the data adapter method response
-	 * @access public
-	 * @static
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function Get(string $ds_name,string $ds_method,$params = [],$extra_params = [],bool $debug = FALSE,&$out_params = []) {
@@ -206,7 +182,6 @@ class DataProvider {
 	/**
 	 * Call a data source method and return a key-value DataSet
 	 * (one column values as keys for the collection items)
-	 *
 	 * @param  string $ds_name Data source name
 	 * @param  string $ds_method Data source method
 	 * @param  array $params An array of parameters to be passed to the method
@@ -214,8 +189,6 @@ class DataProvider {
 	 * @param  bool $debug Flag debug activation/deactivation on this method
 	 * @param  array $out_params An array passed by reference for the output parameters
 	 * @return DataSet|bool Returns the data source method response as DataSet
-	 * @access public
-	 * @static
 	 * @throws \NETopes\Core\AppException
 	 */
 	public static function GetKeyValue($ds_name,$ds_method,$params = [],$extra_params = [],$debug = FALSE,&$out_params = []) {
@@ -226,13 +199,10 @@ class DataProvider {
 	}//END public static function GetKeyValue
 	/**
 	 * description
-	 *
 	 * @param array $params
 	 * @param array $connection
 	 * @return mixed
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function SetGlobalVariables($params = [],$connection = []) {
 		try {
@@ -244,13 +214,10 @@ class DataProvider {
 	}//END public static function SetGlobalVariables
 	/**
 	 * description
-	 *
 	 * @param       $da_name
 	 * @param array $connection
 	 * @return bool
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function CloseConnection($da_name,$connection = []) {
 		$result = FALSE;
@@ -264,7 +231,6 @@ class DataProvider {
 	}//END public static function StartTransaction
 	/**
 	 * description
-	 *
 	 * @param       $da_name
 	 * @param null  $transaction
 	 * @param array $connection
@@ -273,8 +239,6 @@ class DataProvider {
 	 * @param null  $custom_tran_params
 	 * @return mixed
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function StartTransaction($da_name,&$transaction = NULL,$connection = [],$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		try {
@@ -286,7 +250,6 @@ class DataProvider {
 	}//END public static function StartTransaction
 	/**
 	 * description
-	 *
 	 * @param       $da_name
 	 * @param null  $transaction
 	 * @param bool  $error
@@ -294,8 +257,6 @@ class DataProvider {
 	 * @param bool  $log
 	 * @return mixed
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function CloseTransaction($da_name,$transaction = NULL,$error = FALSE,$connection = [],$log = FALSE) {
 		try {

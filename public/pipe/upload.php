@@ -1,14 +1,11 @@
 <?php
-/*
+/**
  * jQuery File Upload Plugin PHP Class 9.28.0
  * https://github.com/blueimp/jQuery-File-Upload
- *
  * Copyright 2010, Sebastian Tschan
  * https://blueimp.net
- *
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -85,13 +82,10 @@ $options = [
 $upload_handler = new UploadHandler($options);
 /**
  * Class UploadHandler
- *
  * jQuery File Upload Plugin PHP Class
  * https://github.com/blueimp/jQuery-File-Upload
- *
  * Copyright 2010, Sebastian Tschan
  * https://blueimp.net
- *
  * Licensed under the MIT license:
  * https://opensource.org/licenses/MIT
  */

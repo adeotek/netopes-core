@@ -1,9 +1,7 @@
 <?php
 /**
  * DatePicker control class file
- *
  * DatePicker control (jQuery UI/Bootstrap)
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,16 +13,12 @@ namespace NETopes\Core\Controls;
 use NApp;
 /**
  * DatePicker control class
- *
  * DatePicker control (jQuery UI/Bootstrap)
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class DatePicker extends Control {
 	/**
 	 * DatePicker constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -41,9 +35,7 @@ class DatePicker extends Control {
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
@@ -58,9 +50,7 @@ class DatePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set jQuery UI control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetJQueryUIControl(): string {
 		$dpclass = '';
@@ -109,9 +99,7 @@ class DatePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set Bootstrap 3 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap3Control(): string {
 	    if(strlen($this->format)) {
@@ -184,9 +172,7 @@ class DatePicker extends Control {
 	}//END protected function SetBootstrap3Control
 	/**
 	 * Set Bootstrap 4 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap4Control(): string {
 	    if(strlen($this->format)) {

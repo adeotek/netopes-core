@@ -1,9 +1,7 @@
 <?php
 /**
  * NETopes application path class file
- *
  * The NETopes path class contains helper methods for application paths.
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,16 +12,12 @@
 namespace NETopes\Core;
 /**
  * NETopes path class
- *
  * The NETopes path class contains helper methods for application paths.
- *
  * @package  NETopes\Core
- * @access   public
  */
 class AppPath {
 	/**
 	 * Get NETopes path
-	 *
 	 * @return string
 	 */
 	public static function GetPath(): string {
@@ -31,7 +25,6 @@ class AppPath {
 	}//END public static function GetPath
 	/**
 	 * Get NETopes boot file
-	 *
 	 * @return string
 	 */
 	public static function GetBootFile(): string {

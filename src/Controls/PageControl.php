@@ -1,9 +1,7 @@
 <?php
 /**
  * Short desc
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,11 +12,8 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * ClassName description
-	 *
 	 * long_description
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class PageControl extends Control {
 		public function __construct($params = null){

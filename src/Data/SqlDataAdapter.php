@@ -1,9 +1,7 @@
 <?php
 /**
  * DbAdapter base class file
- *
  * All specific database adapters classes extends this base class.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,21 +14,15 @@ use NETopes\Core\AppConfig;
 use NApp;
 /**
  * DbAdapter is the base abstract class for all database adapters
- *
  * All database adapters must extend this class.
- *
  * @package  NETopes\Database
- * @access   public
- * @abstract
  */
 abstract class SqlDataAdapter extends DataAdapter {
 	/**
 	 * Database class constructor
-	 *
 	 * @param  array $connection Database connection array
 	 * @throws \NETopes\Core\AppException
 	 * @return void
-	 * @access public
 	 */
 	protected function __construct($connection) {
 		$this->debug = AppConfig::GetValue('db_debug');
@@ -48,10 +40,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END protected function __construct
 	/**
 	 * Sets database connection to new connection
-	 *
 	 * @param  array $connection Database connection array
 	 * @return bool Returns TRUE on success or FALSE on failure
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function SetConnection($connection) {
@@ -68,9 +58,7 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function SetConnection
 	/**
 	 * Close current database connection
-	 *
 	 * @return bool Returns TRUE on success or FALSE on failure
-	 * @access public
 	 */
 	public function CloseConnection() {
 		if($this->usePdo || !method_exists($this,$this->dbType.'CloseConnection')) {
@@ -82,21 +70,17 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function CloseConnection
 	/**
 	 * Executes a method of the database connection object
-	 *
 	 * @param  string $method The method name
 	 * @param  mixed $params The method params if any
 	 * @return mixed Returns the result of the executed method
-	 * @access public
 	 */
 	public function ExecuteConnectionMethod($method,$params = []) {
 		return call_user_func_array(array($this->connection,$method),(is_array($params) ? $params : []));
 	}//END public function ExecuteConnectionMethod
 	/**
 	 * Sets the connection to a new pdo connection
-	 *
 	 * @param  array $connection Database connection array
 	 * @return bool Returns TRUE on success or FALSE on failure
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetPdoConnection($connection) {
@@ -113,10 +97,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END protected function SetPdoConnection
 	/**
 	 * Set database connection global variables
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function SetGlobalVariables($params = NULL) {
 		if($this->usePdo) { return FALSE; }
@@ -125,12 +107,10 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function SetGlobalVariables
 	/**
 	 * Begins a database transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param  bool $overwrite Flag for overwriting the transaction
 	 * if exists (defaul value FALSE)
 	 * @return void
-	 * @access public
 	 */
 	public function BeginTran(&$name = NULL,$log = FALSE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
@@ -138,10 +118,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function BeginTran
 	/**
 	 * Rolls back a database transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function RollbackTran($name = NULL,$log = FALSE) {
 		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
@@ -149,10 +127,8 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function RollbackTran
 	/**
 	 * Commits a database transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function CommitTran($name = NULL,$log = FALSE,$preserve = FALSE) {
 		$method = ($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
@@ -160,7 +136,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function CommitTran
 	/**
 	 * Executs a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -175,7 +150,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * * 'filters' = an array of condition to be applyed in WHERE clause
 	 * * 'out_params' = an array of output params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function ExecuteQuery($query,$params = [],&$extra_params = []) {
 		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
@@ -195,7 +169,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function ExecuteQuery
 	/**
 	 * Executs a stored procedure against the database
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -210,7 +183,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * * 'filters' = an array of condition to be applyed in WHERE clause
 	 * * 'out_params' = an array of output params
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function ExecuteProcedure($procedure,$params = [],&$extra_params = []) {
 		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');
@@ -235,7 +207,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	}//END public function ExecuteProcedure
 	/**
 	 * Executs a method of the database object or a sub-object of it
-	 *
 	 * @param  string $method The name of the method to be executed
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -244,7 +215,6 @@ abstract class SqlDataAdapter extends DataAdapter {
 	 * @param  array $extra_params An array of extra parameters
 	 * to be passed to the invoking method
 	 * @return mixed Returns database method result
-	 * @access public
 	 */
 	public function ExecuteMethod($method,$property = NULL,$params = [],$extra_params = []) {
 		$this->debug = get_array_value($extra_params,'debug',$this->debug,'bool');

@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,11 +12,8 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * CustomControl class
-	 *
 	 * Control class for passing HTML elements directly
-	 *
 	 * @package  Hinter\NETopes\Controls
-	 * @access   public
 	 */
 	class CustomControl extends Control {
 		public function __construct($params = NULL){

@@ -1,9 +1,7 @@
 <?php
 /**
  * Control helpers class file
- *
  * Static helpers for controls
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,23 +15,18 @@ use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
 use NApp;
-
 /**
  * Class ControlsHelpers
- *
  * @package NETopes\Core\Controls
  */
 class ControlsHelpers {
     /**
      * Generate parameters URL hash
-     *
      * @param  array  $params An array of parameters
      * @param  bool   $encrypt Encrypt or not the parameters
      * @param  string $hash_separator Separator for the hash parameters
      * @param string  $epass
      * @return string Returns the computed hash
-     * @access public
-     * @static
      */
 	 public static function GetUrlHash($params = [],$encrypt = TRUE,$hash_separator = '|',$epass = 'eUrlHash') {
 		if(!is_array($params) || !count($params)) { return NULL; }
@@ -44,14 +37,11 @@ class ControlsHelpers {
 	 }//END public static function GetUrlHash
     /**
 	 * Replace dynamic parameters
-	 *
 	 * @param  array $params The parameters array to be parsed
 	 * @param  object $row Data row object to be used for replacements
 	 * @param  bool  $recursive Flag indicating if the array should be parsed recursively
      * @param null    $params_prefix
      * @return array|string Return processed parameters array
-	 * @access public
-	 * @static
      * @throws \NETopes\Core\AppException
 	 */
 	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$params_prefix = NULL) {
@@ -86,13 +76,10 @@ class ControlsHelpers {
 	}//END public static function ReplaceDynamicParams
 	/**
 	 * Check row conditions
-	 *
 	 * @param  object $row Data row object
 	 * @param  array $conditions The conditions array
 	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function CheckRowConditions(&$row,$conditions) {
 		$result = FALSE;
@@ -148,12 +135,9 @@ class ControlsHelpers {
 	}//END public static function CheckRowConditions
 	/**
 	 * Gets the record from the database and sets the values in the tab array
-	 *
 	 * @param  array $params Parameters array
 	 * @return array Returns processed tab array
-	 * @access public
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function GetTranslationData($params = []) {
 		if(!is_array($params) || !count($params)) { return NULL; }
@@ -174,14 +158,11 @@ class ControlsHelpers {
 	}//END public static function GetTranslationData
     /**
      * description
-     *
      * @param null $firstRow
      * @param null $lastRow
      * @param null $currentPage
      * @param null $rpp
      * @return array
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetPaginationParams(&$firstRow = NULL,&$lastRow = NULL,$currentPage = NULL,$rpp = NULL) {

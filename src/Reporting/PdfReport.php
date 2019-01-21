@@ -1,9 +1,7 @@
 <?php
 /**
  * PDF Report class file
- *
  * Used for generating PDF reports.
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,46 +12,36 @@
 namespace NETopes\Core\Reporting;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class PdfReport {
 	/**
 	 * @var    string Decimal separator
-	 * @access protected
 	 */
 	protected $decimal_separator = NULL;
     /**
 	 * @var    string Group separator
-	 * @access protected
 	 */
     protected $group_separator = NULL;
 	/**
 	 * @var    string Date separator
-	 * @access protected
 	 */
 	protected $date_separator = NULL;
 	/**
 	 * @var    string Time separator
-	 * @access protected
 	 */
 	protected $time_separator = NULL;
 	/**
 	 * @var    string Language code
-	 * @access protected
 	 */
 	protected $langcode = NULL;
 	/**
 	 * @var    array An array containing extra params or extra data
-	 * @access protected
 	 */
 	protected $extra_params = NULL;
 	/**
 	 * @var    array An array containing default formats
-	 * @access protected
 	 */
 	protected $default_formats = array(
 			'header'=>array('padding'=>'0 2px','font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'F0F0F0'),
@@ -66,35 +54,28 @@ class PdfReport {
 	protected $border_settings = array('LTRB' => array('width' => 0.1/*, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)*/));
 	/**
 	 * @var    bool Flag indicating if borders are used
-	 * @access protected
 	 */
 	protected $with_borders = TRUE;
 	/**
 	 * @var    array An array containing all instance formats
-	 * @access protected
 	 */
 	protected $formats = [];
 	/**
 	 * @var    array An array containing table totals
-	 * @access protected
 	 */
 	protected $total_row = [];
 	/**
 	 * @var    string The result string
-	 * @access protected
 	 */
 	protected $result = '';
 	/**
 	 * @var    object The TCPDF object
-	 * @access protected
 	 */
 	protected $pdf = NULL;
 	/**
 	 * description
-	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
-	 * @access public
 	 */
 	public function __construct(&$params = []) {
 		if(!is_array($params) || !count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new \NETopes\Core\AppException('Invalid object parameters !',E_ERROR,1); }
@@ -160,10 +141,8 @@ class PdfReport {
 	}//END public function __construct
 	/**
 	 * description
-	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
-	 * @access protected
 	 */
 	protected function SetFormats($formats = []) {
 		if(!is_array($formats) || !count($formats)) {
@@ -174,10 +153,8 @@ class PdfReport {
 	}//END protected function SetFormats
     /**
 	 * description
-	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @return void
-	 * @access protected
 	 */
 	protected function GetCellValue($data,$column,$col) {
 		if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {

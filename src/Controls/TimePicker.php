@@ -1,9 +1,7 @@
 <?php
 /**
  * TimePicker control class file
- *
  * TimePicker control (jQuery UI/Bootstrap)
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,16 +13,12 @@ namespace NETopes\Core\Controls;
 use NApp;
 /**
  * TimePicker control class
- *
  * TimePicker control (jQuery UI/Bootstrap)
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TimePicker extends Control {
 	/**
 	 * TimePicker constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -42,9 +36,7 @@ class TimePicker extends Control {
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
@@ -59,9 +51,7 @@ class TimePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set jQuery UI control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetJQueryUIControl(): string {
 		$dpclass = '';
@@ -95,9 +85,7 @@ class TimePicker extends Control {
 	}//END protected function SetJQueryUIControl
 	/**
 	 * Set Bootstrap 3 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap3Control(): string {
 		if(strlen($this->js_params)) {
@@ -138,9 +126,7 @@ class TimePicker extends Control {
 	}//END protected function SetBootstrap3Control
 	/**
 	 * Set Bootstrap 4 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap4Control(): string {
 		if(strlen($this->js_params)) {

@@ -1,9 +1,7 @@
 <?php
 /**
  * Converter adapter class file
- *
  * Class containing methods for converting values
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,21 +15,17 @@ use NApp;
 use Translate;
 /**
  * Class ConverterAdapter
- *
  * @package NETopes\Core\Validators
  */
 class ConverterAdapter {
     /**
      * Convert value
-     *
      * @param mixed       $value
      * @param string      $mode
      * @param string|null $defaultValue
      * @param string|null $validation
      * @return mixed
      * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
      */
 	public static final function Convert($value,string $mode,?string $defaultValue = NULL,?string $validation = NULL) {
         if(isset($validation)) { $value = Validator::ValidateValue($value,$defaultValue,$validation); }
@@ -46,15 +40,12 @@ class ConverterAdapter {
 	}//END public static final function Format
     /**
      * Converts a datetime string value to DateTime instance
-     *
      * @param  mixed       $date Datetime to be converted
      * @param  null|string $sourceFormat Format of the date to be converted
      * @param  null|string $timezone User's timezone
      * @param bool         $convertToServerTimezone Default value TRUE
      * @return \DateTime|null Returns the datetime object or null
      * @throws \Exception
-     * @access public
-     * @static
      */
 	public static function DateTimeToObject($date,?string $sourceFormat = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
 	    if($date instanceof \DateTime) { return clone $date; }
@@ -97,7 +88,6 @@ class ConverterAdapter {
 	}//END public static function DateTimeToObject
     /**
      * Converts a datetime value to database format
-     *
      * @param  mixed       $date Datetime to be converted
      * @param  string      $sourceFormat Datetime format string
      * @param  string|null $timezone User's timezone
@@ -106,8 +96,6 @@ class ConverterAdapter {
      * @param  bool        $dateOnly If set TRUE eliminates the time
      * @return string Returns the datetime in the database format
      * @throws \Exception
-     * @access public
-     * @static
      */
 	public static function DateTimeToDbFormat($date,?string $sourceFormat = NULL,?string $timezone = NULL,?int $dayPart = NULL,bool $dateOnly = FALSE) {
 	    $timezone = strlen($timezone) ? $timezone : NApp::GetParam('timezone');
@@ -124,14 +112,11 @@ class ConverterAdapter {
 	}//END public static function DateTimeToDbFormat
     /**
      * Convert datetime value to provided format
-     *
      * @param  mixed       $date Datetime to be converted
      * @param  string      $format Datetime format string
      * @param  string|null $timezone User's timezone
      * @return string Returns the datetime in the the provided format
      * @throws \Exception
-     * @access public
-     * @static
      */
 	public static function DateTimeToFormat($date,string $format,?string $timezone = NULL): ?string {
 	    $dt = static::DateTimeToObject($date,NULL,$timezone);
@@ -214,13 +199,10 @@ class ConverterAdapter {
 	}//END public static function ToEodDatetime
 	/**
 	 * Converts a number to standard format
-	 *
 	 * @param  mixed $number The number to be converted
 	 * @param  string|null $decimalSeparator The decimal separator
 	 * @param  string|null $groupSeparator The group separator
 	 * @return string Returns the number in the database format
-	 * @access public
-	 * @static
 	 */
 	public static function NumberToStandardFormat($number,?string $decimalSeparator = NULL,?string $groupSeparator = NULL): ?string {
 		if(!is_scalar($number) || !strlen($number)) { return NULL; }
@@ -230,15 +212,12 @@ class ConverterAdapter {
 	}//END public static function NumberToStandardFormat
     /**
      * Convert number to words representation
-     *
      * @param float       $value
      * @param string|null $currency
      * @param string|null $subCurrency
      * @param string|null $langCode
      * @param bool        $useIntl
      * @return string|null
-     * @access public
-     * @static
      */
 	public static function NumberToWords(float $value,?string $currency = NULL,?string $subCurrency = NULL,?string $langCode = NULL,bool $useIntl = TRUE): ?string {
 		$langCode = strlen($langCode) ? $langCode : NApp::GetLanguageCode();

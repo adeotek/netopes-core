@@ -1,7 +1,6 @@
 <?php
 /**
  * NETopes helpers class file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -10,16 +9,13 @@
  * @filesource
  */
 namespace NETopes\Core;
-
 /**
  * Class Helpers
- *
  * @package NETopes\Core
  */
 class Helpers {
     /**
      * File unlink with check if file exists
-     *
      * @param   string $file File to unlink
      * @return  bool Returns TRUE on success or FALSE on error or if the file doesn't exist
      */
@@ -29,7 +25,6 @@ class Helpers {
     }//END public static function safeUnlink
     /**
      * Eliminate last N folders from a path.
-     *
      * @param   string $path The path to be processed.
      * @param   integer $no The number of folders to be removed from the end of the path (default 1).
      * @return  string The processed path.
@@ -43,7 +38,6 @@ class Helpers {
     }//END public static function upInPath
     /**
      * Replaces all url not accepted characters with minus character (-)
-     *
      * @param   string $string String to be processed.
      * @return  string The processed string.
      */
@@ -52,7 +46,6 @@ class Helpers {
     }//END public static function stringToUrl
     /**
      * Converts a hex color to RGB
-     *
      * @param  string $hex Color hex code
      * @param  number $r B code by reference (for output)
      * @param null    $g
@@ -80,7 +73,6 @@ class Helpers {
      * 		'path'=>(string) Full path of the file (without file name),
      * 		'ext'=>(string) File extension (without "." character)
      * )
-     *
      * @param  string $path The starting path for the search
      * @param  array  $extensions An array of accepted file extensions (without the "." character)
      * or NULL for all
@@ -109,7 +101,6 @@ class Helpers {
     }//END public static function getFilesRecursive
     /**
      * Get file mime type by extension
-     *
      * @param  string $filename Target file name (with or without path)
      * @return string Returns the mime type identified by file extension
      */
@@ -139,7 +130,6 @@ class Helpers {
     }//END public static function getFileMimeTypeByExtension
     /**
      * Get file extension by mime type
-     *
      * @param  string $mime_type Target mime type
      * @return string Returns the file extension identified by mime type
      */
@@ -164,7 +154,6 @@ class Helpers {
     }//END public static function getFileExtensionByMimeType
     /**
       * description
-      *
      * @param $path
      * @return string
       */
@@ -173,7 +162,6 @@ class Helpers {
     }//END public static function win2unixPath
     /**
       * description
-      *
      * @param      $file
      * @param null $ext
      * @return bool|int
@@ -197,7 +185,6 @@ class Helpers {
     }//END public static function checkFile404
     /**
      * description
-     *
      * @param array $params Parameters object (instance of [Params])
      * @param null  $info
      * @return bool|string
@@ -244,7 +231,6 @@ class Helpers {
     }//END public static function curlCall
     /**
      * description
-     *
      * @param object|null $params Parameters object (instance of [Params])
      * @return mixed
      */
@@ -281,7 +267,6 @@ class Helpers {
     }//END public static function asyncCurlCall
     /**
      * Emulate ping command
-     *
      * @param     $host
      * @param int $port
      * @param int $timeout

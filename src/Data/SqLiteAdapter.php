@@ -1,9 +1,7 @@
 <?php
 /**
  * SQLite database implementation class file
- *
  * This file contains the implementing class for SQLite database.
- *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,19 +11,14 @@
  */
 /**
  * SqLiteDatabase Is implementing the SQLite database
- *
  * This class contains all methods for interacting with SQLite database.
- *
  * @package  Hinter\NETopes\Database
- * @access   public
  */
 class SqLiteAdapter extends SqlDataAdapter {
 	/**
 	 * Set global variables to a temporary table
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function SqLiteSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
@@ -34,10 +27,8 @@ class SqLiteAdapter extends SqlDataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection
 	 * @return void
-	 * @access protected
 	 */
 	protected function Init($connection) {
 		try {
@@ -48,39 +39,32 @@ class SqLiteAdapter extends SqlDataAdapter {
 	}//END protected function Init
 	/**
 	 * Begins a sqlite transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param  bool $overwrite Flag for overwriting the transaction
 	 * if exists (defaul value FALSE)
 	 * @return object Returns the transaction instance
-	 * @access public
 	 */
 	public function SqLiteBeginTran($name,$log = TRUE,$overwrite = TRUE) {
 		return NULL;
 	}//END public function SqLiteBeginTran
 	/**
 	 * Rolls back a sqlite transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function SqLiteRollbackTran($name,$log = TRUE) {
 		return FALSE;
 	}//END public function SqLiteRollbackTran
 	/**
 	 * Commits a sqlite transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function SqLiteCommitTran($name,$log = TRUE,$preserve = FALSE) {
 		return FALSE;
 	}//END public function SqLiteCommitTran
 	/**
 	 * Prepares the query string for execution
-	 *
 	 * @param  string $query The query string (by reference)
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -92,7 +76,6 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return void
-	 * @access public
 	 */
 	public function SqLitePrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		if(is_array($params) && count($params)){
@@ -162,7 +145,6 @@ class SqLiteAdapter extends SqlDataAdapter {
 	}//public function SqLitePrepareQuery
 	/**
 	 * Executs a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -175,7 +157,6 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function SqLiteExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -201,7 +182,6 @@ class SqLiteAdapter extends SqlDataAdapter {
 	}//END public function SqLiteExecuteQuery
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -210,18 +190,15 @@ class SqLiteAdapter extends SqlDataAdapter {
 	 * @param  array $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @access public
 	 */
 	public function SqLiteExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for SQLite !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
 	}//END public function SqLiteExecuteMethod
 	/**
 	 * Escapes SQLite special charcaters from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
 	 */
 	public function SqLiteEscapeString($param) {
 		$result = NULL;

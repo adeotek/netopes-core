@@ -1,7 +1,6 @@
 <?php
 /**
  * Control fields trait file
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,10 +12,8 @@ namespace NETopes\Core\Controls;
 use NETopes\Core\Data\VirtualEntity;
 use NApp;
 use Translate;
-
 /**
  * Trait TControlFields
- *
  * @package NETopes\Core\Controls
  */
 trait TControlFields {

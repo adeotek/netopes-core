@@ -1,9 +1,7 @@
 <?php
 /**
  * Simple Report class file
- *
  * Used for generating in-page simple reports.
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,11 +12,8 @@
 namespace NETopes\Core\Reporting;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class SimpleReport {
 	protected $decimal_separator = NULL;

@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,16 +12,12 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Conditional control
-	 *
 	 * Control for an dynamically select a control based on given conditions
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class ConditionalControl extends Control {
 		/**
 		 * @var    array Controls parameters array
-		 * @access public
 		 */
 		public $items = [];
 		public function __construct($params = NULL){

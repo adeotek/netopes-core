@@ -2,10 +2,8 @@
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\Query;
 use NETopes\Core\AppException;
-
 /**
  * Trait RepositoryStandardTrait
- *
  * @package NETopes\Core\Data
  */
 trait RepositoryStandardTrait {

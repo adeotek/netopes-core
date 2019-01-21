@@ -1,9 +1,7 @@
 <?php
 /**
  * Class Mailer file
- *
  * Helper class for sending emails trough SwiftMailer
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,21 +15,16 @@ use NETopes\Core\AppConfig;
 use NApp;
 /**
  * Class Mailer
- *
  * Helper class for sending emails trough SwiftMailer
- *
  * @package NETopes\Core\App
  */
 class Mailer {
 	/**
 	 * @var bool Debug email sending
-	 * @access public
-	 * @static
 	 */
 	public static $debug = FALSE;
 	/**
 	 * Send email
-	 *
 	 * @param $subject string		email subject
 	 * @param $afrom array			sender email address (email => label)
 	 * @param $ato array			receiver email address (email => label)
@@ -44,7 +37,6 @@ class Mailer {
 	 * @param null $reply_to
 	 * @return int 					will be the no of emails sent successfully or 0 if there is an error
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
 		if(!is_array($settings) || !count($settings)) {
@@ -165,7 +157,6 @@ class Mailer {
 	}//END public static function SendSMTPEmail
 	/**
 	 * Simple email send via SMTP
-	 *
 	 * @param      $subject string        email subject
 	 * @param      $afrom array            sender email address (email => label)
 	 * @param      $ato array            receiver email address (email => label)
@@ -176,7 +167,6 @@ class Mailer {
 	 * @param null $reply_to
 	 * @return int                    will be the no of emails sent successfully or 0 if there is an error
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function SimpleSendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$acc = NULL,$abcc = NULL,$reply_to = NULL) {
 		return self::SendSMTPEmail($subject,$afrom,$ato,$msg,$settings,$abcc,[],[],$acc,$reply_to);

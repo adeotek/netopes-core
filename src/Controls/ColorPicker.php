@@ -1,9 +1,7 @@
 <?php
 /**
  * ColorPicker control classes file
- *
  * Bootstrap ColorPicker control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,11 +13,8 @@ namespace NETopes\Core\Controls;
 use NApp;
 /**
  * ColorPicker control classes
- *
  * Bootstrap ColorPicker control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class ColorPicker extends Control {
 	public function __construct($params = NULL) {
@@ -33,9 +28,7 @@ class ColorPicker extends Control {
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		if(strlen($this->js_params)) {

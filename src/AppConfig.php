@@ -1,9 +1,7 @@
 <?php
 /**
  * NETopes application global configuration class file.
- *
  * Here are all the configuration parameters for the NETopes application.
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,23 +13,16 @@ namespace NETopes\Core;
 if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
 /**
  * Class AppConfig
- *
  * AppConfig contains all the configuration parameters for the NETopes application
- *
  * @package    NETopes\Core\App
- * @access     public
  */
 class AppConfig {
 	/**
 	 * @var    array Configuration structure
-	 * @access protected
-	 * @static
 	 */
 	private static $structure = NULL;
 	/**
 	 * @var    array Configuration data
-	 * @access protected
-	 * @static
 	 */
 	private static $data = NULL;
 	/**
@@ -41,7 +32,6 @@ class AppConfig {
 	private static $instanceConfig = NULL;
 	/**
 	 * Initialize application configuration class (structure and data)
-	 *
 	 * @param array $data
 	 * @param array $customStructure
 	 * @throws \Exception
@@ -54,7 +44,6 @@ class AppConfig {
 	}//END public static function LoadConfig
 	/**
 	 * Add application configuration structure array (merge with current structure)
-	 *
 	 * @param array $structure
 	 * @throws \Exception
 	 */
@@ -63,7 +52,6 @@ class AppConfig {
 	}//END public static function LoadConfig
     /**
      * Get an application configuration value
-     *
      * @param string $name
      * @return mixed
      * @throws \NETopes\Core\AppException
@@ -80,7 +68,6 @@ class AppConfig {
 	}//END public static function GetValue
     /**
      * Set an application configuration value
-     *
      * @param string $name
      * @param mixed  $value
      * @throws \NETopes\Core\AppException
@@ -97,8 +84,6 @@ class AppConfig {
 	}//END public static function SetValue
 	/**
      * @return bool
-     * @access public
-     * @static
      */
     public static function IsInstanceConfigLoaded(): bool {
         return isset(static::$instanceConfig);
@@ -108,8 +93,6 @@ class AppConfig {
      * @param string $contextIdField
      * @param bool   $raw
      * @return array
-     * @access public
-     * @static
      */
     public static function SetInstanceConfigData(array $config,bool $raw = TRUE,?string $contextIdField = NULL): array {
         if($raw) {
@@ -138,8 +121,6 @@ class AppConfig {
      * @param null|string $validation
      * @param int|null    $contextId
      * @return string|null
-     * @access public
-     * @static
      */
     public static function GetInstanceOption(string $option,string $section = '',$defValue = NULL,?string $validation = NULL,?int $contextId = NULL): ?string {
         $options = get_array_value(static::$instanceConfig,[strtolower($section),strtolower($option)],[],'is_array');

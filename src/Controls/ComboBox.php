@@ -1,9 +1,7 @@
 <?php
 /**
  * ComboBox control class file
- *
  * Standard ComboBox control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -18,18 +16,14 @@ use NETopes\Core\AppException;
 use NApp;
 /**
  * ComboBox control
- *
  * Standard ComboBox control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class ComboBox extends Control {
     use TControlDataSource;
     use TControlFields;
     /**
 	 * SmartComboBox constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {

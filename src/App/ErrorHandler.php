@@ -1,9 +1,7 @@
 <?php
 /**
  * Errors handler initialization file
- *
  * Contains ErrorHandler class and its initialization
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -12,74 +10,51 @@
  * @filesource
  */
 use NETopes\Core\AppException;
-
 /**
  * Class ErrorHandler
- *
  * Treats all errors and displays them if necessary
- *
  * @package  NETopes\Base
- * @access   public
  */
 class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	/**
 	 * @var    string Error log file path
-	 * @access public
-	 * @static
 	 */
 	protected static $errorLogPath = NULL;
 	/**
 	 * @var    string Error log file name
-	 * @access public
-	 * @static
 	 */
 	protected static $errorLogFile = NULL;
 	/**
 	 * @var    bool Flag for marking shutdown handler
-	 * @access protected
-	 * @static
 	 */
 	protected static $shutdown = FALSE;
 	/**
 	 * @var    array Non fatal errors stack
-	 * @access protected
-	 * @static
 	 */
 	protected static $errorsStack = NULL;
 	/**
 	 * @var    bool Flag for backtrace activation/inactivation
-	 * @access protected
-	 * @static
 	 */
 	protected static $backtrace = FALSE;
 	/**
 	 * @var    bool Silent mode on/off
 	 * If on all warnings/notices/uncaught exceptions are dropped
-	 * @access public
-	 * @static
 	 */
 	public static $silentMode = FALSE;
 	/**
 	 * @var    bool Re-throw warnings as AppException
-	 * @access public
-	 * @static
 	 */
 	public static $rethrowWarnings = TRUE;
 	/**
 	 * @var    bool Re-throw notices as AppException
-	 * @access public
-	 * @static
 	 */
 	public static $rethrowNotices = FALSE;
 	/**
 	 * @var    string Javascript show error function name
-	 * @access public
-	 * @static
 	 */
 	public static $jsShowError = 'ShowErrorDialog';
 	/**
 	 * Sets error log file name
-	 *
 	 * @param string $errorLogFile
 	 * @return void
 	 */
@@ -88,7 +63,6 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function SetErrorLogFile
 	/**
 	 * Sets error log file path
-	 *
 	 * @param string $errorLogPath
 	 * @return void
 	 */
@@ -97,32 +71,23 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function SetErrorLogPath
 	/**
 	 * Gets error reporting mode
-	 *
 	 * @return bool Returns TRUE if silent mode is on or error_reporting() is off
-	 * @access public
-	 * @static
 	 */
 	public static function IsSilent() {
 		return (self::$silentMode || error_reporting()===0);
 	}//END public static function IsSilent
 	/**
 	 * Gets previous errors property state (with or without errors)
-	 *
 	 * @return bool Returns TRUE if there are errors in the error stack
 	 * or FALSE otherwise
-	 * @access public
-	 * @static
 	 */
 	public static function HasErrors() {
 		return (is_array(self::$errorsStack) && count(self::$errorsStack));
 	}//END public static function HasErrors
 	/**
 	 * Gets previous errors stack
-	 *
 	 * @param bool $clear
 	 * @return array Returns Errors stack array
-	 * @access public
-	 * @static
 	 */
 	public static function GetErrors($clear = FALSE) {
 		$result = self::$errorsStack;
@@ -131,11 +96,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function GetErrors
 	/**
 	 * Adds an Exception or an Error to the error stack
-	 *
 	 * @param \Throwable $e The exception/error to be added to the stack
 	 * @return void
-	 * @access public
-	 * @static
 	 */
 	public static function AddError(\Throwable $e) {
 		$errFile = str_replace(_NAPP_ROOT_PATH,'',$e->getFile());
@@ -148,10 +110,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function AddError
 	/**
 	 * Method called through set_exception_handler() on exception thrown
-	 *
 	 * @param  \Throwable $exception The thrown exception
 	 * @return void
-	 * @access public
 	 * @throws AppException
 	 */
 	public static function ExceptionHandlerFunction($exception) {
@@ -172,7 +132,6 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function ExceptionHandlerFunction
 	/**
 	 * Method called through set_error_handler() on error
-	 *
 	 * @param  int         $errNo Error code
 	 * @param  string      $errMessage Error location (file)
 	 * @param  string|null $errFile
@@ -180,8 +139,6 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @param  array       $errContext Error context
 	 * @return void
 	 * @throws AppException
-	 * @access public
-	 * @static
 	 */
 	public static function ErrorHandlerFunction(int $errNo = -1,string $errMessage = 'Unknown error',?string $errFile = NULL,?int $errLine = NULL,array $errContext = []) {
 		$errFile = str_replace(_NAPP_ROOT_PATH,'',$errFile);
@@ -236,11 +193,8 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	}//END public static function ErrorHandlerFunction
 	/**
 	 * Method called through register_shutdown_function() on shutdown
-	 *
 	 * @param  bool $output Flag to allow or restrict output
 	 * @return void
-	 * @access public
-	 * @static
 	 * @throws AppException
 	 */
 	public static function ShutDownHandlerFunction(bool $output = TRUE) {
@@ -257,13 +211,10 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	/**
 	 * Processes the errors stack (optionaly adding a last error)
 	 * and sends errors to be displayed or logged
-	 *
 	 * @param AppException $exception The last exception to be added to the stack
 	 * befor showing error
 	 * @return void
 	 * @throws AppException
-	 * @access public
-	 * @static
 	 */
 	public static function ShowErrors(AppException $exception = NULL) {
 		if(is_object($exception)) { self::AddError($exception); }
@@ -316,14 +267,11 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	/**
 	 * If silent errors is not off or debug mode is on
 	 * displays an error (modal if GUI is loaded)
-	 *
 	 * @param  string $errMessage Error location (file)
 	 * @param  int $errNo Error code
 	 * @param null    $errFile
 	 * @param  int $errLine Error location (line)
 	 * @return void
-	 * @access public
-	 * @static
 	 */
 	public static function DisplayError($errMessage = '',$errNo = NULL,$errFile = NULL,$errLine = NULL) {
 		if(class_exists('NApp') && NApp::$silentErrors && !NApp::$debug) { return; }

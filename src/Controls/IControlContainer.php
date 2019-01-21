@@ -1,9 +1,7 @@
 <?php
 /**
  * Control container interface file
- *
  * Interface for controls containers
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,9 +12,7 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Control container interface
-	 *
 	 * Interface for controls containers
-	 *
 	 * @package  NETopes\Core\Controls
 	 */
 	interface IControlContainer {

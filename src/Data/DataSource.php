@@ -1,9 +1,7 @@
 <?php
 /**
  * Data source base class file
- *
  * This contains an class which every data source extends.
- *
  * @package    @package NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,37 +13,30 @@ namespace NETopes\Core\Data;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 use NApp;
-
 /**
  * Class DataSource
- *
  * @package NETopes\Core\Data
  */
 class DataSource {
 	/**
 	 * @var    array A static array containing all data adapters instances
 	 * @access private
-	 * @static
 	 */
 	private static $_dsInstances = [];
 	/**
 	 * @var    string Data adapter type
-	 * @access public
 	 */
 	public $type = NULL;
 	/**
 	 * @var    object Data adapter object for the current data source
-	 * @access public
 	 */
 	public $adapter = NULL;
 	/**
 	 * @var    string|null Entity class name
-	 * @access public
 	 */
 	protected $entityName = NULL;
 	/**
 	 * Constructor for DaTaAdapter class
-	 *
 	 * @param  string $type Database type (_Custom/FirebirdSql/MySql/MariaDb/SqLite/SqlSrv/MongoDb/Oracle)
 	 * @param  mixed $connection Database connection array
 	 * @param null    $entityName
@@ -60,13 +51,11 @@ class DataSource {
 	}//END private function __construct
 	/**
 	 * Gets the singleton instance for the specified data adaper
-	 *
 	 * @param string $type Database type (_Default/Firebird/MySql/MariaDb/SqLite/SqlSrv/MongoDb/Oracle)
 	 * @param  array $connection Database connection array
 	 * @param bool   $existing_only
 	 * @param null   $entityName
 	 * @return object Returns the data adapter object
-	 * @access public
 	 */
 	public static function GetInstance($type,$connection = NULL,$existing_only = FALSE,$entityName = NULL) {
 		$name = get_called_class();
@@ -77,13 +66,11 @@ class DataSource {
 		}//if (!array_key_exists($ikey,self::$_dsInstances) || is_null(self::$_dsInstances[$ikey]))
 		return self::$_dsInstances[$ikey];
 	}//END public static function GetInstance
-
     /**
      * Prepares and executes the database call twice:
      * * first to get the total rows count
      * * second to get data limited to certain rows
      * (used mainly for generating paged views)
-     *
      * @param  string $procedure The name of the stored procedure
      * @param  array  $params An array of parameters
      * to be passed to the query/stored procedure
@@ -102,7 +89,6 @@ class DataSource {
      * @param  bool   $sp_count Flag indicating if the count is done inside the stored procedure
      * or in the procedure call (default value is FALSE)
      * @return array|bool Returns database request result
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function GetCountAndData($procedure,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL,$sp_count = FALSE) {
@@ -170,7 +156,6 @@ class DataSource {
 	 * * first to get the total rows count
 	 * * second to get data limited to certain rows
 	 * (used mainly for generating paged views)
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -187,7 +172,6 @@ class DataSource {
 	 * @param  bool $cache Flag indicating if the cache should be used or not
 	 * @param  string $tag Cache key tag
 	 * @return array|bool Returns database request result
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public function GetQueryCountAndData($query,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {
@@ -233,7 +217,6 @@ class DataSource {
 	}//END public function GetQueryCountAndData
 	/**
 	 * Prepares and executes the database stored procedure call
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -250,7 +233,6 @@ class DataSource {
 	 * @param  bool $cache Flag indicating if the cache should be used or not
 	 * @param  string $tag Cache key tag
 	 * @return array|bool Returns database request result
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public function GetProcedureData($procedure,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {
@@ -278,7 +260,6 @@ class DataSource {
 	}//END public function GetProcedureData
 	/**
 	 * Prepares and executes the database stored procedure call
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -295,7 +276,6 @@ class DataSource {
 	 * @param  bool $cache Flag indicating if the cache should be used or not
 	 * @param  string $tag Cache key tag
 	 * @return array|bool Returns database request result
-	 * @access public
      * @throws \NETopes\Core\AppException
 	 */
 	public function GetQueryData($query,$params = [],&$extra_params = [],$cache = FALSE,$tag = NULL) {

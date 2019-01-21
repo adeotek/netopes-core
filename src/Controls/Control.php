@@ -1,9 +1,7 @@
 <?php
 /**
  * Control abstract class file
- *
  * Base abstract class for controls
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -19,76 +17,61 @@ use NETopes\Core\AppException;
 use NApp;
 use GibberishAES;
 use Translate;
-
 /**
  * Class Control
- *
  * @package NETopes\Core\Controls
  */
 abstract class Control {
 	/**
 	 * @var    array Control dynamic properties array
-	 * @access protected
 	 */
 	protected $pdata = [];
 	/**
 	 * @var    string Control instance hash
-	 * @access protected
 	 */
 	protected $chash = NULL;
 	/**
 	 * @var    string Control instance UID
-	 * @access protected
 	 */
 	protected $uid = NULL;
 	/**
 	 * @var    string Control base class
-	 * @access protected
 	 */
 	protected $base_class = '';
 	/**
 	 * @var    bool Page hash (window.name)
-	 * @access public
 	 */
 	public $phash = NULL;
 	/**
 	 * @var    string Main tag html id
-	 * @access public
 	 */
 	public $tag_id = NULL;
 	/**
 	 * @var    bool Postable in NETopes AJAX requests (default: TRUE)
-	 * @access public
 	 */
 	public $postable = TRUE;
 	/**
 	 * @var    string Theme type
-	 * @access public
 	 */
 	public $theme_type = NULL;
 	/**
 	 * @var    boolean Output container
-	 * @access public
 	 */
 	public $container = TRUE;
 	/**
 	 * @var    boolean Flag for no label
-	 * @access public
 	 */
 	public $no_label = FALSE;
 	/**
 	 * @var    string Tag style base value
-	 * @access protected
 	 */
 	protected $tag_base_style = ''; // Old value: 'display: inline-block;';
 	/**
 	 * @var    bool Output buffer on/off
-	 * @access protected
 	 */
 	protected $buffered = FALSE;
 	/**
 	 * @var    string Output (resulting html) buffer
-	 * @access protected
 	 */
 	protected $output_buffer = NULL;
 	/**
@@ -98,21 +81,17 @@ abstract class Control {
 	private $ctrl_actions = NULL;
 	/**
 	 * Control class dynamic getter method
-	 *
 	 * @param  string $name The name o the property
 	 * @return mixed Returns the value of the property
-	 * @access public
 	 */
 	public function __get($name) {
 		return (is_array($this->pdata) && array_key_exists($name,$this->pdata)) ? $this->pdata[$name] : NULL;
 	}//END public function __get
 	/**
 	 * Control class dynamic setter method
-	 *
 	 * @param  string $name The name o the property
 	 * @param  mixed  $value The value to be set
 	 * @return void
-	 * @access public
 	 */
 	public function __set($name,$value) {
 		if(!is_array($this->pdata)) { $this->pdata = []; }
@@ -120,10 +99,8 @@ abstract class Control {
 	}//END public function __set
 	/**
 	 * Control class constructor
-	 *
 	 * @param  array $params An array of params
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->chash = AppSession::GetNewUID(get_class_basename($this));
@@ -202,10 +179,8 @@ abstract class Control {
 	}//END public function __construct
 	/**
 	 * Gets this instance as a serialized string
-	 *
 	 * @param  bool $encrypted Switch on/off encrypted result
 	 * @return string Return serialized control instance
-	 * @access protected
 	 */
 	protected function GetThis($encrypted = TRUE) {
 		if($encrypted && strlen($this->chash)) { return GibberishAES::enc(serialize($this),$this->chash); }
@@ -213,9 +188,7 @@ abstract class Control {
 	}//END protected function GetThis
 	/**
 	 * Process the control actions
-	 *
 	 * @return array|null
-	 * @access protected
 	 */
 	protected function ProcessActions(): ?array {
 		if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
@@ -235,9 +208,7 @@ abstract class Control {
 	}//END protected function ProcessActions
 	/**
 	 * Get the actions total css width
-	 *
 	 * @return int Returns actions total width
-	 * @access protected
 	 */
 	protected function GetActionsWidth() {
 		if(!is_array($this->ctrl_actions)) { return 0; }
@@ -245,18 +216,14 @@ abstract class Control {
 	}//END protected function GetActionsWidth
 	/**
 	 * Check if control has actions or not
-	 *
 	 * @return bool Returns TRUE if the control has actions or FALSE otherwise
-	 * @access public
 	 */
 	public function HasActions(): bool {
 		return (is_array($this->ctrl_actions) && count($this->ctrl_actions));
 	}//END public function HasActions
 	/**
 	 * Get the actions html string
-	 *
 	 * @return int Returns actions string
-	 * @access protected
 	 */
 	protected function GetActions() {
 		if(!$this->HasActions()) { return NULL; }
@@ -284,11 +251,9 @@ abstract class Control {
 	}//END protected function GetActions
 	/**
 	 * Gets the html tag id string (' id="..."')
-	 *
 	 * @param  bool   $tagName Include the tag name in the result TRUE/FALSE (default FALSE)
 	 * @param null  $sufix
 	 * @return string Returns the html tag id
-	 * @access protected
 	 */
 	protected function GetTagId($tagName = FALSE,$sufix = NULL) {
 		if(!strlen($this->tag_id)) { return ''; }
@@ -298,11 +263,9 @@ abstract class Control {
 	}//END protected function GetTagId
 	/**
 	 * Gets the html tag class string (' class="..."')
-	 *
 	 * @param  string $extra Other html classes to be included
      * @param bool    $raw
 	 * @return string Returns the html tag class
-	 * @access protected
 	 */
 	protected function GetTagClass($extra = NULL,$raw = FALSE) {
 		$lclass = (!$this->clear_base_class ? $this->base_class : '');
@@ -358,12 +321,10 @@ abstract class Control {
 	}//END protected function GetTagClass
 	/**
 	 * Gets the html tag style attribute string (' style="...")
-	 *
 	 * @param  mixed  $width Custom css width
 	 * @param  bool   $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
 	 * @param  string $extra Other css attributes to be included
 	 * @return string Returns the html tag style attribute
-	 * @access protected
 	 */
 	protected function GetTagStyle($width = NULL,$halign = TRUE,$extra = NULL) {
 		$lstyle = '';
@@ -414,11 +375,9 @@ abstract class Control {
 	}//END protected function GetTagStyle
 	/**
 	 * Gets the html tag attributes string (' placeholder="..." disabled="..." ...')
-	 *
 	 * @param  bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
 	 * @param  string $extra Other html attributes to be included
 	 * @return string Returns the html tag attributes
-	 * @access protected
 	 */
 	protected function GetTagAttributes($style = TRUE,$extra = NULL) {
 		$lattr = '';
@@ -436,11 +395,9 @@ abstract class Control {
 	}//END protected function GetTagAttributes
     /**
      * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
-     *
      * @param array|null    $base
      * @param  string|null $extra Other html attributes to be included
      * @return string Returns the html tag attributes
-     * @access protected
      */
 	protected function GetTagActions(?array $base = NULL,?string $extra = NULL): string {
 		if($this->readonly || $this->disabled) { return ''; }
@@ -460,11 +417,9 @@ abstract class Control {
 	}//END protected function GetTagActions
     /**
      * Gets the html tag onclick attributes string
-     *
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnClickAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -499,11 +454,9 @@ abstract class Control {
 	}//END protected function GetOnClickAction
     /**
      * Gets the html tag onchange attributes string
-     *
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnChangeAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -534,11 +487,9 @@ abstract class Control {
 	}//END protected function GetOnChangeAction
     /**
      * Gets the html tag onkeypress attributes string
-     *
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnKeyPressAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -569,10 +520,8 @@ abstract class Control {
 	}//END protected function GetOnKeyPressAction
 	/**
 	 * Convert Ncol width to standard
-	 *
 	 * @param  bool $bootstrap Flag indicating use of bootstrap grid (default FALSE)
 	 * @return void
-	 * @access protected
 	 */
 	protected function ProcessWidth(bool $bootstrap = FALSE) {
 		if($bootstrap) {
@@ -649,9 +598,7 @@ abstract class Control {
 	}//END protected function ProcessWidth
 	/**
 	 * Convert Ncol width to standard
-	 *
 	 * @return string Custom actions HTML string
-	 * @access protected
 	 */
 	protected function ProcessCustomActions() {
 		// NApp::Dlog($this->custom_actions,'$this->custom_actions');
@@ -692,10 +639,8 @@ abstract class Control {
 	}//END protected function ProcessCustomActions
 	/**
 	 * description
-	 *
 	 * @param $tag
 	 * @return string|null
-	 * @access protected
 	 */
 	protected function SetContainer($tag): ?string {
 		$tag .= $this->ProcessCustomActions();
@@ -706,17 +651,12 @@ abstract class Control {
 	}//END protected function SetContainer
 	/**
 	 * description
-	 *
 	 * @return string|null
-	 * @access protected
-	 * @abstract
 	 */
 	abstract protected function SetControl(): ?string;
 	/**
 	 * description
-	 *
 	 * @return string
-	 * @access public
 	 */
 	public function Show() {
 		if($this->buffered){ return $this->output_buffer; }
@@ -724,9 +664,7 @@ abstract class Control {
 	}//END public function Show
 	/**
 	 * Clears the base class of the control
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function ClearBaseClass() {
 		$this->base_class = '';

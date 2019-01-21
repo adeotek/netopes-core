@@ -1,9 +1,7 @@
 <?php
 /**
  * TreeView control class file
- *
  * Tree data view control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,10 +12,8 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\AppSession;
 use NApp;
-
 /**
  * Class TreeView
- *
  * @property mixed      icon
  * @property bool|mixed hide_parents_checkbox
  * @property int|mixed  encrypted
@@ -25,7 +21,6 @@ use NApp;
  * @property mixed      class
  * @property mixed      checkboxs
  * @package  NETopes\Controls
- * @access   public
  */
 class TreeView extends Control {
     /**
@@ -34,9 +29,7 @@ class TreeView extends Control {
     public $data_source = NULL;
     /**
      * description
-     *
      * @return string|null
-     * @access protected
      */
     protected function SetControl(): ?string {
         if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID(); }

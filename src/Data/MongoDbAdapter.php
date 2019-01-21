@@ -1,9 +1,7 @@
 <?php
 /**
  * MongoDB database implementation class file
- *
  * This file contains the implementing class for MongoDB database.
- *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
@@ -13,25 +11,19 @@
  */
 /**
  * MongoDbDatabase Is implementing the MongoDB database
- *
  * This class contains all methods for interacting with MongoDB database.
- *
  * @package  Hinter\NETopes\Database
- * @access   public
  */
 class MongoDbDbAdapter extends DataAdapter {
 	/**
 	 * @var    int Command timeout (in milliseconds)
-	 * @access protected
 	 */
 	protected $timeout = 5000;
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 */
 	protected function Init($connection) {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : ':27017';
@@ -51,12 +43,10 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END protected function Init
 	/**
 	 * Begins a MongoDB two-stage commit
-	 *
 	 * @param  string $name Transaction name
 	 * @param  bool $overwrite Flag for overwriting the transaction
 	 * if exists (defaul value FALSE)
 	 * @return object Returns the transaction instance
-	 * @access public
 	 */
 	public function MongoDbBeginTran($name,$log = TRUE,$overwrite = TRUE) {
 		if(array_key_exists($name,$this->transactions) && $this->transactions[$name] && !$overwrite){ return NULL; }
@@ -67,10 +57,8 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END public function MongoDbBeginTran
 	/**
 	 * Rolls back a MongoDB two-stage commit
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function MongoDbRollbackTran($name,$log = TRUE) {
 		if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
@@ -83,10 +71,8 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END public function MongoDbRollbackTran
 	/**
 	 * Commits a MongoDB two-stage commit
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function MongoDbCommitTran($name,$log = TRUE,$preserve = FALSE) {
 		if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
@@ -100,7 +86,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END public function MongoDbCommitTran
 	/**
 	 * Prepares the query string for execution
-	 *
 	 * @param  string $query The query string (by reference)
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -112,7 +97,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return void
-	 * @access public
 	 */
 	public function MongoDbPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		// TODO: to be implemented
@@ -120,7 +104,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//public function MongoDbPrepareQuery
 	/**
 	 * Executs a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -133,7 +116,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function MongoDbExecuteQuery($query,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
 		$time = microtime(TRUE);
@@ -190,7 +172,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END public function MongoDbExecuteQuery
 	/**
 	 * Prepares the command string to be executed
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -203,7 +184,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applyed in WHERE clause
 	 * @return string Returns processed command string
-	 * @access protected
 	 */
 	protected function MongoDbPrepareProcedureStatement($procedure,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL) {
 		// TODO: to be implemented
@@ -211,7 +191,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END protected function MongoDbPrepareProcedureStatement
 	/**
 	 * Executs a stored procedure against the database
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -225,7 +204,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applyed in WHERE clause
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function MongoDbExecuteProcedure($procedure,$params = [],$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE) {
 		$time = microtime(TRUE);
@@ -283,7 +261,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	}//END public function MongoDbExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -292,7 +269,6 @@ class MongoDbDbAdapter extends DataAdapter {
 	 * @param  array $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @access public
 	 */
 	public function MongoDbExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		$dbg_method = (strlen($property) ? $property.'->' : '').$method;
@@ -332,11 +308,9 @@ class MongoDbDbAdapter extends DataAdapter {
 	/**
 	 * Escapes single quote charcater from a string
 	 * !!!DUMMY FUNCTION!!!
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
 	 */
 	public function MongoDbEscapeString($param) {
 		$result = NULL;

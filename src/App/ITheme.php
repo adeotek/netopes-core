@@ -1,7 +1,6 @@
 <?php
 /**
  * Application Theme interface file
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -12,7 +11,6 @@
 namespace NETopes\Core\App;
 /**
  * Application Theme interface
- *
  * @package    NETopes\Core\App
  */
 interface ITheme {
@@ -24,21 +22,18 @@ interface ITheme {
 	 * - bootstrap2 -> Tweeter Bootstrap 2
 	 * - bootstrap3 -> Tweeter Bootstrap 3
 	 * - bootstrap4 -> Tweeter Bootstrap 4
-	 *
 	 * @return string
 	 */
 	public function GetThemeType(): string;
 	/**
 	 * Get application theme default controls size
 	 * Values: xlg/lg/sm/xs/xxs
-	 *
 	 * @return string
 	 */
 	public function GetControlsDefaultSize(): string;
 	/**
 	 * Get application theme default actions (buttons) size
 	 * Values: xlg/lg/sm/xs/xxs
-	 *
 	 * @return string
 	 */
 	public function GetButtonsDefaultSize(): string;
@@ -90,27 +85,22 @@ interface ITheme {
 	/**
 	 * @param int $actionsCount
 	 * @return int
-	 * @access public
 	 */
 	public function GetTableViewActionsWidth(int $actionsCount): int;
 	/**
 	 * @return int
-	 * @access public
 	 */
 	public function GetControlsActionWidth(): int;
 	/**
 	 * @return string
-	 * @access public
 	 */
 	public function GetActionsSeparatorClass(): string;
 	/**
 	 * @return string
-	 * @access public
 	 */
 	public function GetDateTimePickerControlsType(): string;
 	/**
 	 * @return string
-	 * @access public
 	 */
 	public function GetDateTimePickerControlsPlugin(): string;
 	/**
@@ -118,7 +108,6 @@ interface ITheme {
 	 * @param bool $hasActions
 	 * @param bool $hasTitle
 	 * @return void
-	 * @access public
 	 */
 	public function GetDefaultContainer(Params $tags,bool $hasActions = FALSE,bool $hasTitle = FALSE): void;
 }//END interface ITheme

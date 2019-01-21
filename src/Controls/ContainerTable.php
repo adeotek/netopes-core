@@ -1,9 +1,7 @@
 <?php
 /**
  * Control container class file
- *
  * Control container implementation
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,11 +12,8 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Control container class file
-	 *
 	 * Control container implementation for Native (table)
-	 *
 	 * @package  NETopes\Core\Controls
-	 * @access   public
 	 */
 	class ContainerTable implements IControlContainer {
 		/**
@@ -27,19 +22,15 @@
 		protected $control;
 		/**
 		 * Control container class constructor
-		 *
 		 * @param $control
-		 * @access public
 		 */
 		public function __construct($control) {
 			$this->control = $control;
 		}//END public function __construct
 		/**
 		 * description
-		 *
 		 * @param string $content
 		 * @return string
-		 * @access public
 		 */
 		public function GetHtml($content) {
 			$result = '';

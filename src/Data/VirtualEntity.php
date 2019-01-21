@@ -1,9 +1,7 @@
 <?php
 /**
  * VirtualEntity class file
- *
  * Generic implementation for entities with no predefined structure (properties)
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,14 +12,10 @@
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
-
 /**
  * VirtualEntity class
- *
  * Generic implementation for entities with no predefined structure (properties)
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 class VirtualEntity {
     /**
@@ -34,25 +28,21 @@ class VirtualEntity {
     const CAMELCASE_NAME = 1;
 	/**
      * An array containing the entity data.
-     *
      * @var array
      */
 	protected $data;
 	/**
      * Naming mode (original/camelcase).
-     *
      * @var int
      */
 	protected $namingMode = VirtualEntity::CAMELCASE_NAME;
 	/**
      * Strict mode onn/off.
-     *
      * @var bool
      */
 	protected $strictMode = TRUE;
 	/**
 	 * Initializes a new VirtualEntity.
-	 *
 	 * @param array $data
 	 * @param int   $namingMode
 	 * @param bool  $strictMode
@@ -64,10 +54,8 @@ class VirtualEntity {
     }//END public function __construct
 	/**
 	 * VirtualEntity dynamic property getter
-	 *
 	 * @param  string $name The name of the property
 	 * @return mixed Returns the value of the property
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function __get($name) {
@@ -78,11 +66,9 @@ class VirtualEntity {
 	}//END public function __get
 	/**
 	 * VirtualEntity dynamic method call
-	 *
 	 * @param string $name
 	 * @param array  $arguments
 	 * @return mixed
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function __call($name,array $arguments) {
@@ -113,45 +99,43 @@ class VirtualEntity {
     }
 	/**
 	 * Get property value by name
-	 *
 	 * @param string $name
 	 * @param null   $defaultValue
 	 * @param null   $validation
 	 * @param bool   $strict
 	 * @return mixed
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function getProperty($name,$defaultValue = NULL,$validation = NULL,$strict = FALSE) {
 		return $this->GetPropertyValue($name,$strict,$defaultValue,$validation);
 	}//END public function getProperty
 	/**
 	 * VirtualEntity dynamic getter method
-	 *
 	 * @param  string $name The name of the property
 	 * @param bool    $strict
 	 * @param null    $defaultValue
 	 * @param null    $validation
 	 * @return mixed Returns the value of the property
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetPropertyValue($name,$strict = FALSE,$defaultValue = NULL,$validation = NULL) {
 		$key = $this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
 		if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
 			throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
 		}//if(is_array($this->data) && array_key_exists($key,$this->data))
+		if(is_null($validation)) {
+            if(isset($this->data[$key])) { return $this->data[$key]; }
+            return $defaultValue;
+        }//if(is_null($validation))
 		return Validator::ValidateArrayValue($this->data,$key,$defaultValue,$validation);
 	}//END protected function GetPropertyValue
 	/**
 	 * VirtualEntity dynamic setter method
-	 *
 	 * @param  string $name The name of the property
 	 * @param mixed    $value
 	 * @param bool    $strict
 	 * @return void
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function SetPropertyValue($name,$value,$strict = FALSE) {
 		$key = $this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
@@ -163,11 +147,9 @@ class VirtualEntity {
 	}//END protected function SetPropertyValue
 	/**
 	 * Check if property exists
-	 *
 	 * @param  string $name The name of the property
 	 * @param  bool   $not_null
 	 * @return bool Returns TRUE if property exists
-	 * @access public
 	 */
 	public function hasProperty($name,$not_null = FALSE): bool {
 		$key = $this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
@@ -176,7 +158,6 @@ class VirtualEntity {
 	}//END public function hasProperty
 	/**
      * Get data array
-     *
      * @param bool $recursive
      * @return array
      */
@@ -201,11 +182,9 @@ class VirtualEntity {
     }//END public function isNew
     /**
 	 * Merge an array or a VirtualEntity instance to current instance
-	 *
 	 * @param  array|object $data The data to be merged into this instance
 	 * @param  bool $recursive
 	 * @return bool Returns TRUE on success, FALSE otherwise
-	 * @access public
 	 */
 	public function merge($data,bool $recursive = FALSE) {
 		if(is_object($data) && count($data)) {

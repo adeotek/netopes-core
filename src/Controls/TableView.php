@@ -1,7 +1,6 @@
 <?php
 /**
  * Data grid control file
- *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -28,313 +27,251 @@ use NApp;
 use Translate;
 /**
  * Class TableView
- *
  * @package NETopes\Core\Controls
  */
 class TableView {
 	/**
 	 * @var    string Control instance hash
-	 * @access protected
 	 */
 	protected $chash = NULL;
 	/**
 	 * @var    string Control instance session hash
-	 * @access protected
 	 */
 	protected $sessionHash = NULL;
 	/**
 	 * @var    string Control base class
-	 * @access protected
 	 */
 	protected $base_class = '';
 	/**
 	 * @var    int Current page (for pagination)
-	 * @access protected
 	 */
 	protected $current_page = NULL;
 	/**
 	 * @var    bool Export only flag
-	 * @access protected
 	 */
 	protected $export_only = FALSE;
 	/**
 	 * @var    bool Show or hide export button
-	 * @access public
 	 */
 	protected $export_button = FALSE;
 	/**
 	 * @var    string Filter condition type value source
-	 * @access protected
 	 */
 	protected $filter_cond_val_source = NULL;
 	/**
 	 * @var    array Data to be exported
-	 * @access protected
 	 */
 	protected $export_data = NULL;
 	/**
 	 * @var    array Filters values
-	 * @access protected
 	 */
 	protected $filters = [];
 	/**
 	 * @var    array Totals values
-	 * @access protected
 	 */
 	protected $totals = [];
 	/**
 	 * @var    array Embedded row forms (initialized for each row)
-	 * @access protected
 	 */
 	protected $row_embedded_form = NULL;
 	/**
 	 * @var    bool Page hash (window.name)
-	 * @access public
 	 */
 	public $phash = NULL;
 	/**
 	 * @var    string Module name
-	 * @access public
 	 */
 	public $module = NULL;
 	/**
 	 * @var    string Module method name
-	 * @access public
 	 */
 	public $method = NULL;
 	/**
 	 * @var    string Main container id
-	 * @access public
 	 */
 	public $tag_id = NULL;
 	/**
 	 * @var    string Theme type
-	 * @access public
 	 */
 	public $theme_type = NULL;
 	/**
 	 * @var    bool Is individual panel or integrated in other view
-	 * @access public
 	 */
 	public $is_panel = TRUE;
 	/**
 	 * @var    bool|array Defines a tree grid
-	 * @access public
 	 */
 	public $tree = FALSE;
 	/**
 	 * @var    string Tree level ident string
-	 * @access public
 	 */
 	public $tree_ident = '&nbsp;&nbsp;&nbsp;&nbsp;';
 	/**
 	 * @var    integer Tree top level
-	 * @access protected
 	 */
 	protected $tree_top_lvl = 1;
 	/**
 	 * @var    string Control elements class
-	 * @access public
 	 */
 	public $class = NULL;
 	/**
 	 * @var    mixed TableView width (numeric in px or as string percent)
-	 * @access public
 	 */
 	public $width = NULL;
 	/**
 	 * @var    int TableView width
-	 * @access public
 	 */
 	public $min_width = NULL;
 	/**
 	 * @var    int TableView cell padding
-	 * @access public
 	 */
 	public $cell_padding = 10;
 	/**
 	 * @var    bool Switch alternate row collor on/off
-	 * @access public
 	 */
 	public $alternate_row_color = FALSE;
 	/**
 	 * @var    string Color row dynamically from a data field value
-	 * @access public
 	 */
 	public $row_color_field = NULL;
 	/**
 	 * @var    bool Switch compact mode on/off
-	 * @access public
 	 */
 	public $compact_mode = FALSE;
 	/**
 	 * @var    string Table rows fixed height
-	 * @access public
 	 */
 	public $row_height = NULL;
 	/**
 	 * @var    mixed Row tooltip as string or array
-	 * @access public
 	 */
 	public $row_tooltip = NULL;
 	/**
 	 * @var    bool Switch horizontal scroll on/off
-	 * @access public
 	 */
 	public $scrollable = TRUE;
 	/**
 	 * @var    array Sort state (column, direction)
-	 * @access public
 	 */
 	public $sortby = [];
 	/**
 	 * @var    bool Switch quick search on/off
-	 * @access public
 	 */
 	public $qsearch = NULL;
 	/**
 	 * @var    bool Switch filter box on/off
-	 * @access public
 	 */
 	public $with_filter = TRUE;
 	/**
 	 * @var    bool Switch actions box on/off (only without filters)
-	 * @access public
 	 */
 	public $hide_actions_bar = FALSE;
 	/**
 	 * @var    bool Switch export feature on/off
-	 * @access public
 	 */
 	public $exportable = TRUE;
 	/**
 	 * @var    bool Switch export all feature on/off
-	 * @access public
 	 */
 	public $export_all = TRUE;
 	/**
 	 * @var    string Export format (Excel2007/Excel5/csv)
-	 * @access public
 	 */
 	public $export_format = 'Excel2007';
 	/**
 	 * @var    bool Switch datetime export as text on/off
-	 * @access public
 	 */
 	public $export_datetime_as_text = FALSE;
 	/**
 	 * @var    bool Switch pagination on/off
-	 * @access public
 	 */
 	public $with_pagination = TRUE;
 	/**
 	 * @var    bool Switch totals on/off
-	 * @access public
 	 */
 	public $with_totals = FALSE;
 	/**
 	 * @var    bool Switch totals position as first row on/off
-	 * @access public
 	 */
 	public $totals_row_first = FALSE;
 	/**
 	 * @var    bool Switch status bar on/off
 	 * (applyes only with $with_pagination = FALSE)
-	 * @access public
 	 */
 	public $hide_status_bar = FALSE;
 	/**
 	 * @var    int Table header rows number (default: 1)
-	 * @access public
 	 */
 	public $th_rows_no = 1;
 	/**
 	 * @var    string TableView target
-	 * @access public
 	 */
 	public $target = '';
 	/**
 	 * @var    mixed Ajax calls loader: 1=default loader; 0=no loader;
 	 * [string]=html element id or javascript function
-	 * @access public
 	 */
 	public $loader = 1;
 	/**
 	 * @var    string Data call data adapter name
-	 * @access public
 	 */
 	public $data_source = NULL;
 	/**
 	 * @var    string Data call method
-	 * @access public
 	 */
 	public $ds_method = NULL;
 	/**
 	 * @var    array Data call params array
-	 * @access public
 	 */
 	public $ds_params = [];
 	/**
 	 * @var    array Data call extra params array
-	 * @access public
 	 */
 	public $ds_extra_params = [];
 	/**
 	 * @var    array Data call out params array
-	 * @access public
 	 */
 	public $ds_out_params = NULL;
 	/**
 	 * @var    array Data array
-	 * @access public
 	 */
 	public $data = NULL;
 	/**
 	 * @var    bool Switch auto data loading on/off
-	 * @access public
 	 */
 	public $auto_load_data = TRUE;
 	/**
 	 * @var    array Array for setting custom css class for rows, based on a condition
-	 * @access public
 	 */
 	public $row_conditional_class = NULL;
 	/**
 	 * @var    string Java script on data load/refresh/filter
-	 * @access public
 	 */
 	public $onload_js_callback = NULL;
 	/**
 	 * @var    string Java script on data load/refresh/page change/filter/sort callback
-	 * @access public
 	 */
 	public $onchange_js_callback = NULL;
 	/**
 	 * @var    string Auto-generated javascript callback string (onload_js_callback + onchange_js_callback)
-	 * @access public
 	 */
 	public $js_callbacks = NULL;
 	/**
 	 * @var    array Columns configuration params
-	 * @access public
 	 */
 	public $columns = [];
 	/**
 	 * @var    bool Flag to indicate if filters are persistent
-	 * @access public
 	 */
 	public $persistent_state = FALSE;
 	/**
 	 * @var    array Initial filters values (are destroyed after the control initialization)
-	 * @access public
 	 */
 	public $initial_filters = NULL;
 	/**
 	 * TableView class constructor method
-	 *
 	 * @param  array $params Parameters array
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->chash = AppSession::GetNewUID();
@@ -356,10 +293,8 @@ class TableView {
 	}//END public function __construct
 	/**
 	 * Gets this instance as a serialized string
-	 *
 	 * @param  bool $encrypted Switch on/off encrypted result
 	 * @return string Return serialized control instance
-	 * @access protected
 	 */
 	protected function GetThis($encrypted = TRUE) {
 		if($encrypted) { return GibberishAES::enc(serialize($this),$this->chash); }
@@ -367,12 +302,10 @@ class TableView {
 	}//END protected function GetThis
     /**
      * Apply format to a cell value
-     *
      * @param  mixed $value Cell value
      * @param  mixed $format The format to be applied
      * @param null   $def_value
      * @return string Return formatted value as string
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
 	protected function FormatValue($value,$format,$def_value = NULL) {
@@ -388,11 +321,9 @@ class TableView {
 	}//END protected function FormatValue
 	/**
 	 * Gets the javascript callback string
-	 *
 	 * @param  bool $onload_callback Include or not on load callback
 	 * @param  bool $onchange_callback Include or not on change callback
 	 * @return string Returns javascript callback string
-	 * @access protected
 	 */
 	protected function ProcessJsCallbacks($onload_callback = TRUE,$onchange_callback = TRUE) {
 		if($onload_callback && $onchange_callback) {
@@ -413,13 +344,11 @@ class TableView {
 	}//END protected function ProcessJsCallbacks
 	/**
 	 * Gets the action javascript command string
-	 *
 	 * @param string $type
 	 * @param null   $params
 	 * @param bool   $process_call
 	 * @return string Returns action javascript command string
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetActionCommand($type = '',$params = NULL,$process_call = TRUE) {
 		$params = is_object($params) ? $params : new Params($params);
@@ -481,12 +410,10 @@ class TableView {
 	}//END protected function GetActionCommand
     /**
      * Gets the processed data call params
-     *
      * @param null $params
      * @param null $extra_params
      * @return void Returns data call params array
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function ProcessDataCallParams(&$params = NULL,&$extra_params = NULL) {
 		$params = array_merge((is_array($this->ds_params) ? $this->ds_params : []),$params);
@@ -570,9 +497,7 @@ class TableView {
 	}//END protected function ProcessDataCallParams
 	/**
 	 * Gets data to be displayed
-	 *
 	 * @return DataSet
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetData() {
@@ -597,11 +522,9 @@ class TableView {
 	}//END private function GetData
     /**
      * Process the active filters (adds/removes filters)
-     *
      * @param \NETopes\Core\App\Params $params Parameters for processing
      * @return array Returns the updated filters array
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function ProcessActiveFilters(Params $params) {
 		$action = $params->safeGet('faction',NULL,'is_notempty_string');
@@ -649,11 +572,9 @@ class TableView {
 	}//END protected function ProcessActiveFilters
 	/**
 	 * Gets the actions bar controls html (except controls for filters)
-	 *
 	 * @param bool $with_filters
 	 * @return string Returns the actions bar controls html
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetActionsBarControls($with_filters = FALSE) {
 		//NApp::Dlog($params,'GetFilterBox>>$params');
@@ -689,10 +610,8 @@ class TableView {
 	}//END protected function GetActionsBarControls
 	/**
 	 * Gets the filter box html
-	 *
 	 * @param  string|int Key (type) of the filter to be checked
 	 * @return bool Returns TRUE if filter is used and FALSE otherwise
-	 * @access protected
 	 */
 	protected function CheckIfFilterIsActive($key) {
 		if(!is_numeric($key) && (!is_string($key) || !strlen($key))) { return FALSE; }
@@ -702,11 +621,9 @@ class TableView {
 	}//protected function CheckIfFilterIsActive
     /**
      * Gets the filter box html
-     *
      * @param \NETopes\Core\App\Params $params
      * @return string|null Returns the filter box html
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function GetFilterBox(Params $params = NULL): ?string {
 		// NApp::Dlog($params,'GetFilterBox>>$params');
@@ -992,10 +909,8 @@ class TableView {
 	}//END protected function GetFilterBox
 	/**
 	 * Gets the pagination box html
-	 *
 	 * @param  array $items The data array
 	 * @return string Returns the pagination box html
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetPaginationBox($items): ?string {
@@ -1020,11 +935,9 @@ class TableView {
 	}//END protected function GetPaginationBox
 	/**
 	 * Gets the table header row(s)
-	 *
      * @param $t_c_width
 	 * @return string Returns the header row(s) HTML as string
      * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetTableHeader(&$t_c_width) {
 		$t_c_width = 0;
@@ -1202,12 +1115,14 @@ class TableView {
 		$result .= "\t\t".'</thead>'."\n";
 		return $result;
 	}//protected function GetTableHeader
-	/**
-	 * Add the cell value to sub-totals array
-	 *
-	 * @return void
-	 * @access protected
-	 */
+    /**
+     * Add the cell value to sub-totals array
+     *
+     * @param $name
+     * @param $value
+     * @param $type
+     * @return void
+     */
 	protected function SetCellSubTotal($name,$value,$type) {
 		if(!is_array($this->totals)) { $this->totals = []; }
 		if(!isset($this->totals[$name]['type'])) { $this->totals[$name]['type'] = $type; }
@@ -1230,7 +1145,6 @@ class TableView {
 	}//END protected function SetCellSubTotal
 	/**
 	 * Gets the table cell value (un-formatted)
-	 *
 	 * @param object $row
 	 * @param array $v
 	 * @param string $name
@@ -1238,7 +1152,6 @@ class TableView {
 	 * @param bool $is_iterator
 	 * @return mixed Returns the table cell value
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function GetCellValue(&$row,&$v,$name,$type,$is_iterator = FALSE) {
 		$result = NULL;
@@ -1673,12 +1586,10 @@ class TableView {
 	}//END protected function GetCellValue
 	/**
 	 * Gets the table row/cell tooltip html string
-	 *
 	 * @param object $row
 	 * @param string $class
 	 * @param array $tooltip
 	 * @return string Returns the table row tooltip string
-	 * @access protected
 	 */
 	protected function GetToolTip(&$row,&$class,$tooltip) {
 		if(!$tooltip) { return NULL; }
@@ -1740,7 +1651,6 @@ class TableView {
 	}//END protected function GetToolTip
 	/**
 	 * Gets the table cell html
-	 *
 	 * @param object $row
 	 * @param      $v
 	 * @param      $name
@@ -1750,7 +1660,6 @@ class TableView {
 	 * @param bool $is_iterator
 	 * @return string Returns the table cell html
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function SetCell(&$row,&$v,$name,$has_child = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
 		$cell_type = strtolower(get_array_value($v,'type','','is_string'));
@@ -1880,13 +1789,11 @@ class TableView {
 	}//END protected function SetCell
 	/**
 	 * Gets the table row html
-	 *
 	 * @param object $row
 	 * @param null $r_cclass
 	 * @param bool $has_child
 	 * @return string Returns the table row html
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function SetRow($row,$r_cclass = NULL,$has_child = FALSE) {
 		$result = '';
@@ -1989,9 +1896,7 @@ class TableView {
 	}//END protected function SetRow
     /**
      * Gets the total row html
-     *
      * @return string Returns the total row html
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
 	protected function SetTotalRow() {
@@ -2043,7 +1948,6 @@ class TableView {
 	}//END protected function SetTotalRow
     /**
      * Gets the table html iterating data array
-     *
      * @param DataSet                  $data
      * @param \NETopes\Core\App\Params $params
      * @param null                     $r_cclass
@@ -2051,7 +1955,6 @@ class TableView {
      * @param null                     $id_parent
      * @return string Returns the table html
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function IterateData($data,Params $params,$r_cclass = NULL,$lvl = NULL,$id_parent = NULL) {
 		// NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$r_cclass),'IterateData');
@@ -2123,11 +2026,9 @@ class TableView {
 	}//END protected function IterateData
     /**
      * Gets the persistent state from session, if it is the case
-     *
      * @param \NETopes\Core\App\Params $params
      * @return void
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function LoadState(Params $params = NULL) {
 		// NApp::Dlog($params,'LoadState>>$params');
@@ -2197,11 +2098,9 @@ class TableView {
 	}//END protected function LoadState
     /**
      * Sets the output buffer value
-     *
      * @param \NETopes\Core\App\Params $params
      * @return string|null
      * @throws \NETopes\Core\AppException
-     * @access protected
      */
 	protected function SetControl(Params $params = NULL): ?string {
 		// NApp::Dlog($params,'SetControl>>$params');
@@ -2372,14 +2271,12 @@ class TableView {
     }//END public function ClearActions
     /**
 	 * Gets the control's content (html)
-	 *
 	 * @param  Params|array|null $params An array of parameters
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
 	 * * other pass through params
 	 * @return string Returns the control's content (html)
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function Show($params = NULL): ?string {
@@ -2394,14 +2291,12 @@ class TableView {
 	}//END public function Show
 	/**
 	 * Gets (shows) the control's filters box content
-	 *
 	 * @param  array $params An array of parameters
 	 * * phash (string) = new page hash (window.name)
 	 * * output (bool|numeric) = flag indicating direct (echo)
 	 * or indirect (return) output (default FALSE - indirect (return) output)
 	 * * other pass through params
 	 * @return string Returns the control's filters box content
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function ShowFiltersBox($params = NULL) {
@@ -2414,21 +2309,17 @@ class TableView {
 	}//END public function ShowFiltersBox
 	/**
 	 * Sets new value for base class property
-	 *
 	 * @param  string $value The new value to be set as base class
 	 * @return void
-	 * @access public
 	 */
 	public function SetBaseClass($value) {
 		$this->base_class = strlen($value) ? $value : $this->base_class;
 	}//END public function SetBaseClass
     /**
      * Sets new value for base class property
-     *
      * @param \NETopes\Core\App\Params $params
      * @return void
      * @throws \NETopes\Core\AppException
-     * @access public
      */
 	public function ExportAll(Params $params = NULL) {
 		// NApp::Dlog($params,'ExportAll');
@@ -2472,19 +2363,17 @@ class TableView {
 	}//END public function ExportAll
 	/**
 	 * Get export data
-	 *
 	 * @param  array $params An array of parameters
 	 * @return string|bool Returns file content or FALSE on error
 	 * @throws \NETopes\Core\AppException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @access public
 	 */
 	public static function ExportData(array $params = []) {
 		$chash = get_array_value($params,'chash',NULL,'is_notempty_string');
 		if(!$chash) { return; }
 		$export_all = get_array_value($params,'exportall',FALSE,'bool');
-		//NApp::StartTimeTrack('TableViewExportData');
+		//\NETopes\Core\App\Debugger::StartTimeTrack('TableViewExportData');
 		$cachefile = AppHelpers::GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
 		try {
 			if(!file_exists($cachefile)) {
@@ -2493,10 +2382,10 @@ class TableView {
 			}//if(!file_exists($cachefile))
 			$export_data = unserialize(file_get_contents($cachefile));
 			 // NApp::Log2File(print_r($export_data,TRUE),NApp::$appPath.AppConfig::GetValue('logs_path').'/test.log');
-			// NApp::Dlog(NApp::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
+			// NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
 			if(!is_array($export_data) || !count($export_data)) { return; }
 			$excel = new ExcelExport($export_data);
-			// NApp::Dlog(NApp::ShowTimeTrack('TableViewExportData'),'BP:END');
+			// NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData'),'BP:END');
 		} catch(AppException $e) {
 			NApp::Elog($e);
 			throw $e;

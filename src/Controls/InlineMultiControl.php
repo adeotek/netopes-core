@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,16 +12,12 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Inline multi-control control
-	 *
 	 * Control for an inline multi-control
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class InlineMultiControl extends Control {
 		/**
 		 * @var    array Controls parameters array
-		 * @access public
 		 */
 		public $items = [];
 		public function __construct($params = NULL){

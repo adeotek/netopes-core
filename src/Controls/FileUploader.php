@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,13 +14,10 @@ use NApp;
 use GibberishAES;
 /**
  * ClassName description
- *
  * long_description
- *
  * @property bool   require_login
  * @property string status_target
  * @package  NETopes\Controls
- * @access   public
  */
 class FileUploader extends Control {
 	public function __construct($params = null) {
@@ -102,9 +97,7 @@ class FileUploader extends Control {
 	}//END protected function SetControl
 	/**
 	 * Clears the base class of the control
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	public function ClearBaseClass(): bool {
 		return FALSE;

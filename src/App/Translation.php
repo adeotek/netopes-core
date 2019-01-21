@@ -1,9 +1,7 @@
 <?php
 /**
  * Class Translation file
- *
  * Helper class for translating application resources
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -17,27 +15,20 @@ use NETopes\Core\Data\DataProvider;
 use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\DataHelpers;
-
 /**
  * Class Translation
- *
  * @package NETopes\Core\App
  */
 class Translation {
 	/**
 	 * @var    array An array containing loaded translations data
-	 * @access protected
-	 * @static
 	 */
 	protected static $_LANGUAGES_STRINGS = [];
 	/**
 	 * description
-	 *
 	 * @param string $langcode
 	 * @param bool   $loop
 	 * @return array|null
-	 * @access protected
-	 * @static
 	 */
 	protected static function GetTranslationCacheFile($langcode,$loop = TRUE) {
 		if(!$langcode) { return NULL; }
@@ -86,13 +77,10 @@ class Translation {
 	}//END protected static function GetTranslationCacheFile
     /**
      * Get resource translation value
-     *
      * @param string|array $key
      * @param null         $langcode
      * @param bool         $echo
      * @return string Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function Get($key,$langcode = NULL,$echo = FALSE) {
@@ -143,13 +131,10 @@ class Translation {
 	}//END public static function Get
     /**
      * Get label translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetLabel(string $key,$langcode = NULL,$echo = FALSE) {
@@ -158,13 +143,10 @@ class Translation {
 	}//END public static function GetLabel
     /**
      * Get button translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetButton(string $key,$langcode = NULL,$echo = FALSE) {
@@ -173,13 +155,10 @@ class Translation {
 	}//END public static function GetButton
     /**
      * Get title translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetTitle(string $key,$langcode = NULL,$echo = FALSE) {
@@ -188,13 +167,10 @@ class Translation {
 	}//END public static function GetTitle
     /**
      * Get message translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetMessage(string $key,$langcode = NULL,$echo = FALSE) {
@@ -203,13 +179,10 @@ class Translation {
 	}//END public static function GetMessage
     /**
      * Get error translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetError(string $key,$langcode = NULL,$echo = FALSE) {
@@ -218,13 +191,10 @@ class Translation {
 	}//END public static function GetError
     /**
      * Get URLID translation
-     *
      * @param string $key
      * @param null   $langcode
      * @param bool   $echo
      * @return string|null Translated value
-     * @access public
-     * @static
      * @throws \NETopes\Core\AppException
      */
 	public static function GetUrlId(string $key,$langcode = NULL,$echo = FALSE) {

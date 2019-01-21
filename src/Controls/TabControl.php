@@ -1,9 +1,7 @@
 <?php
 /**
  * short description
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,55 +14,43 @@ use NETopes\Core\Data\DataProvider;
 use NApp;
 /**
  * ClassName description
- *
  * description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TabControl {
 	/**
 	 * @var    string BasicForm table id
-	 * @access public
 	 */
 	public $tag_id = NULL;
 	/**
 	 * @var    string BasicForm response target id
-	 * @access public
 	 */
 	public $response_target = NULL;
 	/**
 	 * @var    string BasicForm width
-	 * @access public
 	 */
 	public $width = NULL;
 	/**
 	 * @var    string BasicForm additional class
-	 * @access public
 	 */
 	public $class = NULL;
 	/**
 	 * @var    array tabs descriptor array
-	 * @access public
 	 */
 	public $tabs = [];
 	/**
 	 * @var    string Basic form base class
-	 * @access protected
 	 */
 	protected $base_class = NULL;
 	/**
 	 * @var    string Output (resulting html) buffer
-	 * @access protected
 	 */
 	protected $output_buffer = NULL;
 	/**
 	 * BasicForm class constructor method
-	 *
 	 * @param  array $params Parameters array
 	 * @throws \NETopes\Core\AppException
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->base_class = get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
@@ -77,10 +63,8 @@ class TabControl {
 	}//END public function __construct
 	/**
 	 * Gets the content for a tab
-	 *
 	 * @param  array $tab Tab parameters array
 	 * @return string Returns content HTML for one tab
-	 * @access protected
 	 */
 	protected function SetContent($tab) {
 		$result = '';
@@ -141,13 +125,11 @@ class TabControl {
 	}//END protected function SetContent
 	/**
 	 * Replaces a string with another in a multilevel array (recursively)
-	 *
 	 * @param  array $params An array of parameters
 	 * @param  mixed $search String to be replaced
 	 * @param  mixed $replace String replacement value
 	 * @param bool   $regex
 	 * @return array Returns processed parameters array
-	 * @access protected
 	 */
 	protected function ProcessParamsArray($params,$search,$replace,$regex = FALSE) {
 		if(!strlen($search) || (!is_string($replace) && !is_numeric($replace))) { return $params; }
@@ -165,10 +147,8 @@ class TabControl {
 	}//END protected function ProcessParamsArray
 	/**
 	 * Gets the record from the database and sets the values in the tab array
-	 *
 	 * @param  array $tab Tab parameters array
 	 * @return array Returns processed tab array
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetTabData($tab) {
@@ -207,9 +187,7 @@ class TabControl {
 	}//END protected function GetTabData
 	/**
 	 * Sets the output buffer value
-	 *
 	 * @return string|null
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetControl(): ?string {
@@ -274,9 +252,7 @@ class TabControl {
 	}//END private function SetControl
 	/**
 	 * Gets the output buffer content
-	 *
 	 * @return string Returns the output buffer content (html)
-	 * @access public
 	 */
 	public function Show() {
 		return $this->output_buffer;

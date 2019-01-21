@@ -1,9 +1,7 @@
 <?php
 /**
  * KVList class file
- *
  * File containing KVList control class
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -18,9 +16,7 @@ use NApp;
 use Translate;
 /**
  * Class KVList
- *
  * @package  Hinter\NETopes\Controls
- * @access   public
  */
 class KVList extends Control {
     protected $postable_elements = TRUE;

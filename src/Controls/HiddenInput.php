@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,11 +12,8 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Hidden input control
-	 *
 	 * Creates a hidden input with an initial value
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class HiddenInput extends Control {
 		public function __construct($params = NULL){

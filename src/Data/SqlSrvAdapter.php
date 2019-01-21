@@ -1,9 +1,7 @@
 <?php
 /**
  * SqlSrv (MS SQL) database implementation class file
- *
  * This file contains the implementing class for MS SQL database.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,14 +14,10 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 use NApp;
-
 /**
  * SqlSrvDatabase is implementing the MS SQL database
- *
  * This class contains all methods for interacting with MS SQL database.
- *
  * @package  NETopes\Database
- * @access   public
  */
 class SqlSrvAdapter extends SqlDataAdapter {
     /**
@@ -36,18 +30,14 @@ class SqlSrvAdapter extends SqlDataAdapter {
     const ENCLOSING_END_SYMBOL = ']';
 	/**
 	 * @var    int Time to wait befor rising deadlock error (in seconds)
-	 * @access protected
 	 */
 	protected $wait_timeout = 5;
 	/**
 	 * @var    string Default transaction name
-	 * @access protected
 	 */
 	protected $default_tran = '_GlobalDBTran';
 	/**
 	 * @var    array Regex array for string escaping
-	 * @access protected
-	 * @static
 	 */
 	protected static $non_displayables = array(
 		            '/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
@@ -59,16 +49,12 @@ class SqlSrvAdapter extends SqlDataAdapter {
 		        );
 	/**
 	 * @var    array Error codes to be ignored
-	 * @access protected
 	 */
 	protected $false_positive_error_codes = array(5701,5703);
 	/**
 	 * Get startup query string
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return string  Returns the query to be executed after connection
-	 * @access public
-	 * @static
 	 */
 	public static function GetStartUpQuery($params = NULL): ?string {
 		if(!is_array($params) || !count($params)) { return NULL; }
@@ -80,10 +66,8 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//public static function GetStartUpQuery
 	/**
 	 * Set global variables to a temporary table
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function SqlSrvSetGlobalVariables($params = NULL): bool {
@@ -122,10 +106,8 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection): void {
@@ -171,13 +153,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END protected function Init
     /**
      * Begins a sqlsrv transaction
-     *
      * @param  string $name Unused!!!
      * @param  bool   $log Flag for logging or not the operation
      * @param  bool   $overwrite Unused!!!
      * @param null    $custom_tran_params
      * @return object Returns the transaction instance
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
@@ -193,12 +173,10 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END public function SqlSrvBeginTran
 	/**
 	 * Rolls back a sqlsrv transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param bool    $log
 	 * @return bool Returns TRUE on success or FALSE otherwise
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function SqlSrvRollbackTran($name = NULL,$log = TRUE) {
 		$lname = strlen($name) ? $name : $this->default_tran;
@@ -216,13 +194,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END public function SqlSrvRollbackTran
 	/**
 	 * Commits a sqlsrv transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param bool    $log
 	 * @param bool    $preserve
 	 * @return bool Returns TRUE on success or FALSE otherwise
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function SqlSrvCommitTran($name = NULL,$log = TRUE,$preserve = FALSE) {
 		$lname = strlen($name) ? $name : $this->default_tran;
@@ -357,7 +333,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END private function GetFilterCondition
     /**
      * Prepares the query string for execution
-     *
      * @param  string $query The query string (by reference)
      * @param  array  $params An array of parameters
      * to be passed to the query/stored procedure
@@ -373,7 +348,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $bind_params
      * @param null    $transaction
      * @return void
-     * @access public
      * @throws \Exception
      */
 	public function SqlSrvPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
@@ -409,7 +383,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//public function SqlSrvPrepareQuery
     /**
      * Executes a query against the database
-     *
      * @param  string $query The query string
      * @param  array  $params An array of parameters
      * to be passed to the query/stored procedure
@@ -426,7 +399,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $results_keys_case
      * @param null    $custom_tran_params
      * @return array|bool Returns database request result
-     * @access public
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
@@ -487,7 +459,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END public function SqlSrvExecuteQuery
     /**
      * Prepares the command string to be executed
-     *
      * @param  string $procedure The name of the stored procedure
      * @param  array  $params An array of parameters
      * to be passed to the query/stored procedure
@@ -503,7 +474,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param null    $sql_params
      * @param null    $transaction
      * @return string|resource Returns processed command string or the statement resource
-     * @access protected
      * @throws \Exception
      */
 	protected function SqlSrvPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$sql_params = NULL,$transaction = NULL) {
@@ -579,7 +549,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END protected function SqlSrvPrepareProcedureStatement
     /**
      * Executs a stored procedure against the database
-     *
      * @param  string $procedure The name of the stored procedure
      * @param  array  $params An array of parameters
      * to be passed to the query/stored procedure
@@ -598,7 +567,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      * @throws \Exception
-     * @access public
      */
 	public function SqlSrvExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -655,7 +623,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	}//END public function SqlSrvExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -665,28 +632,23 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function SqlSrvExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new  AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for SqlSrvSQL !!! in statement: ".$method.trim('->'.$property,'->'),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
 	}//END public function SqlSrvExecuteMethod
 	/**
 	 * Escapes single quote character from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
 	 */
 	public function EscapeString($param) {
 		return self::SqlSrvEscapeString($param);
 	}//END public function EscapeString
 	/**
      * Convert string from unknown character set to UTF-8
-     *
      * @param      string $value The string to be converted
      * @return     string Returns the converted string
-     * @access     public
      */
     public static function UTF8Encode($value) {
         $enc = mb_detect_encoding($value,mb_detect_order(),TRUE);
@@ -695,12 +657,9 @@ class SqlSrvAdapter extends SqlDataAdapter {
     }//END public static function UTF8Encode
     /**
 	 * Escapes single quote character from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
-	 * @static
 	 */
 	public static function SqlSrvEscapeString($param) {
 		$result = NULL;

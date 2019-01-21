@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -21,44 +19,34 @@ use NETopes\Core\Data\VirtualEntity;
 use Translate;
 /**
  * GroupCheckBox class
- *
  * Control class for group checkbox (radio button alternative)
- *
  * @package  Hinter\NETopes\Controls
- * @access   public
  */
 class GroupCheckBox extends Control {
     /**
      * @var    array Elements data source
-     * @access public
      */
     public $data_source = [];
     /**
      * @var    DataSet Elements list
-     * @access public
      */
     public $items = NULL;
     /**
      * @var    string Elements list orientation
-     * @access public
      */
     public $orientation = 'horizontal';
     /**
      * @var    string Elements default value field name
-     * @access public
      */
     public $default_value_field = NULL;
     /**
      * @var    mixed Initial value
-     * @access public
      */
     public $value = NULL;
     /**
      * Control class constructor
-     *
      * @param  array $params An array of params
      * @return void
-     * @access public
      */
     public function __construct($params = NULL) {
         parent::__construct($params);

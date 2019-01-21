@@ -1,10 +1,8 @@
 <?php
 /**
  * DataSet class file
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -33,32 +31,25 @@ use function next;
 use function reset;
 use function spl_object_hash;
 use function uasort;
-
 /**
  * DataSet class
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
 class DataSet implements Collection {
     /**
      * An array containing the entries of this collection.
-     *
      * @var array
      */
     protected $elements;
     /**
      * Elements total count
-     *
      * @var int|null
      */
     public $total_count;
 	/**
 	 * Initializes a new DataSet.
-	 *
 	 * @param array $elements
 	 * @param int|null  $count
 	 */
@@ -68,12 +59,9 @@ class DataSet implements Collection {
     }
     /**
      * Creates a new instance from the specified elements.
-     *
      * This method is provided for derived classes to specify how a new
      * instance should be created when constructor semantics have changed.
-     *
      * @param array $elements Elements.
-     *
      * @return static
      */
     protected function createFrom(array $elements) {
@@ -149,7 +137,6 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
     public function offsetExists($offset) {
@@ -157,7 +144,6 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
     public function offsetGet($offset) {
@@ -165,7 +151,6 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
     public function offsetSet($offset, $value) {
@@ -177,7 +162,6 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
     public function offsetUnset($offset) {
@@ -285,7 +269,6 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface IteratorAggregate.
-     *
      * {@inheritDoc}
      */
     public function getIterator() {
@@ -293,7 +276,6 @@ class DataSet implements Collection {
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      */
     public function map(Closure $func) {
@@ -301,7 +283,6 @@ class DataSet implements Collection {
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      */
     public function filter(Closure $p) {
@@ -334,7 +315,6 @@ class DataSet implements Collection {
     }
     /**
      * Returns a string representation of this object.
-     *
      * @return string
      */
     public function __toString() {
@@ -357,11 +337,9 @@ class DataSet implements Collection {
     }
     /**
 	 * Merge an array or a VirtualEntity instance to current instance
-	 *
 	 * @param  array|object $data The data to be merged into this instance
 	 * @param  bool $recursive
 	 * @return bool Returns TRUE on success, FALSE otherwise
-	 * @access public
 	 */
 	public function merge($data,bool $recursive = FALSE) {
 		if(is_object($data) && count($data)) {

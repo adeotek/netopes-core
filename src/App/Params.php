@@ -1,10 +1,8 @@
 <?php
 /**
  * Params class file
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for passing variable number of parameters
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -20,23 +18,18 @@ use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 /**
  * Params class
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for passing variable number of parameters
- *
  * @package  NETopes\Core\App
- * @access   public
  */
 class Params implements Collection {
 	/**
      * An array containing the entries of this collection.
-     *
      * @var array
      */
     protected $elements;
 	/**
 	 * Converts a string (custom or json) to array
-	 *
 	 * @param $input
 	 * @return array
 	 * @throws \NETopes\Core\AppException
@@ -65,7 +58,6 @@ class Params implements Collection {
 	}//END public static function ConvertStringToArray
 	/**
 	 * Initializes a new DataSet.
-	 *
 	 * @param mixed $params
 	 * @throws \NETopes\Core\AppException
 	 */
@@ -80,17 +72,13 @@ class Params implements Collection {
     }//END public function __construct
 	/**
 	 * Creates a new instance from the specified elements.
-	 *
 	 * This method is provided for derived classes to specify how a new
 	 * instance should be created when constructor semantics have changed.
-	 *
 	 * @param array $elements Elements.
-	 *
 	 * @return static
 	 * @throws \NETopes\Core\AppException
 	 */
-    protected function createFrom(array $elements)
-    {
+    protected function createFrom(array $elements) {
         return new static($elements);
     }
     /**
@@ -105,43 +93,37 @@ class Params implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function first()
-    {
+    public function first() {
         return reset($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function last()
-    {
+    public function last() {
         return end($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function key()
-    {
+    public function key() {
         return key($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function next()
-    {
+    public function next() {
         return next($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function current()
-    {
+    public function current() {
         return current($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function remove($key)
-    {
+    public function remove($key) {
         if (! isset($this->elements[$key]) && ! array_key_exists($key, $this->elements)) {
             return null;
         }
@@ -152,8 +134,7 @@ class Params implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function removeElement($element)
-    {
+    public function removeElement($element) {
         $key = array_search($element, $this->elements, true);
         if ($key === false) {
             return false;
@@ -163,29 +144,23 @@ class Params implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetExists($offset)
-    {
+    public function offsetExists($offset) {
         return $this->containsKey($offset);
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetGet($offset)
-    {
+    public function offsetGet($offset) {
         return $this->get($offset);
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetSet($offset, $value)
-    {
+    public function offsetSet($offset, $value) {
         if (! isset($offset)) {
             $this->add($value);
             return;
@@ -194,32 +169,27 @@ class Params implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetUnset($offset)
-    {
+    public function offsetUnset($offset) {
         $this->remove($offset);
     }
     /**
      * {@inheritDoc}
      */
-    public function containsKey($key)
-    {
+    public function containsKey($key) {
         return isset($this->elements[$key]) || array_key_exists($key, $this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function contains($element)
-    {
+    public function contains($element) {
         return in_array($element, $this->elements, true);
     }
     /**
      * {@inheritDoc}
      */
-    public function exists(Closure $p)
-    {
+    public function exists(Closure $p) {
         foreach ($this->elements as $key => $element) {
             if ($p($key, $element)) {
                 return true;
@@ -230,24 +200,20 @@ class Params implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function indexOf($element)
-    {
+    public function indexOf($element) {
         return array_search($element, $this->elements, true);
     }
     /**
      * {@inheritDoc}
      */
-    public function get($key)
-    {
+    public function get($key) {
         return $this->elements[$key] ?? null;
     }
     /**
 	 * Check if property exists
-	 *
 	 * @param  string $name The name of the property
 	 * @param  bool   $not_null
 	 * @return bool Returns TRUE if property exists
-	 * @access public
 	 */
 	public function hasProperty($name,$not_null = FALSE): bool {
 		if($not_null) { return array_key_exists($name,$this->elements) && isset($this->elements[$name]); }
@@ -260,9 +226,12 @@ class Params implements Collection {
 	 * @return mixed
      * @throws \NETopes\Core\AppException
 	 */
-    public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL)
-    {
-        $result = Validator::ValidateArrayValue($this->elements,$key,NULL,$validation);
+    public function getOrFail($key,?string $validation = NULL,?string $failMessage = NULL) {
+        if(is_null($validation)) {
+            $result = isset($this->elements[$key]) ? $this->elements[$key] : NULL;
+        } else {
+            $result = Validator::ValidateArrayValue($this->elements,$key,NULL,$validation);
+        }//if(is_null($validation))
         if(is_null($result)) {
             $dbgTrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
             throw new AppException($failMessage??'Invalid value for: '.print_r($key),E_ERROR,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
@@ -279,6 +248,14 @@ class Params implements Collection {
      * @throws \NETopes\Core\AppException
      */
     public function safeGet($key,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = TRUE) {
+        if(is_null($validation)) {
+            if(isset($this->elements[$key])) {
+                $isValid = TRUE;
+                return $this->elements[$key];
+            }//if(isset($this->elements[$key]))
+            $isValid = FALSE;
+            return $defaultValue;
+        }//if(is_null($validation))
         return Validator::ValidateArrayValue($this->elements,$key,$defaultValue,$validation,$sourceFormat,$isValid);
     }
     /**
@@ -289,8 +266,7 @@ class Params implements Collection {
 	 * @param string|null $sub_key
 	 * @return mixed
 	 */
-    public function safeGetValue($key,$defaultValue = NULL,$format = NULL,$validation = NULL,$sub_key = NULL)
-    {
+    public function safeGetValue($key,$defaultValue = NULL,$format = NULL,$validation = NULL,$sub_key = NULL) {
         \NApp::Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
         if(!strlen($validation)) {
             if(strlen($format)) {
@@ -305,80 +281,67 @@ class Params implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function getKeys()
-    {
+    public function getKeys() {
         return array_keys($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function getValues()
-    {
+    public function getValues() {
         return array_values($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function count()
-    {
+    public function count() {
         return count($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function set($key, $value)
-    {
+    public function set($key, $value) {
         $this->elements[$key] = $value;
     }
     /**
      * {@inheritDoc}
      */
-    public function add($element)
-    {
+    public function add($element) {
         $this->elements[] = $element;
         return true;
     }
     /**
      * {@inheritDoc}
      */
-    public function isEmpty()
-    {
+    public function isEmpty() {
         return empty($this->elements);
     }
     /**
      * Required by interface IteratorAggregate.
-     *
      * {@inheritDoc}
      */
-    public function getIterator()
-    {
+    public function getIterator() {
         return new ArrayIterator($this->elements);
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      * @throws \NETopes\Core\AppException
      */
-    public function map(Closure $func)
-    {
+    public function map(Closure $func) {
         return $this->createFrom(array_map($func, $this->elements));
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      * @throws \NETopes\Core\AppException
      */
-    public function filter(Closure $p)
-    {
+    public function filter(Closure $p) {
         return $this->createFrom(array_filter($this->elements, $p));
     }
     /**
      * {@inheritDoc}
      */
-    public function forAll(Closure $p)
-    {
+    public function forAll(Closure $p) {
         foreach ($this->elements as $key => $element) {
             if (! $p($key, $element)) {
                 return false;
@@ -389,8 +352,7 @@ class Params implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function partition(Closure $p)
-    {
+    public function partition(Closure $p) {
         $matches = $noMatches = [];
         foreach ($this->elements as $key => $element) {
             if ($p($key, $element)) {
@@ -403,41 +365,33 @@ class Params implements Collection {
     }
     /**
      * Returns a string representation of this object.
-     *
      * @return string
      */
-    public function __toString()
-    {
+    public function __toString() {
         return __CLASS__.'@'.spl_object_hash($this);
     }
     /**
      * {@inheritDoc}
      */
-    public function clear()
-    {
+    public function clear() {
         $this->elements = [];
     }
     /**
      * {@inheritDoc}
      */
-    public function slice($offset, $length = null)
-    {
+    public function slice($offset, $length = null) {
         return array_slice($this->elements, $offset, $length, true);
     }
-    public function jsonSerialize()
-    {
+    public function jsonSerialize() {
         return json_encode($this->elements);
     }
     /**
 	 * Merge an array or a Param instance to current instance
-	 *
 	 * @param  array|object $data The data to be merged into this instance
 	 * @param  bool $recursive
 	 * @return bool Returns TRUE on success, FALSE otherwise
-	 * @access public
 	 */
-	public function merge($data,bool $recursive = FALSE)
-	{
+	public function merge($data,bool $recursive = FALSE) {
 		if(is_object($data) && count($data)) {
 			if(!is_array($this->elements)) { $this->elements = []; }
 			if($recursive) {

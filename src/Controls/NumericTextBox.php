@@ -1,9 +1,7 @@
 <?php
 /**
  * NumericTextBox control classes file
- *
  * File containing NumericTextBox control class
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,9 +14,7 @@ use NETopes\Core\Validators\Validator;
 use NApp;
 /**
  * NumericTextBox
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class NumericTextBox extends Control {
     public function __construct($params = NULL) {

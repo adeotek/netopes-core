@@ -1,7 +1,6 @@
 <?php
 /**
  * Application BaseView class file
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -13,12 +12,9 @@ namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
-
 /**
  * Application BaseView class
- *
  * @package    NETopes\Core\App
- * @abstract
  */
 class AppView {
     /**
@@ -43,100 +39,80 @@ class AppView {
     const MODULE_CONTENT = 'module';
     /**
 	 * @var string|null View container type
-	 * @access protected
 	 */
 	protected $_containerType = NULL;
 	/**
 	 * @var string|null View theme
-	 * @access protected
 	 */
 	protected $_theme = NULL;
     /**
      * @var bool Debug mode on/off
-     * @access protected
      */
 	protected $_debug = FALSE;
 	/**
 	 * @var string|null View container class
-	 * @access protected
 	 */
 	protected $_containerClass = NULL;
 	/**
 	 * @var string|null View title
-	 * @access protected
 	 */
 	protected $_title = NULL;
 	/**
 	 * @var string View dynamic title tag ID
-	 * @access protected
 	 */
 	protected $_titleTagId = '';
 	/**
 	 * @var string|integer|null Modal view width
-	 * @access protected
 	 */
 	protected $_modalWidth = 300;
 	/**
 	 * @var string Modal view dynamic target ID
-	 * @access protected
 	 */
 	protected $_targetId = '';
 	/**
 	 * @var bool Is modal view
-	 * @access protected
 	 */
 	protected $_isModal = FALSE;
 	/**
 	 * @var bool Auto-generate js script for modal view
-	 * @access protected
 	 */
 	protected $_modalAutoJs = TRUE;
 	/**
 	 * @var string|null Modal view custom close js
-	 * @access protected
 	 */
 	protected $_modalCustomClose = NULL;
 	/**
 	 * @var array View pass trough params
-	 * @access protected
 	 */
 	protected $_params = [];
 	/**
 	 * @var array View actions
-	 * @access protected
 	 */
 	protected $_actions = [];
 	/**
 	 * @var array View content
-	 * @access protected
 	 */
 	protected $_content = [];
 	/**
 	 * @var array Placeholders values
-	 * @access protected
 	 */
 	protected $_placeholders = [];
 	/**
 	 * @var array View JS scripts to be executed on render
-	 * @access protected
 	 */
 	protected $_jsScripts = [];
 	/**
 	 * @var array View pass trough properties
-	 * @access protected
 	 */
 	protected $_passTrough = [];
 	/**
 	 * @var object Parent module object
-	 * @access public
 	 */
 	public $module = NULL;
 	/**
 	 * Pass trough parameters magic getter
-	 *
 	 * @param  string $name The name of the property
 	 * @return mixed Returns the value of the property
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function __get($name) {
@@ -145,12 +121,10 @@ class AppView {
 	}//END public function __get
     /**
      * BaseView constructor.
-     *
      * @param array       $params Pass trough variables array
      * Obtained by calling: get_defined_vars()
      * @param null|object $module
      * @param null|string $containerType
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function __construct(array $params,$module = NULL,?string $containerType = NULL) {
@@ -165,7 +139,6 @@ class AppView {
 	/**
      * @param string|null $type
      * @return void
-     * @access public
      */
 	public function SetContainerType(?string $type): void {
 		$this->_containerType = $type;
@@ -186,7 +159,6 @@ class AppView {
 	/**
 	 * @param bool $isModal
 	 * @return void
-	 * @access public
 	 */
 	public function SetIsModalView(bool $isModal): void {
 		$this->_isModal = $isModal;
@@ -200,7 +172,6 @@ class AppView {
 	/**
 	 * @param bool $modalAutoJs
 	 * @return void
-	 * @access public
 	 */
 	public function SetModalAutoJs(bool $modalAutoJs): void {
 		$this->_modalAutoJs = $modalAutoJs;
@@ -214,7 +185,6 @@ class AppView {
 	/**
 	 * @param string|null $modalCustomClose
 	 * @return void
-	 * @access public
 	 */
 	public function SetModalCustomClose(?string $modalCustomClose): void {
 		$this->_modalCustomClose = $modalCustomClose;
@@ -223,7 +193,6 @@ class AppView {
 	 * @param string $placeholder
      * @param string $value
 	 * @return void
-	 * @access public
 	 */
 	public function SetPlaceholderValue(string $placeholder,string $value): void {
 		$this->_placeholders[trim($placeholder,'{}')] = $value;
@@ -273,9 +242,7 @@ class AppView {
 	}//END public function GetJsScripts
 	/**
      * Get module current method
-     *
      * @return string
-     * @access public
      */
 	public function GetCurrentMethod(): string {
 		return call_back_trace(4);
@@ -283,7 +250,6 @@ class AppView {
 	/**
 	 * @param bool $debug
 	 * @return void
-	 * @access public
 	 */
 	public function SetDebug(bool $debug): void {
 		$this->_debug = $debug;
@@ -291,7 +257,6 @@ class AppView {
 	/**
 	 * @param string|null $theme
 	 * @return void
-	 * @access public
 	 */
 	public function SetTheme(?string $theme): void {
 		$this->_theme = $theme;
@@ -299,7 +264,6 @@ class AppView {
 	/**
 	 * @param string $title
 	 * @return void
-	 * @access public
 	 */
 	public function SetTitle(string $title): void {
 		$this->_title = $title;
@@ -308,7 +272,6 @@ class AppView {
 	 * @param string $title
 	 * @param string $tagId
 	 * @return void
-	 * @access public
 	 */
 	public function SetDynamicTitle(string $title,string $tagId): void {
 		$this->_title = $title;
@@ -317,7 +280,6 @@ class AppView {
 	/**
 	 * @param mixed $width
 	 * @return void
-	 * @access public
 	 */
 	public function SetModalWidth($width): void {
 		$this->_modalWidth = $width;
@@ -325,7 +287,6 @@ class AppView {
 	/**
 	 * @param string $targetId
 	 * @return void
-	 * @access public
 	 */
 	public function SetTargetId(string $targetId): void {
 		$this->_targetId = $targetId;
@@ -334,21 +295,18 @@ class AppView {
 	/**
 	 * @param string $action
 	 * @return void
-	 * @access public
 	 */
 	public function AddAction(string $action): void {
 		$this->_actions[] = $action;
 	}//END public function AddAction
 	/**
 	 * @return bool
-	 * @access public
 	 */
 	public function HasActions(): bool {
 		return count($this->_actions)>0;
 	}//END public function HasActions
 	/**
 	 * @return bool
-	 * @access public
 	 */
 	public function HasTitle(): bool {
 		return strlen($this->_title)>0;
@@ -356,7 +314,6 @@ class AppView {
 	/**
 	 * @param array $content
 	 * @return void
-	 * @access public
 	 */
 	public function AddContent(array $content): void {
 	    $tag = get_array_value($content,'tag','','is_string');
@@ -367,7 +324,6 @@ class AppView {
      * @param string     $content
      * @param array|null $extraParams
      * @return void
-     * @access public
      */
 	public function AddHtmlContent(string $content,?array $extraParams = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -378,7 +334,6 @@ class AppView {
      * @param string     $file
      * @param array|null $extraParams
      * @return void
-     * @access public
      */
 	public function AddFileContent(string $file,?array $extraParams = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -391,7 +346,6 @@ class AppView {
      * @param array|null    $extraParams
      * @param array|null    $args
      * @return void
-     * @access public
      */
 	public function AddObjectContent(object $object,string $method,?array $extraParams = NULL,?array $args = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -404,7 +358,6 @@ class AppView {
      * @param null       $params
      * @param array|null $extraParams
      * @return void
-     * @access public
      */
 	public function AddModuleContent(string $module,string $method,$params = NULL,?array $extraParams = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -416,7 +369,6 @@ class AppView {
      * @param array|null $extraParams
      * @param array|null $args
      * @return void
-     * @access public
      */
 	public function AddTableView(string $file,?array $extraParams = NULL,?array $args = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -427,7 +379,6 @@ class AppView {
      * @param string     $file
      * @param array|null $extraParams
      * @return void
-     * @access public
      */
 	public function AddBasicForm(string $file,?array $extraParams = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -438,7 +389,6 @@ class AppView {
      * @param string     $file
      * @param array|null $extraParams
      * @return void
-     * @access public
      */
 	public function AddTabControl(string $file,?array $extraParams = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -451,7 +401,6 @@ class AppView {
      * @param array|null $extraParams
      * @param array|null $args
      * @return void
-     * @access public
      */
 	public function AddControlContent(string $file,string $controlClass,?array $extraParams = NULL,?array $args = NULL): void {
 	    $tag = get_array_value($extraParams,'tag','','is_string');
@@ -600,10 +549,8 @@ class AppView {
 	}//END protected function ProcessSubContainer
     /**
 	 * Render view content
-	 *
 	 * @param bool $return If TRUE view content is returned as string, else is outputted
 	 * @return string|null
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function Render(bool $return = FALSE): ?string {

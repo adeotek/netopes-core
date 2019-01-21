@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,11 +14,8 @@ use NApp;
 use NETopes\Core\AppException;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class CkEditor extends Control {
     /**
@@ -29,12 +24,9 @@ class CkEditor extends Control {
     public $extra_config = NULL;
     /**
      * description
-     *
      * extra_config:
      * - toolbarStartupExpanded: false (hide toolbars on initialization)
-     *
      * @return string|null
-     * @access public
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
@@ -59,10 +51,8 @@ class CkEditor extends Control {
     }//END protected function SetControl
     /**
      * description
-     *
      * @param bool $all
      * @return string
-     * @access public
      */
     public function GetDestroyJsCommand($all = FALSE) {
         return $all ? "DestroyCkEditor('{$this->phash}');" : "DestroyCkEditor('{$this->phash}','{$this->tag_id}',false);";

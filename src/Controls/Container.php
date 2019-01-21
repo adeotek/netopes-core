@@ -1,9 +1,7 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -14,12 +12,9 @@
     namespace NETopes\Core\Controls;
 	/**
 	 * Container control
-	 *
 	 * Control for a container (DIV)
 	 * The [value] property is the initial content of the container.
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class Container extends Control {
 		public function __construct($params = NULL) {
