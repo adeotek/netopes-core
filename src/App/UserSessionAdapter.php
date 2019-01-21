@@ -265,6 +265,6 @@ class UserSessionAdapter implements IUserSessionAdapter {
 				break;
 		}//END switch
 		UserSession::$loginStatus = FALSE;
-		NApp::NamespaceSessionCommit(TRUE,NULL,NULL,$namespace);
+		NApp::NamespaceSessionCommit(TRUE,FALSE,TRUE,$namespace);
 	}//END public static function Logout
 }//END class UserSessionAdapter
