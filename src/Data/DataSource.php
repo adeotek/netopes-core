@@ -54,7 +54,7 @@ class DataSource {
 	private function __construct($type,$connection = NULL,$entityName = NULL) {
 		$this->type = $type;
 		if($this->type=='_Custom') { return; }
-		$className = 'NETopes\Core\Data\\'.$type.'Adapter';
+		$className = '\NETopes\Core\Data\\'.($type=='Doctrine' ? 'Doctrine\\DataAdapter' : $type.'Adapter');
 		$this->adapter = $className::GetInstance($type,$connection);
 		$this->entityName = $entityName;
 	}//END private function __construct

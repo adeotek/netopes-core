@@ -677,6 +677,29 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
 	 * @access public
+	 */
+	public function EscapeString($param) {
+		return self::SqlSrvEscapeString($param);
+	}//END public function EscapeString
+	/**
+     * Convert string from unknown character set to UTF-8
+     *
+     * @param      string $value The string to be converted
+     * @return     string Returns the converted string
+     * @access     public
+     */
+    public static function UTF8Encode($value) {
+        $enc = mb_detect_encoding($value,mb_detect_order(),TRUE);
+        if(strtoupper($enc)=='UTF-8' || !function_exists('iconv')) { return $value; }
+        return iconv($enc,'UTF-8',$value);
+    }//END public static function UTF8Encode
+    /**
+	 * Escapes single quote character from a string
+	 *
+	 * @param  string|array $param String to be escaped or
+	 * an array of strings
+	 * @return string|array Returns the escaped string or array
+	 * @access public
 	 * @static
 	 */
 	public static function SqlSrvEscapeString($param) {
@@ -687,27 +710,16 @@ class SqlSrvAdapter extends SqlDataAdapter {
 				$result[$k] = $v;
 		        if(isset($result[$k]) && !is_numeric($result[$k])) {
 					foreach(self::$non_displayables as $regex) { $result[$k] = preg_replace($regex,'',$result[$k]); }
-					$result[$k] = str_replace("'","''",custom_utf8_encode($result[$k]));
+					$result[$k] = str_replace("'","''",self::UTF8Encode($result[$k]));
 		        }//if(isset($result[$k]) && !is_numeric($result[$k]))
 			}//END foreach
 		} else {
 			$result = $param;
 	        if(isset($result) && !is_numeric($result)) {
 				foreach(self::$non_displayables as $regex) { $result = preg_replace($regex,'',$result); }
-				$result = str_replace("'","''",custom_utf8_encode($result));
+				$result = str_replace("'","''",self::UTF8Encode($result));
 	        }//if(isset($result) && !is_numeric($result))
 		}//if(is_array($result))
 		return $result;
 	}//END public function SqlSrvEscapeString
-	/**
-	 * Escapes single quote character from a string
-	 *
-	 * @param  string|array $param String to be escaped or
-	 * an array of strings
-	 * @return string|array Returns the escaped string or array
-	 * @access public
-	 */
-	public function EscapeString($param) {
-		return self::SqlSrvEscapeString($param);
-	}//END public function EscapeString
 }//END class SqlSrvAdapter extends SqlDataAdapter

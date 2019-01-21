@@ -1,10 +1,10 @@
 <?php
 /**
- * FirebirdSql database adapter class file
+ * DataAdapter database adapter class file
  *
- * This file contains the adapter class for FirebirdSQL database.
+ * This file contains the adapter class for Doctrine ORM.
  *
- * @package    NETopes\Database
+ * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
@@ -17,17 +17,16 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
-use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+use NApp;
 
 /**
- * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
+ * Class DataAdapter
  *
- * This class contains all methods for interacting with FirebirdSQL database.
+ * This class contains all methods for interacting with Doctrine ORM.
  *
- * @package  NETopes\Database
- * @access   public
+ * @package  NETopes\Core\Data\Doctrine
  */
 class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 	/**
