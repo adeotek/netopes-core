@@ -758,6 +758,15 @@ HTML;
 	public static function GetRepositoryPath() {
 	    return AppHelpers::GetRepositoryPath();
     }//END public static function GetRepositoryPath
+    /**
+	 * Get current user ID
+	 *
+	 * @return int|null Returns current user ID
+	 * @access public
+	 */
+	public static function GetCurrentUserId(): ?int {
+	    return UserSession::GetCurrentUserId();
+    }//END public static function GetCurrentUserId
 	/**
      * Loads application settings from database or from request parameters
      *

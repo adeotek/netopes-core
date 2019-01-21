@@ -112,6 +112,17 @@ class UserSession {
 		setcookie($cookieHash,$_COOKIE[$cookieHash],time()+$validity,'/',NApp::Url()->GetAppDomain());
 		return TRUE;
 	}//END public static function SetLoginCookie
+	/**
+	 * Get current user ID
+	 *
+	 * @return int|null Returns current user ID
+	 * @access public
+	 */
+	public static function GetCurrentUserId(): ?int {
+		$adapter = static::$adapterClass;
+	    /** @var \NETopes\Core\App\UserSessionAdapter $adapter */
+	    return $adapter::GetCurrentUserId();
+	}//END public static function GetCurrentUserId
     /**
      * Loads application settings from database or from request parameters
      *

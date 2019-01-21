@@ -91,6 +91,8 @@ class ModulesProvider {
 		try {
 			$moduleInstance = self::GetModule($module);
 			return $moduleInstance->Exec($method,$params,$dynamicTargetId,$resetSessionParams,$beforeCall);
+		} catch(\Error $er) {
+			throw AppException::GetInstance($er,'php',-1);
 		} catch(AppException $e) {
 			if($e->getSeverity()<=0) { throw $e; }
 			\ErrorHandler::AddError($e);

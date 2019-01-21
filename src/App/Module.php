@@ -466,7 +466,7 @@ class Module {
 		try {
 		    $result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
 		} catch(\ReflectionException $re) {
-		    throw AppException::GetInstance($re);
+		    throw AppException::GetInstance($re,'reflection',0);
 		}//END try
 		// NApp::Dlog(number_format(NApp::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
 		// NApp::Dlog($result,'GetViewFile::'.$name);

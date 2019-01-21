@@ -158,7 +158,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	    if($exception instanceof AppException) {
 	        $e = $exception;
         } elseif($exception instanceof \Error) {
-            $e = AppException::GetInstance($exception,'php');
+            $e = AppException::GetInstance($exception,'php',-1);
 	    } elseif($exception instanceof \PDOException) {
 	        $e = AppException::GetInstance($exception,'pdo');
 	    } else {

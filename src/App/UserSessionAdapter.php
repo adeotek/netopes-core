@@ -22,6 +22,15 @@ use NApp;
  */
 class UserSessionAdapter implements IUserSessionAdapter {
     /**
+	 * Get current user ID
+	 *
+	 * @return int|null Returns current user ID
+	 * @access public
+	 */
+	public static function GetCurrentUserId(): ?int {
+		return is_integer(NApp::GetParam('is_user')) ? NApp::GetParam('id_user') : NULL;
+	}//END public static function GetCurrentUserId
+    /**
      * Loads application settings from database or from request parameters
      *
      * @param bool        $notFromDb

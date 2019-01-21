@@ -23,7 +23,7 @@ namespace NETopes\Core;
  */
 final class AppException extends \Exception {
     /**
-     * @var int Exception severity (1 severe, 0 non-severe)
+     * @var int Exception severity (1 non-blocking, <=0 blocking)
      */
     protected $severity = 1;
 	/**
@@ -48,14 +48,16 @@ final class AppException extends \Exception {
 	public $errorInfo = [];
     /**
      * Get AppException instance from another exception instance
-     * @param \Throwable $e
+     *
+     * @param \Throwable  $e
      * @param string|null $type
+     * @param int         $severity
      * @return \NETopes\Core\AppException
      */
-    public static function GetInstance(\Throwable $e,?string $type = NULL): AppException {
+    public static function GetInstance(\Throwable $e,?string $type = NULL,int $severity = 1): AppException {
 	    if(!($e instanceof \Throwable)) { return new AppException('Unknown exception!'); }
 	    $type = isset($type) ? $type : ($e instanceof \Error ? 'php' : 'other');
-	    return new AppException($e->getMessage(),$e->getCode(),1,$e->getFile(),$e->getLine(),$type,NULL,[],$e->getPrevious());
+	    return new AppException($e->getMessage(),$e->getCode(),$severity,$e->getFile(),$e->getLine(),$type,NULL,[],$e->getPrevious());
 	}//END public static function GetInstance
     /**
      * Class constructor method

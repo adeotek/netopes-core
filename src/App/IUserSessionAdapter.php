@@ -18,6 +18,13 @@ namespace NETopes\Core\App;
  */
 interface IUserSessionAdapter {
     /**
+	 * Get current user ID
+	 *
+	 * @return int|null Returns current user ID
+	 * @access public
+	 */
+	public static function GetCurrentUserId(): ?int;
+    /**
      * Loads application settings from database or from request parameters
      *
      * @param bool        $notFromDb
