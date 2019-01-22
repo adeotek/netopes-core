@@ -99,11 +99,13 @@ $_NAPP_CONFIG_STRUCTURE = [
     // Use NETopes AJAX extension
     'app_use_ajax_extension'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Custom validator adapter class
-    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Custom converter adapter class
-    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Custom formatter adapter class
-    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
+    // Custom user session (LoadAppSettings/Login/Logout methods) adapter class
+    'user_session_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Error handler class NULL/empty for default NETopes implementation
     //   (must implement NETopes\Core\App\IErrorHandler interface)
     'error_handler_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],

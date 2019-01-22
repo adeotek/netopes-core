@@ -10,7 +10,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.7
+ * @version    3.0.0.0
  * @filesource
  */
 define('_VALID_NAPP_REQ',TRUE);
@@ -33,50 +33,50 @@ require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/vendor/autoload.php');
 require_once(NETopes\Core\AppPath::GetBootFile());
 require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/Classes/NApp.php');
 require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/Classes/Translate.php');
-$cnamespace = array_key_exists('namespace',$_GET) ? $_GET['namespace'] : NULL;
-$napp = NApp::GetInstance(FALSE,array('namespace'=>$cnamespace,'startup_path'=>realpath(dirname(__FILE__))));
-if(!$napp->CheckGlobalParams()) { die('Invalid request (1)!'); }
-$napp->LoadAppSettings();
-if(!$napp->login_status && (!array_key_exists('rpa',$_GET) || $_GET['rpa']!=1)) { die('Invalid request (2)!'); }
-$utype = (array_key_exists('utype',$_GET) && $_GET['utype']) ? $_GET['utype'] : 0;
-switch($utype) {
+$cNamespace = array_key_exists('namespace',$_POST) ? $_POST['namespace'] : NULL;
+NApp::Start(FALSE,['namespace'=>$cNamespace,'startup_path'=>realpath(dirname(__FILE__))]);
+if(!NApp::GetAppState()) { die('Invalid request (1)!'); }
+NApp::LoadAppSettings();
+if(!NApp::GetLoginStatus() && (!array_key_exists('rpa',$_GET) || $_GET['rpa']!=1)) { die('Invalid request (2)!'); }
+$uType = (array_key_exists('utype',$_GET) && $_GET['utype']) ? $_GET['utype'] : 0;
+switch($uType) {
     case 1:
-        $ffilter = '/\.(gif|jpe?g|png)$/i';
+        $fFilter = '/\.(gif|jpe?g|png)$/i';
         break;
     case 2:
-        $ffilter = '/\.(avi|mp4|ogg|wmv)$/i';
+        $fFilter = '/\.(avi|mp4|ogg|wmv)$/i';
         break;
     case 3:
-        $ffilter = '/\.(gif|jpe?g|png|pdf|doc?x|xls?x|ppt?x|pps?x|ods|odt)$/i';
+        $fFilter = '/\.(gif|jpe?g|png|pdf|doc?x|xls?x|ppt?x|pps?x|ods|odt)$/i';
         break;
     case 4:
-        $ffilter = '/\.(xls?x|ods)$/i';
+        $fFilter = '/\.(xls?x|ods)$/i';
         break;
     case 12:
-        $ffilter = '/\.(gif|jpe?g|png|avi|mp4|ogg|wmv)$/i';
+        $fFilter = '/\.(gif|jpe?g|png|avi|mp4|ogg|wmv)$/i';
         break;
     case 13:
-        $ffilter = '/\.apk$/i';
+        $fFilter = '/\.apk$/i';
         break;
     case 40:
-        $ffilter = '/\.(xls?x|ods|csv|txt|xml)$/i';
+        $fFilter = '/\.(xls?x|ods|csv|txt|xml)$/i';
         break;
     default:
-        $ffilter = '/.+$/i';
+        $fFilter = '/.+$/i';
         break;
 }//END switch
 if(array_key_exists('targetdir',$_POST) && strlen($_POST['targetdir'])) {
-    $targetdir = trim(rawurldecode($_POST['targetdir']),'/').'/';
-    $uploadurl = $napp->app_web_link;
+    $targetDir = trim(rawurldecode($_POST['targetdir']),'/').'/';
+    $uploadUrl = NApp::$appBaseUrl;
 } else {
-    $subfolder = (array_key_exists('subfolder',$_POST) && strlen($_POST['subfolder'])) ? trim(rawurldecode($_POST['subfolder']),'/').'/' : '';
-    $targetdir = $napp->app_public_path.'/repository/'.$subfolder;
-    $uploadurl = $napp->app_web_link.'/repository/'.$subfolder;
+    $subFolder = (array_key_exists('subfolder',$_POST) && strlen($_POST['subfolder'])) ? trim(rawurldecode($_POST['subfolder']),'/').'/' : '';
+    $targetDir = NApp::$appPublicPath.'/repository/'.$subFolder;
+    $uploadUrl = NApp::$appBaseUrl.'/repository/'.$subFolder;
 }
 $options = [
-    'upload_dir'=>$targetdir,
-    'upload_url'=>$uploadurl,
-    'accept_file_types'=>$ffilter,
+    'upload_dir'=>$targetDir,
+    'upload_url'=>$uploadUrl,
+    'accept_file_types'=>$fFilter,
     'reject_file_types'=>'/\.(php|inc|js|exe|sh|py|pl|com|bat)$/i',
 ];
 $upload_handler = new UploadHandler($options);

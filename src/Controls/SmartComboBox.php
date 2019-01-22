@@ -141,7 +141,7 @@ class SmartComboBox extends Control {
                     }//END foreach
 			    }//if($s_values->count())
 				$tagauid = AppSession::GetNewUID($this->tag_id,'md5');
-				AppSession::SetSessionAcceptedRequest($tagauid);
+				AppSession::SetSessionAcceptedRequest($tagauid,NApp::$currentNamespace);
 				$cns = NApp::$currentNamespace;
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
 				$ac_method = get_array_value($this->data_source,'ds_method','','is_string');

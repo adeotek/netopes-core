@@ -648,8 +648,11 @@ class AppSession {
 	public static function SetSessionAcceptedRequest(?string $uid,?string $namespace = NULL): string {
 		if(is_null($uid)) { $uid = static::GetNewUID(NULL,'md5'); }
 		if(strlen($namespace)) {
+		    if(!isset(static::$data[$namespace]) || !is_array(static::$data[$namespace])) { static::$data[$namespace] = []; }
+		    if(!isset(static::$data[$namespace]['xURLRequests']) || !is_array(static::$data[$namespace]['xURLRequests'])) { static::$data[$namespace]['xURLRequests'] = []; }
 		    static::$data[$namespace]['xURLRequests'][$uid] = TRUE;
 		} else {
+		    if(!isset(static::$data['xURLRequests']) || !is_array(static::$data['xURLRequests'])) { static::$data['xURLRequests'] = []; }
 		    static::$data['xURLRequests'][$uid] = TRUE;
 		}//if(strlen($namespace))
 		return $uid;

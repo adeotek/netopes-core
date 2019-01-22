@@ -109,7 +109,7 @@ class TreeComboBox extends Control {
             }//if(count($ds_js_params))
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
-		    AppSession::SetSessionAcceptedRequest($this->uid);
+		    AppSession::SetSessionAcceptedRequest($this->uid,NApp::$currentNamespace);
             NApp::AddJsScript("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::$currentNamespace."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();

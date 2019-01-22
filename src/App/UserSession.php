@@ -35,6 +35,7 @@ class UserSession {
      * @throws \NETopes\Core\AppException
      */
     public static function SetAdapterClass(string $className): void {
+        $className = '\\'.trim($className,'\\');
 	    if(!class_exists($className)) { throw new AppException('Invalid UserSession adapter class!'); }
 	    static::$adapterClass = $className;
 	}//END public static function SetAdapterClass
