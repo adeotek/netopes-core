@@ -53,6 +53,9 @@ class GroupCheckBox extends Control {
         if(!is_object($this->items)) { $this->items = DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
         if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
+    /**
+     * @throws \NETopes\Core\AppException
+     */
     protected function GetItems() {
         if(isset($this->items)) { return; }
         $ds_class = get_array_value($this->data_source,'ds_class','','is_string');
@@ -63,6 +66,10 @@ class GroupCheckBox extends Control {
         if(!strlen($ds_class) || !strlen($ds_method) || !DataProvider::MethodExists($ds_class,$ds_method,$mode)) { return; }
         $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
     }//END protected function GetItems
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControl(): ?string {
         $this->GetItems();
         $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';

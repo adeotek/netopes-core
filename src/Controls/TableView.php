@@ -458,7 +458,7 @@ class TableView {
 					if(strlen($fkey) && array_key_exists($fkey,$params)) {
 						$params[$fkey] = $a['value'];
 					} else {
-					    $fField = get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string');
+					    $fField = get_array_value($this->columns[$a['type']],'entity_property',get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string'),'is_notempty_string');
                         $fcRelations = get_array_value($this->columns[$a['type']],'relation',[],'is_array');
                         if(count($fcRelations)) {
                             end($fcRelations);
