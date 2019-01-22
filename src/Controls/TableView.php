@@ -2331,8 +2331,8 @@ class TableView {
 		if(!is_object($items) || !count($items)) { throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$tmp_export_data = $this->export_data;
 		$this->export_data = array('columns'=>[],'data'=>[]);
-		$tmpparams = [];
-		$this->IterateData($items,$tmpparams);
+		$tmpParams = new Params();
+		$this->IterateData($items,$tmpParams);
 		if(!$this->export_data) { throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1); }
 		$this->export_data['with_borders'] = TRUE;
 		$this->export_data['freeze_pane'] = TRUE;
@@ -2346,9 +2346,7 @@ class TableView {
 		$cachefile = AppHelpers::GetCachePath().'datagrid/'.$this->chash.'_all.tmpexp';
 		// NApp::Dlog($cachefile,'$cachefile');
 		try {
-			if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
-				mkdir(AppHelpers::GetCachePath().'datagrid',755);
-			}//if(!file_exists(AppHelpers::GetCachePath().'datagrid'))
+			if(!file_exists(AppHelpers::GetCachePath().'datagrid')) { mkdir(AppHelpers::GetCachePath().'datagrid',755); }
 			if(file_exists($cachefile)) { unlink($cachefile); }
 			file_put_contents($cachefile,serialize($params));
 		} catch(\Exception $e) {
@@ -2380,11 +2378,11 @@ class TableView {
 				NApp::Elog('File '.$cachefile.' not found !','TableView::GetExportCacheFile');
 				return;
 			}//if(!file_exists($cachefile))
-			$export_data = unserialize(file_get_contents($cachefile));
+			$exportData = unserialize(file_get_contents($cachefile));
 			 // NApp::Log2File(print_r($export_data,TRUE),NApp::$appPath.AppConfig::GetValue('logs_path').'/test.log');
 			// NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
-			if(!is_array($export_data) || !count($export_data)) { return; }
-			$excel = new ExcelExport($export_data);
+			if(!is_array($exportData) || !count($exportData)) { return; }
+			$excel = new ExcelExport($exportData);
 			// NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData'),'BP:END');
 		} catch(AppException $e) {
 			NApp::Elog($e);

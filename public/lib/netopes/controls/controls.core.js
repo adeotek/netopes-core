@@ -836,7 +836,7 @@ function AnimatedHide(elementid,val,speed) {
 function AnimatedHideWithSave(elementid,valueid,speed) {
 	if($('#'+elementid).length>0) {
 		let lspeed = speed ? speed : 600;
-		if($('#'+valueid).val()==1) {
+		if($('#'+valueid).val()===1) {
 			$('#'+elementid).hide(lspeed);
 		} else {
 			$('#'+elementid).show(lspeed);
@@ -858,29 +858,30 @@ function CreateCkEditor(phash,e,multi,econfig,ewidth,eheight) {
 		let es = e.split(',');
 		for(let i=0;i<es.length;i++) { CreateCkEditor(phash,es[i],false,econfig,ewidth,eheight); }
 	} else {
-		if(!e || e.length==0) { return; }
+		if(!e || e.length===0) { return; }
 		// if(!phash) { phash = window.name.length>0 ? window.name : '_xbasepage_'; }
 		// console.log('CreateCkEditor: ' + e + ' // ' + phash);
 		let ckei = window.ckei_list;
-		if(ckei==undefined || ckei==null || typeof(ckei)!='object') { ckei = new Array(); }
-		let newconfig = typeof(econfig)=='object' ? econfig : new Object();
+		if(ckei===undefined || ckei===null || typeof(ckei)!='object') { ckei = []; }
+		let newconfig = typeof(econfig)=='object' ? econfig : {};
 		if(ewidth) { newconfig.width = ewidth; }
 		if(eheight) { newconfig.height = eheight; }
+		if(CKEDITOR.instances[e]) { CKEDITOR.instances[e].destroy(true); }
 		CKEDITOR.replace(e,newconfig);
-		if($.inArray(e,ckei)==-1) { ckei.push(e); }
+		if($.inArray(e,ckei)===-1) { ckei.push(e); }
 		window.ckei_list = ckei;
 	}//if(multi)
 }//function CreateCkEditor(e,multi)
 
 function DestroyCkEditors(phash,target) {
-	if(!target || target.length==0) { return; }
+	if(!target || target.length===0) { return; }
 	let targetObj = $('#'+target);
 	if(!targetObj) { return; }
 	// if(!phash) { phash = window.name.length>0 ? window.name : '_xbasepage_'; }
 	// console.log('DestroyCkEditors: ' + target + ' // ' + phash);
 	let ckei = window.ckei_list;
-	if(ckei==undefined || ckei==null || typeof(ckei)!='object' || ckei.length==0) { return; }
-	let newCkei = new Array();
+	if(ckei===undefined || ckei===null || typeof(ckei)!='object' || ckei.length===0) { return; }
+	let newCkei = [];
 	for(let i=0;i<ckei.length;i++) {
 		let dropped = false;
 		targetObj.find('#'+ckei[i]).each(function() {
@@ -908,18 +909,18 @@ function DestroyCkEditor(phash,e,multi) {
 			let ckei = window.ckei_list;
 			let editor = CKEDITOR.instances[e];
     		if(editor) { editor.destroy(true); }
-			if(ckei==undefined || ckei==null || typeof(ckei)!='object' || $.inArray(e,ckei)==-1) { return; }
+			if(ckei===undefined || ckei===null || typeof(ckei)!='object' || $.inArray(e,ckei)===-1) { return; }
 			ckei.splice(ckei.indexOf(e),1);
 			window.ckei_list = ckei;
 		}//if(typeof e=='array')
 	} else {
 		let ckei = window.ckei_list;
-		if(ckei==undefined || ckei==null || typeof(ckei)!='object' || ckei.length==0) { return; }
+		if(ckei===undefined || ckei===null || typeof(ckei)!='object' || ckei.length===0) { return; }
 		for(let i=0;i<ckei.length;i++) {
 			let editor = CKEDITOR.instances[ckei[i]];
 			if(editor) { editor.destroy(true); }
 		}//END for
-		window.ckei_list = new Array();
+		window.ckei_list = [];
 	}//if(e)
 }//function DestroyCkEditor
 /**
@@ -970,7 +971,7 @@ function CreateFileUploader(elementid,multi) {
 				if(statusid && $('#'+statusid).length) {
 					$('#'+statusid).css('display','none');
 				}//if(statusid && $('#'+statusid).length)
-            	if(data.result.files[0].error && data.result.files[0].error!='') {
+            	if(data.result.files[0].error && data.result.files[0].error!=='') {
             		ShowErrorDialog('Upload failed: '+data.result.files[0].error);
             	} else {
 		            let callbackfunc = $(element).attr('data-callback');
@@ -1005,7 +1006,7 @@ function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 		obj = $(this).find('input.clsTreeGridBtn').first();
 		if(typeof(obj)=='object') {
 			pid = $(this).attr('data-id');
-			if(pid) { TreeGridViewAction(obj,pid,tableid,(cval==1 ? $(obj).val() : 0),orgid); }
+			if(pid) { TreeGridViewAction(obj,pid,tableid,(cval===1 ? $(obj).val() : 0),orgid); }
 		}//if(typeof(obj)=='object')
 	});//$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i)
 }//END function TreeGridViewAction
