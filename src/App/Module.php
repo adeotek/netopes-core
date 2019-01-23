@@ -113,6 +113,7 @@ class Module {
 	 * @param string $method
 	 * @param string $type
 	 * @return mixed
+     * @throws \NETopes\Core\AppException
 	 */
 	public static function GetDRights(string $module,string $method = '',string $type = 'All') {
 		if(NApp::GetParam('sadmin')==1) { return FALSE; }

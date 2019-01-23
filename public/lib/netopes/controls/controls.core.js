@@ -999,14 +999,14 @@ function CreateFileUploader(elementid,multi) {
 /*** For TreeGrid ***/
 function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 	if(!orgid) { orgid = pid; }
-	if(cval!==0 && cval!==1) { cval = $(obj).val()===1 ? 0 : 1; }
-	if(orgid===pid) { $(obj).val(cval); }
-	$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i) {
-		if(cval===1) { $(this).show(); } else { $(this).hide(); }
+	if(cval!=0 && cval!=1) { cval = $(obj).val()==1 ? 0 : 1; }
+	if(orgid==pid) { $(obj).val(cval); }
+	$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function() {
+		if(cval==1) { $(this).show(); } else { $(this).hide(); }
 		obj = $(this).find('input.clsTreeGridBtn').first();
 		if(typeof(obj)=='object') {
 			pid = $(this).attr('data-id');
-			if(pid) { TreeGridViewAction(obj,pid,tableid,(cval===1 ? $(obj).val() : 0),orgid); }
+			if(pid) { TreeGridViewAction(obj,pid,tableid,(cval==1 ? $(obj).val() : 0),orgid); }
 		}//if(typeof(obj)=='object')
 	});//$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i)
 }//END function TreeGridViewAction

@@ -486,7 +486,7 @@ class TableView {
 		}//if($this->with_pagination && !$this->export_only)
 		$sortcolumn = get_array_value($this->sortby,'column',NULL,'is_notempty_string');
 		$extra_params['sort'] = [];
-		if($this->tree) { $extra_params['sort']['"LVL"'] = 'ASC'; }
+		if($this->tree) { $extra_params['sort']['LVL'] = 'ASC'; }
 		if(strlen($sortcolumn)) {
 		    if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
 		        $extra_params['sort'][$sortcolumn] = strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
