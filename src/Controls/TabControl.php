@@ -19,19 +19,23 @@ use NApp;
  */
 class TabControl {
 	/**
-	 * @var    string BasicForm table id
+	 * @var    bool Generate content on construct and cache it
+	 */
+    public $cached = FALSE;
+	/**
+	 * @var    string TabControl table id
 	 */
 	public $tag_id = NULL;
 	/**
-	 * @var    string BasicForm response target id
+	 * @var    string TabControl response target id
 	 */
 	public $response_target = NULL;
 	/**
-	 * @var    string BasicForm width
+	 * @var    string TabControl width
 	 */
 	public $width = NULL;
 	/**
-	 * @var    string BasicForm additional class
+	 * @var    string TabControl additional class
 	 */
 	public $class = NULL;
 	/**
@@ -47,6 +51,10 @@ class TabControl {
 	 */
 	protected $output_buffer = NULL;
 	/**
+	 * @var    array Javascript code execution queue
+	 */
+	protected $js_scripts = [];
+	/**
 	 * BasicForm class constructor method
 	 * @param  array $params Parameters array
 	 * @throws \NETopes\Core\AppException
@@ -59,14 +67,15 @@ class TabControl {
 				if(property_exists($this,$k)) { $this->$k = $v; }
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
-		$this->output_buffer = $this->SetControl();
+		if($this->cached) { $this->output_buffer = $this->SetControl(); }
 	}//END public function __construct
 	/**
 	 * Gets the content for a tab
 	 * @param  array $tab Tab parameters array
 	 * @return string Returns content HTML for one tab
+     * @throws \NETopes\Core\AppException
 	 */
-	protected function SetContent($tab) {
+	protected function SetContent(array $tab): string {
 		$result = '';
 		$ct_result = '';
 		$ct_data = '';
@@ -112,6 +121,10 @@ class TabControl {
 				$control = new $c_type($c_params);
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				$ct_result .= $control->Show();
+                if(method_exists($control,'GetJsScript')) {
+                    $jsScript = $control->GetJsScript();
+                    if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
+                }//if(method_exists($control,'GetJsScript'))
 				break;
 			case 'content':
 			default:
@@ -251,10 +264,30 @@ class TabControl {
 		return $result;
 	}//END private function SetControl
 	/**
+     * @return array
+     */
+    public function GetJsScripts(): array {
+        return $this->js_scripts;
+    }//END public function GetJsScripts
+    /**
+     * @return null|string
+     */
+    public function GetJsScript(): ?string {
+        if(!count($this->js_scripts)) { return NULL; }
+		$result = '';
+		foreach($this->js_scripts as $js) {
+			$js = trim($js);
+			$result .= (strlen($result) ? "\n" : '').(substr($js,-1)=='}' ? $js : rtrim($js,';').';');
+		}//END foreach
+		return $result;
+    }//END public function GetJsScript
+	/**
 	 * Gets the output buffer content
 	 * @return string Returns the output buffer content (html)
+     * @throws \NETopes\Core\AppException
 	 */
 	public function Show() {
-		return $this->output_buffer;
+	    if($this->cached) { return $this->output_buffer; }
+		return $this->SetControl();
 	}//END public function Show
 }//END class TabControl

@@ -98,6 +98,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * Adds an Exception or an Error to the error stack
 	 * @param \Throwable $e The exception/error to be added to the stack
 	 * @return void
+     * @throws \Exception
 	 */
 	public static function AddError(\Throwable $e) {
 		$errFile = str_replace(_NAPP_ROOT_PATH,'',$e->getFile());

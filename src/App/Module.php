@@ -1,7 +1,7 @@
 <?php
 /**
  * Module class file
- * @package    NETopes\Modules
+ * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
@@ -15,9 +15,19 @@ use NETopes\Core\Controls\ControlsHelpers;
 use GibberishAES;
 use NApp;
 /**
- * Module class
+ * Class Module
  * All applications modules extend this base class
- * @package  NETopes\Modules
+ * @package  NETopes\Core\App
+ * @method ViewDRights()
+ * @method ListDRights()
+ * @method SearchDRights()
+ * @method AddDRights()
+ * @method EditDRights()
+ * @method DeleteDRights()
+ * @method PrintDRights()
+ * @method ValidateDRights()
+ * @method ExportDRights()
+ * @method ImportDRights()
  */
 class Module {
 	/**
@@ -113,8 +123,7 @@ class Module {
 	 * @param string $method
 	 * @param string $type
 	 * @return mixed
-     * @throws \NETopes\Core\AppException
-	 */
+     */
 	public static function GetDRights(string $module,string $method = '',string $type = 'All') {
 		if(NApp::GetParam('sadmin')==1) { return FALSE; }
 		// NApp::Dlog($module,'$module');
