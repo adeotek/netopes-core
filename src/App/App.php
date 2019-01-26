@@ -531,7 +531,7 @@ HTML;
 	    $jsRootUrl = static::$appBaseUrl.AppConfig::GetValue('app_js_path');
 	    $js = <<<HTML
         <script type="text/javascript" src="{$jsRootUrl}/gibberish-aes.min.js?v=1901081"></script>
-        <script type="text/javascript" src="{$jsRootUrl}/main.min.js?v=1901081"></script>
+        <script type="text/javascript" src="{$jsRootUrl}/main.min.js?v=1901251"></script>
 HTML;
         if(static::IsValidAjaxRequest()) { $js .= static::$_ajaxRequest->GetJsScripts($jsRootUrl); }
 		if(is_object(static::$debugger)) {

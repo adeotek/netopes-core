@@ -38,18 +38,18 @@ class ControlsHelpers {
     /**
 	 * Replace dynamic parameters
 	 * @param  array $params The parameters array to be parsed
-	 * @param  object $row Data row object to be used for replacements
+	 * @param  object|array $row Data row object to be used for replacements
 	 * @param  bool  $recursive Flag indicating if the array should be parsed recursively
-     * @param null    $params_prefix
+     * @param  string|null    $paramsPrefix
      * @return array|string Return processed parameters array
      * @throws \NETopes\Core\AppException
 	 */
-	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$params_prefix = NULL) {
+	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$paramsPrefix = NULL) {
 	    $lRow = is_object($row) ? $row : new VirtualEntity(is_array($row) ? $row : []);
 		if(is_string($params)) {
 			if(!strlen($params)) { return $params; }
-			if(is_string($params_prefix) && strlen($params_prefix)) {
-				$result = str_replace('{'.$params_prefix.'{','{{',$params);
+			if(is_string($paramsPrefix) && strlen($paramsPrefix)) {
+				$result = str_replace('{'.$paramsPrefix.'{','{{',$params);
 			} else {
 			    $result = $params;
 			}//if(is_string($params_prefix) && strlen($params_prefix))
@@ -67,7 +67,7 @@ class ControlsHelpers {
 		$result = [];
 		foreach(array_keys($params) as $pk) {
 			if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1'))) {
-				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$lRow,TRUE,$params_prefix);
+				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$lRow,TRUE,$paramsPrefix);
 			} else {
 				$result[$pk] = $params[$pk];
 			}//if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1')))
