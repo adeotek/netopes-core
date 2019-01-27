@@ -73,16 +73,18 @@ class TabControl {
 		}//if(is_array($params) && count($params))
 		if($this->cached) { $this->output_buffer = $this->SetControl(); }
 	}//END public function __construct
-	/**
-	 * Gets the content for a tab
-	 * @param  array $tab Tab parameters array
-	 * @return string Returns content HTML for one tab
+    /**
+     * Gets the content for a tab
+     * @param  array      $tab Tab parameters array
+     * @param string|null $contentType
+     * @return string Returns content HTML for one tab
      */
-	protected function SetContent(array $tab): string {
+	protected function SetContent(array $tab,?string &$contentType = NULL): string {
 		$result = '';
 		$ct_result = '';
 		$ct_data = '';
-		switch(get_array_value($tab,'content_type','content','is_notempty_string')) {
+		$contentType = get_array_value($tab,'content_type','content','is_notempty_string');
+		switch($contentType) {
 		    case 'file':
 				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
 				if($tcontent && file_exists($tcontent)) {
@@ -248,18 +250,18 @@ class TabControl {
 			}//END switch
 		}//END foreach
 		$thtype = get_array_value($tab,'height_type','content','is_notempty_string');
-		$js_script = "
-			$('#{$this->tag_id}').tabs({
+		$jsScript = <<<JS
+            $('#{$this->tag_id}').tabs({
 				heightStyle: '{$thtype}',
-				activate: function(event,ui) {
-					var tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return false; }
-					var tcr_action = $(ui.newPanel).attr('data-reload-action');
+				activate: function(e,ui) {
+					let tcr = $(ui.newPanel).attr('data-reload');
+					if(!tcr && tcr!=1) { return true; }
+					let tcr_action = $(ui.newPanel).attr('data-reload-action');
 					if(tcr_action.length>0) { eval(tcr_action); }
 	            }
 			});
-		";
-		NApp::AddJsScript($js_script);
+JS;
+		NApp::AddJsScript($jsScript);
 		return $result;
 	}//END private function GetTabs
 	/**
@@ -268,7 +270,7 @@ class TabControl {
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetAccordion(): ?string {
-        $result = '<div class="clsAccordion clsControlContainer">'."\n";
+        $result = '<div id="'.$this->tag_id.'_accordion" class="clsAccordion clsControlContainer">'."\n";
         foreach($this->tabs as $tab) {
 			if(!is_array($tab) || !count($tab)) { continue; }
             switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
@@ -282,7 +284,8 @@ class TabControl {
                         $tTab = $this->ProcessParamsArray($cTab,'{{t_uid}}',$tUid);
                         $tTab = $this->GetTabData($tTab);
                         $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
-                        $result .= $this->SetContent($tTab);
+                        $contentType = NULL;
+                        $result .= $this->SetContent($tTab,$contentType);
 					}//END foreach
 					break;
 				case 'fixed':
@@ -291,13 +294,31 @@ class TabControl {
                     $result .= "\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
                     $tTab = $this->ProcessParamsArray($tab,'{{t_uid}}',$tUid);
                     $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
-                    $result .= $this->SetContent($tTab);
+                    $contentType = NULL;
+                    $result .= $this->SetContent($tTab,$contentType);
 					break;
 			}//END switch
         }//END foreach
         $result .= '</div>'."\n";
-        $js_script = "$('#{$this->tag_id}').accordion();";
-        NApp::AddJsScript($js_script);
+        $jsScript = <<<JS
+            $('#{$this->tag_id}_accordion').accordion({
+                create: function(e,ui) {
+                    if(ui.panel.length>0) {
+                        let tcr = $(ui.panel).attr('data-reload');
+                        if(!tcr && tcr!=1) { return true; }
+                        let tcr_action = $(ui.panel).attr('data-reload-action');
+                        if(tcr_action.length>0) { eval(tcr_action); }
+                    }
+                },
+				activate: function(e,ui) {
+					let tcr = $(ui.newPanel).attr('data-reload');
+					if(!tcr && tcr!=1) { return true; }
+					let tcr_action = $(ui.newPanel).attr('data-reload-action');
+					if(tcr_action.length>0) { eval(tcr_action); }
+	            }
+			});
+JS;
+		NApp::AddJsScript($jsScript);
 		return $result;
 	}//END private function GetAccordion
 	/**
@@ -311,11 +332,11 @@ class TabControl {
 		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
 		switch(strtolower($this->mode)) {
             case 'accordion':
-                $result .= $this->GetTabs();
+                $result .= $this->GetAccordion();
                 break;
             case 'tabs':
             default:
-                $result .= $this->GetAccordion();
+                $result .= $this->GetTabs();
                 break;
 		}//END switch
 		$result .= '</div>'."\n";
