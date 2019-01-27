@@ -300,8 +300,10 @@ JS;
 			}//END switch
         }//END foreach
         $result .= '</div>'."\n";
+        $thtype = get_array_value($tab,'height_type','content','is_notempty_string');
         $jsScript = <<<JS
             $('#{$this->tag_id}_accordion').accordion({
+                heightStyle: '{$thtype}',
                 create: function(e,ui) {
                     if(ui.panel.length>0) {
                         let tcr = $(ui.panel).attr('data-reload');
