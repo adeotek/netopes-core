@@ -35,13 +35,17 @@ class TabControl {
 	 */
 	public $width = NULL;
 	/**
-	 * @var    string TabControl additional class
+	 * @var    string|null TabControl additional class
 	 */
 	public $class = NULL;
 	/**
 	 * @var    array tabs descriptor array
 	 */
 	public $tabs = [];
+	/**
+	 * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion)
+	 */
+	public $mode = NULL;
 	/**
 	 * @var    string Basic form base class
 	 */
@@ -73,8 +77,7 @@ class TabControl {
 	 * Gets the content for a tab
 	 * @param  array $tab Tab parameters array
 	 * @return string Returns content HTML for one tab
-     * @throws \NETopes\Core\AppException
-	 */
+     */
 	protected function SetContent(array $tab): string {
 		$result = '';
 		$ct_result = '';
@@ -203,20 +206,17 @@ class TabControl {
 	 * @return string|null
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function SetControl(): ?string {
-		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
-		$lclass = trim($this->base_class.' '.$this->class);
-		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+	protected function GetTabs(): ?string {
 		// Set Tab header
-		$result .= "\t".'<ul>'."\n";
+		$result = "\t".'<ul>'."\n";
 		$ltabs = [];
 		foreach($this->tabs as $tab) {
 			if(!is_array($tab) || !count($tab)) { continue; }
 			switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
 				case 'template':
-					$tcollection = get_array_value($tab,'source_array',[],'is_array');
+					$tCollection = get_array_value($tab,'source_array',[],'is_array');
 					unset($tab['source_array']);
-					foreach($tcollection as $ctab) {
+					foreach($tCollection as $ctab) {
 						$ct_uid = get_array_value($ctab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
 						$ct_name = get_array_value($ctab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
 						$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
@@ -247,7 +247,6 @@ class TabControl {
 					break;
 			}//END switch
 		}//END foreach
-		$result .= '</div>'."\n";
 		$thtype = get_array_value($tab,'height_type','content','is_notempty_string');
 		$js_script = "
 			$('#{$this->tag_id}').tabs({
@@ -261,6 +260,65 @@ class TabControl {
 			});
 		";
 		NApp::AddJsScript($js_script);
+		return $result;
+	}//END private function GetTabs
+	/**
+	 * Sets the output buffer value
+	 * @return string|null
+	 * @throws \NETopes\Core\AppException
+	 */
+	protected function GetAccordion(): ?string {
+        $result = '<div class="clsAccordion clsControlContainer">'."\n";
+        foreach($this->tabs as $tab) {
+			if(!is_array($tab) || !count($tab)) { continue; }
+            switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
+				case 'template':
+					$tCollection = get_array_value($tab,'source_array',[],'is_array');
+					unset($tab['source_array']);
+					foreach($tCollection as $cTab) {
+					    $tUid = get_array_value($cTab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
+                        $tName = get_array_value($cTab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
+                        $result .= "\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
+                        $tTab = $this->ProcessParamsArray($cTab,'{{t_uid}}',$tUid);
+                        $tTab = $this->GetTabData($tTab);
+                        $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
+                        $result .= $this->SetContent($tTab);
+					}//END foreach
+					break;
+				case 'fixed':
+					$tUid = get_array_value($tab,'uid','def','isset');
+					$tName = get_array_value($tab,'name','','is_string');
+                    $result .= "\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
+                    $tTab = $this->ProcessParamsArray($tab,'{{t_uid}}',$tUid);
+                    $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
+                    $result .= $this->SetContent($tTab);
+					break;
+			}//END switch
+        }//END foreach
+        $result .= '</div>'."\n";
+        $js_script = "$('#{$this->tag_id}').accordion();";
+        NApp::AddJsScript($js_script);
+		return $result;
+	}//END private function GetAccordion
+	/**
+	 * Sets the output buffer value
+	 * @return string|null
+	 * @throws \NETopes\Core\AppException
+	 */
+	protected function SetControl(): ?string {
+		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
+		$lclass = trim($this->base_class.' '.$this->class);
+		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+		switch(strtolower($this->mode)) {
+            case 'accordion':
+                $result .= $this->GetTabs();
+                break;
+            case 'tabs':
+            default:
+                $result .= $this->GetAccordion();
+                break;
+		}//END switch
+		$result .= '</div>'."\n";
 		return $result;
 	}//END private function SetControl
 	/**
