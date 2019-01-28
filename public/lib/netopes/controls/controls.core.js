@@ -425,14 +425,17 @@ function GCBOSetValue(elementid,val,title,btnclick) {
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function GCBOSetValue
 
-function TCBOSetValue(elementid,val,title,update_tree) {
-	if($('#'+elementid).attr('disabled')) { return false; }
+function TCBOSetValue(elementid,val,title,update_tree,reload) {
 	let oval = $('#'+elementid).val();
 	$('#'+elementid).val(val);
 	let obj = $('#'+elementid+'-cbo');
 	$(obj).val(title);
 	$(obj).attr('data-value',val);
-	if(update_tree==true || update_tree==1) {
+	if($('#'+elementid).attr('disabled')) { return false; }
+	if(reload===true || reload==1) {
+		let tree = $('#'+elementid+'-ctree').fancytree('getTree');
+		tree.reload();
+	} else if(update_tree===true || update_tree==1) {
 		let tree = $('#'+elementid+'-ctree').fancytree('getTree');
 		let node = tree.getNodeByKey(oval);
 		if(node!=null) { node.setSelected(false); }
@@ -441,43 +444,64 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function TCBOClear
 
-function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
+function InitTCBOFancyTree(elementid,val,module,method,url_params,js_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
-	let lval = encodeURIComponent(val);
-	let aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
-	let luid = '';
-	let lparams = hide_parents_checkbox ? '&hpc=1' : '';
-	if(uid || uid.length>0) { luid += '&uid='+uid; }
-	let paramsString = '';
-	if(typeof(url_params)==='object') {
-	    for(let pk in url_params) { paramsString += '&' + pk + '=' + url_params[pk]; }
-	} else if(typeof(url_params)==='string') {
-	    paramsString = url_params;
-	}//if(typeof(url_params)==='object')
-	if(encrypt===1 || encrypt===true) {
-		aurl += '&arhash='+encodeURIComponent(GibberishAES.enc('module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name,'xJS'));
-	} else {
-		aurl += '&module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name;
-	}//if(encrypt===1 || encrypt===true)
+	var lval = encodeURIComponent(val);
+	var aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
+	var lparams = '&module='+module+'&method='+method;
+	if(hide_parents_checkbox) { lparams += '&hpc=1'; }
+	if(uid || uid.length>0) { lparams += '&uid='+uid; }
+	if(url_params) { lparams += url_params }
+	var urlCallback = function() {
+		let paramsString = '';
+		if(typeof(js_params)==='object') {
+			for(let pk in js_params) {
+				let jspVal;
+				try {
+					jspVal = eval(js_params[pk]);
+				} catch(er) {
+					console.log(er);
+					console.log(js_params[pk]);
+					jspVal = '';
+				}//try
+				paramsString += '&' + pk + '=' + jspVal;
+			}//for
+		} else if(typeof(js_params)==='string') {
+			paramsString = js_params;
+		}//if(typeof(js_params)==='object')
+		if(encrypt===1 || encrypt===true) {
+			aurl += '&arhash='+encodeURIComponent(GibberishAES.enc(lparams+paramsString+'&phash='+window.name,'xJS'));
+		} else {
+			aurl += lparams+paramsString+'&phash='+window.name;
+		}//if(encrypt===1 || encrypt===true)
+		// console.log('URL: '+aurl+'&type=json&tree=1&val='+lval);
+		return aurl+'&type=json&tree=1&val='+lval;
+	};
 	$('#'+elementid+'-ctree').fancytree({
 		checkbox: true,
         icon: icon||false,
 		selectMode: 1,
 		clickFolderMode: 1,
 		debugLevel: 0,
-		source: {
-			url: aurl+'&type=json&tree=1&val='+lval,
+		source: function() {
+			let iUrl = urlCallback();
+			return {
+				url: iUrl,
+				cache: false
+			};
 		},
 		lazyLoad: function(event,data) {
+			let iUrl = urlCallback();
 			data.result = {
-				url: aurl+'&type=json&tree=1&val='+lval,
+				url: iUrl,
 				data: { key: data.node.key },
 			};
 		},
 		createNode: function(event,data) {
 		    if(!data.node.data.hasSelectedChild) { return false; }
+		    let iUrl = urlCallback();
 			$.ajax({
-				url: aurl+'&type=json&tree=1&val='+lval,
+				url: iUrl,
 				data: { key: data.node.key },
 				dataType: 'json',
 				success: function(response) { data.node.addChildren(response); }

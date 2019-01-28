@@ -102,15 +102,17 @@ class TreeComboBox extends Control {
             if(count($ds_params)) {
                 foreach($ds_params as $pk=>$pv) { $urlParams .= '&'.$pk.'='.$pv; }
             }//if(count($ds_params))
-            $urlJsParams = strlen($urlParams) ? "urlParams: '".$urlParams."'" : '';
-            $ds_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
-            if(count($ds_js_params)) {
-                foreach($ds_js_params as $acpk=>$acpv) { $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.': '.$acpv; }
-            }//if(count($ds_js_params))
+            $urlJsParams = '';
+            $dsJsParams = get_array_value($this->data_source,'ds_js_params',[],'is_array');
+            if(count($dsJsParams)) {
+                foreach($dsJsParams as $acpk=>$acpv) {
+                    $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.": '".addcslashes($acpv,"'")."'";
+                }//END foreach
+            }//if(count($dsJsParams))
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
 		    AppSession::SetSessionAcceptedRequest($this->uid,NApp::$currentNamespace);
-            NApp::AddJsScript("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::$currentNamespace."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+            NApp::AddJsScript("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}','{$urlParams}',{{$urlJsParams}},'".NApp::$currentNamespace."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;
