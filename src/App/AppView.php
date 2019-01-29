@@ -605,7 +605,7 @@ class AppView {
 						if($this->_debug) { NApp::Wlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
 						continue;
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
-					$customParams = get_array_value($c,'params',NULL,'?is_array');
+					$customParams = get_array_value($c,'params',NULL,'isset');
 					$cContent = $this->GetModuleContent($module,$method,$customParams);
 					break;
 				case self::OBJECT_CONTENT:
