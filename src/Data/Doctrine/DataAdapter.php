@@ -18,6 +18,8 @@ use Doctrine\DBAL\Connection;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
+use NETopes\Core\Data\RedisCacheHelpers;
+
 /**
  * Class DataAdapter
  * This class contains all methods for interacting with Doctrine ORM.
@@ -55,7 +57,7 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 			    $cacheDriverClass = '\Doctrine\Common\Cache\\'.$cacheDriverName;
 			    $cacheDriver = new $cacheDriverClass();
 			    if($cacheDriverName=='RedisCache') {
-			        $redis = DataSource::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
+			        $redis = RedisCacheHelpers::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
 			        if($redis) {
                         $cacheDriver->setRedis($redis);
                         $persistentCache = TRUE;

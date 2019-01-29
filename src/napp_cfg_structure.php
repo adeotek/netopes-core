@@ -143,7 +143,7 @@ $_NAPP_CONFIG_STRUCTURE = [
     'cookie_login_lifetime'=>['access'=>'readonly','default'=>15,'validation'=>'is_not0_integer'],
     // Use internal cache system
     'app_encryption_key'=>['access'=>'readonly','default'=>'nAppEk','validation'=>'is_notempty_string'],
-//END START Base configuration
+//END NETopes base configuration
 //START Session configuration
     // Server timezone
     'server_timezone'=>['access'=>'readonly','default'=>'Europe/Bucharest','validation'=>'is_notempty_string'],
@@ -173,12 +173,12 @@ $_NAPP_CONFIG_STRUCTURE = [
 //START Logs & errors reporting
     // Debug mode on/off
     'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
-    // Show exception trace data
-    'show_exceptions_trace'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Database debug mode on/off
     'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
     // Database debug to file on/off
     'db_debug2file'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
+    // Show exception trace data
+    'show_exceptions_trace'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Show debug invocation source file name and path in browser console on/off
     'console_show_file'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
     // Javascript php console password
