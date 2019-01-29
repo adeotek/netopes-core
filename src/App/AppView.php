@@ -420,11 +420,13 @@ class AppView {
      * @param string     $_v_file File full name (including absolute path)
      * @param string     $_c_class Control class fully qualified name
      * @param array|null $args
+     * @param array|null $params
      * @return string
      * @throws \NETopes\Core\AppException
      */
-	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL): string {
-		if(count($this->_params)) { extract($this->_params); }
+	protected function GetControlContent(string $_v_file,string $_c_class,?array $args = NULL,?array $params = NULL): string {
+		$passTroughParams = array_merge($this->_params,$params??[]);
+		if(count($passTroughParams)) { extract($passTroughParams); }
 		require($_v_file);
 		if(!isset($ctrl_params)) { throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!'); }
 		$_control = new $_c_class($ctrl_params);
@@ -438,12 +440,14 @@ class AppView {
         if(strlen(trim($jsScript))) { $this->AddJsScript($jsScript); }
 		return $result;
 	}//END protected function GetControlContent
-	/**
-	 * @param string $_v_file
-	 * @return string
-	 */
-	protected function GetFileContent(string $_v_file): string {
-		if(count($this->_params)) { extract($this->_params); }
+    /**
+     * @param string     $_v_file
+     * @param array|null $params
+     * @return string
+     */
+	protected function GetFileContent(string $_v_file,?array $params = NULL): string {
+	    $passTroughParams = array_merge($this->_params,$params??[]);
+		if(count($passTroughParams)) { extract($passTroughParams); }
 		ob_start();
 		require($_v_file);
 		$result = ob_get_clean();
@@ -456,7 +460,7 @@ class AppView {
 	 * @return string
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function GetModuleContent(string $module,string $method,$params): string {
+	protected function GetModuleContent(string $module,string $method,?array $params = NULL): string {
 		ob_start();
 		ModulesProvider::Exec($module,$method,$params);
 		$result = ob_get_clean();
@@ -583,14 +587,16 @@ class AppView {
 						continue;
 					}//if(!strlen($class) || !strlen($value))
 					$args = get_array_value($c,'args',NULL,'?is_array');
-					$cContent = $this->GetControlContent($value,$class,$args);
+					$customParams = get_array_value($c,'params',NULL,'?is_array');
+					$cContent = $this->GetControlContent($value,$class,$args,$customParams);
 					break;
 				case self::FILE_CONTENT:
 					if(!strlen($value)) {
 						if($this->_debug) { NApp::Wlog('Invalid content value [file:index:'.$k.']!'); }
 						continue;
 					}//if(!strlen($value))
-					$cContent = $this->GetFileContent($value);
+					$customParams = get_array_value($c,'params',NULL,'?is_array');
+					$cContent = $this->GetFileContent($value,$customParams);
 					break;
 				case self::MODULE_CONTENT:
 					$module = get_array_value($c,'module','','is_string');
@@ -599,8 +605,8 @@ class AppView {
 						if($this->_debug) { NApp::Wlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!'); }
 						continue;
 					}//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
-					$params = get_array_value($c,'params',NULL,'isset');
-					$cContent = $this->GetModuleContent($module,$method,$params);
+					$customParams = get_array_value($c,'params',NULL,'?is_array');
+					$cContent = $this->GetModuleContent($module,$method,$customParams);
 					break;
 				case self::OBJECT_CONTENT:
 				    $object = get_array_value($c,'object',NULL,'?is_object');
