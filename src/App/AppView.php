@@ -456,11 +456,11 @@ class AppView {
 	/**
 	 * @param string $module
 	 * @param string $method
-	 * @param        $params
+	 * @param \NETopes\Core\App\Params|array|null $params
 	 * @return string
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function GetModuleContent(string $module,string $method,?array $params = NULL): string {
+	protected function GetModuleContent(string $module,string $method,$params = NULL): string {
 		ob_start();
 		ModulesProvider::Exec($module,$method,$params);
 		$result = ob_get_clean();
