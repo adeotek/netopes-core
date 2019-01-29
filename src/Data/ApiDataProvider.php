@@ -1,30 +1,24 @@
 <?php
 /**
  * API calls dispatcher class file
- *
  * All calls between application instances are mediated by this dispatcher class.
- *
  * @package    NETopes\API
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
 use NApp;
 /**
  * ApiDispatcher class is the API curl calls dispatcher
- *
  * The methods in this class process the parametrs and initiate a curl request between application instances.
- *
  * @package  NETopes\API
- * @access   public
  */
 class ApiDataProvider {
 	/**
 	 * Gets the url to be used by curl Api call from an array of parameters
-	 *
 	 * @param  array $params An array of parameters that contains either the url
 	 * or the parts from which the url is composed:
 	 * - url (optional) if passed all other parameters are ignored and this value is returned
@@ -33,7 +27,6 @@ class ApiDataProvider {
 	 * - get_params (optional) a key-value array with parameters to be send as GET params
 	 * @return string Returns the url to be used for curl API call or NULL if the parametrs are invalide
 	 * @access private
-	 * @static
 	 */
 	private static function GetUrl($params = NULL) {
 		if(!is_array($params) || count($params)==0) { return NULL; }
@@ -53,13 +46,10 @@ class ApiDataProvider {
 	/**
 	 * This method initiates the curl object and makes the curl request
 	 * based on the received parameters
-	 *
 	 * @param  array $params An array of parameters for initiating a new curl request
 	 * @return mixed Returns the response of the curl request,
 	 * an key-value array containing the response and the error if one is returned by curl
 	 * or FALSE for other errors
-	 * @access protected
-	 * @static
 	 */
 	protected static function CurlCall($params = NULL) {
 		if(!is_array($params) || count($params)==0) { return FALSE; }
@@ -94,12 +84,9 @@ class ApiDataProvider {
 	}//END protected static function CurlCall
 	/**
 	 * Sends a new API request between application instances based on the received parameters.
-	 *
 	 * @param  array $params An array of parameters from which the curl call is initiated
 	 * @return mixed An key value array containing request respones ('result' key)
 	 * and the request errors ('error' key) or FALSE for other errors
-	 * @access public
-	 * @static
 	 */
 	public static function Call($params = NULL) {
 		if(!is_array($params) || count($params)==0) { return FALSE; }
@@ -128,7 +115,7 @@ class ApiDataProvider {
 					'domain'=>(array_key_exists('website',$target) ? $target['website'] : ''),
 					'post_params'=>array(
 							'type'=>rawurlencode(GibberishAES::enc($rtype,$taccesskey)),
-							'access_key'=>rawurlencode(GibberishAES::enc(NApp::_GetMyAccessKey().NApp::_GetApiSeparator().time(),$taccesskey)),
+							'access_key'=>rawurlencode(GibberishAES::enc(NApp::GetMyAccessKey().NApp::GetApiSeparator().time(),$taccesskey)),
 							'params'=>rawurlencode($pparams)
 						),
 					'get_params'=>array('dbg'=>NApp::$debug)
@@ -149,13 +136,13 @@ class ApiDataProvider {
 					echo '<strong>API Call raw result ('.$rtype.'):</strong><br/>';
 					var_dump($response); echo '<br/><br/>';
 				}//if(NApp::$debug)*/
-				$result_data = explode(NApp::_GetApiSeparator(),$response);
+				$result_data = explode(AppConfig::GetValue('api_separator'),$response);
 				if(NApp::$debug && FALSE) {
 					echo '<strong>API Call non result output ('.$rtype.'):</strong><br/>';
 					echo get_array_value($result_data,0).'<br/>'.get_array_value($result_data,2).'<br/><br/>';
 				}//if(NApp::$debug)
 				if(is_array($result_data) && count($result_data)>=2 && $result_data[1]) {
-					$target['result'] = unserialize(GibberishAES::dec($result_data[1],NApp::_GetMyAccessKey()));
+					$target['result'] = unserialize(GibberishAES::dec($result_data[1],NApp::GetMyAccessKey()));
 				} else {
 					$target['result'] = FALSE;
 				}//if(is_array($result_data) && count($result_data)>=2 && $result_data[1])

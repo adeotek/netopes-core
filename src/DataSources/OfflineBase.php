@@ -1,14 +1,12 @@
 <?php
 /**
  * Arrays data source file
- *
  * Contains calls for arrays data.
- *
  * @package    NETopes\Core\DataSources
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2018 HTSS
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\DataSources;
@@ -16,20 +14,15 @@ use NETopes\Core\Data\DataSource;
 use Translate;
 /**
  * Arrays data source class
- *
  * Contains calls for arrays data.
- *
  * @package  NETopes\Core\DataSources
- * @access   public
  */
 class OfflineBase extends DataSource {
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @param array $extra_params
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetGenericArrays($params = [],$extra_params = []) {
 		$type = get_array_value($params,'type',NULL,'is_notempty_string');
@@ -113,10 +106,8 @@ class OfflineBase extends DataSource {
 	}//END public function GetGenericArrays
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetCboColors($params = [],$extra_params = []) {
 		$result = array(
@@ -134,10 +125,8 @@ class OfflineBase extends DataSource {
 	}//END public function GetCboColors
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetAppThemes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -157,10 +146,8 @@ class OfflineBase extends DataSource {
 	}//END public function GetAppThemes
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @return array|bool
-	 * @access public
      */
 	public function FilterOperators($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -172,10 +159,8 @@ class OfflineBase extends DataSource {
 	}//END public function FilterOperators
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @return array|bool
-	 * @access public
 	 */
 	public function FilterConditionsTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -227,10 +212,8 @@ class OfflineBase extends DataSource {
 	}//END public function FilterConditionsTypes
 	/**
 	 * description
-	 *
 	 * @param array $params Parameters array
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetRestrictedAccessTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -243,9 +226,7 @@ class OfflineBase extends DataSource {
 	}//END public function GetRestrictedAccessTypes
 	/**
 	 * Gets the translations configs types
-	 *
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetTranslationsConfigsTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -263,11 +244,9 @@ class OfflineBase extends DataSource {
 	}//END public function GetTranslationsConfigsTypes
 	/**
 	 * Gets Modules Types
-	 *
 	 * @param array $params
 	 * @param array $extra_params
 	 * @return array
-	 * @access public
 	 */
 	public function GetModulesATypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -279,9 +258,7 @@ class OfflineBase extends DataSource {
 	}//END public function GetModulesATypes
 	/**
 	 * Gets Modules special Types
-	 *
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetModulesSTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -341,11 +318,9 @@ class OfflineBase extends DataSource {
 	}//END public function GetModulesSTypes
 	/**
 	 * Gets Modules display Types
-	 *
 	 * @param array $params
 	 * @param array $extra_params
 	 * @return array
-	 * @access public
 	 */
 	public function GetModulesDTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -360,9 +335,7 @@ class OfflineBase extends DataSource {
 	}//END public function GetModulesDTypes
 	/**
 	 * Gets Cron Jobs Types
-	 *
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetCronJobsTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -376,9 +349,7 @@ class OfflineBase extends DataSource {
 	}//END public function GetCronJobsTypes
 	/**
 	 * Gets Run interval types
-	 *
 	 * @return array|bool
-	 * @access public
 	 */
 	public function GetRunIntervalTypes($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');
@@ -393,9 +364,7 @@ class OfflineBase extends DataSource {
 	}//END public function GetRunIntervalTypes
 	/**
 	 * Price/Quantity decimals number value list
-	 *
 	 * @return array Returns an array with all values for price/quantity decimals no
-	 * @access public
 	 */
 	public function GetDecimalsNoList($params = [],$extra_params = []) {
 		$langcode = get_array_value($params,'lang_code','','is_notempty_string');

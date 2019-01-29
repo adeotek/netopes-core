@@ -1,14 +1,12 @@
 <?php
 /**
  * Excel export class file
- *
  * Wrapper for exporting data to excel
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -22,56 +20,44 @@ use NETopes\Core\AppException;
 use NApp;
 /**
  * Excel export class
- *
  * Wrapper for exporting data to excel
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
 class ExcelExport {
 	/**
 	 * @var    array PHP Spreadsheet accepted file types
-	 * @access protected
 	 */
 	protected $file_types = array('xlsx'=>'Xlsx','xls'=>'Xls','ods'=>'Ods','csv'=>'Csv'/*,'xml'=>'Xml','html'=>'Html','htm'=>'Html'*/);
 	/**
 	 * @var    \PhpOffice\PhpSpreadsheet\Spreadsheet PhpSpreadsheet object
-	 * @access protected
 	 */
 	protected $obj = NULL;
 	/**
 	 * @var    string Decimal separator
-	 * @access protected
 	 */
 	protected $decimal_separator = NULL;
     /**
 	 * @var    string Group separator
-	 * @access protected
 	 */
     protected $group_separator = NULL;
 	/**
 	 * @var    string Date separator
-	 * @access protected
 	 */
 	protected $date_separator = NULL;
 	/**
 	 * @var    string Time separator
-	 * @access protected
 	 */
 	protected $time_separator = NULL;
 	/**
 	 * @var    string User's time zone
-	 * @access protected
 	 */
 	protected $timezone = NULL;
 	/**
 	 * @var    string Language code
-	 * @access protected
 	 */
 	protected $langcode = NULL;
 	/**
 	 * @var    array An array containing default formats
-	 * @access protected
 	 */
 	protected $default_formats = array(
 			'header'=>array('align_h'=>'h_center','bold'=>TRUE,'background_color'=>'D8D8D8'),
@@ -105,37 +91,30 @@ class ExcelExport {
 		);
 	/**
 	 * @var    bool Flag indicating if borders are used
-	 * @access protected
 	 */
 	protected $with_borders = FALSE;
 	/**
 	 * @var    array An array containing all instance formats
-	 * @access protected
 	 */
 	protected $formats = [];
 	/**
 	 * @var    string Default column format
-	 * @access protected
 	 */
 	protected $default_format = NULL;
 	/**
 	 * @var    array An array containing table totals
-	 * @access protected
 	 */
 	protected $total_row = [];
 	/**
 	 * @var    array An array containing extra params or extra data
-	 * @access protected
 	 */
 	protected $extra_params = NULL;
 	/**
 	 * @var    bool Flag indicating if the data is pre-processed
-	 * @access protected
 	 */
 	public $pre_processed_data = FALSE;
 	/**
 	 * Class constructor function
-	 *
 	 * @param  array $params An array of params (required)
 	 * - 'version'(string): version of the excel data to be output
 	 * ('xlsx'/'xls'/'csv'/'ods'/'html')
@@ -146,17 +125,16 @@ class ExcelExport {
 	 * @throws \NETopes\Core\AppException
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-	 * @access public
 	 */
 	public function __construct(array $params) {
 		if(!count($params) || !array_key_exists('layouts',$params) || !is_array($params['layouts']) || !count($params['layouts'])) { throw new AppException('ExcelExport: Invalid parameters !',E_ERROR,1); }
 		$this->pre_processed_data = get_array_value($params,'pre_processed_data',FALSE,'bool');
-		$this->decimal_separator = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$this->group_separator = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
-		$this->date_separator = get_array_value($params,'date_separator',NApp::_GetParam('date_separator'),'is_string');
-		$this->time_separator = get_array_value($params,'time_separator',NApp::_GetParam('time_separator'),'is_string');
-		$this->langcode = get_array_value($params,'lang_code',NApp::_GetLanguageCode(),'is_string');
-		$this->timezone = get_array_value($params,'timezone',NApp::_GetParam('timezone'),'is_notempty_string');
+		$this->decimal_separator = get_array_value($params,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$this->group_separator = get_array_value($params,'group_separator',NApp::GetParam('group_separator'),'is_string');
+		$this->date_separator = get_array_value($params,'date_separator',NApp::GetParam('date_separator'),'is_string');
+		$this->time_separator = get_array_value($params,'time_separator',NApp::GetParam('time_separator'),'is_string');
+		$this->langcode = get_array_value($params,'lang_code',NApp::GetLanguageCode(),'is_string');
+		$this->timezone = get_array_value($params,'timezone',NApp::GetParam('timezone'),'is_notempty_string');
 		$file_type = get_array_value($params,'version','xlsx','is_notempty_string');
 		if(!in_array($file_type,array_keys($this->file_types))) { throw new AppException('ExcelExport: Invalid output file type!',E_ERROR,1); }
 		$output = get_array_value($params,'output',FALSE,'bool');
@@ -288,7 +266,6 @@ class ExcelExport {
 	}//END public function __construct
 	/**
 	 * Set table cell value
-	 *
 	 * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
 	 * @param int                                           $row
 	 * @param int                                           $col
@@ -297,7 +274,6 @@ class ExcelExport {
 	 * @param bool                                          $return
 	 * @return mixed
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
-	 * @access protected
 	 */
 	protected function SetCellValue(Worksheet &$sheet,int $row,int $col,array $column,array $data,bool $return = FALSE) {
 		if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {
@@ -354,7 +330,7 @@ class ExcelExport {
 			$v_dtype = is_numeric($col_value) ? 'numeric' : 'string';
 			$data_type = get_array_value($column,'data_type',$v_dtype,'is_notempty_string');
 			if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
-				$dt_value = unixts2excel($col_value,AppConfig::server_timezone(),$this->timezone);
+				$dt_value = unixts2excel($col_value,AppConfig::GetValue('server_timezone'),$this->timezone);
 				if($dt_value) {
 					$col_value = $dt_value;
 					$data_type = 'datetime';
@@ -372,20 +348,16 @@ class ExcelExport {
 	}//END protected function SetCellValue
 	/**
 	 * Sets formats to be used in current instance
-	 *
 	 * @param  array $formats Custom formats array
 	 * @return void
-	 * @access protected
 	 */
 	protected function SetFormats(array $formats = []): void {
 			$this->formats = array_merge($this->default_formats,$formats);
 	}//END protected function SetFormats
 	/**
 	 * Get column name in excel format (literal)
-	 *
 	 * @param  int $index Index of a column
 	 * @return string Returns column name in excel format
-	 * @access protected
 	 */
 	protected function IndexToColumn(int $index): string {
 		if($index<=26) { return chr($index+64); }
@@ -400,10 +372,8 @@ class ExcelExport {
 	}//END protected function IndexToColumn
 	/**
 	 * Convert data type to \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 *
 	 * @param  string $type Data type
 	 * @return int Returns data type in \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 * @access protected
 	 */
 	protected function GetDataType(string $type) {
 		switch($type) {
@@ -420,10 +390,8 @@ class ExcelExport {
 	}//END protected function GetDataType
 	/**
 	 * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 *
 	 * @param  string $type Border style name
 	 * @return int Returns border style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 * @access protected
 	 */
 	protected function GetBorderStyle(string $type) {
 		switch($type) {
@@ -461,10 +429,8 @@ class ExcelExport {
 	}//END protected function GetBorderStyle
 	/**
 	 * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 *
 	 * @param  string $type Alignment style name
 	 * @return int Returns alignment style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
-	 * @access protected
 	 */
 	protected function GetAlignmentStyle(string $type) {
 		switch($type) {
@@ -494,13 +460,11 @@ class ExcelExport {
 	}//END protected function GetAlignmentStyle
 	/**
 	 * Apply style array to a range of cells
-	 *
 	 * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet Target sheet instance
 	 * @param  string                                       $range Target cells range in excel format
 	 * @param  string|array                                 $style Style array to be applied
 	 * @return bool Returns TRUE on success or FALSE otherwise
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
-	 * @access protected
 	 */
 	protected function ApplyStyleArray(Worksheet &$sheet,string $range,$style) {
 		if(!is_object($sheet) || !$range || !$style) { return FALSE; }
@@ -569,14 +533,12 @@ class ExcelExport {
 	}//protected function ApplyStyleArray
 	/**
 	 * Outputs excel data to a file on disk or for download
-	 *
 	 * @param  string     $file_name Target file name
 	 * @param  string     $path Target file path
 	 * @param null|string $file_type
 	 * @return bool Returns TRUE on success or FALSE otherwise
 	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
-	 * @access public
 	 */
 	public function OutputData(string $file_name,?string $path = NULL,?string $file_type = NULL): bool {
 		if(!is_object($this->obj)) { return FALSE; }
@@ -606,7 +568,6 @@ class ExcelExport {
 	 * Get header content type value
 	 * @param string $file_type
 	 * @return string
-	 * @access protected
 	 */
 	protected function getContentTypeHeader(string $file_type): string {
 		switch(strtolower($file_type)) {
@@ -622,11 +583,9 @@ class ExcelExport {
 	}//END protected function getContentTypeHeader
 	/**
 	 * Convert datetime value to excel format
-	 *
 	 * @param  array  $data Data row array
 	 * @param  array $column Column configuration array
 	 * @return float Returns timestamp in excel format
-	 * @access protected
 	 */
 	protected function FormatDateTimeValue(array $data,array $column): ?float {
 		if(!isset($data[$column['db_field']])) { return NULL; }

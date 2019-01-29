@@ -1,27 +1,23 @@
 <?php
 /**
  * Formatter adapter class file
- *
  * Class containing methods for formatting values
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
 use NApp;
 /**
  * Class FormatterAdapter
- *
  * @package NETopes\Core\Validators
  */
 class FormatterAdapter {
     /**
      * Format value
-     *
      * @param mixed       $value
      * @param string      $mode
      * @param array|null  $regionals
@@ -33,8 +29,6 @@ class FormatterAdapter {
      * @return string|null
      * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
-     * @access public
-     * @static
      */
 	public static final function Format($value,string $mode,?array $regionals = NULL,?string $prefix = NULL,?string $sufix = NULL,?string $defaultValue = NULL,?string $validation = NULL,bool $htmlEntities = FALSE): ?string {
 	    if(substr($mode,-4)==='-0dv') { $validation = (substr($validation,0,1)==='?' ? '?' : '').'is_not0_numeric'; }
@@ -42,7 +36,7 @@ class FormatterAdapter {
         if(is_null($value)) { return NULL; }
         $method = convert_to_camel_case($mode);
         if(!method_exists(static::class,$method)) {
-            NApp::_Elog('Invalid formatter adapter method ['.static::class.'::'.$method.']!');
+            NApp::Elog('Invalid formatter adapter method ['.static::class.'::'.$method.']!');
             return is_string($value) ? $prefix.$value.$sufix : NULL;
         }//if(!method_exists(static::class,$method))
         $reflection = new \ReflectionMethod(static::class,$method);
@@ -83,7 +77,7 @@ class FormatterAdapter {
      */
     public static function Datetime($value,?array $regionals = NULL): ?string {
 	    if(!is_object($value) && (!is_string($value) || !strlen($value))) { return $value; }
-		$timezone = get_array_value($regionals,'timezone',NApp::_GetParam('timezone'),'?is_notempty_string');
+		$timezone = get_array_value($regionals,'timezone',NApp::GetParam('timezone'),'?is_notempty_string');
 		$format = get_array_value($regionals,'format',NULL,'?is_notempty_string');
 		$dateOnly = get_array_value($regionals,'date_only',FALSE,'bool');
 		$timeOnly = get_array_value($regionals,'time_only',FALSE,'bool');
@@ -96,9 +90,9 @@ class FormatterAdapter {
      * @throws \Exception
      */
     public static function DatetimeNosec($value,?array $regionals = NULL): ?string {
-        $format = NApp::_GetTimeFormat(TRUE);
-        if(strpos($format,NApp::_GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::_GetParam('time_separator').'s','',$format); }
-        $format = NApp::_GetDateFormat(TRUE).' '.$format;
+        $format = NApp::GetTimeFormat(TRUE);
+        if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
+        $format = NApp::GetDateFormat(TRUE).' '.$format;
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }
         return static::Datetime($value,$regionals);
@@ -136,8 +130,8 @@ class FormatterAdapter {
      * @throws \Exception
      */
     public static function TimeNosec($value,?array $regionals = NULL): ?string {
-        $format = NApp::_GetTimeFormat(TRUE);
-        if(strpos($format,NApp::_GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::_GetParam('time_separator').'s','',$format); }
+        $format = NApp::GetTimeFormat(TRUE);
+        if(strpos($format,NApp::GetParam('time_separator').'s')!==FALSE) { $format = str_replace(NApp::GetParam('time_separator').'s','',$format); }
 	    if(!is_array($regionals)) { $regionals = ['format'=>$format]; }
         else { $regionals['format'] = $format; }
         return static::Datetime($value,$regionals);
@@ -178,8 +172,8 @@ class FormatterAdapter {
     public static function FsizeMB($value,?array $regionals = NULL): ?string {
 	    if(!is_numeric($value)) { return $value; }
 	    $decimalsNo = get_array_value($regionals,'decimals_no',3,'is_string');
-	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$groupSeparator = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$groupSeparator = get_array_value($regionals,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$value = $value / 1024 / 1024;
 		return number_format($value,$decimalsNo,$decimalSeparator,$groupSeparator).' MB';
 	}//END public static function FsizeMB
@@ -220,12 +214,9 @@ class FormatterAdapter {
     }//END public static function LimitText
     /**
      * Format numeric value from NETopes format string
-     *
      * @param        $value
      * @param string $numberFormat
      * @return string|null
-     * @access public
-     * @static
      */
 	public static function NumberValue($value,string $numberFormat): ?string {
 		if(!is_numeric($value)) { return NULL; }
@@ -242,8 +233,8 @@ class FormatterAdapter {
     public static function Numeric($value,?array $regionals = NULL): ?string {
 	    if(!is_numeric($value)) { return $value; }
 	    $decimalsNo = get_array_value($regionals,'decimals_no',6,'is_string');
-	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$groupSeparator = get_array_value($regionals,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+	    $decimalSeparator = get_array_value($regionals,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$groupSeparator = get_array_value($regionals,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		return number_format($value,$decimalsNo,$decimalSeparator,$groupSeparator);
 	}//END public static function Numeric
 	/**

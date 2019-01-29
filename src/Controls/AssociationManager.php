@@ -1,18 +1,17 @@
 <?php
 /**
  * AssociationManager control class file
- *
  * Control class for associations management
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
@@ -20,161 +19,127 @@ use NApp;
 use Translate;
 /**
  * AssociationManager control class
- *
  * Control class for associations management
- *
  * @package  NETopes\Controls
- * @access   public
- * @abstract
  */
 abstract class AssociationManager {
     /**
      * @var    array Control dynamic properties array
-     * @access protected
      */
     protected $pdata = [];
     /**
      * @var    string Control instance hash
-     * @access protected
      */
     protected $chash = NULL;
     /**
      * @var    string Control instance UID
-     * @access protected
      */
     protected $uid = NULL;
     /**
      * @var bool
-     * @access protected
      */
     protected $jsInitialized = FALSE;
     /**
      * @var    bool Page hash (window.name)
-     * @access public
      */
     public $phash = NULL;
     /**
      * @var    string Control base class
-     * @access protected
      */
     protected $base_class = '';
     /**
      * @var    string Layout type: native(css grid)/bootstrap
-     * @access public
      */
     public $layout_type = NULL;
     /**
      * @var    string Row container CSS class base
-     * @access public
      */
     public $rowcls = '';
     /**
      * @var    string Column container CSS class base
-     * @access public
      */
     public $colcls = '';
     /**
      * @var    int Associated items box width in CSS columns
-     * @access public
      */
     public $associated_box_cols_no = 5;
     /**
      * @var    string Associated items box title
-     * @access public
      */
     public $associated_box_title = 'Associated items';
     /**
      * @var    string Name of ID field in the associated item list
-     * @access public
      */
     public $associated_id_field = NULL;
     /**
      * @var    string Name of display name field in the associated item list
-     * @access public
      */
     public $associated_name_field = NULL;
     /**
      * @var    string Name of state field in the associated item list
-     * @access public
      */
     public $associated_state_field = NULL;
     /**
      * @var    int Assignable items box width in CSS columns
-     * @access public
      */
     public $assignable_box_cols_no = 5;
     /**
      * @var    string Assignable items box title
-     * @access public
      */
     public $assignable_box_title = 'Assignable items';
     /**
      * @var    string Name of ID field in the assignable item list
-     * @access public
      */
     public $assignable_id_field = NULL;
     /**
      * @var    string Name of display name field in the assignable item list
-     * @access public
      */
     public $assignable_name_field = NULL;
     /**
      * @var    string Name of state field in the assignable item list
-     * @access public
      */
     public $assignable_state_field = NULL;
     /**
      * @var    string Base tags id string
-     * @access public
      */
     public $tag_id = NULL;
     /**
      * @var    bool Sortable associated items on/off
-     * @access public
      */
     public $sortable = FALSE;
     /**
      * @var    bool Allow multiple associations for one element
-     * @access public
      */
     public $allow_multi_assoc = TRUE;
     /**
      * @var    bool Display live version box on/off
-     * @access public
      */
     public $show_live_version = FALSE;
     /**
      * @var    int Live version associated items box width in CSS columns
-     * @access public
      */
     public $live_version_box_cols_no = 2;
     /**
      * @var    string Live version associated items box title
-     * @access public
      */
     public $live_version_box_title = 'Live version';
     /**
      * @var bool Sets if this control should have filters
-     * @access public
      */
     public $with_filter = FALSE;
     /**
      * Control class dynamic getter method
-     *
      * @param  string $name The name o the property
      * @return mixed Returns the value of the property
-     * @access public
      */
     public function __get($name) {
         return (is_array($this->pdata) && array_key_exists($name,$this->pdata)) ? $this->pdata[$name] : NULL;
     }//END public function __get
     /**
      * Control class dynamic setter method
-     *
      * @param  string $name The name o the property
      * @param  mixed  $value The value to be set
      * @return void
-     * @access public
      */
     public function __set($name,$value) {
         if(!is_array($this->pdata)) { $this->pdata = []; }
@@ -182,10 +147,8 @@ abstract class AssociationManager {
     }//END public function __set
     /**
      * AssociationManager class constructor method
-     *
      * @param  array $params Parameters array
      * @return void
-     * @access public
      */
     public function __construct($params = NULL) {
         $this->chash = AppSession::GetNewUID();
@@ -226,7 +189,6 @@ abstract class AssociationManager {
     }//END public function __construct
     /**
      * @param string $tagId
-     * @access protected
      */
     protected function GetFilterJs(string $tagId) {
         $this->GetFilterHelperJs();
@@ -248,7 +210,7 @@ abstract class AssociationManager {
                 assocManagerFilterElements{$funcSufix}(this);
             });
 JS;
-        NApp::_ExecJs($js);
+        NApp::AddJsScript($js);
     }//END protected function GetFilterJs
     /**
      * @param string $tagId
@@ -267,9 +229,7 @@ HTML;
     }//END protected function GetItemsFilter
     /**
      * Get associated items actions HTML
-     *
      * @return string
-     * @access protected
      */
     protected function GetAssociatedItemsActions() {
         $result = "\t\t\t".'<div class="subFormActions clearfix">'."\n";
@@ -283,9 +243,7 @@ HTML;
     }//END protected function GetAssociatedItemsActions
     /**
      * Sets associated items javascript actions
-     *
      * @return void
-     * @access protected
      */
     protected function SetAssociatedItemsJs() {
         $sis_js = <<<JS
@@ -312,28 +270,24 @@ JS;
                         var previd = 0;
                         var newindex = $(ui.item).index();
                         if(newindex>0) { previd = $(ui.item).prev().attr('id'); }
-                        ".NApp::arequest()->Prepare("AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid~'after_id'|previd,'{$this->sort_target}')->errors-<elid-<previd")."
+                        ".NApp::Ajax()->Prepare("AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid~'after_id'|previd,'{$this->sort_target}')->errors-<elid-<previd")."
                     }
                 });
                 $('#{$this->sis_box_tagid}').disableSelection();
 JS;
         }//if($this->sortable)
-        NApp::_ExecJs($sis_js);
+        NApp::AddJsScript($sis_js);
     }//END protected function SetAssociatedItemsJs
     /**
      * Get associated item display name
-     *
      * @return string Returns associated item name
-     * @access protected
      */
     protected function GetAssociatedItemName($row) {
         return $row->getProperty($this->associated_name_field,'N/A','is_string');
     }//END protected function GetAssociatedItemName
     /**
      * Get associated item
-     *
      * @return string Returns associated item HTML
-     * @access protected
      */
     protected function GetAssociatedItem($row) {
         $liclass = 'ui-state-default am-element';
@@ -364,10 +318,8 @@ JS;
     }//END protected function GetAssociatedItem
     /**
      * Get associated items summary
-     *
      * @param array   $data Data item array
      * @return string Returns associated summary box HTML
-     * @access protected
      */
     protected function GetAssociatedItemsSummary($data,$extra = NULL) {
         $items_no = is_iterable($data) ? count($data) : 0;
@@ -379,19 +331,17 @@ JS;
     }//END protected function GetAssociatedItemsSummary
     /**
      * Get associated items box
-     *
      * @return string Returns associated box HTML
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
     protected function GetAssociatedItemsBox() {
         try {
             $items = $this->LoadAssociatedItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsAssociatedItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->associated_box_title.'</span>'."\n";
         $result .= $this->GetAssociatedItemsSummary($items);
@@ -411,9 +361,7 @@ JS;
     }//END public function GetAssociatedItemsBox
     /**
      * Get assignable items actions HTML
-     *
      * @return string
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
     protected function GetAssignableItemsActions() {
@@ -428,9 +376,7 @@ JS;
     }//END protected function GetAssignableItemsActions
     /**
      * Sets assignable items javascript actions
-     *
      * @return void
-     * @access protected
      */
     protected function SetAssignableItemsJs() {
         $ais_js = <<<JS
@@ -448,24 +394,20 @@ JS;
 				});
 			});
 JS;
-        NApp::_ExecJs($ais_js);
+        NApp::AddJsScript($ais_js);
     }//END protected function SetAssignableItemsJs
     /**
      * Get associated item display name
-     *
      * @param $row
      * @return string Returns associated item name
-     * @access protected
      */
     protected function GetAssignableItemName($row) {
         return $row->getProperty($this->assignable_name_field,'N/A','is_string');
     }//END protected function GetAssignableItemName
     /**
      * Get assignable item
-     *
      * @param $row
      * @return string Returns assignable item HTML
-     * @access protected
      */
     protected function GetAssignableItem($row) {
         $liclass = 'ui-state-default am-element';
@@ -495,10 +437,8 @@ JS;
     }//END protected function GetAssignableItem
     /**
      * Get assignable items summary
-     *
      * @param array   $data Data item array
      * @return string Returns assignable summary box HTML
-     * @access protected
      */
     protected function GetAssignableItemsSummary($data,$extra = NULL) {
         $items_no = is_iterable($data) ? count($data) : 0;
@@ -510,19 +450,17 @@ JS;
     }//END protected function GetAssignableItemsSummary
     /**
      * Get assignable items box
-     *
      * @return string Returns assignable box HTML
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
     protected function GetAssignableItemsBox() {
         try {
             $items = $this->LoadAssignableItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsAssignableItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->assignable_box_title.'</span>'."\n";
         $result .= $this->GetAssignableItemsSummary($items);
@@ -542,9 +480,7 @@ JS;
     }//END public function GetAssignableItemsBox
     /**
      * Get live version associated item
-     *
      * @return string Returns live version associated item HTML
-     * @access protected
      */
     protected function GetLiveVersionItem($row) {
         $item_id = $row->getProperty('id','','is_numeric');
@@ -558,29 +494,25 @@ JS;
     }//END protected function GetLiveVersionItem
     /**
      * Get live version associated items summary
-     *
      * @param array   $data Data item array
      * @return string Returns live version associated summary box HTML
-     * @access protected
      */
     protected function GetLiveVersionItemsSummary($data,$extra = NULL) {
         return $this->GetAssociatedItemsSummary($data,$extra);
     }//END protected function GetLiveVersionItemsSummary
     /**
      * Get live version associated items box
-     *
      * @return string Returns associated box HTML
-     * @access protected
      */
     protected function GetLiveVersionItemsBox() {
         try {
             $items = $this->LoadLiveVersionItems();
         } catch(AppException $e) {
-            NApp::_Elog($e->getMessage());
+            NApp::Elog($e);
             $items = [];
         }//END try
         if($items===FALSE) { return NULL; }
-        $items = DataSource::ConvertResultsToDataSet($items,VirtualEntity::class);
+        $items = DataSourceHelpers::ConvertResultsToDataSet($items,VirtualEntity::class);
         $result = "\t\t\t".'<div class="clsBlock clsLiveVersionItems">'."\n";
         $result .= "\t\t\t\t".'<span class="clsBoxTitle">'.$this->live_version_box_title.'</span>'."\n";
         $result .= $this->GetLiveVersionItemsSummary($items);
@@ -598,9 +530,7 @@ JS;
     }//END public function GetLiveVersionItemsBox
     /**
      * Sets the output buffer value
-     *
      * @return string Returns the complete HTML for the control
-     * @access protected
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
@@ -644,10 +574,8 @@ JS;
     }//END private function SetControl
     /**
      * Gets the output buffer content
-     *
      * @param bool $output
      * @return string|null Returns or outputs the content (html)
-     * @access public
      * @throws \NETopes\Core\AppException
      */
     public function Show($output = FALSE) {
@@ -667,7 +595,6 @@ JS;
      * Method used to gather the helper js function used by filters
      * @param bool $return
      * @return string|null
-     * @access protected
      */
     protected function GetFilterHelperJs(bool $return = false): ?string {
         if($this->jsInitialized) { return NULL; }
@@ -682,7 +609,7 @@ JS;
         }
 JS;
         if($return) { return $return; }
-            NApp::_ExecJs($js);
+            NApp::AddJsScript($js);
         $this->jsInitialized = TRUE;
         return NULL;
     }//END protected function GetFilterHelperJs
@@ -690,7 +617,6 @@ JS;
      * Helper method used to generate valid url slug
      * @param string $text
      * @return string
-     * @access protected
      */
     protected static function GetSlugForString(string $text):string  {
         // remove html tags
@@ -712,43 +638,29 @@ JS;
     }//END protected function GetSlugForString
     /**
      * Load live version associated items
-     *
      * @return array|bool Returns live version associated items array
-     * @access protected
      */
     protected function LoadLiveVersionItems() {
         return FALSE;
     }//END protected function LoadLiveVersionItems
     /**
      * Load associated items
-     *
      * @return array Returns associated items array
-     * @access protected
-     * @abstract
      */
     abstract protected function LoadAssociatedItems();
     /**
      * Load assignable items
-     *
      * @return array Returns associated items array
-     * @access protected
-     * @abstract
      */
     abstract protected function LoadAssignableItems();
     /**
      * Get assign item(s) action button
-     *
      * @return string Assign item(s) action button HTML
-     * @access protected
-     * @abstract
      */
     abstract protected function GetAssignItemsAction();
     /**
      * Get de-assign item(s) action button
-     *
      * @return string De-assign item(s) action button HTML
-     * @access protected
-     * @abstract
      */
     abstract protected function GetDeAssignItemsAction();
 }//END abstract class AssociationManager

@@ -1,30 +1,24 @@
 <?php
 /**
  * DatePicker control class file
- *
  * DatePicker control (jQuery UI/Bootstrap)
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 /**
  * DatePicker control class
- *
  * DatePicker control (jQuery UI/Bootstrap)
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class DatePicker extends Control {
 	/**
 	 * DatePicker constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -34,16 +28,14 @@ class DatePicker extends Control {
 		$this->plugin = is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
-		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
+		if(!strlen($this->locale)) { $this->locale = NApp::GetLanguageCode(); }
 		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 1; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->today_button)) { $this->today_button = TRUE; }
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
@@ -58,9 +50,7 @@ class DatePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set jQuery UI control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetJQueryUIControl(): string {
 		$dpclass = '';
@@ -109,9 +99,7 @@ class DatePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set Bootstrap 3 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap3Control(): string {
 	    if(strlen($this->format)) {
@@ -143,7 +131,7 @@ class DatePicker extends Control {
 	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
 	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
 	    }//if(strlen($this->format))
-	    // NApp::_Dlog($lFormat,'$lFormat');
+	    // NApp::Dlog($lFormat,'$lFormat');
 		$ldata = ' data-format="'.$lDateFormat.'"';
 		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
 		if(strlen($this->js_params)) {
@@ -156,7 +144,7 @@ class DatePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -177,16 +165,14 @@ class DatePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
 	/**
 	 * Set Bootstrap 4 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap4Control(): string {
 	    if(strlen($this->format)) {
@@ -218,7 +204,7 @@ class DatePicker extends Control {
 	            $lFormat = 'DD.MM.YYYY HH:mm:ss';
 	        }//if($this->timepicker!==TRUE && $this->timepicker!==1)
 	    }//if(strlen($this->format))
-	    // NApp::_Dlog($lFormat,'$lFormat');
+	    // NApp::Dlog($lFormat,'$lFormat');
 		$ldata = ' data-format="'.$lDateFormat.'"';
 		if(strlen($lTimeFormat)) { $ldata .= ' data-timeformat="'.$lTimeFormat.'"'; }
 		if(strlen($this->js_params)) {
@@ -231,7 +217,7 @@ class DatePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -252,8 +238,8 @@ class DatePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap4Control

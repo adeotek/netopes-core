@@ -1,19 +1,16 @@
 <?php
 /**
  * NETopes autoloader file
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 /**
  * NETopes autoloader function
- *
  * Used to autoload DataSources and Modules
- *
  * @param  string $class Called class name
  * @return bool
  * @throws \NETopes\Core\AppException

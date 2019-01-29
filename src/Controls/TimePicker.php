@@ -1,30 +1,24 @@
 <?php
 /**
  * TimePicker control class file
- *
  * TimePicker control (jQuery UI/Bootstrap)
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 /**
  * TimePicker control class
- *
  * TimePicker control (jQuery UI/Bootstrap)
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TimePicker extends Control {
 	/**
 	 * TimePicker constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -34,7 +28,7 @@ class TimePicker extends Control {
 		$this->plugin = is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
 		parent::__construct($params);
 		if($this->button!==TRUE) { $this->width_offset = 0; }
-		if(!strlen($this->locale)) { $this->locale = NApp::_GetLanguageCode(); }
+		if(!strlen($this->locale)) { $this->locale = NApp::GetLanguageCode(); }
 		if(!strlen($this->format)) { $this->format = 'HH:mm'; }
 		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 5; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
@@ -42,9 +36,7 @@ class TimePicker extends Control {
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
@@ -59,9 +51,7 @@ class TimePicker extends Control {
 	}//END protected function SetControl
 	/**
 	 * Set jQuery UI control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetJQueryUIControl(): string {
 		$dpclass = '';
@@ -95,9 +85,7 @@ class TimePicker extends Control {
 	}//END protected function SetJQueryUIControl
 	/**
 	 * Set Bootstrap 3 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap3Control(): string {
 		if(strlen($this->js_params)) {
@@ -110,7 +98,7 @@ class TimePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -131,16 +119,14 @@ class TimePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap3Control
 	/**
 	 * Set Bootstrap 4 control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetBootstrap4Control(): string {
 		if(strlen($this->js_params)) {
@@ -153,7 +139,7 @@ class TimePicker extends Control {
 				."stepping: {$this->minutes_stepping}"
 				." }";
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		$onChange = '';
 		if($this->button) {
@@ -174,8 +160,8 @@ class TimePicker extends Control {
 	    }//if($this->button)
 		$result .= $this->GetActions();
 		if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-			NApp::_ExecJs("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-		    if(strlen($onChange)) { NApp::_ExecJs("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
+			NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+		    if(strlen($onChange)) { NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });"); }
 		}//if($this->disabled!==TRUE && $this->readonly!==TRUE)
 		return $result;
 	}//END protected function SetBootstrap4Control

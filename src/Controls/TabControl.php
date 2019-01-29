@@ -1,14 +1,12 @@
 <?php
 /**
  * short description
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,55 +14,55 @@ use NETopes\Core\Data\DataProvider;
 use NApp;
 /**
  * ClassName description
- *
  * description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TabControl {
 	/**
-	 * @var    string BasicForm table id
-	 * @access public
+	 * @var    bool Generate content on construct and cache it
+	 */
+    public $cached = FALSE;
+	/**
+	 * @var    string TabControl table id
 	 */
 	public $tag_id = NULL;
 	/**
-	 * @var    string BasicForm response target id
-	 * @access public
+	 * @var    string TabControl response target id
 	 */
 	public $response_target = NULL;
 	/**
-	 * @var    string BasicForm width
-	 * @access public
+	 * @var    string TabControl width
 	 */
 	public $width = NULL;
 	/**
-	 * @var    string BasicForm additional class
-	 * @access public
+	 * @var    string|null TabControl additional class
 	 */
 	public $class = NULL;
 	/**
 	 * @var    array tabs descriptor array
-	 * @access public
 	 */
 	public $tabs = [];
 	/**
+	 * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion)
+	 */
+	public $mode = NULL;
+	/**
 	 * @var    string Basic form base class
-	 * @access protected
 	 */
 	protected $base_class = NULL;
 	/**
 	 * @var    string Output (resulting html) buffer
-	 * @access protected
 	 */
 	protected $output_buffer = NULL;
 	/**
+	 * @var    array Javascript code execution queue
+	 */
+	protected $js_scripts = [];
+	/**
 	 * BasicForm class constructor method
-	 *
 	 * @param  array $params Parameters array
 	 * @throws \NETopes\Core\AppException
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->base_class = get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
@@ -73,20 +71,20 @@ class TabControl {
 				if(property_exists($this,$k)) { $this->$k = $v; }
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
-		$this->output_buffer = $this->SetControl();
+		if($this->cached) { $this->output_buffer = $this->SetControl(); }
 	}//END public function __construct
-	/**
-	 * Gets the content for a tab
-	 *
-	 * @param  array $tab Tab parameters array
-	 * @return string Returns content HTML for one tab
-	 * @access protected
-	 */
-	protected function SetContent($tab) {
+    /**
+     * Gets the content for a tab
+     * @param  array      $tab Tab parameters array
+     * @param string|null $contentType
+     * @return string Returns content HTML for one tab
+     */
+	protected function SetContent(array $tab,?string &$contentType = NULL): string {
 		$result = '';
 		$ct_result = '';
 		$ct_data = '';
-		switch(get_array_value($tab,'content_type','content','is_notempty_string')) {
+		$contentType = get_array_value($tab,'content_type','content','is_notempty_string');
+		switch($contentType) {
 		    case 'file':
 				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
 				if($tcontent && file_exists($tcontent)) {
@@ -106,10 +104,10 @@ class TabControl {
 				$tcontent = str_replace('{{t_name}}',$tab['t_name'],$tcontent);
 				$tcontent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tcontent);
 				$tscript = get_array_value($tab,'load_script','','is_string');
-				$js_command = NApp::arequest()->Prepare($tcontent,1,NULL,$tscript);
+				$js_command = NApp::Ajax()->Prepare($tcontent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
 				if(get_array_value($tab,'autoload',TRUE,'bool')) {
-					NApp::_ExecJs($js_command);
+					NApp::AddJsScript($js_command);
 				}//if(get_array_value($tab,'autoload',TRUE,'bool'))
 				break;
 			case 'control':
@@ -117,7 +115,7 @@ class TabControl {
 				$c_type = get_array_value($tcontent,'control_type',NULL,'is_notempty_string');
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type)) {
-					NApp::_Elog('Control class ['.$c_type.'] not found!');
+					NApp::Elog('Control class ['.$c_type.'] not found!');
 					continue;
 				}//if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type))
 				$c_params = get_array_value($tcontent,'control_params',[],'is_array');
@@ -128,6 +126,10 @@ class TabControl {
 				$control = new $c_type($c_params);
 				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
 				$ct_result .= $control->Show();
+                if(method_exists($control,'GetJsScript')) {
+                    $jsScript = $control->GetJsScript();
+                    if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
+                }//if(method_exists($control,'GetJsScript'))
 				break;
 			case 'content':
 			default:
@@ -141,13 +143,11 @@ class TabControl {
 	}//END protected function SetContent
 	/**
 	 * Replaces a string with another in a multilevel array (recursively)
-	 *
 	 * @param  array $params An array of parameters
 	 * @param  mixed $search String to be replaced
 	 * @param  mixed $replace String replacement value
 	 * @param bool   $regex
 	 * @return array Returns processed parameters array
-	 * @access protected
 	 */
 	protected function ProcessParamsArray($params,$search,$replace,$regex = FALSE) {
 		if(!strlen($search) || (!is_string($replace) && !is_numeric($replace))) { return $params; }
@@ -165,10 +165,8 @@ class TabControl {
 	}//END protected function ProcessParamsArray
 	/**
 	 * Gets the record from the database and sets the values in the tab array
-	 *
 	 * @param  array $tab Tab parameters array
 	 * @return array Returns processed tab array
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function GetTabData($tab) {
@@ -183,7 +181,7 @@ class TabControl {
 				$ds_field = get_array_value($tab,'ds_field','','is_string');
 				if(strlen($ds_field)) {
 					$ds_items = DataProvider::GetKeyValueArray($ds_class,$ds_method,$ds_params,array('keyfield'=>$ds_key));
-					//NApp::_Dlog($ds_items,'$ds_items1');
+					//NApp::Dlog($ds_items,'$ds_items1');
 					if(is_array($ds_items) && count($ds_items)) {
 						foreach($ds_items as $k=>$v) {
 							$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',get_array_value($v,$ds_field,'','isset'));
@@ -192,7 +190,7 @@ class TabControl {
 				}//if(strlen($da_field))
 			} else {
 				$ds_items = DataProvider::GetArray($ds_class,$ds_method,$ds_params);
-				//NApp::_Dlog($ds_items,'$ds_items2');
+				//NApp::Dlog($ds_items,'$ds_items2');
 				if(is_array($ds_items) && count($ds_items)) {
 					foreach($ds_items as $k=>$v) {
 						$result = $this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',$v);
@@ -200,32 +198,27 @@ class TabControl {
 				}//if(is_array($ds_items) && count($ds_items))
 			}//if(strlen($da_key))
 		}//if(strlen($ds_class) && strlen($ds_method))
-		// NApp::_Dlog($result['content']['control_params'],'control_params>B');
+		// NApp::Dlog($result['content']['control_params'],'control_params>B');
 		$result = $this->ProcessParamsArray($result,'/{{.*}}/','',TRUE);
-		// NApp::_Dlog($result['content']['control_params'],'control_params>A');
+		// NApp::Dlog($result['content']['control_params'],'control_params>A');
 		return $result;
 	}//END protected function GetTabData
 	/**
 	 * Sets the output buffer value
-	 *
 	 * @return string|null
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function SetControl(): ?string {
-		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
-		$lclass = trim($this->base_class.' '.$this->class);
-		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+	protected function GetTabs(): ?string {
 		// Set Tab header
-		$result .= "\t".'<ul>'."\n";
+		$result = "\t".'<ul>'."\n";
 		$ltabs = [];
 		foreach($this->tabs as $tab) {
 			if(!is_array($tab) || !count($tab)) { continue; }
 			switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
 				case 'template':
-					$tcollection = get_array_value($tab,'source_array',[],'is_array');
+					$tCollection = get_array_value($tab,'source_array',[],'is_array');
 					unset($tab['source_array']);
-					foreach($tcollection as $ctab) {
+					foreach($tCollection as $ctab) {
 						$ct_uid = get_array_value($ctab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
 						$ct_name = get_array_value($ctab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
 						$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
@@ -256,29 +249,126 @@ class TabControl {
 					break;
 			}//END switch
 		}//END foreach
-		$result .= '</div>'."\n";
 		$thtype = get_array_value($tab,'height_type','content','is_notempty_string');
-		$js_script = "
-			$('#{$this->tag_id}').tabs({
+		$jsScript = <<<JS
+            $('#{$this->tag_id}').tabs({
 				heightStyle: '{$thtype}',
-				activate: function(event,ui) {
-					var tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return false; }
-					var tcr_action = $(ui.newPanel).attr('data-reload-action');
+				activate: function(e,ui) {
+					let tcr = $(ui.newPanel).attr('data-reload');
+					if(!tcr && tcr!=1) { return true; }
+					let tcr_action = $(ui.newPanel).attr('data-reload-action');
 					if(tcr_action.length>0) { eval(tcr_action); }
 	            }
 			});
-		";
-		NApp::_ExecJs($js_script);
+JS;
+		NApp::AddJsScript($jsScript);
+		return $result;
+	}//END private function GetTabs
+	/**
+	 * Sets the output buffer value
+	 * @return string|null
+	 * @throws \NETopes\Core\AppException
+	 */
+	protected function GetAccordion(): ?string {
+        $result = '<div id="'.$this->tag_id.'_accordion" class="clsAccordion clsControlContainer">'."\n";
+        foreach($this->tabs as $tab) {
+			if(!is_array($tab) || !count($tab)) { continue; }
+            switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
+				case 'template':
+					$tCollection = get_array_value($tab,'source_array',[],'is_array');
+					unset($tab['source_array']);
+					foreach($tCollection as $cTab) {
+					    $tUid = get_array_value($cTab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
+                        $tName = get_array_value($cTab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
+                        $result .= "\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
+                        $tTab = $this->ProcessParamsArray($cTab,'{{t_uid}}',$tUid);
+                        $tTab = $this->GetTabData($tTab);
+                        $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
+                        $contentType = NULL;
+                        $result .= $this->SetContent($tTab,$contentType);
+					}//END foreach
+					break;
+				case 'fixed':
+					$tUid = get_array_value($tab,'uid','def','isset');
+					$tName = get_array_value($tab,'name','','is_string');
+                    $result .= "\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
+                    $tTab = $this->ProcessParamsArray($tab,'{{t_uid}}',$tUid);
+                    $tTab = array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
+                    $contentType = NULL;
+                    $result .= $this->SetContent($tTab,$contentType);
+					break;
+			}//END switch
+        }//END foreach
+        $result .= '</div>'."\n";
+        $thtype = get_array_value($tab,'height_type','content','is_notempty_string');
+        $jsScript = <<<JS
+            $('#{$this->tag_id}_accordion').accordion({
+                heightStyle: '{$thtype}',
+                create: function(e,ui) {
+                    if(ui.panel.length>0) {
+                        let tcr = $(ui.panel).attr('data-reload');
+                        if(!tcr && tcr!=1) { return true; }
+                        let tcr_action = $(ui.panel).attr('data-reload-action');
+                        if(tcr_action.length>0) { eval(tcr_action); }
+                    }
+                },
+				activate: function(e,ui) {
+					let tcr = $(ui.newPanel).attr('data-reload');
+					if(!tcr && tcr!=1) { return true; }
+					let tcr_action = $(ui.newPanel).attr('data-reload-action');
+					if(tcr_action.length>0) { eval(tcr_action); }
+	            }
+			});
+JS;
+		NApp::AddJsScript($jsScript);
+		return $result;
+	}//END private function GetAccordion
+	/**
+	 * Sets the output buffer value
+	 * @return string|null
+	 * @throws \NETopes\Core\AppException
+	 */
+	protected function SetControl(): ?string {
+		if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) { return NULL; }
+		$lclass = trim($this->base_class.' '.$this->class);
+		$result = '<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+		switch(strtolower($this->mode)) {
+            case 'accordion':
+                $result .= $this->GetAccordion();
+                break;
+            case 'tabs':
+            default:
+                $result .= $this->GetTabs();
+                break;
+		}//END switch
+		$result .= '</div>'."\n";
 		return $result;
 	}//END private function SetControl
 	/**
+     * @return array
+     */
+    public function GetJsScripts(): array {
+        return $this->js_scripts;
+    }//END public function GetJsScripts
+    /**
+     * @return null|string
+     */
+    public function GetJsScript(): ?string {
+        if(!count($this->js_scripts)) { return NULL; }
+		$result = '';
+		foreach($this->js_scripts as $js) {
+			$js = trim($js);
+			$result .= (strlen($result) ? "\n" : '').(substr($js,-1)=='}' ? $js : rtrim($js,';').';');
+		}//END foreach
+		return $result;
+    }//END public function GetJsScript
+	/**
 	 * Gets the output buffer content
-	 *
 	 * @return string Returns the output buffer content (html)
-	 * @access public
+     * @throws \NETopes\Core\AppException
 	 */
 	public function Show() {
-		return $this->output_buffer;
+	    if($this->cached) { return $this->output_buffer; }
+		return $this->SetControl();
 	}//END public function Show
 }//END class TabControl

@@ -1,37 +1,35 @@
 <?php
 /**
  * ComboBox control class file
- *
  * Standard ComboBox control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NApp;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use Translate;
+use NApp;
 /**
  * ComboBox control
- *
  * Standard ComboBox control
- *
  * @property null   placeholder
  * @property null   onenter_button
  * @property null   cbo_placeholder
  * @property string display_field
  * @package  NETopes\Controls
- * @access   public
  */
 class SmartComboBox extends Control {
+    use TControlDataSource;
+    use TControlFields;
 	/**
 	 * @var null|string
 	 */
@@ -50,7 +48,6 @@ class SmartComboBox extends Control {
 	public $template_selection = NULL;
 	/**
 	 * SmartComboBox constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -105,7 +102,7 @@ class SmartComboBox extends Control {
 		} elseif(is_numeric($this->minimum_input_length) && $this->minimum_input_length>0) {
 			$js_script .= "\t\t\tminimumInputLength: {$this->minimum_input_length},\n";
 		}//if($this->load_type=='ajax')
-		$litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+		$litems = DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
 			    $s_values = $this->selected_value;
@@ -113,7 +110,7 @@ class SmartComboBox extends Control {
                 $s_values = new DataSet([$this->selected_value]);
             }//if(is_iterable($this->selected_value))
         } elseif(is_array($this->selected_value)) {
-            $s_values = DataSource::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
+            $s_values = DataSourceHelpers::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
         } else {
             if(is_scalar($this->selected_value)) {
                 $s_values = [[
@@ -123,7 +120,7 @@ class SmartComboBox extends Control {
             } else {
                 $s_values = [];
             }//if(is_scalar($this->selected_value))
-            $s_values = DataSource::ConvertArrayToDataSet($s_values,VirtualEntity::class);
+            $s_values = DataSourceHelpers::ConvertArrayToDataSet($s_values,VirtualEntity::class);
         }//if(is_object($this->selected_value))
 		switch($this->load_type) {
 			case 'ajax':
@@ -143,9 +140,9 @@ class SmartComboBox extends Control {
                         $initData[] = $s_item;
                     }//END foreach
 			    }//if($s_values->count())
-				$tagauid = \NETopes\Core\AppSession::GetNewUID($this->tag_id,'md5');
-				NApp::_SetSessionAcceptedRequest($tagauid);
-				$cns = NApp::current_namespace();
+				$tagauid = AppSession::GetNewUID($this->tag_id,'md5');
+				AppSession::SetSessionAcceptedRequest($tagauid,NApp::$currentNamespace);
+				$cns = NApp::$currentNamespace;
 				$ac_module = get_array_value($this->data_source,'ds_class','','is_string');
 				$ac_method = get_array_value($this->data_source,'ds_method','','is_string');
 				if(strlen($ac_module) && strlen($ac_method)) {
@@ -156,7 +153,7 @@ class SmartComboBox extends Control {
 					if(is_array($ac_params_arr) && count($ac_params_arr)) {
 						foreach($ac_params_arr as $acpk=>$acpv) { $ac_params .= '&'.$acpk.'='.rawurlencode($acpv); }
 					}//if(is_array($ac_params_arr) && count($ac_params_arr))
-					$rpp = get_array_value($this->data_source,'rows_limit',20,'is_not0_numeric');
+					$rpp = get_array_value($this->data_source,'rows_limit',10,'is_not0_numeric');
 					$ac_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
 					if(is_array($ac_js_params) && count($ac_js_params)) {
 						$ac_data_func = "function (params) { return { q: params.term, page_limit: {$rpp}";
@@ -168,7 +165,7 @@ class SmartComboBox extends Control {
 					$errCallback = is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
 					if(!strlen($errCallback)) { $js_script_prefix .= "$('#{$this->tag_id}').data('hasError','0');\n"; }
 					$js_script .= "\t\t\tajax: {
-						url: xAppWebLink+'/".AppConfig::app_ajax_target()."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
+						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
@@ -204,7 +201,7 @@ class SmartComboBox extends Control {
 				if(is_object($this->value) && $this->value->count()) {
 				    $litems->merge($this->value->toArray());
 				} elseif(is_array($this->value) && count($this->value)) {
-				    $lValue = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+				    $lValue = DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
 				    $litems->merge($lValue->toArray());
 				}//if(is_object($this->value) && $this->value->count())
 				if(is_string($this->template_selection) && strlen($this->template_selection)) {
@@ -215,9 +212,9 @@ class SmartComboBox extends Control {
 				throw new AppException('Invalid SmartComboBox load type!');
 		}//END switch
 		$js_script .= "\t\t})";
-		// NApp::_Dlog($this->tag_id,'$this->tag_id');
-		// NApp::_Dlog($js_script,'$js_script');
-		// NApp::_Dlog($litems,'$litems');
+		// NApp::Dlog($this->tag_id,'$this->tag_id');
+		// NApp::Dlog($js_script,'$js_script');
+		// NApp::Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		$s_multiple = '';
@@ -254,14 +251,14 @@ class SmartComboBox extends Control {
                 $rOptions[''][] = "\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
             }//if(is_string($this->group_field) && strlen($this->group_field))
 		}//END foreach
-		// NApp::_Dlog($rOptions,'$rOptions');
+		// NApp::Dlog($rOptions,'$rOptions');
 		$rOptionsStr = '';
 		foreach(array_keys($rOptions) as $group) {
 		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
             $rOptionsStr .= implode('',$rOptions[$group]);
             if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
 		}//END foreach
-		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
+		// NApp::Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
 		$result = "\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(\GibberishAES::enc($js_script_prefix.$js_script,$this->tag_id)) : '').'">'."\n";
 		$result .= $rOptionsStr;

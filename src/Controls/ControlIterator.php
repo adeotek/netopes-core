@@ -1,84 +1,67 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
-use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 /**
  * Control iterator control
- *
  * Control for iterating a specific simple control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class ControlIterator extends Control {
     /**
      * @var    string Iterator type (array/DataSource/Module)
-     * @access public
      */
     public $iterator_type = 'list';
     /**
      * @var    string Iterator class name (DataSource/Module name)
-     * @access public
      */
     public $iterator_name = NULL;
     /**
      * @var    string Iterator method (DataSource/Module method)
-     * @access public
      */
     public $iterator_method = NULL;
     /**
      * @var    array Iterator parameters array
-     * @access public
      */
     public $iterator_params = NULL;
     /**
      * @var    array Iterator extra parameters array
-     * @access public
      */
     public $iterator_extra_params = [];
     /**
      * @var    array Iterator items array
-     * @access public
      */
     public $items = [];
     /**
      * @var    string Dynamic control parameters prefix
-     * @access public
      */
     public $params_prefix = '';
     /**
      * @var    string Control class name
-     * @access public
      */
     public $control = NULL;
     /**
      * @var    array Control parameters array
-     * @access public
      */
     public $params = [];
     /**
      * @var    array Iterator conditions (if TRUE control is shown, else not)
-     * @access public
      */
     public $conditions = [];
     /**
      * ControlIterator constructor.
-     *
      * @param null $params
      */
     public function __construct($params = NULL) {
@@ -123,7 +106,7 @@ class ControlIterator extends Control {
                 break;
         }//END switch
         if(is_object($this->items)) { return $this->items; }
-        return DataSource::ConvertArrayToDataSet($items,VirtualEntity::class);
+        return DataSourceHelpers::ConvertArrayToDataSet($items,VirtualEntity::class);
     }//END protected function GetItems
     /**
      * @return string|null
@@ -156,11 +139,11 @@ class ControlIterator extends Control {
             if(class_exists($controlClass)) {
             foreach($this->items as $k=>$v) {
                 if(is_array($this->conditions) && count($this->conditions)) {
-                    $iconditions = self::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
-                    if(!self::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
+                    $iconditions = ControlsHelpers::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
+                    if(!ControlsHelpers::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
                 }//if(is_array($this->conditions) && count($this->conditions))
                 if(is_array($this->params)) {
-                    $lparams = self::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
+                    $lparams = ControlsHelpers::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
                 } else {
                     $lparams = [];
                 }//if(is_array($this->params))

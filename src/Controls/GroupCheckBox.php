@@ -1,69 +1,61 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSet;
 use NApp;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use Translate;
 /**
  * GroupCheckBox class
- *
  * Control class for group checkbox (radio button alternative)
- *
  * @package  Hinter\NETopes\Controls
- * @access   public
  */
 class GroupCheckBox extends Control {
     /**
      * @var    array Elements data source
-     * @access public
      */
     public $data_source = [];
     /**
      * @var    DataSet Elements list
-     * @access public
      */
     public $items = NULL;
     /**
      * @var    string Elements list orientation
-     * @access public
      */
     public $orientation = 'horizontal';
     /**
      * @var    string Elements default value field name
-     * @access public
      */
     public $default_value_field = NULL;
     /**
      * @var    mixed Initial value
-     * @access public
      */
     public $value = NULL;
     /**
      * Control class constructor
-     *
      * @param  array $params An array of params
      * @return void
-     * @access public
      */
     public function __construct($params = NULL) {
         parent::__construct($params);
-        if(!is_object($this->items)) { $this->items = DataSource::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
-        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('GroupCheckBox','md5'); }
+        if(!is_object($this->items)) { $this->items = DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
+        if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
+    /**
+     * @throws \NETopes\Core\AppException
+     */
     protected function GetItems() {
         if(isset($this->items)) { return; }
         $ds_class = get_array_value($this->data_source,'ds_class','','is_string');
@@ -74,6 +66,10 @@ class GroupCheckBox extends Control {
         if(!strlen($ds_class) || !strlen($ds_method) || !DataProvider::MethodExists($ds_class,$ds_method,$mode)) { return; }
         $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
     }//END protected function GetItems
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControl(): ?string {
         $this->GetItems();
         $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
@@ -112,7 +108,7 @@ class GroupCheckBox extends Control {
                 } else {
                     $i_active = strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
                 }//if($this->disabled || $this->readonly)
-                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
+                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
             }//END foreach
         } else {
             $result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";

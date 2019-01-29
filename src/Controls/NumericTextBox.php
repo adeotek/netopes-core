@@ -1,14 +1,12 @@
 <?php
 /**
  * NumericTextBox control classes file
- *
  * File containing NumericTextBox control class
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,9 +14,7 @@ use NETopes\Core\Validators\Validator;
 use NApp;
 /**
  * NumericTextBox
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class NumericTextBox extends Control {
     public function __construct($params = NULL) {
@@ -32,8 +28,8 @@ class NumericTextBox extends Control {
         //Number format settings (decimals_no|decimal_separator|group_separator|sufix)
         if($this->number_format!==FALSE && !strlen($this->number_format)) {
             $def_decno = (is_numeric($this->decimals_no) && $this->decimals_no>=0) ? $this->decimals_no : 2;
-            $def_dsep = ($this->decimal_separator || $def_decno!=0) ? NApp::_GetParam('decimal_separator') : '';
-            $def_gsep = $this->group_separator ? NApp::_GetParam('group_separator') : '';
+            $def_dsep = ($this->decimal_separator || $def_decno!=0) ? NApp::GetParam('decimal_separator') : '';
+            $def_gsep = $this->group_separator ? NApp::GetParam('group_separator') : '';
             $this->number_format = $def_decno.'|'.$def_dsep.'|'.$def_gsep.'|'.$this->sufix;
         }//if($this->number_format!==FALSE && !strlen($this->number_format))
     }//END public function __construct

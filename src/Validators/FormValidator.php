@@ -1,14 +1,12 @@
 <?php
 /**
  * FormValidator class file
- *
  * Class for validating forms
- *
  * @package    NETopes\Core\Validators
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Validators;
@@ -16,7 +14,6 @@ use NETopes\Core\App\Params;
 use NApp;
 /**
  * Class FormValidator
- *
  * @package NETopes\Core\Validators
  */
 class FormValidator {
@@ -34,10 +31,8 @@ class FormValidator {
     protected $errors = [];
     /**
      * FormValidator class constructor method
-     *
      * @param array|null                          $config Parameters array
      * @param \NETopes\Core\App\Params|array|null $data Form data array|Params collection
-     * @access public
      * @throws \NETopes\Core\AppException
      */
 	public function __construct($data = NULL,?array $config = NULL) {
@@ -91,7 +86,7 @@ class FormValidator {
         foreach($this->formElements as $element) {
             $key = get_array_value($element,'validation_key',get_array_value($element,'tag_name','','is_string'),'is_string');
             if(!strlen($key)) {
-                NApp::_Dlog('Invalid form element key: '.print_r($element));
+                NApp::Dlog('Invalid form element key: '.print_r($element));
                 continue;
             }//if(!strlen($key))
             $deafultValue = NULL;

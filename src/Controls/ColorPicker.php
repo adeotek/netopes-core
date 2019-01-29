@@ -1,25 +1,20 @@
 <?php
 /**
  * ColorPicker control classes file
- *
  * Bootstrap ColorPicker control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 /**
  * ColorPicker control classes
- *
  * Bootstrap ColorPicker control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class ColorPicker extends Control {
 	public function __construct($params = NULL) {
@@ -33,9 +28,7 @@ class ColorPicker extends Control {
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
-	 *
 	 * @return string
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		if(strlen($this->js_params)) {
@@ -49,7 +42,7 @@ class ColorPicker extends Control {
 			//customClass : string
 			//useHashPrefix : bool
 		}//if(strlen($this->js_params))
-		// NApp::_Dlog($jsparams);
+		// NApp::Dlog($jsparams);
 		$this->ProcessActions();
 		if($this->preview) {
 			$result = "\t\t".'<div class="input-group" id="'.$this->tag_id.'_control">'."\n";
@@ -63,7 +56,7 @@ class ColorPicker extends Control {
 	        $result = "\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'">'."\n";
 	    }//if($this->preview)
 		$result .= $this->GetActions();
-		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::_ExecJs("$('#{$this->tag_id}_control').colorpicker({$jsparams});"); }
+		if($this->disabled!==TRUE && $this->readonly!==TRUE) { NApp::AddJsScript("$('#{$this->tag_id}_control').colorpicker({$jsparams});"); }
 		return $result;
 	}//END protected function SetControl
 }//END class ColorPicker extends Control

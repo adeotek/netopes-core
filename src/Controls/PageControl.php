@@ -1,24 +1,19 @@
 <?php
 /**
  * Short desc
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
 	/**
 	 * ClassName description
-	 *
 	 * long_description
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class PageControl extends Control {
 		public function __construct($params = null){
@@ -30,11 +25,11 @@
 		}//END public function __construct
 		protected function SetControl(): ?string {
 			$result = '';
-			$rpp = NApp::_GetParam('rows_per_page');
+			$rpp = NApp::GetParam('rows_per_page');
 			$rpp = $rpp>0 ? $rpp : 20;
 			$p_no = ceil($this->totalrows/$rpp);
 			if(!$this->withcount || !$this->current_page) {
-				$p_current_arr = NApp::_GetParam($this->module.$this->method.$this->phash);
+				$p_current_arr = NApp::GetParam($this->module.$this->method.$this->phash);
 				$withcount = get_array_value($p_current_arr,'fullpagination',0,'is_numeric');
 				$p_current = get_array_value($p_current_arr,'current_page',1,'is_numeric');
 			} else {
@@ -57,7 +52,7 @@
 						$p_new = $p_current - 1;
 						$r_first = 1 + ($p_new-1) * $rpp;
 						$r_last = $r_first + $rpp;
-						$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">«</span>'."\n";
+						$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">«</span>'."\n";
 					} else {
 						$result .= "\t\t\t".'<span class="next_prev nohover">«</span>'."\n";
 					}//if ($p_current==1)
@@ -69,14 +64,14 @@
 						} else {
 							$r_first = 1 + ($p-1) * $rpp;
 							$r_last = $r_first + $rpp;
-							$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
+							$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
 						}//if($p==$p_current)
 					}//END for
 				} else {
 					if($p_current>=5 && $p_current<=($p_no-4)) {
 						$r_first = 1 + $rpp;
 						$r_last = $r_first + $rpp;
-						$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|1~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">1</span>'."\n";
+						$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|1~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">1</span>'."\n";
 						$result .= "\t\t\t".'<span class="pagbtn nohover">...</span>'."\n";
 						for($p=($p_current-1);$p<=($p_current+1);$p++) {
 							if($p==$p_current) {
@@ -84,19 +79,19 @@
 							} else {
 								$r_first = 1 + ($p-1) * $rpp;
 								$r_last = $r_first + $rpp;
-								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
+								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
 							}//if($p==$p_current)
 						}//END for
 						$result .= "\t\t\t".'<span class="pagbtn nohover">...</span>'."\n";
 						$r_first = 1 + ($p_no-1) * $rpp;
 						$r_last = $r_first + $rpp;
-						$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_no."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p_no.'</span>'."\n";
+						$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_no."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p_no.'</span>'."\n";
 					} else {
 						if($p_current>($p_no-4)) {
 							for($p=1;$p<=2;$p++) {
 								$r_first = 1 + ($p-1) * $rpp;
 								$r_last = $r_first + $rpp;
-								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
+								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
 							}//END for
 							$result .= "\t\t\t".'<span class="pagbtn nohover">...</span>'."\n";
 						}//if($p_current>($p_no-4))
@@ -107,7 +102,7 @@
 							} else {
 								$r_first = 1 + ($p-1) * $rpp;
 								$r_last = $r_first + $rpp;
-								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
+								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
 							}//if($p==$p_current)
 						}//END for
 						if($p_current<5) {
@@ -115,7 +110,7 @@
 							for($p=($p_no-1);$p<=$p_no;$p++) {
 								$r_first = 1 + ($p-1) * $rpp;
 								$r_last = $r_first + $rpp;
-								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
+								$result .= "\t\t\t".'<span class="pagbtn" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">'.$p.'</span>'."\n";
 							}//END for
 						}//if($p_current<5)
 					}//if($p_current>=5 && $p_current<=($p_no-4))
@@ -125,14 +120,14 @@
 						$p_new = $p_current + 1;
 						$r_first = 1 + ($p_new-1) * $rpp;
 						$r_last = $r_first + $rpp;
-						$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">»</span>'."\n";
+						$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">»</span>'."\n";
 					} else {
 						$result .= "\t\t\t".'<span class="next_prev nohover">»</span>'."\n";
 					}//if ($p_current==1)
 				}//if($p_current>0)
 				$result .= "\t\t".'</div>'."\n";
 				$result .= "\t\t".'<div class="span-cent15 salt">';
-				$result .= "\t\t\t".'<select class="clsComboBox right" id="pagination-cbo-'.$this->module.$this->method.$this->phash.'" onchange="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','current_page'|pagination-cbo-".$this->module.$this->method.$this->phash.":value~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'$this->target')->$this->target").'">'."\n";
+				$result .= "\t\t\t".'<select class="clsComboBox right" id="pagination-cbo-'.$this->module.$this->method.$this->phash.'" onchange="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','current_page'|pagination-cbo-".$this->module.$this->method.$this->phash.":value~'fullpagination'|1".($this->passparams ? '~'.$this->passparams : '').",'$this->target')->$this->target").'">'."\n";
 				for($i=1; $i<=$p_no; $i++) {
 					$selected = $i==$p_current ? 'selected="selected"' : '';
 					$result .= "\t\t".'<option '.$selected.' value="'.$i.'">'.$i.'</option>'."\n";
@@ -149,7 +144,7 @@
 					$p_new = $p_current - 1;
 					$r_first = 1 + ($p_new-1) * $rpp;
 					$r_last = $r_first + $rpp;
-					$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|0".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">«</span>'."\n";
+					$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|0".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">«</span>'."\n";
 				} else {
 					$result .= "\t\t\t".'<span class="next_prev nohover">«</span>'."\n";
 				}//if($p_current>1)
@@ -157,7 +152,7 @@
 				$p_new = $p_current + 1;
 				$r_first = 1 + ($p_new-1) * $rpp;
 				$r_last = $r_first + $rpp;
-				$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::arequest()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|0".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">»</span>'."\n";
+				$result .= "\t\t\t".'<span class="next_prev"  onclick="'.NApp::Ajax()->Prepare("AjaxRequest('".$this->module."','".$this->method."','first_row'|".$r_first."~'last_row'|".$r_last."~'current_page'|".$p_new."~'fullpagination'|0".($this->passparams ? '~'.$this->passparams : '').",'".$this->target."')->".$this->target."").'">»</span>'."\n";
     			$result .= "\t\t".'</div>'."\n";
 				$result .= "\t\t".'<div class="span-cent15 salt">&nbsp;</div>'."\n";
 			}//if($withcount==1)

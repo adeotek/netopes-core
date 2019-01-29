@@ -1,34 +1,31 @@
 <?php
 /**
- * FirebirdSql database adapter class file
- *
- * This file contains the adapter class for FirebirdSQL database.
- *
- * @package    NETopes\Database
+ * DataAdapter database adapter class file
+ * This file contains the adapter class for Doctrine ORM.
+ * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
-use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+use NApp;
+use NETopes\Core\Data\RedisCacheHelpers;
+
 /**
-	 * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
-	 *
-	 * This class contains all methods for interacting with FirebirdSQL database.
-	 *
-	 * @package  NETopes\Database
-	 * @access   public
-	 */
-class DoctrineAdapter extends DataAdapter {
+ * Class DataAdapter
+ * This class contains all methods for interacting with Doctrine ORM.
+ * @package  NETopes\Core\Data\Doctrine
+ */
+class DataAdapter extends \NETopes\Core\Data\DataAdapter {
 	/**
 	 * @var EntityManager
 	 */
@@ -39,18 +36,15 @@ class DoctrineAdapter extends DataAdapter {
 	public $platform;
 	/**
 	 * Doctrine bootstrap
-	 *
 	 * @param  string $base_path
 	 * @param  array  $connection Database connection array
 	 * @param  object $platform
 	 * @return EntityManager
 	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
 	 */
 	public static function GetEntityManager($base_path,$connection,&$platform) {
-		$entities_path = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::doctrine_entities_path(),'\/');
-		$proxy_dir = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::doctrine_proxies_path(),'\/');
+		$entities_path = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::GetValue('doctrine_entities_path'),'\/');
+		$proxy_dir = rtrim($base_path,'\/').DIRECTORY_SEPARATOR.trim(AppConfig::GetValue('doctrine_proxies_path'),'\/');
 		$dbtype = array_key_exists('db_type',$connection) && is_string($connection['db_type']) ? $connection['db_type'] : '';
 		$dbdriver = array_key_exists('doctrine_driver',$connection) && is_string($connection['doctrine_driver']) ? $connection['doctrine_driver'] : '';
 		if(!is_array($connection) || !count($connection) || !strlen($dbtype) || !strlen($dbdriver)) { return NULL; }
@@ -58,12 +52,12 @@ class DoctrineAdapter extends DataAdapter {
 		    $persistentCache = FALSE;
 			$platform = NULL;
 			$cacheDriver = NULL;
-			$cacheDriverName = AppConfig::doctrine_cache_driver();
+			$cacheDriverName = AppConfig::GetValue('doctrine_cache_driver');
 			if(strlen($cacheDriverName) && class_exists('\Redis',FALSE)) {
 			    $cacheDriverClass = '\Doctrine\Common\Cache\\'.$cacheDriverName;
 			    $cacheDriver = new $cacheDriverClass();
 			    if($cacheDriverName=='RedisCache') {
-			        $redis = DataSource::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
+			        $redis = RedisCacheHelpers::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
 			        if($redis) {
                         $cacheDriver->setRedis($redis);
                         $persistentCache = TRUE;
@@ -74,12 +68,12 @@ class DoctrineAdapter extends DataAdapter {
 			}//if(strlen($cacheDriverName) && class_exists('\Redis',FALSE))
 			if($cacheDriver==NULL) { $cacheDriver = new \Doctrine\Common\Cache\ArrayCache; }
 			// Create a simple "default" Doctrine ORM configuration for Annotations
-			$config = Setup::createAnnotationMetadataConfiguration([$entities_path],AppConfig::doctrine_develop_mode(),$proxy_dir,$cacheDriver);
+			$config = Setup::createAnnotationMetadataConfiguration([$entities_path],AppConfig::GetValue('doctrine_develop_mode'),$proxy_dir,$cacheDriver);
 			$anno_reader = new AnnotationReader();
 			$anno_driver = new AnnotationDriver($anno_reader,[$entities_path]);
 	        $config->setMetadataDriverImpl($anno_driver);
-	        $config->setProxyNamespace(AppConfig::doctrine_proxies_namespace());
-	        $config->setAutoGenerateProxyClasses(AppConfig::doctrine_develop_mode());
+	        $config->setProxyNamespace(AppConfig::GetValue('doctrine_proxies_namespace'));
+	        $config->setAutoGenerateProxyClasses(AppConfig::GetValue('doctrine_develop_mode'));
 	        if($persistentCache) { $config->setQueryCacheImpl($cacheDriver); }
 			if($dbtype=='FirebirdSql') {
 				$conn_arr = [
@@ -91,7 +85,7 @@ class DoctrineAdapter extends DataAdapter {
 				if(isset($connection['db_port'])) { $conn_arr['port'] = $connection['db_port']; }
 				if(isset($connection['charset'])) { $conn_arr['charset'] = $connection['charset']; }
 				if(isset($connection['persistent'])) { $conn_arr['isPersistent'] = $connection['persistent']; }
-				// NApp::_Dlog($conn_arr,'$conn_arr');
+				// NApp::Dlog($conn_arr,'$conn_arr');
 				$driver = new $dbdriver();
 				$conn = new Connection($conn_arr,$driver,$config);
 		        $conn->setNestTransactionsWithSavepoints(TRUE);
@@ -105,7 +99,7 @@ class DoctrineAdapter extends DataAdapter {
 				];
 				if(isset($connection['db_port'])) { $conn['port'] = $connection['db_port']; }
 				if(isset($connection['charset'])) { $conn['charset'] = $connection['charset']; }
-				// NApp::_Dlog($conn,'$conn');
+				// NApp::Dlog($conn,'$conn');
 			}//if($dbtype=='FirebirdSql')
 			// obtaining the entity manager
 			return EntityManager::create($conn,$config);
@@ -120,13 +114,11 @@ class DoctrineAdapter extends DataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection) {
-		$this->em = self::GetEntityManager(NApp::app_path(),$connection,$this->platform);
+		$this->em = self::GetEntityManager(NApp::$appPath,$connection,$this->platform);
 	}//END protected function Init
-}//END class DoctrineAdapter extends DataSource
+}//END class DataAdapter extends \NETopes\Core\Data\DataAdapter

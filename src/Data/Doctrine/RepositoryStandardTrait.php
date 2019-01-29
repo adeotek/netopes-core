@@ -1,14 +1,13 @@
 <?php
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\Query;
 use NETopes\Core\AppException;
 /**
- * Trait DoctrineRepositoryStandardTrait
- *
+ * Trait RepositoryStandardTrait
  * @package NETopes\Core\Data
  */
-trait DoctrineRepositoryStandardTrait {
-	use DoctrineRepositoryBaseTrait;
+trait RepositoryStandardTrait {
+	use RepositoryBaseTrait;
 	/**
 	 * @param array  $params
 	 * @return array|null
@@ -143,7 +142,7 @@ trait DoctrineRepositoryStandardTrait {
 			if(get_array_value($params,'collection',FALSE,'bool')) { return $data; }
 			return ['data'=>$data,'count'=>$tcount];
 		} catch(\Doctrine\ORM\Query\QueryException $qe) {
-			// \NApp::_Dlog($qe->getTrace());
+			// \NApp::Dlog($qe->getTrace());
 			throw new AppException('#'.get_class($qe).'# '.$qe->getMessage(),$qe->getCode(),1);
 		} catch(\Doctrine\ORM\ORMException $oe) {
 			throw new AppException('#'.get_class($oe).'# '.$oe->getMessage(),$oe->getCode(),1);
@@ -151,4 +150,4 @@ trait DoctrineRepositoryStandardTrait {
             throw new AppException($e->getMessage(),$e->getCode(),1);
         }//END try
     }//END public function findFiltered
-}//END trait DoctrineRepositoryStandardTrait
+}//END trait RepositoryStandardTrait

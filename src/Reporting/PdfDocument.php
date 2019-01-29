@@ -1,17 +1,16 @@
 <?php
 /**
  * PdfDocument class file
- *
  * PDF document generator that implements class PdfCreator
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NApp;
@@ -38,16 +37,12 @@ define('X_PAY_DOC_TYPE_PDF',3);
 define('X_REPORT_TYPE_PDF',4);
 /**
  * PdfDocumentBase class
- *
  * PDF document generator that implements class PdfCreator
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class PdfDocument {
 	/**
 	 * @var    array An array containing default formats
-	 * @access protected
 	 */
 	protected $default_formats = array(
 		'header'=>array('padding'=>'0 2px','font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'F0F0F0'),
@@ -59,98 +54,79 @@ class PdfDocument {
 	);
 	/**
 	 * @var    array An array containing default footer parameters
-	 * @access public
 	 */
 	public $footer_params = FALSE;
 	/**
 	 * @var    array Borders settings array
-	 * @access protected
 	 */
 	protected $border_settings = array('LTRB'=>array('width'=>0.1));
 	//, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)
 	/**
 	 * @var    bool Flag indicating if borders are used
-	 * @access protected
 	 */
 	protected $with_borders = FALSE;
 	/**
 	 * @var    array An array containing all instance formats
-	 * @access protected
 	 */
 	protected $formats = [];
 	/**
 	 * @var    string Decimal separator
-	 * @access protected
 	 */
 	protected $decimal_separator = NULL;
     /**
 	 * @var    string Group separator
-	 * @access protected
 	 */
     protected $group_separator = NULL;
 	/**
 	 * @var    string Date separator
-	 * @access protected
 	 */
 	protected $date_separator = NULL;
 	/**
 	 * @var    string Time separator
-	 * @access protected
 	 */
 	protected $time_separator = NULL;
 	/**
 	 * @var    string Language code
-	 * @access protected
 	 */
 	protected $langcode = NULL;
 	/**
 	 * @var    string Document HTML data
-	 * @access protected
 	 */
 	protected $orientation = 'P';
 	/**
 	 * @var    string Document font
-	 * @access protected
 	 */
 	protected $font = 'freesans';
 	/**
 	 * @var    string Document HTML data
-	 * @access protected
 	 */
 	protected $page_size = 'A4';
 	/**
 	 * @var    array An array containing extra parameters or extra data
-	 * @access protected
 	 */
 	protected $params = NULL;
 	/**
 	 * @var    int Document type
-	 * @access public
 	 */
 	public $type = X_GENERAL_TYPE_PDF;
 	/**
 	 * @var    bool Unicode TCPDF initialization value
-	 * @access public
 	 */
 	public $unicode = TRUE;
 	/**
 	 * @var    string Charset TCPDF initialization value
-	 * @access public
 	 */
 	public $charset = 'UTF-8';
 	/**
 	 * @var    object TCPDF instance
-	 * @access protected
 	 */
 	public $pdf = NULL;
 	/**
 	 * @var    string PDF file name (including extension)
-	 * @access public
 	 */
 	public $file_name = NULL;
 	/**
 	 * @var    string HTML data to be write in the PDF
-	 * @access public
 	 */
 	public $html_data = NULL;
 	/**
@@ -160,21 +136,17 @@ class PdfDocument {
 	private $pdata = [];
 	/**
 	 * Class dynamic getter method
-	 *
 	 * @param  string $name The name o the property
 	 * @return mixed Returns the value of the property
-	 * @access public
 	 */
 	public function __get($name) {
 		return (is_array($this->pdata) && array_key_exists($name,$this->pdata)) ? $this->pdata[$name] : NULL;
 	}//END public function __get
 	/**
 	 * Class dynamic setter method
-	 *
 	 * @param  string $name The name o the property
 	 * @param  mixed  $value The value to be set
 	 * @return void
-	 * @access public
 	 */
 	public function __set($name,$value) {
 		if(!is_array($this->pdata)) { $this->pdata = []; }
@@ -182,18 +154,16 @@ class PdfDocument {
 	}//END public function __set
 	/**
 	 * PdfDocumentBase class constructor
-	 *
 	 * @param  array $params Constructor parameters array
 	 * @throws \NETopes\Core\AppException
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
-		$this->decimal_separator = NApp::_GetParam('decimal_separator');
-		$this->group_separator = NApp::_GetParam('group_separator');
-		$this->date_separator = NApp::_GetParam('date_separator');
-		$this->time_separator = NApp::_GetParam('time_separator');
-		$this->langcode = NApp::_GetLanguageCode();
+		$this->decimal_separator = NApp::GetParam('decimal_separator');
+		$this->group_separator = NApp::GetParam('group_separator');
+		$this->date_separator = NApp::GetParam('date_separator');
+		$this->time_separator = NApp::GetParam('time_separator');
+		$this->langcode = NApp::GetLanguageCode();
 		$this->file_name = date('YmdHis').'.pdf';
 		if(is_array($params) && count($params)) {
 			foreach($params as $k=>$v) {
@@ -207,16 +177,14 @@ class PdfDocument {
 	}//END public function __construct
 	/**
 	 * PDF class initializer
-	 *
 	 * @return void
 	 * @throws \NETopes\Core\AppException
-	 * @access protected
 	 */
 	protected function _Init() {
 		set_time_limit(1800);
         $this->pdf = new PdfCreator($this->orientation,'mm',$this->page_size,$this->unicode,$this->charset);
 		$this->pdf->SetCreator('NETopes');
-        $this->pdf->SetAuthor(NApp::_GetAppName());
+        $this->pdf->SetAuthor(AppConfig::GetValue('app_name'));
 		switch($this->type) {
 			case X_STOCK_DOC_TYPE_PDF:
 			case X_PAY_DOC_TYPE_PDF:
@@ -250,12 +218,10 @@ class PdfDocument {
 	}//END protected function _Init
 	/**
 	 * description
-	 *
 	 * @param bool  $new
 	 * @param string|null $orientation
 	 * @param string|null $page_size
 	 * @return void
-	 * @access public
 	 */
 	protected function AddPage($new = FALSE,$orientation = NULL,$page_size = NULL) {
 		if($this->pages_no && $new!==TRUE) { return; }
@@ -265,11 +231,9 @@ class PdfDocument {
 	}//END protected function AddPage
 	/**
 	 * description
-	 *
 	 * @param string|null $orientation
 	 * @param string|null $page_size
 	 * @return void
-	 * @access public
 	 */
 	protected function StartPageGroup($newPage = FALSE,$orientation = NULL,$page_size = NULL) {
 		$this->pdf->startPageGroup();
@@ -277,9 +241,7 @@ class PdfDocument {
 	}//END protected function StartPageGroup
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetHeader() {
 		$this->pdf->setPrintHeader(FALSE);
@@ -288,9 +250,7 @@ class PdfDocument {
 	}//END protected function SetHeader
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetFooter() {
 		if(!$this->footer_params) {
@@ -306,10 +266,8 @@ class PdfDocument {
 	}//END protected function SetFooter
 	/**
 	 * description
-	 *
 	 * @param int|null $docId Data key (ID)
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function LoadData(?int $docId): void {
@@ -359,63 +317,49 @@ class PdfDocument {
 	}//END protected function LoadData
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetDocument() {
 		return FALSE;
 	}//END protected function SetDocument
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetDocumentHeader() {
 		return FALSE;
 	}//END protected function SetDocumentHeader
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetPageHeader() {
 		return FALSE;
 	}//protected function SetPageHeader
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetPageFooter() {
 		return FALSE;
 	}//protected function SetPageFooter
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetDocumentLines() {
 		return $this->SetPageHeader();
 	}//END protected function SetDocumentLines
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetDocumentFooter() {
 		return FALSE;
 	}//END protected function SetDocumentFooter
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetDocumentContent() {
 		if($this->type==X_HTML_TYPE_PDF && is_string($this->html_data) && strlen($this->html_data)) {
@@ -427,9 +371,7 @@ class PdfDocument {
 	}//END protected function SetDocumentContent
 	/**
 	 * description
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	protected function SetContentFromHtml() {
 		$html = [];
@@ -460,9 +402,7 @@ class PdfDocument {
 	}//END protected function SetContentFromHtml
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function SetContent() {
@@ -489,11 +429,9 @@ class PdfDocument {
 	}//END protected function SetContent
 	/**
 	 * description
-	 *
 	 * @return void
 	 * @throws \NETopes\Core\AppException
 	 * @throws \Exception
-	 * @access public
 	 */
 	protected function WriteData() {
 		switch($this->type) {
@@ -531,18 +469,16 @@ class PdfDocument {
 	}//END protected function WriteData
 	/**
 	 * description
-	 *
 	 * @param array $params Input parameters array
 	 * @return mixed
-	 * @access public
 	 */
 	public function Output($params = NULL) {
 		try {
 			$this->WriteData();
 			if(get_array_value($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
 		} catch(\Exception $e){
-			NApp::_Write2LogFile($e->getMessage(),'error');
-			NApp::_Elog($e->getMessage());
+			NApp::Write2LogFile($e->getMessage(),'error');
+			NApp::Elog($e);
 			echo $e->getMessage();
 			return FALSE;
 		}//END try
@@ -556,10 +492,8 @@ class PdfDocument {
 	}//END public function Output
 	/**
 	 * description
-	 *
 	 * @param array $params Input parameters array
 	 * @return void
-	 * @access public
 	 */
 	public function Show($params = NULL) {
 		if(!is_array($params)) { $params = []; }
@@ -569,9 +503,7 @@ class PdfDocument {
 // For Report type PDF
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 */
 	protected function SetReportContent() {
 		/*$this->pdf->custom_footer = TRUE;
@@ -618,10 +550,8 @@ class PdfDocument {
 	}//END protected function SetReportContent
 	/**
 	 * description
-	 *
 	 * @param array $formats
 	 * @return void
-	 * @access protected
 	 */
 	protected function SetFormats($formats = []) {
 		if(!is_array($formats) || !count($formats)) {
@@ -632,12 +562,10 @@ class PdfDocument {
 	}//END protected function SetFormats
 	/**
 	 * description
-	 *
 	 * @param $data
 	 * @param $column
 	 * @param $col
 	 * @return string
-	 * @access protected
 	 */
 	protected function GetCellValue($data,$column,$col) {
 		if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {

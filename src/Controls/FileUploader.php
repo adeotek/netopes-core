@@ -1,14 +1,12 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,13 +14,10 @@ use NApp;
 use GibberishAES;
 /**
  * ClassName description
- *
  * long_description
- *
  * @property bool   require_login
  * @property string status_target
  * @package  NETopes\Controls
- * @access   public
  */
 class FileUploader extends Control {
 	public function __construct($params = null) {
@@ -83,12 +78,12 @@ class FileUploader extends Control {
 			case 'bootstrap4':
 				$bclass = ' class="'.(strlen($this->button_class) ? $this->button_class : 'btn btn-info btn-xs').'"';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 			default:
 				$bclass = strlen($this->button_class) ? ' class="'.$this->button_class.'"' : '';
 				$result = "\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
-				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::app_web_link().'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::current_namespace().'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
+				if(!$this->disabled) { $result .= "\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n"; }
 				break;
 		}//END switch
 		$onclick = (!$this->disabled ? ' onclick="$(\'#'.$this->tag_id.'\').click()"' : ' disabled="disabled"');
@@ -97,14 +92,12 @@ class FileUploader extends Control {
 			$result .= "\t\t".'<span class="'.$this->base_class.'Text">'.$this->dropzone_text.'</span>'."\n";
 		}//if(strlen($this->dropzone_text))
 		$result .= "\t".'</div>'."\n";
-		if(!$this->disabled) { NApp::_ExecJs("CreateFileUploader('{$this->tag_id}',0);"); }
+		if(!$this->disabled) { NApp::AddJsScript("CreateFileUploader('{$this->tag_id}',0);"); }
 		return $result;
 	}//END protected function SetControl
 	/**
 	 * Clears the base class of the control
-	 *
 	 * @return bool
-	 * @access public
 	 */
 	public function ClearBaseClass(): bool {
 		return FALSE;

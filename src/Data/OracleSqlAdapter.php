@@ -1,32 +1,24 @@
 <?php
 /**
  * Oracle database implementation class file
- *
  * This file contains the implementing class for Oracle SQL database.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 /**
  * OracleDatabase is implementing the Oracle database
- *
  * This class contains all methods for interacting with Oracle database.
- *
  * @package  NETopes\Database
- * @access   public
  */
 class OracleSqlAdapter extends SqlDataAdapter {
 	/**
 	 * Get startup query string
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return string  Returns the query to be executed after connection
-	 * @access public
-	 * @static
 	 */
 	public static function GetStartUpQuery($params = []) {
 		if(!is_array($params) || !count($params)) { return NULL; }
@@ -34,10 +26,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	}//public static function GetStartUpQuery
 	/**
 	 * Set global variables to a temporary table
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function OracleSetGlobalVariables($params = []) {
 		if(!is_array($params) || !count($params)) { return TRUE; }
@@ -46,10 +36,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 */
 	protected function Init($connection) {
 		$tns = "(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = {$connection['db_server']})";
@@ -59,9 +47,9 @@ class OracleSqlAdapter extends SqlDataAdapter {
 			$tns .= " (SERVER = ".strtoupper($connection['db_server_type']).")";
 		}//if(isset($connection['db_server_type']) && strlen($connection['db_server_type']))
 		if(isset($connection['db_conn_type']) && strlen($connection['db_conn_type'])) {
-			$tns .= " ({$connection['db_conn_type']} = {$this->dbname})";
+			$tns .= " ({$connection['db_conn_type']} = {$this->dbName})";
 		} else {
-			$tns .= " (SERVICE_NAME = {$this->dbname})";
+			$tns .= " (SERVICE_NAME = {$this->dbName})";
 		}//if(isset($connection['db_conn_type']) && strlen($connection['db_conn_type']))
 		$tns .= "))";
 		vprint('$tns: '.$tns);
@@ -72,19 +60,17 @@ class OracleSqlAdapter extends SqlDataAdapter {
 				$dbe = oci_error();
 				throw new AException("FAILED TO CONNECT TO DATABASE: ({$dbe['message']})",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 			}//if(!is_resource($this->connection))
-			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbname.']','Connection',$time);
+			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbName.']','Connection',$time);
 		} catch(Exception $e) {
-			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbname." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
+			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 		}//END try
 	}//END protected function Init
 	/**
 	 * Begins a oracle transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @param  bool $overwrite Flag for overwriting the transaction
 	 * if exists (defaul value FALSE)
 	 * @return object Returns the transaction instance
-	 * @access public
 	 */
 	public function OracleBeginTran($name,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
 		if(array_key_exists($name,$this->transactions) && $this->transactions[$name] && !$overwrite){ return NULL; }
@@ -95,10 +81,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	}//END public function OracleBeginTran
 	/**
 	 * Rolls back a oracle transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function OracleRollbackTran($name,$log = TRUE) {
 		if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
@@ -112,10 +96,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	}//END public function OracleRollbackTran
 	/**
 	 * Commits a oracle transaction
-	 *
 	 * @param  string $name Transaction name
 	 * @return bool Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 */
 	public function OracleCommitTran($name,$log = TRUE) {
 		if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
@@ -129,7 +111,6 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	}//END public function OracleCommitTran
 	/**
 	 * Prepares the query string for execution
-	 *
 	 * @param  string $query The query string (by reference)
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -143,7 +124,6 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @param  string $row_query By reference parameter that will store row query string
 	 * @return void
-	 * @access public
 	 */
 	public function OraclePrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
 		//OCI_NO_AUTO_COMMIT
@@ -215,7 +195,6 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	}//public function OraclePrepareQuery
 	/**
 	 * Executes a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -228,7 +207,6 @@ class OracleSqlAdapter extends SqlDataAdapter {
 	 * (to be used only with 'first_row')
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function OracleExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -277,11 +255,10 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function OracleExecuteQuery
 	/**
 	 * Prepares the command string to be executed
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -295,7 +272,6 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @param  string $row_query By reference parameter that will store row query string
 	 * @return string|resource Returns processed command string or the statement resource
-	 * @access protected
 	 */
 	protected function OraclePrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL) {
 		if(is_array($params)) {
@@ -447,7 +423,6 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	}//END protected function OraclePrepareProcedureStatement
 	/**
 	 * Executs a stored procedure against the database
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -461,7 +436,6 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @param  array $sort An array of fields to compose ORDER BY clause
 	 * @param  array $filters An array of condition to be applied in WHERE clause
 	 * @return array|bool Returns database request result
-	 * @access public
 	 */
 	public function OracleExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = TRUE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -472,7 +446,7 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		$sql_params4dbg = $sql_params ? '>>Param: '.print_r($sql_params,TRUE) : '';
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
-		//if($this->debug2file) { NApp::_Write2LogFile('Query: '.$query,'debug'); }
+		//if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
 		if(strlen($tran_name)) {
 			if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
 				$transaction = $tran_name;
@@ -512,11 +486,10 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 		}//END try
 		if(!strlen($tran_name)) { $this->OracleCommitTran($transaction); }
 		$this->DbDebug($query.$sql_params4dbg,'Query',$time);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function OracleExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -525,19 +498,15 @@ $this->OracleBeginTran($transaction,TRUE,TRUE,$custom_tran_params);
 	 * @param  array $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @access public
 	 */
 	public function OracleExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
 		throw new AException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for Oracle !!! in statement: ".$method.trim('->'.$property,'->'),E_ERROR,1,__FILE__,__LINE__,'oracle',0);
 	}//END public function OracleExecuteMethod
 	/**
 	 * Escapes single quote charcater from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
-	 * @static
 	 */
 	public static function OracleEscapeString($param) {
 		$result = NULL;

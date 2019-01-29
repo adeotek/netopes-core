@@ -1,24 +1,19 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
     namespace NETopes\Core\Controls;
 	/**
 	 * Message control
-	 *
 	 * Control for displaying a label/message
-	 *
 	 * @package  NETopes\Controls
-	 * @access   public
 	 */
 	class Message extends Control {
 		public function __construct($params = NULL) {
@@ -29,10 +24,8 @@
 		}//END public function __construct
 		/**
 		 * description
-		 *
 		 * @param object|null $params Parameters object (instance of [Params])
 		 * @return void
-		 * @access public
 		 */
 		protected function SetControl(): ?string {
 			$lvalue = strlen($this->text) ? $this->text : $this->value;

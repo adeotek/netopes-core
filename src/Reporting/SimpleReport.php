@@ -1,24 +1,19 @@
 <?php
 /**
  * Simple Report class file
- *
  * Used for generating in-page simple reports.
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class SimpleReport {
 	protected $decimal_separator = NULL;
@@ -28,10 +23,10 @@ class SimpleReport {
 	protected $result = '';
 	protected $base_class = 'listing lineslisting span-cent';
 	public function __construct(&$layout = [],&$data = [],&$class) {
-		$this->decimal_separator = NApp::_GetParam('decimal_separator');
-		$this->group_separator = NApp::_GetParam('group_separator');
-		$this->date_separator = NApp::_GetParam('date_separator');
-		$this->time_separator = NApp::_GetParam('time_separator');
+		$this->decimal_separator = NApp::GetParam('decimal_separator');
+		$this->group_separator = NApp::GetParam('group_separator');
+		$this->date_separator = NApp::GetParam('date_separator');
+		$this->time_separator = NApp::GetParam('time_separator');
 		foreach($layout as $layout_item) {
 			$formats = [];
 			foreach($layout_item['formats'] as $fkey=>$format) {
@@ -168,10 +163,10 @@ class SimpleReport {
 		return number_format($value,2,$this->decimal_separator,$this->group_separator);
 	}//END protected function number_format2
 	protected function DateFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),TRUE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone',FALSE),TRUE);
 	}//END protected function DateFormat
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone',FALSE),FALSE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone',FALSE),FALSE);
 	}//END protected function DateTimeFormat
 	protected function NoTimezoneDateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);

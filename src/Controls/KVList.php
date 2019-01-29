@@ -1,14 +1,12 @@
 <?php
 /**
  * KVList class file
- *
  * File containing KVList control class
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -18,9 +16,7 @@ use NApp;
 use Translate;
 /**
  * Class KVList
- *
  * @package  Hinter\NETopes\Controls
- * @access   public
  */
 class KVList extends Control {
     protected $postable_elements = TRUE;
@@ -32,7 +28,7 @@ class KVList extends Control {
         else { $this->postable = FALSE; }
         if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('KVList'); }
         if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
-        if(is_array($this->lang_items)) { $this->lang_items = DataSource::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
+        if(is_array($this->lang_items)) { $this->lang_items = DataSourceHelpers::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct
     protected function SetControlInstance($with_translations = FALSE,$values = NULL,$lang = NULL) {
         $this->ProcessActions();
@@ -40,8 +36,8 @@ class KVList extends Control {
         if(is_string($lvalues) && strlen($lvalues)) {
             try {
                 $lvalues = @json_decode($lvalues,TRUE);
-            } catch(Exception $e) {
-                NApp::_Elog($e->getMessage());
+            } catch(\Exception $e) {
+                NApp::Elog($e);
                 $lvalues = [];
             }//END try
         }//if(is_string($lvalues) && strlen($lvalues))
@@ -100,7 +96,7 @@ class KVList extends Control {
             }//END foreach
             $result .= '</div>'."\n";
             $js_script = "$('#{$this->tag_id}').accordion();";
-            NApp::_ExecJs($js_script);
+            NApp::AddJsScript($js_script);
         } else {
             $result = $this->SetControlInstance();
         }//if(is_iterable($this->lang_items) && count($this->lang_items))
