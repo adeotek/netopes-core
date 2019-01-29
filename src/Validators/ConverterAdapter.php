@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Validators;
 use NETopes\Core\AppConfig;
+use NETopes\Core\DataHelpers;
 use NApp;
 use Translate;
 /**
@@ -26,6 +27,7 @@ class ConverterAdapter {
      * @param string|null $validation
      * @return mixed
      * @throws \NETopes\Core\AppException
+     * @throws \Exception
      */
 	public static final function Convert($value,string $mode,?string $defaultValue = NULL,?string $validation = NULL) {
         if(isset($validation)) { $value = Validator::ValidateValue($value,$defaultValue,$validation); }
@@ -75,7 +77,7 @@ class ConverterAdapter {
 	        } else {
 	            if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE && strpos($date,'T')===FALSE) {
                     $date .= ' 00:00'.(substr($sourceFormat,-2)==':s' ? ':00' : '');
-                } elseif(substr($sourceFormat,-2)==':s' && preg_match('/(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
+                } elseif(substr($sourceFormat,-2)==':s' && (preg_match('/(\s|T)[0-9]{2}:[0-9]{2}$/',$date) || preg_match('/^[0-9]{2}:[0-9]{2}$/',$date))) {
                     $date .= ':00';
                 }//if(strpos($sourceFormat,' ') && strpos($date,' ')===FALSE && strpos($date,'T')===FALSE)
 	        }//if(!strlen($sourceFormat))
@@ -197,12 +199,45 @@ class ConverterAdapter {
     public static function ToEodDatetime($value): ?string {
         return static::DateTimeToDbFormat($value,NApp::GetDateTimeFormat(TRUE),NULL,2);
 	}//END public static function ToEodDatetime
+    /**
+     * Convert unix timestamp to DateTime
+     * @param  float|null  $input Time as unix timestamp
+     * @return \DateTime Returns DateTime object
+     * @throws \Exception
+     */
+	public static function TimestampToDatetime(?float $input): ?\DateTime {
+		if(is_null($input)) { return NULL; }
+	    if(!($dt = new \DateTime('1970-01-01T00:00:01+00:00'))) { return NULL; }
+		$dt->setTimestamp($input);
+		return $dt;
+	}//END public static function TimestampToDatetime
+	/**
+	 * Convert time stored as string to unix timestamp
+	 * @param  string|null $input Time stored as string (format: 'H:i[:s]')
+	 * @param  string|null $separator Time separator (optional, default is ':')
+	 * @return float Return float unix timestamp
+	 */
+	public static function StrTimeToTimestamp(?string $input,?string $separator = NULL) {
+	    if(!strlen($input)) { return NULL; }
+		$result = 0;
+		$separator = strlen($separator) ? $separator : ':';
+		$timeArray = explode($separator,$input);
+		if(count($timeArray)>=3) {
+			$result = (int)($timeArray[0]) * 3600 + (int)($timeArray[1]) * 60 + (int)($timeArray[3]);
+		} elseif(count($timeArray)==2) {
+			$result = (int)($timeArray[0]) * 3600 + (int)($timeArray[1]) * 60;
+		} elseif(count($timeArray)==1) {
+			$result = (int)($timeArray[0]) * 3600;
+		}//if(count($timeArray)>=3)
+		return $result;
+	}//END public static function StrTimeToTimestamp
 	/**
 	 * Converts a number to standard format
 	 * @param  mixed $number The number to be converted
 	 * @param  string|null $decimalSeparator The decimal separator
 	 * @param  string|null $groupSeparator The group separator
 	 * @return string Returns the number in the database format
+     * @throws \NETopes\Core\AppException
 	 */
 	public static function NumberToStandardFormat($number,?string $decimalSeparator = NULL,?string $groupSeparator = NULL): ?string {
 		if(!is_scalar($number) || !strlen($number)) { return NULL; }
@@ -218,6 +253,7 @@ class ConverterAdapter {
      * @param string|null $langCode
      * @param bool        $useIntl
      * @return string|null
+     * @throws \NETopes\Core\AppException
      */
 	public static function NumberToWords(float $value,?string $currency = NULL,?string $subCurrency = NULL,?string $langCode = NULL,bool $useIntl = TRUE): ?string {
 		$langCode = strlen($langCode) ? $langCode : NApp::GetLanguageCode();
@@ -237,14 +273,15 @@ class ConverterAdapter {
 		}//if($useIntl && class_exists('\NumberFormatter'))
 		if(abs($value)>0) {
 			if($value<0) { $result .= Translate::Get('label_minus',$langCode).' '; }
-			$result .= convert_number_to_words(abs($value),$langCode).(strlen($currency) ? ' '.$currency : '');
+			$result .= DataHelpers::convertNumberToWords(abs($value),$langCode).(strlen($currency) ? ' '.$currency : '');
 		}//if(abs($value)>0)
-		if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(Translate::Get('label_and',$langCode)).' ' : '').convert_number_to_words($decimals,$langCode).(strlen($subCurrency) ? ' '.$subCurrency : ''); }
+		if($decimals>0) { $result .= (strlen($result) ? ' '.strtolower(Translate::Get('label_and',$langCode)).' ' : '').DataHelpers::convertNumberToWords($decimals,$langCode).(strlen($subCurrency) ? ' '.$subCurrency : ''); }
 		return $result;
 	}//END public static function NumberToWords
     /**
      * @param mixed $value
      * @return float|null
+     * @throws \NETopes\Core\AppException
      */
     public static function ToNumeric($value): ?float {
         if(is_numeric($value)) { return $value; }
@@ -258,6 +295,7 @@ class ConverterAdapter {
     /**
      * @param mixed $value
      * @return float|null
+     * @throws \NETopes\Core\AppException
      */
     public static function ToFloat($value): ?float {
         return static::ToNumeric($value);
@@ -265,6 +303,7 @@ class ConverterAdapter {
     /**
      * @param mixed $value
      * @return float|null
+     * @throws \NETopes\Core\AppException
      */
     public static function ToDecimal($value): ?float {
         return static::ToNumeric($value);
@@ -272,6 +311,7 @@ class ConverterAdapter {
     /**
      * @param mixed $value
      * @return int|null
+     * @throws \NETopes\Core\AppException
      */
     public static function ToInteger($value): ?int {
         return floor(static::ToNumeric($value));
@@ -282,7 +322,7 @@ class ConverterAdapter {
      */
     public static function ToMultiLineString($value): ?string {
         if(!is_string($value)) { return NULL; }
-        return custom_nl2br($value);
+        return DataHelpers::nl2br($value);
 	}//END public static function ToMultiLineString
 	/**
      * @param mixed $value

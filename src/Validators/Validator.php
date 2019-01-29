@@ -16,6 +16,7 @@ use NApp;
 /**
  * Class Validator
  * @package NETopes\Core\Validators
+ * @method static ConvertTimestampToDatetime($value)
  */
 class Validator {
     /**
@@ -114,7 +115,7 @@ class Validator {
         if(substr($name,0,6)==='Format') {
             $adapter = static::GetFormatterAdapter(substr($name,6));
         } elseif(substr($name,0,7)==='Convert') {
-            $adapter = static::GetFormatterAdapter(substr($name,7));
+            $adapter = static::GetConverterAdapter(substr($name,7));
         } else {
             $adapter = static::GetFormatterAdapter((substr($name,0,8)==='Validate' ? substr($name,8) : $name));
         }//if(substr($name,0,6)==='Format')
@@ -284,11 +285,12 @@ class Validator {
 	 * @param  string     $date Datetime to be converted
 	 * @param  null|string $format Format of the date to be converted
 	 * @param  null|string $timezone User's timezone
+     * @param  bool        $convertToServerTimezone Default value TRUE
 	 * @return \DateTime|null Returns the datetime object or null
      * @throws \NETopes\Core\AppException
 	 */
-	public static function ConvertDateTimeToObject(?string $date,?string $format = NULL,?string $timezone = NULL): ?\DateTime {
-	    return call_user_func(static::GetConverterAdapter('DateTimeToObject'),$date,$format,$timezone);
+	public static function ConvertDateTimeToObject(?string $date,?string $format = NULL,?string $timezone = NULL,bool $convertToServerTimezone = TRUE): ?\DateTime {
+	    return call_user_func(static::GetConverterAdapter('DateTimeToObject'),$date,$format,$timezone,$convertToServerTimezone);
 	}//END public static function ConvertDateTimeToObject
     /**
      * Converts a datetime value to database format

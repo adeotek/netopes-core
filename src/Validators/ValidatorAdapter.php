@@ -215,6 +215,19 @@ class ValidatorAdapter {
     /**
      * @param $value
      * @return bool
+     * @throws \NETopes\Core\AppException
+     */
+    public static function IsTime(&$value): bool {
+        if(is_numeric($value)) {
+            $value = Validator::ConvertTimestampToDatetime($value);
+        } else {
+            $value = Validator::ConvertDateTimeToObject($value,'H:i:s','+00:00',FALSE);
+        }//if(is_numeric($value))
+        return ($value instanceof \DateTime);
+    }//END public static function IsTime
+    /**
+     * @param $value
+     * @return bool
      * @throws \Exception
      */
     public static function DbDatetime(&$value): bool {
