@@ -1,11 +1,9 @@
 /**
  * NETopes controls extra javascript file
- *
  * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
- *
  * @author     George Benjamin-Schonberger
- * @version    2.5.0.0
+ * @version    3.0.0.0
  */
 
 $(function() {

@@ -1,14 +1,12 @@
 <?php
 /**
  * Class Mailer file
- *
  * Helper class for sending emails trough SwiftMailer
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -17,21 +15,16 @@ use NETopes\Core\AppConfig;
 use NApp;
 /**
  * Class Mailer
- *
  * Helper class for sending emails trough SwiftMailer
- *
  * @package NETopes\Core\App
  */
 class Mailer {
 	/**
 	 * @var bool Debug email sending
-	 * @access public
-	 * @static
 	 */
 	public static $debug = FALSE;
 	/**
 	 * Send email
-	 *
 	 * @param $subject string		email subject
 	 * @param $afrom array			sender email address (email => label)
 	 * @param $ato array			receiver email address (email => label)
@@ -44,12 +37,11 @@ class Mailer {
 	 * @param null $reply_to
 	 * @return int 					will be the no of emails sent successfully or 0 if there is an error
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
 		if(!is_array($settings) || !count($settings)) {
-			$id_section = get_array_value($params,'id_section',NApp::_GetParam('id_section'),'is_numeric');
-			$id_zone = get_array_value($params,'id_zone',NApp::_GetParam('id_zone'),'is_numeric');
+			$id_section = get_array_value($params,'id_section',NApp::GetParam('id_section'),'is_numeric');
+			$id_zone = get_array_value($params,'id_zone',NApp::GetParam('id_zone'),'is_numeric');
 			$items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
 				'section_id'=>(is_numeric($id_section) ? $id_section : NULL),
 				'zone_id'=>(is_numeric($id_zone) ? $id_zone : NULL),
@@ -84,7 +76,7 @@ class Mailer {
 						$encryption = NULL;
 						break;
 				}//END switch
-				// NApp::_Dlog(array(
+				// NApp::Dlog(array(
 				// 	'1_smtpauth'=>$smtpauth,
 				// 	'2_smtphost'=>$smtphost,
 				// 	'3_smtpport'=>$smtpport,
@@ -107,7 +99,7 @@ class Mailer {
 				}//if($smtpauth==0)
 				if(strlen($exchangedomain)) { $transport->setLocalDomain($exchangedomain); }
 			} else {
-				// NApp::_Dlog($sendmail,'sendmail');
+				// NApp::Dlog($sendmail,'sendmail');
 				$transport = \Swift_SendmailTransport::newInstance('/usr/sbin/sendmail -t -i');
 			}//if($sendmail!=1)
 			$mailer = \Swift_Mailer::newInstance($transport);
@@ -142,12 +134,12 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+				],1),NApp::$appPath.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			/* $result will be the no of emails sent successfully or 0 if there is an error */
 			return $result;
 		} catch(\Exception $e) {
-			NApp::_Elog($e->getMessage(),'$mailer->send::Exception');
+			NApp::Elog($e);
 			$result = strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
 			if(self::$debug) {
 				NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
@@ -157,7 +149,7 @@ class Mailer {
 					'ato'=>$ato,
 					'acc'=>$acc,
 					'abcc'=>$abcc,
-				],1),NApp::app_path().AppConfig::logs_path().'/emails_debug.log');
+				],1),NApp::$appPath.AppConfig::GetValue('logs_path').'/emails_debug.log');
 			}//if(self::$debug)
 			if($result) { return $result; }
 			throw new \NETopes\Core\AppException($e->getMessage(),E_ERROR,0);
@@ -165,7 +157,6 @@ class Mailer {
 	}//END public static function SendSMTPEmail
 	/**
 	 * Simple email send via SMTP
-	 *
 	 * @param      $subject string        email subject
 	 * @param      $afrom array            sender email address (email => label)
 	 * @param      $ato array            receiver email address (email => label)
@@ -176,10 +167,8 @@ class Mailer {
 	 * @param null $reply_to
 	 * @return int                    will be the no of emails sent successfully or 0 if there is an error
 	 * @throws \NETopes\Core\AppException
-	 * @static
 	 */
 	public static function SimpleSendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$acc = NULL,$abcc = NULL,$reply_to = NULL) {
 		return self::SendSMTPEmail($subject,$afrom,$ato,$msg,$settings,$abcc,[],[],$acc,$reply_to);
 	}//END public static function SimpleSendSMTPEmail
 }//END class Mailer
-?>

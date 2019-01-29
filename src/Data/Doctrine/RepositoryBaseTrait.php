@@ -1,20 +1,18 @@
 <?php
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
 use NETopes\Core\AppException;
 /**
- * Trait DoctrineRepositoryBaseTrait
- *
+ * Trait RepositoryBaseTrait
  * @package NETopes\Core\Data
  */
-trait DoctrineRepositoryBaseTrait {
+trait RepositoryBaseTrait {
 	/**
 	 * @return array
 	 */
-	public function getOperators(): array
-	{
+	public function getOperators(): array {
         return [
             '=='=>'eq',
             '>'=>'gt',
@@ -32,14 +30,15 @@ trait DoctrineRepositoryBaseTrait {
             'between'=>'between',
         ];
     }
-	/**
-	 * @param             $query
-	 * @param null|string $label
-	 * @param float|null  $time
-	 * @param bool        $forced
-	 */
+    /**
+     * @param             $query
+     * @param null|string $label
+     * @param float|null  $time
+     * @param bool        $forced
+     * @throws \NETopes\Core\AppException
+     */
 	protected function DbDebug($query,?string $label = NULL,?float $time = NULL,bool $forced = FALSE) {
-		if(!AppConfig::db_debug() && !$forced) { return; }
+		if(!AppConfig::GetValue('db_debug') && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';
 		if(is_object($query)) {
 			$lparams = '';
@@ -60,15 +59,13 @@ trait DoctrineRepositoryBaseTrait {
 			$lquery = $query;
 		}//if(is_object($query))
 		$lquery .= ($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
-		NApp::_Dlog($lquery,$llabel);
-		if(AppConfig::db_debug2file()) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
+		NApp::Dlog($lquery,$llabel);
+		if(AppConfig::GetValue('db_debug2file')) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 	/**
      * Finds entities by a set of criteria.
-     *
      * @param array      $criteria
      * @property $_em
-     *
      * @return int The objects.
      */
     public function countBy(array $criteria) {
@@ -77,7 +74,6 @@ trait DoctrineRepositoryBaseTrait {
     }//END public function countBy
     /**
      * Adds where conditions to the Query for searching all words in $searchTerm
-     *
      * @param \Doctrine\ORM\QueryBuilder $qb
      * @param string              $searchTerm
      * @param array               $searchFields
@@ -110,4 +106,4 @@ trait DoctrineRepositoryBaseTrait {
         }//if(strpos($rawName,'.')===FALSE)
         return $name;
     }//END public function getFieldName
-}//END trait DoctrineRepositoryBaseTrait
+}//END trait RepositoryBaseTrait

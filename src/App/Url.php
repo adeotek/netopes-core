@@ -1,24 +1,20 @@
 <?php
 /**
  * Class Url file.
- *
  * Application URL interaction class.
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
-
+use NETopes\Core\Helpers;
 /**
  * Class Url
- *
  * Application URL interaction class.
- *
  * @package NETopes\Core\App
  */
 class Url {
@@ -44,93 +40,77 @@ class Url {
 	const URL_FORMAT_SHORT = 3;
 	/**
 	 * @var        string The path included in the application URL
-	 * @access     protected
-	 * @static
 	 */
-	protected static $url_path = NULL;
+	protected static $urlPath = NULL;
 	/**
 	 * @var    string Application web protocol (http/https)
-	 * @access protected
 	 */
-	protected $app_web_protocol = NULL;
+	protected $appWebProtocol = NULL;
 	/**
 	 * @var    string Application domain (auto-set on constructor)
-	 * @access protected
 	 */
-	protected $app_domain = NULL;
+	protected $appDomain = NULL;
 	/**
 	 * @var    string Application folder inside www root (auto-set on constructor)
-	 * @access protected
 	 */
-	protected $url_folder = NULL;
+	protected $urlFolder = NULL;
 	/**
 	 * @var    string Application base url: domain + path + url id (auto-set on constructor)
-	 * @access protected
 	 */
-	protected $url_base = NULL;
+	protected $urlBase = NULL;
 	/**
 	 * @var    array GET (URL) data
-	 * @access public
 	 */
 	public $data = [];
 	/**
 	 * @var    array GET (URL) special parameters list
-	 * @access public
 	 */
-	public $special_params = array('language','urlid');
+	public $specialParams = array('language','urlid');
 	/**
 	 * @var    string URL virtual path
-	 * @access public
 	 */
-	public $url_virtual_path = NULL;
+	public $urlVirtualPath = NULL;
 	/**
 	 * Extracts the URL path of the application.
-	 *
-	 * @param      string $startup_path Entry point file absolute path
+	 * @param      string $startupPath Entry point file absolute path
 	 * @return     string Returns the URL path of the application.
-	 * @access     public
-	 * @static
 	 */
-	public static function ExtractUrlPath($startup_path = NULL) {
-		if(strlen($startup_path)) {
-			self::$url_path = str_replace('\\','/',(str_replace(_NAPP_ROOT_PATH._NAPP_PUBLIC_ROOT_PATH,'',$startup_path)));
-			self::$url_path = trim(str_replace(trim(self::$url_path,'/'),'',trim(dirname($_SERVER['SCRIPT_NAME']),'/')),'/');
-			self::$url_path = trim(self::$url_path.'/'.trim(_NAPP_PUBLIC_PATH,'\/'),'\/');
+	public static function ExtractUrlPath($startupPath = NULL) {
+		if(strlen($startupPath)) {
+			self::$urlPath = str_replace('\\','/',(str_replace(_NAPP_ROOT_PATH._NAPP_PUBLIC_ROOT_PATH,'',$startupPath)));
+			self::$urlPath = trim(str_replace(trim(self::$urlPath,'/'),'',trim(dirname($_SERVER['SCRIPT_NAME']),'/')),'/');
+			self::$urlPath = trim(self::$urlPath.'/'.trim(_NAPP_PUBLIC_PATH,'\/'),'\/');
 		} else {
-			self::$url_path = trim(dirname($_SERVER['SCRIPT_NAME']),'\/');
-		}//if(strlen($startup_path))
-		return (strlen(self::$url_path) ? '/'.self::$url_path : '');
+			self::$urlPath = trim(dirname($_SERVER['SCRIPT_NAME']),'\/');
+		}//if(strlen($startupPath))
+		return (strlen(self::$urlPath) ? '/'.self::$urlPath : '');
 	}//END public static function ExtractUrlPath
 	/**
 	 * Gets the base URL of the application.
-	 *
-	 * @param	   string $startup_path Startup absolute path
+	 * @param	   string $startupPath Startup absolute path
 	 * @return     string Returns the base URL of the application.
-	 * @access     public
-	 * @static
 	 */
-	public static function GetRootUrl($startup_path = NULL) {
-		$app_web_protocol = (isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
-		$app_domain = strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
-		$url_folder = self::ExtractUrlPath($startup_path);
-		return $app_web_protocol.$app_domain.$url_folder;
+	public static function GetRootUrl($startupPath = NULL) {
+		$appWebProtocol = (isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
+		$appDomain = strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
+		$urlFolder = self::ExtractUrlPath($startupPath);
+		return $appWebProtocol.$appDomain.$urlFolder;
 	}//END public static function GetRootUrl
 	/**
 	 * AppUrl constructor.
-	 *
-	 * @param string $app_domain
-	 * @param string $app_web_protocol
-	 * @param string $url_folder
+	 * @param string $appDomain
+	 * @param string $appWebProtocol
+	 * @param string $urlFolder
 	 */
-	public function __construct(string $app_domain,string $app_web_protocol,string $url_folder) {
-		$this->app_domain = $app_domain;
-		$this->app_web_protocol = $app_web_protocol;
-		$this->url_folder = strlen(trim($url_folder,'\/ ')) ? '/'.trim($url_folder,'\/ ') : '';
+	public function __construct(string $appDomain,string $appWebProtocol,string $urlFolder) {
+		$this->appDomain = $appDomain;
+		$this->appWebProtocol = $appWebProtocol;
+		$this->urlFolder = strlen(trim($urlFolder,'\/ ')) ? '/'.trim($urlFolder,'\/ ') : '';
 		if(isset($_SERVER['REQUEST_URI'])) {
 			$uri_len = strpos($_SERVER['REQUEST_URI'],'?')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'?') : (strpos($_SERVER['REQUEST_URI'],'#')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'#') : strlen($_SERVER['REQUEST_URI']));
-			$this->url_base = $this->app_web_protocol.$this->app_domain.substr($_SERVER['REQUEST_URI'],0,$uri_len);
+			$this->urlBase = $this->appWebProtocol.$this->appDomain.substr($_SERVER['REQUEST_URI'],0,$uri_len);
 		} else {
-			$this->url_base = $this->app_web_protocol.$this->app_domain;
+			$this->urlBase = $this->appWebProtocol.$this->appDomain;
 		}//if(isset($_SERVER['REQUEST_URI']))
 		$this->data = is_array($_GET) ? $this->SetParams($_GET) : [];
 	}//END public function __construct
@@ -138,39 +118,37 @@ class Url {
 	 * @return string
 	 */
 	public function GetCurrentUrl(): string {
-		return $this->app_web_protocol.$this->app_domain.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
+		return $this->appWebProtocol.$this->appDomain.(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
 	}//END public function GetCurrentUrl
 	/**
 	 * @return string
 	 */
 	public function GetWebLink(): string {
-		return $this->app_web_protocol.$this->app_domain.$this->url_folder;
+		return $this->appWebProtocol.$this->appDomain.$this->urlFolder;
 	}//END public function GetWebLink
 	/**
 	 * @return string
 	 */
 	public function GetAppWebProtocol(): string {
-		return $this->app_web_protocol;
+		return $this->appWebProtocol;
 	}//END public function GetAppWebProtocol
 	/**
 	 * @return string
 	 */
 	public function GetAppDomain(): string {
-		return $this->app_domain;
+		return $this->appDomain;
 	}//END public function GetAppDomain
 	/**
 	 * @return string
 	 */
 	public function GetUrlFolder(): string {
-		return $this->url_folder;
+		return $this->urlFolder;
 	}//END public function GetUrlFolder
 	/**
 	 * description
-	 *
 	 * @param object|null $params Parameters object (instance of [Params])
 	 * @param bool        $keysonly
 	 * @return string
-	 * @access public
 	 */
 	public function ParamToString($params,$keysonly = FALSE) {
     	if(is_array($params)) {
@@ -178,7 +156,7 @@ class Url {
     		$texts = '';
     		foreach($params as $k=>$v) {
 				$keys .= (strlen($keys) ? ',' : '').$k;
-				if($keysonly!==TRUE) { $texts .= (strlen($texts) ? ',' : '').str_to_url($v); }
+				if($keysonly!==TRUE) { $texts .= (strlen($texts) ? ',' : '').Helpers::stringToUrl($v); }
 			}//foreach ($params as $k=>$v)
 			if($keysonly===TRUE) { return $keys; }
 			return $keys.(strlen($texts) ? '~'.$texts : '');
@@ -188,10 +166,8 @@ class Url {
 	}//END public function ParamToString
 	/**
 	 * description
-	 *
 	 * @param $param
 	 * @return array|null
-	 * @access public
 	 */
 	public function GetParamElements($param) {
 		$result = NULL;
@@ -213,12 +189,10 @@ class Url {
 	}//END public function GetParamElements
 	/**
 	 * Get elements for a parameter from the url data array
-	 *
 	 * @param      $key
 	 * @param bool $string
 	 * @param bool $keysonly
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetComplexParam($key,$string = FALSE,$keysonly = FALSE) {
 		$result = array_key_exists($key,$this->data) ? $this->data[$key] : NULL;
@@ -227,11 +201,9 @@ class Url {
 	}//END public function GetComplexParam
 	/**
 	 * Set a simple parameter into the url data array
-	 *
 	 * @param $key
 	 * @param $val
 	 * @return bool
-	 * @access public
 	 */
 	public function SetComplexParam($key,$val) {
 		if(!is_array($val) || !count($val)) { return FALSE; }
@@ -240,53 +212,43 @@ class Url {
 	}//END public function SetComplexParam
 	/**
 	 * Unset a parameter from the url data array
-	 *
 	 * @param $key
 	 * @return void
-	 * @access public
 	 */
 	public function UnsetComplexParam($key) {
 		unset($this->data[$key]);
 	}//END public function UnsetComplexParam
 	/**
 	 * Get a simple parameter from the url data array
-	 *
 	 * @param      $key
 	 * @param bool $full
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetParam($key,$full = FALSE) {
 		return $this->GetComplexParam($key,$full!==TRUE,TRUE);
 	}//END public function GetParam
 	/**
 	 * Set a simple parameter into the url data array
-	 *
 	 * @param $key
 	 * @param $val
 	 * @return bool
-	 * @access public
 	 */
 	public function SetParam($key,$val) {
 		return $this->SetComplexParam($key,array($val=>''));
 	}//END public function SetParam
 	/**
 	 * Unset a parameter from the url data array
-	 *
 	 * @param $key
 	 * @return void
-	 * @access public
 	 */
 	public function UnsetParam($key) {
 		$this->UnsetComplexParam($key);
 	}//END public function UnsetParam
 	/**
 	 * Gets n-th element from a parameter in the url data array
-	 *
 	 * @param     $key
 	 * @param int $position
 	 * @return string|null
-	 * @access public
 	 */
 	public function GetParamElement($key,$position = 0) {
 		if(strlen($key)>0 && array_key_exists($key,$this->data)) {
@@ -307,32 +269,28 @@ class Url {
 	}//END public function GetParamElement
 	/**
 	 * Sets an element from a parameter in the url data array
-	 *
 	 * @param        $key
 	 * @param        $element
 	 * @param string $text
 	 * @return bool
-	 * @access public
 	 */
 	public function SetParamElement($key,$element,$text = '') {
 		if(is_null($key) || is_null($element)) { return FALSE; }
 		$this->data[$key] = is_array($this->data[$key]) ? $this->data[$key] : array();
 		if(is_array($element)) {
 			foreach ($element as $k=>$v) {
-				$this->data[$key][$k] = str_to_url($v);
+				$this->data[$key][$k] = Helpers::stringToUrl($v);
 			}//foreach ($element as $k=>$v)
 		} else {
-			$this->data[$key][$element] = str_to_url($text);
+			$this->data[$key][$element] = Helpers::stringToUrl($text);
 		}//if(is_array($element))
 		return TRUE;
 	}//END public function SetParamElement
 	/**
 	 * Removes an element from a parameter in the url data array
-	 *
 	 * @param $key
 	 * @param $element
 	 * @return bool
-	 * @access public
 	 */
 	public function UnsetParamElement($key,$element) {
 		if(is_null($key) || is_null($element)) { return FALSE; }
@@ -341,10 +299,8 @@ class Url {
 	}//END public function UnsetParamElement
 	/**
 	 * description
-	 *
 	 * @param $url
 	 * @return array
-	 * @access public
 	 */
 	public function SetParams($url) {
 		$result = array();
@@ -363,16 +319,15 @@ class Url {
 		}//if(is_array($url))
 		return $result;
 	}//END public function SetParams
-	/**
-	 * description
-	 *
-	 * @param int  $url_format
-	 * @param null $params
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * description
+     * @param int  $url_format
+     * @param null $params
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetBase($url_format = self::URL_FORMAT_FRIENDLY,$params = NULL) {
-		$lurl_format = AppConfig::app_mod_rewrite() ? $url_format : self::URL_FORMAT_SHORT;
+		$lurl_format = AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
 		switch($lurl_format) {
 			case self::URL_FORMAT_FRIENDLY:
 				$lang = NULL;
@@ -388,9 +343,9 @@ class Url {
 				if(is_null($urlid)) {
 					$urlid = array_key_exists('urlid',$this->data) ? $this->ParamToString($this->data['urlid']) : NULL;
 				}//if(is_null($urlid))
-				return $this->GetWebLink().'/'.(strlen($this->url_virtual_path) ? $this->url_virtual_path.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
+				return $this->GetWebLink().'/'.(strlen($this->urlVirtualPath) ? $this->urlVirtualPath.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
 			case self::URL_FORMAT_FRIENDLY_ORIGINAL:
-				return $this->url_base;
+				return $this->urlBase;
 			case self::URL_FORMAT_FULL:
 				return $this->GetWebLink().'/index.php';
 			case self::URL_FORMAT_SHORT:
@@ -400,18 +355,17 @@ class Url {
 				return '';
 		}//END switch
 	}//END public function GetBase
-	/**
-	 * Create new application URL
-	 *
-	 * @param object|null $params Parameters object (instance of [Params])
-	 * @param int         $url_format
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * Create new application URL
+     * @param object|null $params Parameters object (instance of [Params])
+     * @param int         $url_format
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetNewUrl($params = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
 		$result = '';
 		$anchor = '';
-		$lurl_format = AppConfig::app_mod_rewrite() ? $url_format : self::URL_FORMAT_SHORT;
+		$lurl_format = AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
 		if(is_array($params) && count($params)) {
 			$first = TRUE;
 			foreach($params as $k=>$v) {
@@ -419,9 +373,9 @@ class Url {
 					$anchor = $this->ParamToString($v);
 					continue;
 				}//if($k=='anchor')
-				if(($lurl_format==self::URL_FORMAT_FRIENDLY || $lurl_format==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->special_params)) { continue; }
+				if(($lurl_format==self::URL_FORMAT_FRIENDLY || $lurl_format==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->specialParams)) { continue; }
 				$val = $this->ParamToString($v);
-				if(in_array($k,$this->special_params) && !$val) { continue; }
+				if(in_array($k,$this->specialParams) && !$val) { continue; }
 				$prefix = '&';
 				if($first) {
 					$first = FALSE;
@@ -432,15 +386,14 @@ class Url {
 		}//if(is_array($params) && count($params))
 		return $this->GetBase($lurl_format,$params).$result.(strlen($anchor) ? '#'.$anchor : '');
 	}//END public function GetNewUrl
-	/**
-	 * description
-	 *
-	 * @param null $params
-	 * @param null $rparams
-	 * @param int  $url_format
-	 * @return string
-	 * @access public
-	 */
+    /**
+     * description
+     * @param null $params
+     * @param null $rparams
+     * @param int  $url_format
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
 	public function GetUrl($params = NULL,$rparams = NULL,$url_format = self::URL_FORMAT_FRIENDLY) {
 		$data = $this->data;
 		if(is_array($rparams) && count($rparams)) {
@@ -453,16 +406,14 @@ class Url {
 				}//if(is_array($value))
 			}//END foreach
 		}//if(is_array($rparams) && count($rparams))
-		if(is_array($params) && count($params)) { $data = custom_array_merge($data,$params,TRUE); }
+		if(is_array($params) && count($params)) { $data = \NETopes\Core\DataHelpers::customArrayMerge($data,$params,TRUE); }
 		return $this->GetNewUrl($data,$url_format);
 	}//END public function GetUrl
 	/**
 	 * description
-	 *
 	 * @param      $key
 	 * @param null $element
 	 * @return bool
-	 * @access public
 	 */
 	public function ElementExists($key,$element = NULL) {
 		if(is_null($element)) {

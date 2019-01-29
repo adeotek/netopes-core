@@ -1,14 +1,12 @@
 <?php
 /**
  * DbAdapter base class file
- *
  * All specific database adapters classes extends this base class.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -18,123 +16,97 @@ use NETopes\Core\AppException;
 use NApp;
 /**
  * DbAdapter is the base abstract class for all database adapters
- *
  * All database adapters must extend this class.
- *
  * @package  NETopes\Database
- * @access   public
- * @abstract
  */
 abstract class DataAdapter {
     /**
      * @var    array Databases instances array
-     * @access protected
-     * @static
      */
-	protected static $DatabaseAdapterInstances = [];
+	protected static $_dbAdapterInstances = [];
 	/**
-	 * @var    bool Debug flag for database calls
-	 * TRUE - with debug and FALSE - no debug
-	 * @access public
-	 */
+	 * @var    bool Debug flag for database calls TRUE - with debug and FALSE - no debug
+     */
 	public $debug = FALSE;
 	/**
-	 * @var    bool If set to TRUE the debug data
-	 * will be sent to a log file
-	 * @access public
+	 * @var    bool If set to TRUE the debug data will be sent to a log file
 	 */
 	public $debug2file = FALSE;
 	/**
 	 * @var    object Database connection object
-	 * @access protected
 	 */
 	protected $connection = NULL;
 	/**
 	 * @var    string Database name
-	 * @access protected
 	 */
-	protected $dbname = NULL;
+	protected $dbName = NULL;
 	/**
 	 * @var    string Database type
-	 * @access protected
 	 */
-	protected $dbtype = NULL;
+	protected $dbType = NULL;
 	/**
 	 * @var    array Database transactions array
-	 * @access protected
 	 */
 	protected $transactions = [];
 	/**
-	 * @var    type description
-	 * @access protected
+	 * @var    bool description
 	 */
-	protected $use_pdo = FALSE;
+	protected $usePdo = FALSE;
 	/**
 	 * @var    int Flag for setting the result keys case
-	 * @access public
 	 */
-	public $results_keys_case = CASE_LOWER;
+	public $resultsKeysCase = CASE_LOWER;
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
-	 * @abstract
 	 */
 	abstract protected function Init($connection);
-	/**
-	 * Database class constructor
-	 *
-	 * @param  array $connection Database connection array
-	 * @throws \NETopes\Core\AppException
-	 * @return void
-	 * @access public
-	 */
+    /**
+     * Database class constructor
+     * @param  array $connection Database connection array
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     * @return void
+     */
 	protected function __construct($connection) {
-		$this->debug = AppConfig::db_debug();
-		$this->debug2file = AppConfig::db_debug2file();
+		$this->debug = AppConfig::GetValue('db_debug');
+		$this->debug2file = AppConfig::GetValue('db_debug2file');
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) { throw new AppException('Incorect database connection',E_ERROR,1); }
-		$this->dbname = $connection['db_name'];
-		$this->dbtype = $connection['db_type'];
-		$this->results_keys_case = get_array_value($connection,'results_keys_case',$this->results_keys_case,'is_integer');
+		$this->dbName = $connection['db_name'];
+		$this->dbType = $connection['db_type'];
+		$this->resultsKeysCase = get_array_value($connection,'resultsKeysCase',$this->resultsKeysCase,'is_integer');
 		$this->Init($connection);
 	}//END protected function __construct
 	/**
 	 * Gets the singleton instance for database class
-	 *
 	 * @param  string $type Database type (Firebird/MySql/SqLite/SqlSrv/MongoDb/Oracle)
 	 * @param  array $connection Database connection array
 	 * @param bool    $existing_only
 	 * @return object Returns the singleton database instance
-	 * @access public
 	 */
 	public static function GetInstance($type,$connection,$existing_only = FALSE) {
 		if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !$type) { return NULL; }
 		$dbclass = get_called_class();
 		$dbiname = AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
-		if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection)) {
+		if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection)) {
 			if($existing_only) { return NULL; }
-			self::$DatabaseAdapterInstances[$dbiname] = new $dbclass($connection);
-		}//if(!array_key_exists($dbiname,self::$DatabaseAdapterInstances) || is_null(self::$DatabaseAdapterInstances[$dbiname]) || !is_resource(self::$DatabaseAdapterInstances[$dbiname]->connection))
-		return self::$DatabaseAdapterInstances[$dbiname];
+			self::$_dbAdapterInstances[$dbiname] = new $dbclass($connection);
+		}//if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection))
+		return self::$_dbAdapterInstances[$dbiname];
 	}//END public static function GetInstance
 	/**
 	 * Gets the database name
 	 * (name of the database from the connection array)
-	 *
 	 * @return string Returns name of the database
-	 * @access public
 	 */
 	public function GetName(): string {
-		return $this->dbname;
+		return $this->dbName;
 	}//END public function GetName
 	/**
 	 * Gets the database connection object
-	 *
 	 * @return object Returns the current connection to the database
-	 * @access public
 	 */
 	public function GetConnection() {
 		return $this->connection;
@@ -143,7 +115,7 @@ abstract class DataAdapter {
 		if(!$this->debug && !$forced) { return; }
 		$llabel = strlen($label) ? $label : 'DbDebug';
 		$lquery = $query.($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
-		NApp::_Dlog($lquery,$llabel);
-		if($this->debug2file) { NApp::_Write2LogFile($llabel.': '.$lquery,'debug'); }
+		NApp::Dlog($lquery,$llabel);
+		if($this->debug2file) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
 	}//END protected function DbDebug
 }//END abstract class BaseAdapter

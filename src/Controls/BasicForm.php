@@ -1,181 +1,145 @@
 <?php
 /**
  * BasicForm control class file
- *
  * Control class for generating basic forms
- *
- * @package    NETopes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\App\ITheme;
+use NETopes\Core\AppException;
+use NETopes\Core\Data\DataSourceHelpers;
+use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
 use NApp;
-use NETopes\Core\Data\DataSource;
 /**
- * BasicForm control class
- *
- * Control class for generating basic forms
- *
- * @package  NETopes\Controls
- * @access   public
+ * Class BasicForm
+ * @package NETopes\Core\Controls
  */
 class BasicForm {
 	/**
 	 * @var    string Theme (form) type: native(table)/bootstrap2/bootstrap3/bootstrap4
-	 * @access public
 	 */
 	public $theme_type = NULL;
 	/**
 	 * @var    string BasicForm table id
-	 * @access public
 	 */
 	public $tag_id = NULL;
 	/**
 	 * @var    string BasicForm response target id
-	 * @access public
 	 */
 	public $response_target = NULL;
 	/**
 	 * @var    string BasicForm width
-	 * @access public
 	 */
 	public $width = NULL;
 	/**
 	 * @var    string Form horizontal align (default "center")
-	 * @access public
 	 */
 	public $align = 'center';
 	/**
 	 * @var    string Separator column width
-	 * @access public
 	 */
 	public $separator_width = NULL;
 	/**
 	 * @var    string BasicForm additional class
-	 * @access public
 	 */
 	public $class = NULL;
 	/**
 	 * @var    int Columns number
-	 * @access public
 	 */
 	public $cols_no = NULL;
 	/**
 	 * @var    string Labels position type (horizontal/vertical)
-	 * @access public
 	 */
 	public $positioning_type = NULL;
 	/**
 	 * @var    int Labels width in grid columns number
-	 * @access public
 	 */
 	public $label_cols = NULL;
 	/**
 	 * @var    string Controls size CSS class
-	 * @access public
 	 */
 	public $controls_size = NULL;
 	/**
 	 * @var    string Actions controls size CSS class
-	 * @access public
 	 */
 	public $actions_size = NULL;
 	/**
 	 * @var    array fields descriptor array
-	 * @access public
 	 */
 	public $content = [];
 	/**
 	 * @var    array form actions descriptor array
-	 * @access public
 	 */
 	public $actions = [];
 	/**
 	 * @var    string Tags IDs sufix
-	 * @access public
 	 */
 	public $tags_ids_sufix = NULL;
 	/**
 	 * @var    string Tags names sufix
-	 * @access public
 	 */
 	public $tags_names_sufix = NULL;
 	/**
 	 * @var    string Sub-form tag ID
-	 * @access public
 	 */
 	public $sub_form_tagid = NULL;
 	/**
 	 * @var    string Sub-form tag extra CSS class
-	 * @access public
 	 */
 	public $sub_form_class = NULL;
 	/**
 	 * @var    \NETopes\Core\Data\DataSet|null Fields conditions data
-	 * @access public
 	 */
 	public $field_conditions = NULL;
 	/**
 	 * @var    bool Filter for mandatory fields only
-	 * @access public
 	 */
 	public $mandatory_fields_only = FALSE;
 	/**
 	 * @var    string Fields conditions field name property
-	 * @access public
 	 */
 	public $field_name_property = 'name';
 	/**
 	 * @var    int|null Fields conditions field name case
-	 * @access public
 	 */
 	public $field_name_property_case = CASE_LOWER;
 	/**
 	 * @var    string Fields conditions visibility property
-	 * @access public
 	 */
 	public $visible_field_property = 'is_visible';
 	/**
 	 * @var    string Fields conditions mandatory property
-	 * @access public
 	 */
 	public $mandatory_field_property = 'is_mandatory';
 	/**
 	 * @var    string Fields conditions required property
-	 * @access public
 	 */
 	public $required_field_property = 'is_required';
 	/**
 	 * @var    string Sub-form tag extra attributes
-	 * @access public
 	 */
 	public $sub_form_extratagparam = NULL;
 	/**
 	 * @var    string Basic form base class
-	 * @access protected
 	 */
 	protected $base_class = NULL;
 	/**
 	 * @var    string Output (resulting html) buffer
-	 * @access protected
 	 */
 	protected $output_buffer = NULL;
 	/**
 	 * @var    array Javascript code execution queue
-	 * @access protected
 	 */
 	protected $js_scripts = [];
 	/**
 	 * BasicForm class constructor method
-	 *
 	 * @param  array $params Parameters array
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->base_class = get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
@@ -188,7 +152,7 @@ class BasicForm {
 			}//foreach ($params as $k=>$v)
 		}//if(is_array($params) && count($params))
 		if(!is_numeric($this->cols_no) || $this->cols_no<=0) { $this->cols_no = 1; }
-		$this->field_conditions = DataSource::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],'\NETopes\Core\Data\VirtualEntity',$this->field_name_property,$this->field_name_property_case);
+		$this->field_conditions = DataSourceHelpers::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],VirtualEntity::class,$this->field_name_property,$this->field_name_property_case);
 	}//END public function __construct
     /**
      * @param array $action
@@ -219,6 +183,7 @@ class BasicForm {
      * @param int|null $row
      * @param int|null $column
      * @param bool     $overwrite
+     * @throws \NETopes\Core\AppException
      */
     public function AddControl(array $control,?int $row = NULL,?int $column = NULL,bool $overwrite = FALSE): void {
         if(!is_array($this->content)) { $this->content = []; }
@@ -254,10 +219,8 @@ class BasicForm {
     }//END public function GetJsScript
 	/**
 	 * Gets the form actions string
-	 *
 	 * @param int $tabindex
      * @return string
-	 * @access protected
      * @throws \NETopes\Core\AppException
 	 */
 	protected function GetActions($tabindex = 0) {
@@ -310,9 +273,7 @@ class BasicForm {
 	}//END protected function CheckFieldConditions
 	/**
 	 * Gets the form content as table
-	 *
 	 * @return string
-	 * @access protected
      * @throws \NETopes\Core\AppException
 	 */
 	protected function GetTableControl(): string {
@@ -395,7 +356,7 @@ class BasicForm {
 				$cspan = $c_span>1 ? ' colspan="'.($c_span+($c_span-1)).'"' : '';
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
 				if(!$c_type || !class_exists($c_type)) {
-					NApp::_Elog('Control class ['.$c_type.'] not found!');
+					NApp::Elog('Control class ['.$c_type.'] not found!');
 					$result .= "\t\t".'<td'.$cspan.$cstyle.'>&nbsp;</td>'."\n";
 					continue;
 				}//if(!$c_type || !class_exists($c_type))
@@ -433,12 +394,11 @@ class BasicForm {
 		if(strlen($this->sub_form_tagid)) { $result .= '</div>'."\n"; }
 		return $result;
 	}//END protected function GetTableControl
-	/**
-	 * Gets the form content as bootstrap3 form
-	 *
-	 * @return string
-	 * @access protected
-	 */
+    /**
+     * Gets the form content as bootstrap3 form
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
 	protected function GetBootstrap3Control(): string {
 		$ltabindex = 101;
 		$lclass = trim($this->base_class.' '.$this->class);
@@ -520,7 +480,7 @@ class BasicForm {
 				if(strlen($c_type)) {
 					$c_type = '\NETopes\Core\Controls\\'.$c_type;
 					if(!class_exists($c_type)) {
-						NApp::_Elog('Control class ['.$c_type.'] not found!');
+						NApp::Elog('Control class ['.$c_type.'] not found!');
 						$result .= "\t\t".'<div class="'.$c_class.'">&nbsp;</div>'."\n";
 						continue;
 					}//if(!class_exists($c_type))
@@ -588,12 +548,11 @@ class BasicForm {
         $result .= '</div></div>'."\n";
         return $result;
 	}//END protected function GetBootstrap3Control
-	/**
-	 * Sets the output buffer value
-	 *
-	 * @return string|null
-	 * @access protected
-	 */
+    /**
+     * Sets the output buffer value
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
 	protected function SetControl(): ?string {
 		if(!is_array($this->content) || !count($this->content)) { return NULL; }
 		switch($this->theme_type) {
@@ -607,12 +566,11 @@ class BasicForm {
 				return $this->GetTableControl();
 		}//END switch
 	}//END private function SetControl
-	/**
-	 * Gets the output buffer content
-	 *
-	 * @return string Returns the output buffer content (html)
-	 * @access public
-	 */
+    /**
+     * Gets the output buffer content
+     * @return string Returns the output buffer content (html)
+     * @throws \NETopes\Core\AppException
+     */
 	public function Show() {
 		return $this->SetControl();
 	}//END public function Show

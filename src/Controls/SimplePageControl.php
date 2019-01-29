@@ -1,14 +1,12 @@
 <?php
 /**
  * Short desc
- *
  * description
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,11 +14,8 @@ use NApp;
 use Translate;
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class SimplePageControl extends Control {
 	public function __construct($params = NULL) {
@@ -36,12 +31,12 @@ class SimplePageControl extends Control {
 		$run_str = $this->onclickparams;
 		if($search && isset($replace)) { $run_str = str_replace($search,$replace,$run_str); }
 		if(strlen($this->js_callback)) {
-		return NApp::arequest()->PrepareWithCallback($run_str,$this->js_callback);
+		return NApp::Ajax()->PrepareWithCallback($run_str,$this->js_callback);
 		}//if(strlen($this->js_callback))
-		return NApp::arequest()->Prepare($run_str);
+		return NApp::Ajax()->Prepare($run_str);
 	}//END protected function AreqRun
 	protected function SetControl(): ?string {
-		$limit = NApp::_GetParam('rows_per_page');
+		$limit = NApp::GetParam('rows_per_page');
 		$limit = (is_numeric($limit)>0 && $limit>0) ? $limit : 20;
 		$pages_no = ($this->totalrows>0 ? ceil($this->totalrows/$limit) : 1);
 		$cpage = (is_numeric($this->current_page) && $this->current_page<>0) ? $this->current_page : 1;

@@ -1,10 +1,8 @@
 /**
  * NETopes AJAX javascript file.
- *
  * The NETopes AJAX javascript object used on ajax requests.
  * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
- *
  * @author     George Benjamin-Schonberger
  * @version    2.5.0.3
  */
@@ -81,10 +79,10 @@ if(typeof(Storage)!=='undefined') {
 }//if(typeof(Storage)!=='undefined')
 
 function arrayMerge(farray,sarray,recursive) {
-	if(typeof(farray)!=='object' && Array.isArray(farray)) { return sarray; }
-	if(typeof(sarray)!=='object' && Array.isArray(sarray)) { return farray; }
-	var rec = !!recursive;
-	for(var p in sarray) {
+	if(typeof(farray)!=='object' && !Array.isArray(farray)) { return sarray; }
+	if(typeof(sarray)!=='object' && !Array.isArray(sarray)) { return farray; }
+	let rec = !!recursive;
+	for(let p in sarray) {
 		if(p in farray) {
 			if(isNaN(parseInt(p))) {
 				farray[p] = rec ? arrayMerge(farray[p],sarray[p],true) : sarray[p];

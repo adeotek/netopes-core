@@ -1,27 +1,21 @@
 <?php
 /**
  * Basic controls classes file
- *
  * File containing basic controls classes
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppConfig;
-
 /**
  * ClassName description
- *
  * long_description
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class CheckBox extends Control {
     public function __construct($params = null){
@@ -40,7 +34,7 @@ class CheckBox extends Control {
                             $lvalue = eval($arg);
                         } catch(\NETopes\Core\AppException $ee) {
                             $lvalue = 0;
-                            NApp::_Elog($ee->getMessage(),'CheckBox');
+                            NApp::Elog($e);
                         }//END try
                     } else {
                         $lvalue = 0;
@@ -63,7 +57,7 @@ class CheckBox extends Control {
             'onkeypress'=>'if(event.keyCode==13){CheckBoxClickBaseEvent(this);}',
         );
         $lstyle = strlen($this->style)>0 ? ' style="'.$this->style.'"' : '';
-        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::app_web_link().AppConfig::app_js_path().'/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
+        $result = "\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseact).' src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
         return $result;
     }//END protected function SetControl
 }//END class CheckBox extends Control

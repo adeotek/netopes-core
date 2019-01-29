@@ -1,14 +1,12 @@
 <?php
 /**
  * PdfCreator class file
- *
  * Class for PDF creation that extends TCPDF class
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
@@ -17,42 +15,33 @@ use NApp;
 /*
  * TCPDF config initialization
  */
-require_once(NApp::app_path()._NAPP_CONFIG_PATH.'/TcpdfConfig.php');
+require_once(NApp::$appPath._NAPP_CONFIG_PATH.'/TcpdfConfig.php');
 /**
  * PdfCreator class
- *
  * Class for PDF creation that extends TCPDF class
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class PdfCreator extends TCPDF {
 	/**
 	 * @var    bool Flag for custom header method
-	 * @access public
 	 */
 	public $custom_header = FALSE;
 	/**
 	 * @var    array Custom header params
-	 * @access public
 	 */
 	public $custom_header_params = FALSE;
 	/**
 	 * @var    bool Flag for custom footer method
-	 * @access public
 	 */
 	public $custom_footer = FALSE;
 	/**
 	 * @var    array Custom footer params
-	 * @access public
 	 */
 	public $custom_footer_params = FALSE;
 	/**
 	 * description
-	 *
      * @param array $format
      * @return array
-	 * @access public
 	 */
 	public function SetFormat($format = []) {
 		$f = $c = $dc = $bgc = FALSE;
@@ -83,11 +72,9 @@ class PdfCreator extends TCPDF {
 	}//END public function SetFormat
 	/**
 	 * description
-	 *
      * @param array  $format
      * @param string $mode
 	 * @return void
-	 * @access public
 	 */
 	public function GetAlign($format = [],$mode = 'h') {
 		$align = '';
@@ -130,10 +117,8 @@ class PdfCreator extends TCPDF {
 	}//END public function GetAlign
 	/**
 	 * description
-	 *
      * @param array $format
 	 * @return void
-	 * @access public
 	 */
     public function GetHtmlFormatString($format = []) {
         $style = '';
@@ -174,9 +159,7 @@ class PdfCreator extends TCPDF {
 	/**
 	 * This is a overwritten TCPDF method used to render the page header.
 	 * It is automatically called by AddPage() and could be overwritten in your own inherited class.
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function Header() {
 		if($this->custom_header) {
@@ -188,9 +171,7 @@ class PdfCreator extends TCPDF {
 	/**
 	 * This is a overwritten TCPDF method used to render the page footer.
 	 * It is automatically called by AddPage() and could be overwritten in your own inherited class.
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function Footer() {
 		if($this->custom_footer) {
@@ -201,9 +182,7 @@ class PdfCreator extends TCPDF {
 	}//END public function Footer
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function SetCustomHeader($params = NULL) {
 		if($params===TRUE) { $params = $this->custom_header_params; }
@@ -229,9 +208,7 @@ class PdfCreator extends TCPDF {
 	}//END public function SetCustomHeader
 	/**
 	 * description
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function SetCustomFooter($params = NULL) {
         $this->SetY(get_array_value($params,'bottom_margin',-12,'is_numeric'));
@@ -302,7 +279,6 @@ class PdfCreator extends TCPDF {
 	}//END public function DoubleCellRow
 	/**
 	 * description
-	 *
      * @param        $x
      * @param        $y
      * @param        $width
@@ -312,7 +288,6 @@ class PdfCreator extends TCPDF {
      * @param string $align
      * @param null   $fillcolor
 	 * @return void
-	 * @access public
 	 */
 	public function RoundCornerBox($x,$y,$width,$height,$color = NULL,$text = '',$align = 'C',$fillcolor = NULL) {
 		if(is_array($color)) {

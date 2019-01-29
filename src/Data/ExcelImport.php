@@ -1,14 +1,12 @@
 <?php
 /**
  * ExcelImport class file
- *
  * Class used for reading data from excel files
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -19,82 +17,66 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use NApp;
 /**
  * ExcelImport class
- *
  * Class used for reading data from excel files
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
 class ExcelImport {
 	/**
 	 * @var    string Decimal separator
-	 * @access protected
 	 */
 	protected $dsep = NULL;
 	/**
 	 * @var    string Decimal group separator
-	 * @access protected
 	 */
     protected $gsep = NULL;
 	/**
 	 * @var    array PHP Spreadsheet accepted file types
-	 * @access protected
 	 */
 	protected $file_types = array('xlsx'=>'Xlsx','xls'=>'Xls','ods'=>'Ods','csv'=>'Csv','xml'=>'Xml'/*,'html'=>'Html','htm'=>'Html'*/);
 	/**
 	 * @var    array List of fields to be read
-	 * @access protected
 	 */
 	protected $fields = NULL;
 	/**
 	 * @var    \PhpOffice\PhpSpreadsheet\Spreadsheet PhpSpreadsheet object instance
-	 * @access protected
 	 */
     protected $spreadsheet = NULL;
 	/**
 	 * @var    \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet PhpSpreadsheet sheet object instance
-	 * @access protected
 	 */
 	protected $sheet = NULL;
 	/**
 	 * @var    bool Flag indicating if read data should be send to a data adapter
-	 * @access protected
 	 */
 	protected $send_to_db = FALSE;
 	/**
 	 * @var    string Data adapter name
-	 * @access public
 	 */
 	public $ds_name = NULL;
 	/**
 	 * @var    string Data adapter method
-	 * @access public
 	 */
 	public $ds_method = NULL;
 	/**
 	 * @var    array Data adapter parameters array
-	 * @access public
 	 */
 	public $ds_params = NULL;
 	/**
 	 * @var    array An array containing data read from the import file
-	 * @access public
 	 */
 	public $data = NULL;
 	/**
 	 * description
-	 *
 	 * @param array $fields
 	 * @param array $params Parameters object (instance of [Params])
 	 * @return void
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
     public function __construct(array $fields,array $params = []) {
 		if(!count($fields)) { throw new AppException('Invalid ExcelImport fields list!',E_ERROR,1); }
 		$this->fields = $fields;
-        $this->dsep = get_array_value($params,'decimal_separator',NApp::_GetParam('decimal_separator'),'is_string');
-		$this->gsep = get_array_value($params,'group_separator',NApp::_GetParam('group_separator'),'is_string');
+        $this->dsep = get_array_value($params,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
+		$this->gsep = get_array_value($params,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$this->ds_name = get_array_value($params,'ds_name','','is_notempty_string');
 		$this->ds_method = get_array_value($params,'ds_method','','is_notempty_string');
 		$this->ds_params = get_array_value($params,'ds_params',[],'is_array');
@@ -104,7 +86,6 @@ class ExcelImport {
 	}//END public function __construct
 	/**
 	 * description
-	 *
 	 * @param string      $file
 	 * @param array       $params Parameters object (instance of [Params])
 	 * @param null|string $file_type
@@ -112,7 +93,6 @@ class ExcelImport {
 	 * @throws \NETopes\Core\AppException
 	 * @throws \PhpOffice\PhpSpreadsheet\Exception
 	 * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
-	 * @access public
 	 */
 	public function ProcessFile(string $file,array $params = [],?string $file_type = NULL): void {
 		if(!$file || !file_exists($file)) { throw new AppException('Invalid input file!',E_ERROR,1); }
@@ -162,11 +142,9 @@ class ExcelImport {
 	}//END public function ProcessFile
 	/**
 	 * description
-	 *
 	 * @param $row
 	 * @param $rowno
 	 * @return void
-	 * @access protected
 	 */
     protected function ReadLine(Row &$row,int &$rowno): void {
     	$rdata = array('_has_error'=>0,'_error'=>'','_rowno'=>$row->getRowIndex());
@@ -195,11 +173,9 @@ class ExcelImport {
 	}//END protected function ReadLine
 	/**
 	 * description
-	 *
 	 * @param mixed $value
 	 * @param array $field
 	 * @return mixed
-	 * @access protected
 	 */
     protected function FormatValue($value,array $field) {
 		$format_value_func = get_array_value($field,'format_value_func',NULL,'is_notempty_string');
@@ -212,10 +188,8 @@ class ExcelImport {
 	}//END protected function FormatValue
 	/**
 	 * description
-	 *
 	 * @param array $row
 	 * @return bool
-	 * @access protected
 	 */
     protected function ProcessDataRow(array &$row): bool {
     	if(!$this->send_to_db || !count($row) || !isset($row['_has_error']) || $row['_has_error']==1) { return FALSE; }
@@ -236,7 +210,7 @@ class ExcelImport {
 		} catch(AppException $e) {
 			$row['_has_error'] = 1;
 			$row['_error'] = $e->getMessage();
-			NApp::_Elog($e->getMessage(),'row['.$row['_rowno'].']');
+			NApp::Elog($e,'row['.$row['_rowno'].']');
 			return FALSE;
 		}//END try
 	}//END protected function ProcessDataRow

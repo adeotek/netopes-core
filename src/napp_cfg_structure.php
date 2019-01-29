@@ -1,14 +1,12 @@
 <?php
 /**
  * NETopes application configuration structure file
- *
  * Here are all the configuration elements definition for NETopes
- *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
@@ -90,18 +88,24 @@ $_NAPP_CONFIG_STRUCTURE = [
 //START NETopes base configuration
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
-    // Use custom modules and data sources autoloader
-    'use_custom_autoloader'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // Modules (controllers) namespace prefix
+    'app_modules_namespace_prefix'=>['access'=>'readonly','default'=>'Modules\\','validation'=>'is_string'],
+    // Data sources namespace prefix
+    'app_data_sources_namespace_prefix'=>['access'=>'readonly','default'=>'DataSources\\','validation'=>'is_string'],
+    // Use internal modules and data sources autoloader
+    'use_internal_autoloader'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Relative path to NETopes javascript files (linux style)
     'app_js_path'=>['access'=>'readonly','default'=>'/lib/netopes','validation'=>'is_string'],
     // Use NETopes AJAX extension
     'app_use_ajax_extension'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Custom validator adapter class
-    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'validator_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Custom converter adapter class
-    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'converter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Custom formatter adapter class
-    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
+    'formatter_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
+    // Custom user session (LoadAppSettings/Login/Logout methods) adapter class
+    'user_session_adapter_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'?is_string'],
     // Error handler class NULL/empty for default NETopes implementation
     //   (must implement NETopes\Core\App\IErrorHandler interface)
     'error_handler_class'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
@@ -139,7 +143,7 @@ $_NAPP_CONFIG_STRUCTURE = [
     'cookie_login_lifetime'=>['access'=>'readonly','default'=>15,'validation'=>'is_not0_integer'],
     // Use internal cache system
     'app_encryption_key'=>['access'=>'readonly','default'=>'nAppEk','validation'=>'is_notempty_string'],
-//END START Base configuration
+//END NETopes base configuration
 //START Session configuration
     // Server timezone
     'server_timezone'=>['access'=>'readonly','default'=>'Europe/Bucharest','validation'=>'is_notempty_string'],
@@ -173,6 +177,8 @@ $_NAPP_CONFIG_STRUCTURE = [
     'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
     // Database debug to file on/off
     'db_debug2file'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
+    // Show exception trace data
+    'show_exceptions_trace'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Show debug invocation source file name and path in browser console on/off
     'console_show_file'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
     // Javascript php console password

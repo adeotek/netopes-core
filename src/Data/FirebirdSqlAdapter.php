@@ -1,9 +1,7 @@
 <?php
 /**
  * FirebirdSql database adapter class file
- *
  * This file contains the adapter class for FirebirdSQL database.
- *
  * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -16,14 +14,10 @@ use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppSession;
 use NETopes\Core\AppException;
 use NApp;
-
 /**
  * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database
- *
  * This class contains all methods for interacting with FirebirdSQL database.
- *
  * @package  NETopes\Database
- * @access   public
  */
 class FirebirdSqlAdapter extends SqlDataAdapter {
     /**
@@ -36,11 +30,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
     const ENCLOSING_END_SYMBOL = '"';
 	/**
 	 * Get startup query string
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return string|null  Returns the query to be executed after connection
-	 * @access public
-	 * @static
 	 */
 	public static function GetStartUpQuery(?array $params = NULL): ?string {
 		if(!is_array($params) || !count($params)) { return NULL; }
@@ -53,10 +44,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//public static function GetStartUpQuery
 	/**
 	 * Set global variables to a temporary table
-	 *
 	 * @param  array $params Key-value array of variables to be set
 	 * @return bool  Returns TRUE on success or FALSE otherwise
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function FirebirdSqlSetGlobalVariables(?array $params = NULL): bool {
@@ -84,10 +73,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	/**
 	 * Class initialization abstract method
 	 * (called automatically on class constructor)
-	 *
 	 * @param  array $connection Database connection array
 	 * @return void
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function Init($connection): void {
@@ -97,20 +84,18 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		// $time = microtime(TRUE);
 		try {
 			if($persistent) {
-				$this->connection = ibase_pconnect($connection['db_server'].$db_port.':'.$this->dbname,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
+				$this->connection = ibase_pconnect($connection['db_server'].$db_port.':'.$this->dbName,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
 			} else {
-				$this->connection = ibase_connect($connection['db_server'].$db_port.':'.$this->dbname,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
+				$this->connection = ibase_connect($connection['db_server'].$db_port.':'.$this->dbName,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$charset,0,3);
 			}//if($persistent)
-			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbname.']','Connection',$time);
+			//$this->DbDebug('Connected to ['.$connection['db_server'].$db_port.':'.$this->dbName.']','Connection',$time);
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbName} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 	}//END protected function Init
 	/**
 	 * Close current database connection
-	 *
 	 * @return bool
-	 * @access protected
 	 * @throws \NETopes\Core\AppException
 	 */
 	protected function FirebirdSqlCloseConnection(): bool {
@@ -125,20 +110,18 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 				$result = TRUE;
 			}//if(ibase_close($this->connection))
 		} catch(\Exception $e) {
-			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: {$this->dbname} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+			throw new AppException("FAILED TO CLOSE CONNECTION TO DATABASE: {$this->dbName} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
 		}//END try
 		return $result;
 	}//END protected function FirebirdSqlCloseConnection
     /**
      * Get a firebird transaction
-     *
      * @param  string $name Transaction name
      * @param bool    $log
      * @param  bool   $start Flag for starting the transaction
      * if not exists (defaul value FALSE)
      * @param  array  $tran_params Custom transaction arguments
      * @return object Returns the transaction instance
-     * @access public
      */
 	public function FirebirdSqlGetTran($name,$log = FALSE,$start = TRUE,$tran_params = NULL) {
 		if(!is_string($name) || !strlen($name)) { return NULL; }
@@ -152,14 +135,12 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlGetTran
     /**
      * Begins a firebird transaction
-     *
      * @param  string $name Transaction name
      * @param bool    $log
      * @param  bool   $overwrite Flag for overwriting the transaction
      * if exists (defaul value FALSE)
      * @param  array  $tran_params Custom transaction arguments
      * @return object Returns the transaction instance
-     * @access public
      */
 	public function FirebirdSqlBeginTran(&$name,$log = FALSE,$overwrite = TRUE,$tran_params = NULL) {
 		if(!is_string($name) || !strlen($name)) {
@@ -179,11 +160,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlBeginTran
     /**
      * Rolls back a firebird transaction
-     *
      * @param  string $name Transaction name
      * @param bool    $log
      * @return bool Returns TRUE on success or FALSE otherwise
-     * @access public
      */
 	public function FirebirdSqlRollbackTran($name,$log = FALSE) {
 		$result = FALSE;
@@ -201,12 +180,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlRollbackTran
     /**
      * Commits a firebird transaction
-     *
      * @param  string $name Transaction name
      * @param bool    $log
      * @param bool    $preserve
      * @return bool Returns TRUE on success or FALSE otherwise
-     * @access public
      */
 	public function FirebirdSqlCommitTran($name,$log = FALSE,$preserve = FALSE) {
 		$result = FALSE;
@@ -234,11 +211,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlCommitTran
     /**
      * Add blob parameter to query
-     *
      * @param  string $param Parameter string value
      * @param  string|null    $transaction
      * @return mixed Returns the blob ID for write, TRUE on success for read or FALSE otherwise
-     * @access public
      */
 	public function AddBlobParam($param,?string $transaction = NULL) {
 		if(!is_string($param)) { return NULL; }
@@ -248,13 +223,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 			} else {
 				$blob_handle = ibase_blob_create($this->connection);
 			}//if(is_resource($transaction))
-			if($blob_handle===FALSE) {
-				throw new Exception('Invalid blob handle!');
-			}
+			if($blob_handle===FALSE) { throw new \Exception('Invalid blob handle!'); }
 			ibase_blob_add($blob_handle,$param);
 			$blob_id = ibase_blob_close($blob_handle);
 		} catch(\Exception $e) {
-			NApp::_Elog($e->getMessage());
+			NApp::Elog($e);
 			$blob_id = NULL;
 		}//END try
 		return $blob_id;
@@ -375,27 +348,26 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$result .= ' '.$conditionString.' '.$filterValue;
         return $result;
 	}//END private function GetFilterCondition
-	/**
-	 * Prepares the query string for execution
-	 *
-	 * @param  string $query The query string (by reference)
-	 * @param  array  $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array  $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int    $firstrow Integer to limit number of returned rows
-	 * (if used with 'last_row' represents the offset of the returned rows)
-	 * @param  int    $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'first_row')
-	 * @param  array  $sort An array of fields to compose ORDER BY clause
-	 * @param  array  $filters An array of condition to be applied in WHERE clause
-	 * @param null    $raw_query
-	 * @param null    $bind_params
-	 * @param null    $transaction
-	 * @return void
-	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 */
+    /**
+     * Prepares the query string for execution
+     * @param  string $query The query string (by reference)
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'last_row' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'first_row')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $bind_params
+     * @param null    $transaction
+     * @return void
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     */
 	public function FirebirdSqlPrepareQuery(&$query,$params = [],$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params) && count($params)) {
 		    foreach($params as $k=>$p) {
@@ -444,7 +416,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlPrepareQuery
 	/**
 	 * Executes a query against the database
-	 *
 	 * @param  string $query The query string
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -462,7 +433,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function FirebirdSqlExecuteQuery($query,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -519,29 +489,28 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function FirebirdSqlExecuteQuery
-	/**
-	 * Prepares the command string to be executed
-	 *
-	 * @param  string $procedure The name of the stored procedure
-	 * @param  array  $params An array of parameters
-	 * to be passed to the query/stored procedure
-	 * @param  array  $out_params An array of output params
-	 * @param  string $type Request type: select, count, execute (default 'select')
-	 * @param  int    $firstrow Integer to limit number of returned rows
-	 * (if used with 'last_row' represents the offset of the returned rows)
-	 * @param  int    $lastrow Integer to limit number of returned rows
-	 * (to be used only with 'first_row')
-	 * @param  array  $sort An array of fields to compose ORDER BY clause
-	 * @param  array  $filters An array of condition to be applied in WHERE clause
-	 * @param null    $raw_query
-	 * @param null    $bind_params
-	 * @param null    $transaction
-	 * @return string|resource Returns processed command string or the statement resource
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
+    /**
+     * Prepares the command string to be executed
+     * @param  string $procedure The name of the stored procedure
+     * @param  array  $params An array of parameters
+     * to be passed to the query/stored procedure
+     * @param  array  $out_params An array of output params
+     * @param  string $type Request type: select, count, execute (default 'select')
+     * @param  int    $firstrow Integer to limit number of returned rows
+     * (if used with 'last_row' represents the offset of the returned rows)
+     * @param  int    $lastrow Integer to limit number of returned rows
+     * (to be used only with 'first_row')
+     * @param  array  $sort An array of fields to compose ORDER BY clause
+     * @param  array  $filters An array of condition to be applied in WHERE clause
+     * @param null    $raw_query
+     * @param null    $bind_params
+     * @param null    $transaction
+     * @return string|resource Returns processed command string or the statement resource
+     * @throws \NETopes\Core\AppException
+     * @throws \Exception
+     */
 	protected function FirebirdSqlPrepareProcedureStatement($procedure,$params = [],&$out_params = [],$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,&$raw_query = NULL,&$bind_params = NULL,$transaction = NULL) {
 		if(is_array($params)) {
 			if(count($params)) {
@@ -608,7 +577,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END protected function FirebirdSqlPrepareProcedureStatement
 	/**
 	 * Executs a stored procedure against the database
-	 *
 	 * @param  string $procedure The name of the stored procedure
 	 * @param  array  $params An array of parameters
 	 * to be passed to the query/stored procedure
@@ -626,7 +594,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @param null    $custom_tran_params
 	 * @return array|bool Returns database request result
 	 * @throws \NETopes\Core\AppException
-	 * @access public
 	 */
 	public function FirebirdSqlExecuteProcedure($procedure,$params = [],&$out_params = [],$tran_name = NULL,$type = '',$firstrow = NULL,$lastrow = NULL,$sort = NULL,$filters = NULL,$log = FALSE,$results_keys_case = NULL,$custom_tran_params = NULL) {
 		$time = microtime(TRUE);
@@ -648,7 +615,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		$query = $this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$bind_params,$transaction);
 		$out_params['rawsqlqry'] = $raw_query;
 		$out_params['sqlqry'] = $query;
-		//if($this->debug2file) { NApp::_Write2LogFile('Query: '.$query,'debug'); }
+		//if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
 		$final_result = NULL;
 		try {
 			if(is_resource($transaction)) {
@@ -685,11 +652,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 		}//END try
 		if(is_null($tran_name)) { $this->FirebirdSqlCommitTran(NULL,FALSE); }
 		$this->DbDebug($query,'Query',$time,$log);
-		return arr_change_key_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->results_keys_case));
+		return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
 	}//END public function FirebirdSqlExecuteProcedure
 	/**
 	 * Executes a method of the database object or of one of its sub-objects
-	 *
 	 * @param  string $method Name of the method to be called
 	 * @param  string $property The name of the sub-object containing the method
 	 * to be executed
@@ -698,7 +664,6 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	 * @param  array $extra_params An array of extra parameters
 	 * @param  bool   $log Flag to turn logging on/off
 	 * @return void   return description
-	 * @access public
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function FirebirdSqlExecuteMethod($method,$property = NULL,$params = [],$extra_params = [],$log = TRUE) {
@@ -706,12 +671,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public function FirebirdSqlExecuteMethod
 	/**
 	 * Escapes single quote character from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
-	 * @static
 	 */
 	public static function FirebirdSqlEscapeString($param) {
 		if(is_array($param)) {
@@ -724,14 +686,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
 	}//END public static function FirebirdSqlEscapeString
 	/**
 	 * Escapes single quote character from a string
-	 *
 	 * @param  string|array $param String to be escaped or
 	 * an array of strings
 	 * @return string|array Returns the escaped string or array
-	 * @access public
 	 */
 	public function EscapeString($param) {
 		return static::FirebirdSqlEscapeString($param);
 	}//END public function EscapeString
 }//END class FirebirdSqlDbAdapter extends SqlDataAdapter
-?>

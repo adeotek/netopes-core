@@ -1,86 +1,70 @@
 <?php
 /**
  * Report class file
- *
  * Used for generating in-page reports.
- *
  * @package    NETopes\Reporting
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Reporting;
 use GibberishAES;
 use NApp;
+use NETopes\Core\App\AppHelpers;
 /**
  * Reports class
- *
  * Used for generating in-page reports.
- *
  * @package  NETopes\Reporting
- * @access   public
  */
 class Report extends ExcelExport {
 	/**
 	 * @var    string HTML result string
-	 * @access protected
 	 */
 	protected $result = NULL;
 	/**
 	 * @var    string CSS class used for the main table container
-	 * @access protected
 	 */
 	protected $base_class = 'listing lineslisting span-cent';
 	/**
 	 * @var    string Report display name
-	 * @access protected
 	 */
 	protected $report_name = NULL;
 	/**
 	 * @var    array Report formats array
-	 * @access protected
 	 */
 	protected $r_formats = [];
 	/**
 	 * @var    bool Flag for turning excel export on/off
-	 * @access public
 	 */
 	public $excel_export = TRUE;
 	/**
 	 * @var    string The excel export file name
-	 * @access public
 	 */
 	protected $export_file_name = NULL;
 	/**
 	 * @var    string The cached excel export file name (including full path)
-	 * @access public
 	 */
 	protected $cached_file = '';
 	/**
 	 * @var    string The excel export download module
-	 * @access public
 	 */
 	protected $export_module = 'Statistics';
 	/**
 	 * @var    string The excel export download method
-	 * @access public
 	 */
 	protected $export_method = 'DownloadCachedFile';
 	/**
 	 * @var    int Report records number
-	 * @access public
 	 */
 	public $records_no = 0;
 	/**
 	 * @var    bool Flag for displaying or not the report records number
-	 * @access public
 	 */
 	public $display_records_no = TRUE;
 	/**
 	 * Class constructor function
-	 *
 	 * @param  array $params An array of params (required)
 	 * - 'version'(string): version of the excel data to be output
 	 * ('Excel2007'/'Excel5'/...)
@@ -89,7 +73,6 @@ class Report extends ExcelExport {
 	 * file will be saved (if NULL or empty, output will be
 	 * sent to the browser for download)
 	 * @return void
-	 * @access public
 	 */
 	//public function __construct(&$layout = [],&$data = [],&$class) {
 	public function __construct(&$params = []) {
@@ -106,11 +89,11 @@ class Report extends ExcelExport {
 			$this->export_file_name = GibberishAES::enc(get_array_value($params,'file_name',$def_fname,'is_notempty_string'),$this->dhash);
 			$this->excel_export = $this->CreateCacheExcelFile($params);
 		}//if($this->excel_export && $this->report_run_type=='export')
-		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::_GetParam('decimal_separator');
-		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::_GetParam('group_separator');
-		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::_GetParam('date_separator');
-		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::_GetParam('time_separator');
-		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::_GetLanguageCode();
+		$this->decimal_separator = (array_key_exists('decimal_separator',$params) && $params['decimal_separator']) ? $params['decimal_separator'] : NApp::GetParam('decimal_separator');
+		$this->group_separator = (array_key_exists('group_separator',$params) && $params['group_separator']) ? $params['group_separator'] : NApp::GetParam('group_separator');
+		$this->date_separator = (array_key_exists('date_separator',$params) && $params['date_separator']) ? $params['date_separator'] : NApp::GetParam('date_separator');
+		$this->time_separator = (array_key_exists('time_separator',$params) && $params['time_separator']) ? $params['time_separator'] : NApp::GetParam('time_separator');
+		$this->langcode = (array_key_exists('lang_code',$params) && $params['lang_code']) ? $params['lang_code'] : NApp::GetLanguageCode();
 		$this->result = '';
 		foreach($params['layouts'] as $layout) {
 			$this->r_formats = [];
@@ -253,7 +236,7 @@ class Report extends ExcelExport {
 			}//if($this->report_name)
 			$ee_button = '';
 			if($this->excel_export) {
-				$ee_button .= "\t\t".'<span style="float: right; width: 300px; margin-right: 50px;"><div  class="round_button right" onclick="'.NApp::arequest()->Prepare("AjaxRequest('$this->export_module','$this->export_method','fsource'|'$this->cached_file'~'fname'|'$this->export_file_name'~'dhash'|'$this->dhash')->excelexport_errors").'">'.\Translate::Get('download_label',$this->langcode).'</div></span>'."\n";
+				$ee_button .= "\t\t".'<span style="float: right; width: 300px; margin-right: 50px;"><div  class="round_button right" onclick="'.NApp::Ajax()->Prepare("AjaxRequest('$this->export_module','$this->export_method','fsource'|'$this->cached_file'~'fname'|'$this->export_file_name'~'dhash'|'$this->dhash')->excelexport_errors").'">'.\Translate::Get('download_label',$this->langcode).'</div></span>'."\n";
 			}//if($this->excel_export)
             if($this->display_records_no) {
             	$this->result .= "\t".'<div style="height: 20px; margin-bottom: 10px;">'."\n";
@@ -297,7 +280,7 @@ class Report extends ExcelExport {
 	protected function CreateCacheExcelFile(&$params) {
 		if(!strlen($this->cached_file)) { return FALSE; }
 		try {
-			$cf_path = NApp::_GetCachePath().'reports';
+			$cf_path = AppHelpers::GetCachePath().'reports';
 			if(!file_exists($cf_path)) { mkdir($cf_path,0755,TRUE); }
 			if(file_exists($cf_path.'/'.$this->cached_file)) { unlink($cf_path.'/'.$this->cached_file); }
 			$params['output'] = TRUE;
@@ -305,7 +288,7 @@ class Report extends ExcelExport {
 			$params['file_name'] = $this->cached_file;
 			parent::__construct($params);
 			$this->cached_file = GibberishAES::enc($cf_path.'/'.$this->cached_file.'.xlsx',$this->dhash);
-		} catch(Exception $e) {
+		} catch(\Exception $e) {
 			return FALSE;
 		}//END try
 		return TRUE;
@@ -326,10 +309,10 @@ class Report extends ExcelExport {
 		return number_format((is_numeric($value) ? $value : 0),2,$this->decimal_separator,$this->group_separator).' %';
 	}//END protected function PercentFormat2
 	protected function DateFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),TRUE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone'),TRUE);
 	}//END protected function DateFormat
 	protected function DateTimeFormat($value){
-    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::_GetParam('timezone'),FALSE);
+    	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,NApp::GetParam('timezone'),FALSE);
 	}//END protected function DateTimeFormat
 	protected function NoTimezoneDateFormat($value){
     	return \NETopes\Core\Validators\Validator::ConvertDateTime($value,'',TRUE);

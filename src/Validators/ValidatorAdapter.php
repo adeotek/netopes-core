@@ -1,9 +1,7 @@
 <?php
 /**
  * Validator adapter class file
- *
  * Class containing methods for validating values
- *
  * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -15,13 +13,11 @@ namespace NETopes\Core\Validators;
 use NApp;
 /**
  * Class ValidatorAdapter
- *
  * @package NETopes\Core\App
  */
 class ValidatorAdapter {
     /**
      * Validate value
-     *
      * @param mixed       $value
      * @param mixed|null  $defaultValue
      * @param string|null $validation
@@ -29,8 +25,6 @@ class ValidatorAdapter {
      * @param bool        $isValid
      * @return mixed
      * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
      */
 	public static final function Validate($value,$defaultValue = NULL,?string $validation = NULL,?string $sourceFormat = NULL,bool &$isValid = FALSE) {
 		$value = strlen($sourceFormat) ? Validator::ConvertValue($value,$sourceFormat) : $value;
@@ -48,7 +42,7 @@ class ValidatorAdapter {
 		}//if(substr($validation,0,1)==='?' && is_null($value))
         $method = convert_to_camel_case(trim($validation,'? '));
         if(!method_exists(static::class,$method)) {
-            NApp::_Elog('Invalid validator adapter method ['.static::class.'::'.$method.']!');
+            NApp::Elog('Invalid validator adapter method ['.static::class.'::'.$method.']!');
             $isValid = isset($value);
 		    return $value??$defaultValue;
         }//if(!method_exists(static::class,$method))
@@ -218,6 +212,19 @@ class ValidatorAdapter {
         $value = Validator::ConvertDateTimeToObject($value);
         return ($value instanceof \DateTime);
     }//END public static function IsDatetime
+    /**
+     * @param $value
+     * @return bool
+     * @throws \NETopes\Core\AppException
+     */
+    public static function IsTime(&$value): bool {
+        if(is_numeric($value)) {
+            $value = Validator::ConvertTimestampToDatetime($value);
+        } else {
+            $value = Validator::ConvertDateTimeToObject($value,'H:i:s','+00:00',FALSE);
+        }//if(is_numeric($value))
+        return ($value instanceof \DateTime);
+    }//END public static function IsTime
     /**
      * @param $value
      * @return bool

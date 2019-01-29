@@ -1,9 +1,7 @@
 /**
  * NETopes controls core javascript file
- *
  * Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * License    LICENSE.md
- *
  * @author     George Benjamin-Schonberger
  * @version    2.5.0.2
  */
@@ -427,14 +425,17 @@ function GCBOSetValue(elementid,val,title,btnclick) {
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function GCBOSetValue
 
-function TCBOSetValue(elementid,val,title,update_tree) {
-	if($('#'+elementid).attr('disabled')) { return false; }
+function TCBOSetValue(elementid,val,title,update_tree,reload) {
 	let oval = $('#'+elementid).val();
 	$('#'+elementid).val(val);
 	let obj = $('#'+elementid+'-cbo');
 	$(obj).val(title);
 	$(obj).attr('data-value',val);
-	if(update_tree==true || update_tree==1) {
+	if($('#'+elementid).attr('disabled')) { return false; }
+	if(reload===true || reload==1) {
+		let tree = $('#'+elementid+'-ctree').fancytree('getTree');
+		tree.reload();
+	} else if(update_tree===true || update_tree==1) {
 		let tree = $('#'+elementid+'-ctree').fancytree('getTree');
 		let node = tree.getNodeByKey(oval);
 		if(node!=null) { node.setSelected(false); }
@@ -443,43 +444,64 @@ function TCBOSetValue(elementid,val,title,update_tree) {
 	if(onchange && onchange.length>0) { eval(onchange); }
 }//END function TCBOClear
 
-function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
+function InitTCBOFancyTree(elementid,val,module,method,url_params,js_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
-	let lval = encodeURIComponent(val);
-	let aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
-	let luid = '';
-	let lparams = hide_parents_checkbox ? '&hpc=1' : '';
-	if(uid || uid.length>0) { luid += '&uid='+uid; }
-	let paramsString = '';
-	if(typeof(url_params)==='object') {
-	    for(let pk in url_params) { paramsString += '&' + pk + '=' + url_params[pk]; }
-	} else if(typeof(url_params)==='string') {
-	    paramsString = url_params;
-	}//if(typeof(url_params)==='object')
-	if(encrypt===1 || encrypt===true) {
-		aurl += '&arhash='+encodeURIComponent(GibberishAES.enc('module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name,'xJS'));
-	} else {
-		aurl += '&module='+module+'&method='+method+paramsString+lparams+luid+'&phash='+window.name;
-	}//if(encrypt===1 || encrypt===true)
+	var lval = encodeURIComponent(val);
+	var aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
+	var lparams = '&module='+module+'&method='+method;
+	if(hide_parents_checkbox) { lparams += '&hpc=1'; }
+	if(uid || uid.length>0) { lparams += '&uid='+uid; }
+	if(url_params) { lparams += url_params }
+	var urlCallback = function() {
+		let paramsString = '';
+		if(typeof(js_params)==='object') {
+			for(let pk in js_params) {
+				let jspVal;
+				try {
+					jspVal = eval(js_params[pk]);
+				} catch(er) {
+					console.log(er);
+					console.log(js_params[pk]);
+					jspVal = '';
+				}//try
+				paramsString += '&' + pk + '=' + jspVal;
+			}//for
+		} else if(typeof(js_params)==='string') {
+			paramsString = js_params;
+		}//if(typeof(js_params)==='object')
+		if(encrypt===1 || encrypt===true) {
+			aurl += '&arhash='+encodeURIComponent(GibberishAES.enc(lparams+paramsString+'&phash='+window.name,'xJS'));
+		} else {
+			aurl += lparams+paramsString+'&phash='+window.name;
+		}//if(encrypt===1 || encrypt===true)
+		// console.log('URL: '+aurl+'&type=json&tree=1&val='+lval);
+		return aurl+'&type=json&tree=1&val='+lval;
+	};
 	$('#'+elementid+'-ctree').fancytree({
 		checkbox: true,
         icon: icon||false,
 		selectMode: 1,
 		clickFolderMode: 1,
 		debugLevel: 0,
-		source: {
-			url: aurl+'&type=json&tree=1&val='+lval,
+		source: function() {
+			let iUrl = urlCallback();
+			return {
+				url: iUrl,
+				cache: false
+			};
 		},
 		lazyLoad: function(event,data) {
+			let iUrl = urlCallback();
 			data.result = {
-				url: aurl+'&type=json&tree=1&val='+lval,
+				url: iUrl,
 				data: { key: data.node.key },
 			};
 		},
 		createNode: function(event,data) {
 		    if(!data.node.data.hasSelectedChild) { return false; }
+		    let iUrl = urlCallback();
 			$.ajax({
-				url: aurl+'&type=json&tree=1&val='+lval,
+				url: iUrl,
 				data: { key: data.node.key },
 				dataType: 'json',
 				success: function(response) { data.node.addChildren(response); }
@@ -498,7 +520,7 @@ function InitTCBOFancyTree(elementid,val,module,method,url_params,namespace,uid,
 
 function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,checkboxes,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
-	let aurl = xAppWebLink+'/aindex.php?namespace='+namespace;
+	let aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
 	let luid = '';
 	let lparams = hide_parents_checkbox ? '&hpc=1' : '';
 	if(uid || uid.length>0) { luid += '&uid='+uid; }
@@ -838,7 +860,7 @@ function AnimatedHide(elementid,val,speed) {
 function AnimatedHideWithSave(elementid,valueid,speed) {
 	if($('#'+elementid).length>0) {
 		let lspeed = speed ? speed : 600;
-		if($('#'+valueid).val()==1) {
+		if($('#'+valueid).val()===1) {
 			$('#'+elementid).hide(lspeed);
 		} else {
 			$('#'+elementid).show(lspeed);
@@ -860,29 +882,30 @@ function CreateCkEditor(phash,e,multi,econfig,ewidth,eheight) {
 		let es = e.split(',');
 		for(let i=0;i<es.length;i++) { CreateCkEditor(phash,es[i],false,econfig,ewidth,eheight); }
 	} else {
-		if(!e || e.length==0) { return; }
+		if(!e || e.length===0) { return; }
 		// if(!phash) { phash = window.name.length>0 ? window.name : '_xbasepage_'; }
 		// console.log('CreateCkEditor: ' + e + ' // ' + phash);
 		let ckei = window.ckei_list;
-		if(ckei==undefined || ckei==null || typeof(ckei)!='object') { ckei = new Array(); }
-		let newconfig = typeof(econfig)=='object' ? econfig : new Object();
+		if(ckei===undefined || ckei===null || typeof(ckei)!='object') { ckei = []; }
+		let newconfig = typeof(econfig)=='object' ? econfig : {};
 		if(ewidth) { newconfig.width = ewidth; }
 		if(eheight) { newconfig.height = eheight; }
+		if(CKEDITOR.instances[e]) { CKEDITOR.instances[e].destroy(true); }
 		CKEDITOR.replace(e,newconfig);
-		if($.inArray(e,ckei)==-1) { ckei.push(e); }
+		if($.inArray(e,ckei)===-1) { ckei.push(e); }
 		window.ckei_list = ckei;
 	}//if(multi)
 }//function CreateCkEditor(e,multi)
 
 function DestroyCkEditors(phash,target) {
-	if(!target || target.length==0) { return; }
+	if(!target || target.length===0) { return; }
 	let targetObj = $('#'+target);
 	if(!targetObj) { return; }
 	// if(!phash) { phash = window.name.length>0 ? window.name : '_xbasepage_'; }
 	// console.log('DestroyCkEditors: ' + target + ' // ' + phash);
 	let ckei = window.ckei_list;
-	if(ckei==undefined || ckei==null || typeof(ckei)!='object' || ckei.length==0) { return; }
-	let newCkei = new Array();
+	if(ckei===undefined || ckei===null || typeof(ckei)!='object' || ckei.length===0) { return; }
+	let newCkei = [];
 	for(let i=0;i<ckei.length;i++) {
 		let dropped = false;
 		targetObj.find('#'+ckei[i]).each(function() {
@@ -910,18 +933,18 @@ function DestroyCkEditor(phash,e,multi) {
 			let ckei = window.ckei_list;
 			let editor = CKEDITOR.instances[e];
     		if(editor) { editor.destroy(true); }
-			if(ckei==undefined || ckei==null || typeof(ckei)!='object' || $.inArray(e,ckei)==-1) { return; }
+			if(ckei===undefined || ckei===null || typeof(ckei)!='object' || $.inArray(e,ckei)===-1) { return; }
 			ckei.splice(ckei.indexOf(e),1);
 			window.ckei_list = ckei;
 		}//if(typeof e=='array')
 	} else {
 		let ckei = window.ckei_list;
-		if(ckei==undefined || ckei==null || typeof(ckei)!='object' || ckei.length==0) { return; }
+		if(ckei===undefined || ckei===null || typeof(ckei)!='object' || ckei.length===0) { return; }
 		for(let i=0;i<ckei.length;i++) {
 			let editor = CKEDITOR.instances[ckei[i]];
 			if(editor) { editor.destroy(true); }
 		}//END for
-		window.ckei_list = new Array();
+		window.ckei_list = [];
 	}//if(e)
 }//function DestroyCkEditor
 /**
@@ -972,7 +995,7 @@ function CreateFileUploader(elementid,multi) {
 				if(statusid && $('#'+statusid).length) {
 					$('#'+statusid).css('display','none');
 				}//if(statusid && $('#'+statusid).length)
-            	if(data.result.files[0].error && data.result.files[0].error!='') {
+            	if(data.result.files[0].error && data.result.files[0].error!=='') {
             		ShowErrorDialog('Upload failed: '+data.result.files[0].error);
             	} else {
 		            let callbackfunc = $(element).attr('data-callback');
@@ -1000,10 +1023,10 @@ function CreateFileUploader(elementid,multi) {
 /*** For TreeGrid ***/
 function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 	if(!orgid) { orgid = pid; }
-	if(cval!==0 && cval!==1) { cval = $(obj).val()===1 ? 0 : 1; }
-	if(orgid===pid) { $(obj).val(cval); }
-	$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function(i) {
-		if(cval===1) { $(this).show(); } else { $(this).hide(); }
+	if(cval!=0 && cval!=1) { cval = $(obj).val()==1 ? 0 : 1; }
+	if(orgid==pid) { $(obj).val(cval); }
+	$('table#'+tableid+' > tbody > tr.clsTreeGridChildOf'+pid).each(function() {
+		if(cval==1) { $(this).show(); } else { $(this).hide(); }
 		obj = $(this).find('input.clsTreeGridBtn').first();
 		if(typeof(obj)=='object') {
 			pid = $(this).attr('data-id');

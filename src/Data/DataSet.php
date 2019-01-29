@@ -1,15 +1,13 @@
 <?php
 /**
  * DataSet class file
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
@@ -35,29 +33,23 @@ use function spl_object_hash;
 use function uasort;
 /**
  * DataSet class
- *
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
 class DataSet implements Collection {
     /**
      * An array containing the entries of this collection.
-     *
      * @var array
      */
     protected $elements;
     /**
      * Elements total count
-     *
      * @var int|null
      */
     public $total_count;
 	/**
 	 * Initializes a new DataSet.
-	 *
 	 * @param array $elements
 	 * @param int|null  $count
 	 */
@@ -67,16 +59,12 @@ class DataSet implements Collection {
     }
     /**
      * Creates a new instance from the specified elements.
-     *
      * This method is provided for derived classes to specify how a new
      * instance should be created when constructor semantics have changed.
-     *
      * @param array $elements Elements.
-     *
      * @return static
      */
-    protected function createFrom(array $elements)
-    {
+    protected function createFrom(array $elements) {
         return new static($elements);
     }
     /**
@@ -98,43 +86,37 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function first()
-    {
+    public function first() {
         return reset($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function last()
-    {
+    public function last() {
         return end($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function key()
-    {
+    public function key() {
         return key($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function next()
-    {
+    public function next() {
         return next($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function current()
-    {
+    public function current() {
         return current($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function remove($key)
-    {
+    public function remove($key) {
         if (! isset($this->elements[$key]) && ! array_key_exists($key, $this->elements)) {
             return null;
         }
@@ -145,8 +127,7 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function removeElement($element)
-    {
+    public function removeElement($element) {
         $key = array_search($element, $this->elements, true);
         if ($key === false) {
             return false;
@@ -156,29 +137,23 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetExists($offset)
-    {
+    public function offsetExists($offset) {
         return $this->containsKey($offset);
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetGet($offset)
-    {
+    public function offsetGet($offset) {
         return $this->get($offset);
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetSet($offset, $value)
-    {
+    public function offsetSet($offset, $value) {
         if (! isset($offset)) {
             $this->add($value);
             return;
@@ -187,32 +162,27 @@ class DataSet implements Collection {
     }
     /**
      * Required by interface ArrayAccess.
-     *
      * {@inheritDoc}
      */
-    public function offsetUnset($offset)
-    {
+    public function offsetUnset($offset) {
         $this->remove($offset);
     }
     /**
      * {@inheritDoc}
      */
-    public function containsKey($key)
-    {
+    public function containsKey($key) {
         return isset($this->elements[$key]) || array_key_exists($key, $this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function contains($element)
-    {
+    public function contains($element) {
         return in_array($element, $this->elements, true);
     }
     /**
      * {@inheritDoc}
      */
-    public function exists(Closure $p)
-    {
+    public function exists(Closure $p) {
         foreach ($this->elements as $key => $element) {
             if ($p($key, $element)) {
                 return true;
@@ -223,15 +193,13 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function indexOf($element)
-    {
+    public function indexOf($element) {
         return array_search($element, $this->elements, true);
     }
     /**
      * {@inheritDoc}
      */
-    public function get($key)
-    {
+    public function get($key) {
         return $this->elements[$key] ?? null;
     }
     /**
@@ -241,52 +209,45 @@ class DataSet implements Collection {
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public function safeGet($key,$default_value = NULL,$validation = NULL)
-    {
+    public function safeGet($key,$default_value = NULL,$validation = NULL) {
         return Validator::ValidateArrayValue($this->elements,$key,$default_value,$validation);
     }
     /**
      * {@inheritDoc}
      */
-    public function getKeys()
-    {
+    public function getKeys() {
         return array_keys($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function getValues()
-    {
+    public function getValues() {
         return array_values($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function count()
-    {
+    public function count() {
         return count($this->elements);
     }
     /**
      * @var int|null Elements total count
      */
-    public function setTotalCount($value)
-    {
+    public function setTotalCount($value) {
         $this->total_count = $value;
     }
 	/**
 	 * @param bool $safe
 	 * @return int|null Elements total count
 	 */
-    public function getTotalCount($safe = TRUE)
-    {
+    public function getTotalCount($safe = TRUE) {
         if(!$safe) { return $this->total_count; }
         return is_numeric($this->total_count) && $this->total_count>0 ? $this->total_count : count($this->elements);
     }
     /**
      * {@inheritDoc}
      */
-    public function set($key, $value)
-    {
+    public function set($key, $value) {
         $this->elements[$key] = $value;
     }
     /**
@@ -303,42 +264,34 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function isEmpty()
-    {
+    public function isEmpty() {
         return empty($this->elements);
     }
     /**
      * Required by interface IteratorAggregate.
-     *
      * {@inheritDoc}
      */
-    public function getIterator()
-    {
+    public function getIterator() {
         return new ArrayIterator($this->elements);
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      */
-    public function map(Closure $func)
-    {
+    public function map(Closure $func) {
         return $this->createFrom(array_map($func, $this->elements));
     }
     /**
      * {@inheritDoc}
-     *
      * @return static
      */
-    public function filter(Closure $p)
-    {
+    public function filter(Closure $p) {
         return $this->createFrom(array_filter($this->elements, $p));
     }
     /**
      * {@inheritDoc}
      */
-    public function forAll(Closure $p)
-    {
+    public function forAll(Closure $p) {
         foreach ($this->elements as $key => $element) {
             if (! $p($key, $element)) {
                 return false;
@@ -349,8 +302,7 @@ class DataSet implements Collection {
     /**
      * {@inheritDoc}
      */
-    public function partition(Closure $p)
-    {
+    public function partition(Closure $p) {
         $matches = $noMatches = [];
         foreach ($this->elements as $key => $element) {
             if ($p($key, $element)) {
@@ -363,18 +315,15 @@ class DataSet implements Collection {
     }
     /**
      * Returns a string representation of this object.
-     *
      * @return string
      */
-    public function __toString()
-    {
+    public function __toString() {
         return __CLASS__.'@'.spl_object_hash($this);
     }
     /**
      * {@inheritDoc}
      */
-    public function clear()
-    {
+    public function clear() {
         $this->elements = [];
     }
     /**
@@ -388,11 +337,9 @@ class DataSet implements Collection {
     }
     /**
 	 * Merge an array or a VirtualEntity instance to current instance
-	 *
 	 * @param  array|object $data The data to be merged into this instance
 	 * @param  bool $recursive
 	 * @return bool Returns TRUE on success, FALSE otherwise
-	 * @access public
 	 */
 	public function merge($data,bool $recursive = FALSE) {
 		if(is_object($data) && count($data)) {

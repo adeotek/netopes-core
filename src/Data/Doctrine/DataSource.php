@@ -1,27 +1,22 @@
 <?php
 /**
  * Base Doctrine data source file
- *
  * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
-namespace NETopes\Core\Data;
+namespace NETopes\Core\Data\Doctrine;
 use NETopes\Core\AppException;
 /**
  * Base Base Doctrine data adapter class
- *
  * @package  NETopes\Core\Data
- * @access   public
  */
-class DoctrineDataSource extends DataSource {
+class DataSource extends \NETopes\Core\Data\DataSource {
 	/**
      * Execute a repository method and get returned data
-     *
-     * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -39,8 +34,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function CreateItem
     /**
 	 * Gets new project blank object
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return mixed
@@ -53,8 +46,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function CreateItem
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -82,8 +73,6 @@ class DoctrineDataSource extends DataSource {
     }//END public function GetItems
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -96,8 +85,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function GetObjects
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -112,8 +99,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function GetItem
 	/**
 	 * Gets projects list
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return
@@ -130,8 +115,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function GetItem
 	/**
 	 * Sets new project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return array
@@ -150,8 +133,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function SetItem
 	/**
 	 * Sets new project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return array
@@ -162,8 +143,6 @@ class DoctrineDataSource extends DataSource {
 	}//END public function GetNewItem
 	/**
 	 * Unsets a project
-	 *
-	 * @access public
      * @param array $params
      * @param array $extra_params
      * @return bool
@@ -188,4 +167,4 @@ class DoctrineDataSource extends DataSource {
 		}//END try
 		return TRUE;
 	}//END public function UnsetItem
-}//END class System extends DataSource
+}//END class DataSource extends \NETopes\Core\Data\DataSource

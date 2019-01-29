@@ -1,101 +1,77 @@
 <?php
 /**
  * Control abstract class file
- *
  * Base abstract class for controls
- *
- * @package    NETopes\Controls
+ * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
 use NApp;
 use GibberishAES;
 use Translate;
 /**
- * Control abstract class file
- *
- * Base abstract class for controls
- *
- * @property mixed  tag_name
- * @property bool   required
- * @property string label_position
- * @package  NETopes\Controls
- * @access   public
- * @abstract
+ * Class Control
+ * @package NETopes\Core\Controls
  */
 abstract class Control {
 	/**
 	 * @var    array Control dynamic properties array
-	 * @access protected
 	 */
 	protected $pdata = [];
 	/**
 	 * @var    string Control instance hash
-	 * @access protected
 	 */
 	protected $chash = NULL;
 	/**
 	 * @var    string Control instance UID
-	 * @access protected
 	 */
 	protected $uid = NULL;
 	/**
 	 * @var    string Control base class
-	 * @access protected
 	 */
 	protected $base_class = '';
 	/**
 	 * @var    bool Page hash (window.name)
-	 * @access public
 	 */
 	public $phash = NULL;
 	/**
 	 * @var    string Main tag html id
-	 * @access public
 	 */
 	public $tag_id = NULL;
 	/**
 	 * @var    bool Postable in NETopes AJAX requests (default: TRUE)
-	 * @access public
 	 */
 	public $postable = TRUE;
 	/**
 	 * @var    string Theme type
-	 * @access public
 	 */
 	public $theme_type = NULL;
 	/**
 	 * @var    boolean Output container
-	 * @access public
 	 */
 	public $container = TRUE;
 	/**
 	 * @var    boolean Flag for no label
-	 * @access public
 	 */
 	public $no_label = FALSE;
 	/**
 	 * @var    string Tag style base value
-	 * @access protected
 	 */
 	protected $tag_base_style = ''; // Old value: 'display: inline-block;';
 	/**
 	 * @var    bool Output buffer on/off
-	 * @access protected
 	 */
 	protected $buffered = FALSE;
 	/**
 	 * @var    string Output (resulting html) buffer
-	 * @access protected
 	 */
 	protected $output_buffer = NULL;
 	/**
@@ -105,21 +81,17 @@ abstract class Control {
 	private $ctrl_actions = NULL;
 	/**
 	 * Control class dynamic getter method
-	 *
 	 * @param  string $name The name o the property
 	 * @return mixed Returns the value of the property
-	 * @access public
 	 */
 	public function __get($name) {
 		return (is_array($this->pdata) && array_key_exists($name,$this->pdata)) ? $this->pdata[$name] : NULL;
 	}//END public function __get
 	/**
 	 * Control class dynamic setter method
-	 *
 	 * @param  string $name The name o the property
 	 * @param  mixed  $value The value to be set
 	 * @return void
-	 * @access public
 	 */
 	public function __set($name,$value) {
 		if(!is_array($this->pdata)) { $this->pdata = []; }
@@ -127,10 +99,8 @@ abstract class Control {
 	}//END public function __set
 	/**
 	 * Control class constructor
-	 *
 	 * @param  array $params An array of params
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		$this->chash = AppSession::GetNewUID(get_class_basename($this));
@@ -209,10 +179,8 @@ abstract class Control {
 	}//END public function __construct
 	/**
 	 * Gets this instance as a serialized string
-	 *
 	 * @param  bool $encrypted Switch on/off encrypted result
 	 * @return string Return serialized control instance
-	 * @access protected
 	 */
 	protected function GetThis($encrypted = TRUE) {
 		if($encrypted && strlen($this->chash)) { return GibberishAES::enc(serialize($this),$this->chash); }
@@ -220,9 +188,7 @@ abstract class Control {
 	}//END protected function GetThis
 	/**
 	 * Process the control actions
-	 *
 	 * @return array|null
-	 * @access protected
 	 */
 	protected function ProcessActions(): ?array {
 		if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
@@ -242,9 +208,7 @@ abstract class Control {
 	}//END protected function ProcessActions
 	/**
 	 * Get the actions total css width
-	 *
 	 * @return int Returns actions total width
-	 * @access protected
 	 */
 	protected function GetActionsWidth() {
 		if(!is_array($this->ctrl_actions)) { return 0; }
@@ -252,29 +216,25 @@ abstract class Control {
 	}//END protected function GetActionsWidth
 	/**
 	 * Check if control has actions or not
-	 *
 	 * @return bool Returns TRUE if the control has actions or FALSE otherwise
-	 * @access public
 	 */
 	public function HasActions(): bool {
 		return (is_array($this->ctrl_actions) && count($this->ctrl_actions));
 	}//END public function HasActions
 	/**
 	 * Get the actions html string
-	 *
 	 * @return int Returns actions string
-	 * @access protected
 	 */
 	protected function GetActions() {
 		if(!$this->HasActions()) { return NULL; }
 		$result = '';
 		if($this->container) { $result .= "\t\t\t\t".'<span class="input-group-btn">'."\n"; }
 		if(strlen($this->dynamic_target)) {
-			if(NApp::ajax() && is_object(NApp::arequest())) {
-				NApp::arequest()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
+			if(NApp::ajax() && is_object(NApp::Ajax())) {
+				NApp::Ajax()->ExecuteJs("AppendDynamicModal('{$this->dynamic_target}');");
 			} else {
 				$result .= "\t"."<script type=\"text/javascript\">AppendDynamicModal('{$this->dynamic_target}');</script>"."\n";
-			}//if(NApp::ajax() && is_object(NApp::arequest()))
+			}//if(NApp::ajax() && is_object(NApp::Ajax()))
 		}//if(strlen($this->dynamic_target))
 		foreach($this->ctrl_actions as $act) {
 			$act_params = $act['params'];
@@ -291,11 +251,9 @@ abstract class Control {
 	}//END protected function GetActions
 	/**
 	 * Gets the html tag id string (' id="..."')
-	 *
 	 * @param  bool   $tagName Include the tag name in the result TRUE/FALSE (default FALSE)
 	 * @param null  $sufix
 	 * @return string Returns the html tag id
-	 * @access protected
 	 */
 	protected function GetTagId($tagName = FALSE,$sufix = NULL) {
 		if(!strlen($this->tag_id)) { return ''; }
@@ -305,11 +263,9 @@ abstract class Control {
 	}//END protected function GetTagId
 	/**
 	 * Gets the html tag class string (' class="..."')
-	 *
 	 * @param  string $extra Other html classes to be included
      * @param bool    $raw
 	 * @return string Returns the html tag class
-	 * @access protected
 	 */
 	protected function GetTagClass($extra = NULL,$raw = FALSE) {
 		$lclass = (!$this->clear_base_class ? $this->base_class : '');
@@ -365,12 +321,10 @@ abstract class Control {
 	}//END protected function GetTagClass
 	/**
 	 * Gets the html tag style attribute string (' style="...")
-	 *
 	 * @param  mixed  $width Custom css width
 	 * @param  bool   $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
 	 * @param  string $extra Other css attributes to be included
 	 * @return string Returns the html tag style attribute
-	 * @access protected
 	 */
 	protected function GetTagStyle($width = NULL,$halign = TRUE,$extra = NULL) {
 		$lstyle = '';
@@ -421,11 +375,9 @@ abstract class Control {
 	}//END protected function GetTagStyle
 	/**
 	 * Gets the html tag attributes string (' placeholder="..." disabled="..." ...')
-	 *
 	 * @param  bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
 	 * @param  string $extra Other html attributes to be included
 	 * @return string Returns the html tag attributes
-	 * @access protected
 	 */
 	protected function GetTagAttributes($style = TRUE,$extra = NULL) {
 		$lattr = '';
@@ -443,11 +395,9 @@ abstract class Control {
 	}//END protected function GetTagAttributes
     /**
      * Gets the html tag action attributes string (' onclick="..." onchange="..." ...')
-     *
      * @param array|null    $base
      * @param  string|null $extra Other html attributes to be included
      * @return string Returns the html tag attributes
-     * @access protected
      */
 	protected function GetTagActions(?array $base = NULL,?string $extra = NULL): string {
 		if($this->readonly || $this->disabled) { return ''; }
@@ -467,11 +417,9 @@ abstract class Control {
 	}//END protected function GetTagActions
     /**
      * Gets the html tag onclick attributes string
-     *
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnClickAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -492,9 +440,9 @@ abstract class Control {
 				$lonclick_scr = $this->onclick_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
 			if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func)) {
-				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
+				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
 			} else {
-				$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($lonclick_scr);
+				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr);
 			}//if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func))
 		}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
@@ -506,11 +454,9 @@ abstract class Control {
 	}//END protected function GetOnClickAction
     /**
      * Gets the html tag onchange attributes string
-     *
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnChangeAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -530,7 +476,7 @@ abstract class Control {
 			} else {
 				$onchange_str = $this->onchange_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onchange_str);
+			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onchange_str);
 		}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -539,12 +485,11 @@ abstract class Control {
 		if($actOnly) { return $action; }
 		return ($this->data_onclick===TRUE ? 'data-' : '').'onchange="'.trim($action).'"';
 	}//END protected function GetOnChangeAction
-	/**
+    /**
      * Gets the html tag onkeypress attributes string
-     *
-     * @param null    $base
+     * @param string|null $base
+     * @param bool        $actOnly
      * @return string Returns the html tag attribute
-     * @access protected
      */
 	protected function GetOnKeyPressAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -564,7 +509,7 @@ abstract class Control {
 			} else {
 				$onkeypress_str = $this->onkeypress_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::arequest()->Prepare($onkeypress_str);
+			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onkeypress_str);
 		}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -575,12 +520,10 @@ abstract class Control {
 	}//END protected function GetOnKeyPressAction
 	/**
 	 * Convert Ncol width to standard
-	 *
 	 * @param  bool $bootstrap Flag indicating use of bootstrap grid (default FALSE)
 	 * @return void
-	 * @access protected
 	 */
-	protected function ProcessWidth($bootstrap = FALSE) {
+	protected function ProcessWidth(bool $bootstrap = FALSE) {
 		if($bootstrap) {
 			if(strpos($this->label_width,'col')!==FALSE && strpos($this->width,'col')!==FALSE) {
 				$llw = str_replace('col','',$this->label_width);
@@ -655,12 +598,10 @@ abstract class Control {
 	}//END protected function ProcessWidth
 	/**
 	 * Convert Ncol width to standard
-	 *
 	 * @return string Custom actions HTML string
-	 * @access protected
 	 */
 	protected function ProcessCustomActions() {
-		// NApp::_Dlog($this->custom_actions,'$this->custom_actions');
+		// NApp::Dlog($this->custom_actions,'$this->custom_actions');
 		if(!is_array($this->custom_actions) || !count($this->custom_actions)) { return NULL; }
 		$result = '';
 		foreach($this->custom_actions as $ca) {
@@ -687,21 +628,19 @@ abstract class Control {
 						$ca_command .= $ce_arr[0];
 					}//if(count($ce_arr)>1)
 				}//END foreach
-				$ca_params['onclick'] = NApp::arequest()->Prepare($ca_command,$this->loader);
+				$ca_params['onclick'] = NApp::Ajax()->Prepare($ca_command,$this->loader);
 			}//if($acommand)
 			$ca_ctrl = new $ca_type($ca_params);
 			if(get_array_value($ca,'clear_base_class',FALSE,'bool')){ $ca_ctrl->ClearBaseClass(); }
 			$result .= $ca_ctrl->Show();
 		}//END foreach
-		// NApp::_Dlog($result,'custom_actions>$result');
+		// NApp::Dlog($result,'custom_actions>$result');
 		return $result;
 	}//END protected function ProcessCustomActions
 	/**
 	 * description
-	 *
 	 * @param $tag
 	 * @return string|null
-	 * @access protected
 	 */
 	protected function SetContainer($tag): ?string {
 		$tag .= $this->ProcessCustomActions();
@@ -712,17 +651,12 @@ abstract class Control {
 	}//END protected function SetContainer
 	/**
 	 * description
-	 *
 	 * @return string|null
-	 * @access protected
-	 * @abstract
 	 */
 	abstract protected function SetControl(): ?string;
 	/**
 	 * description
-	 *
 	 * @return string
-	 * @access public
 	 */
 	public function Show() {
 		if($this->buffered){ return $this->output_buffer; }
@@ -730,271 +664,9 @@ abstract class Control {
 	}//END public function Show
 	/**
 	 * Clears the base class of the control
-	 *
 	 * @return void
-	 * @access public
 	 */
 	public function ClearBaseClass() {
 		$this->base_class = '';
 	}//END public function ClearBaseClass
-	/**
-	 * Check control conditions
-	 *
-	 * @param  array $conditions The conditions array
-	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
-	 * @throws \NETopes\Core\AppException
-	 * @access protected
-	 */
-	protected function CheckConditions($conditions) {
-		$result = FALSE;
-		if(!is_array($conditions) || !count($conditions)) { return $result; }
-		foreach($conditions as $cond) {
-			$cond_field = get_array_value($cond,'field',NULL,'is_notempty_string');
-			$cond_value = get_array_value($cond,'value',NULL,'isset');
-			if(!$cond_field) { continue; }
-			$cond_type = get_array_value($cond,'type','=','is_notempty_string');
-			$validation = get_array_value($cond,'validation','','is_string');
-			if($validation) {
-				$lvalue = validate_param($this->{$cond_field},get_array_value($cond,'default_value',NULL,'isset'),$validation);
-			} else {
-				$lvalue = $this->{$cond_field};
-			}//if($validation)
-			try {
-				switch($cond_type) {
-					case '<':
-						$result = $lvalue<$cond_value;
-						break;
-					case '>':
-						$result = $lvalue>$cond_value;
-						break;
-					case '<=':
-						$result = $lvalue<=$cond_value;
-						break;
-					case '>=':
-						$result = $lvalue>=$cond_value;
-						break;
-					case '!=':
-						$result = $lvalue!=$cond_value;
-						break;
-					case 'empty':
-						$result = !$lvalue;
-						break;
-					case '!empty':
-						$result = $lvalue;
-						break;
-					case 'in':
-						$result = (is_array($cond_value) && in_array($lvalue,$cond_value));
-						break;
-					case 'notin':
-						$result = !(is_array($cond_value) && in_array($lvalue,$cond_value));
-						break;
-					case '==':
-					default:
-						$result = $lvalue==$cond_value;
-						break;
-				}//END switch
-			} catch(AppException $ne) {
-				if(NApp::$debug) { throw $ne; }
-				$result = FALSE;
-			}//END try
-			if(!$result) { break; }
-		}//END forach
-		return $result;
-	}//END protected function CheckConditions
-    /**
-     * Generate parameters URL hash
-     *
-     * @param  array  $params An array of parameters
-     * @param  bool   $encrypt Encrypt or not the parameters
-     * @param  string $hash_separator Separator for the hash parameters
-     * @param string  $epass
-     * @return string Returns the computed hash
-     * @access public
-     * @static
-     */
-	 public static function GetUrlHash($params = [],$encrypt = TRUE,$hash_separator = '|',$epass = 'eUrlHash') {
-		if(!is_array($params) || !count($params)) { return NULL; }
-		$result = '';
-		foreach($params as $v) { $result .= (strlen($result) ? $hash_separator : '').$v; }
-		if(strlen($result) && $encrypt!==FALSE) { $result = GibberishAES::enc($result,$epass); }
-		return rawurlencode($result);
-	 }//END public static function GetUrlHash
-   /**
-	* Replace dynamic parameters
-	*
-	* @param  array $params The parameters array to be parsed
-	* @param  object $row Data row object to be used for replacements
-	* @param  bool  $recursive Flag indicating if the array should be parsed recursively
-     * @param null    $params_prefix
-     * @return array|string Return processed parameters array
-	* @access public
-	* @static
-     * @throws \NETopes\Core\AppException
-	*/
-	public static function ReplaceDynamicParams($params,$row,$recursive = TRUE,$params_prefix = NULL) {
-	    $lRow = is_object($row) ? $row : new VirtualEntity(is_array($row) ? $row : []);
-		if(is_string($params)) {
-			if(!strlen($params)) { return $params; }
-			if(is_string($params_prefix) && strlen($params_prefix)) {
-				$result = str_replace('{'.$params_prefix.'{','{{',$params);
-			} else {
-			    $result = $params;
-			}//if(is_string($params_prefix) && strlen($params_prefix))
-			$rv_arr = [];
-			preg_match_all('/{{[^}]*}}/i',$result,$rv_arr);
-			if(is_array($rv_arr[0])) {
-				foreach($rv_arr[0] as $pfr) {
-					if(strpos($result,$pfr)===FALSE) { continue; }
-					$result = str_replace($pfr,addslashes($lRow->getProperty(trim($pfr,'{}'),NULL,'isset')),$result);
-				}//END foreach
-			}//if(is_array($rv_arr[0]))
-			return $result;
-		}//if(is_string($params))
-		if(!is_array($params) || !count($params)) { return $params; }
-		$result = [];
-		foreach(array_keys($params) as $pk) {
-			if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1'))) {
-				$result[$pk] = self::ReplaceDynamicParams($params[$pk],$lRow,TRUE,$params_prefix);
-			} else {
-				$result[$pk] = $params[$pk];
-			}//if(is_string($params[$pk]) || (is_array($params[$pk]) && ($recursive===TRUE || $recursive===1 || $recursive==='1')))
-		}//END foreach
-		return $result;
-	}//END public static function ReplaceDynamicParams
-	/**
-	 * Check row conditions
-	 *
-	 * @param  object $row Data row object
-	 * @param  array $conditions The conditions array
-	 * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
-	 * @throws \NETopes\Core\AppException
-	 * @access public
-	 * @static
-	 */
-	public static function CheckRowConditions(&$row,$conditions) {
-		$result = FALSE;
-		if(!is_array($conditions) || !count($conditions) || !is_object($row)) { return $result; }
-		foreach($conditions as $cond) {
-			$cond_field = get_array_value($cond,'field',NULL,'is_notempty_string');
-			$cond_value = get_array_value($cond,'value',NULL,'isset');
-			$cond_type = get_array_value($cond,'type','=','is_notempty_string');
-			try {
-				switch($cond_type) {
-					case '<':
-						$result = $row->getProperty($cond_field)<$cond_value;
-						break;
-					case '>':
-						$result = $row->getProperty($cond_field)>$cond_value;
-						break;
-					case '<=':
-						$result = $row->getProperty($cond_field)<=$cond_value;
-						break;
-					case '>=':
-						$result = $row->getProperty($cond_field)>=$cond_value;
-						break;
-					case '!=':
-						$result = $row->getProperty($cond_field)!=$cond_value;
-						break;
-					case 'empty':
-						$result = !$row->getProperty($cond_field);
-						break;
-					case '!empty':
-						$result = $row->getProperty($cond_field);
-						break;
-					case 'in':
-						$result = (is_array($cond_value) && in_array($row->getProperty($cond_field),$cond_value));
-						break;
-					case 'notin':
-						$result = !(is_array($cond_value) && in_array($row->getProperty($cond_field),$cond_value));
-						break;
-					case 'fileexists':
-						$result = is_file($cond_value);
-						break;
-					case '==':
-					default:
-						$result = $row->getProperty($cond_field)==$cond_value;
-						break;
-				}//END switch
-			} catch(AppException $ne) {
-				if(NApp::$debug) { throw $ne; }
-				$result = FALSE;
-			}//END try
-			if(!$result) { break; }
-		}//END forach
-		return $result;
-	}//END public static function CheckRowConditions
-	/**
-	 * Gets the record from the database and sets the values in the tab array
-	 *
-	 * @param  array $params Parameters array
-	 * @return array Returns processed tab array
-	 * @access public
-	 * @throws \NETopes\Core\AppException
-	 * @static
-	 */
-	public static function GetTranslationData($params = []) {
-		if(!is_array($params) || !count($params)) { return NULL; }
-		$ds_name = get_array_value($params,'ds_class','','is_string');
-		$ds_method = get_array_value($params,'ds_method','','is_string');
-		if(!strlen($ds_name) || !strlen($ds_method) || !DataProvider::MethodExists($ds_name,$ds_method)) { return NULL; }
-		$record_key = get_array_value($params,'record_key',0,'is_integer');
-		$record_key_field = get_array_value($params,'record_key_field','language_id','is_notempty_string');
-		$ds_params = get_array_value($params,'ds_params',[],'is_array');
-		$ds_params[$record_key_field] = $record_key;
-		$ds_key = get_array_value($params,'ds_key','','is_string');
-		if(strlen($ds_key)) {
-			$result = DataProvider::GetKeyValueArray($ds_name,$ds_method,$ds_params,['keyfield'=>$ds_key]);
-		} else {
-			$result = DataProvider::GetArray($ds_name,$ds_method,$ds_params);
-		}//if(strlen($ds_key))
-		return $result;
-	}//END public static function GetTranslationData
-    /**
-     * Gets the records from the database
-     *
-     * @param array $params
-     * @return mixed Returns processed tab array
-     * @throws \NETopes\Core\AppException
-     * @access public
-     * @static
-     */
-	protected function LoadData(array $params) {
-		if(!is_array($params) || !count($params)) { return NULL; }
-		$ds_name = get_array_value($params,'ds_class','','is_string');
-		$ds_method = get_array_value($params,'ds_method','','is_string');
-		if(!strlen($ds_name) || !strlen($ds_method)) { return NULL; }
-		$ds_params = get_array_value($params,'ds_params',[],'is_array');
-		$da_eparams = get_array_value($params,'ds_extra_params',[],'is_array');
-        $result = DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
-		return $result;
-	}//END protected function LoadData
-	/**
-	 * @param $item
-	 * @return null|string
-     * @throws \NETopes\Core\AppException
-	 */
-	protected function GetDisplayFieldValue($item): ?string {
-	    if(!is_object($item) && !is_array($item)) { return NULL; }
-	    if(!is_object($item)) { $item = new VirtualEntity($item); }
-		$ldisplayvalue = '';
-		$ldisplayfield = is_string($this->selected_text_field) && strlen($this->selected_text_field) ? $this->selected_text_field : $this->display_field;
-		if(is_array($ldisplayfield)) {
-			foreach($ldisplayfield as $dk=>$dv) {
-				if(is_array($dv)) {
-					$ov_items = get_array_value($dv,'items',[],'is_notempty_array');
-					$ov_value = get_array_value($dv,'value','','is_string');
-					$ov_mask = get_array_value($dv,'mask','','is_string');
-					$ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($ov_mask)>0 ? str_replace('~',get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset'),$ov_mask) : get_array_value($ov_items[$ltext],$ov_value,$ltext,'isset');
-				} else {
-				    $ltext = $item->getProperty($dk,'N/A','is_string');
-					$ldisplayvalue .= strlen($dv) ? str_replace('~',$ltext,$dv) : $ltext;
-				}//if(is_array($dv))
-			}//foreach ($this->display_field as $dk=>$dv)
-		} else {
-		    $ltext = $item->getProperty($ldisplayfield,'N/A','is_string');
-			$ldisplayvalue = $this->withtranslate===TRUE ? Translate::Get($this->translate_prefix.$ltext) : $ltext;
-		}//if(is_array($this->display_field))
-		return html_entity_decode($ldisplayvalue);
-	}//END protected function GetDisplayFieldValue
 }//END abstract class Control

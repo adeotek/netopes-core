@@ -1,52 +1,42 @@
 <?php
 /**
  * ComboBox control class file
- *
  * Standard ComboBox control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use NApp;
+use NETopes\Core\AppSession;
 /**
  * TreeComboBox control
- *
  * Tree ComboBox control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class TreeComboBox extends Control {
 	/**
 	 * @var    array|null Data source configuration
-	 * @access public
 	 */
 	public $data_source = NULL;
 	/**
 	 * @var    bool Encrypt url parameters
-	 * @access public
 	 */
 	public $encrypted = NULL;
 	/**
 	 * Control class constructor
-	 *
 	 * @param  array $params An array of params
 	 * @return void
-	 * @access public
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
 	}//END public function __construct
 	/**
 	 * Set control HTML string
-	 *
 	 * @return string|null
-	 * @access protected
 	 */
 	protected function SetControl(): ?string {
 		$this->ProcessActions();
@@ -58,7 +48,7 @@ class TreeComboBox extends Control {
 		} else {
 			$ddstyle = ' style="display: none;'.($lwidth ? ' width: '.$lwidth.'px;' : '').'"';
 		}//if($this->dropdown_width)
-		// NApp::_Dlog($ddstyle,'$ddstyle');
+		// NApp::Dlog($ddstyle,'$ddstyle');
 		$lstyle = strlen($this->style) ? ' style="'.$lalign.' '.$this->style.'"' : '';
 		$ltabindex = (is_numeric($this->tabindex) && $this->tabindex>0) ? ' tabindex="'.$this->tabindex.'"' : '';
 		$lextratagparam = strlen($this->extra_tag_params)>0 ? ' '.$this->extra_tag_params : '';
@@ -112,15 +102,17 @@ class TreeComboBox extends Control {
             if(count($ds_params)) {
                 foreach($ds_params as $pk=>$pv) { $urlParams .= '&'.$pk.'='.$pv; }
             }//if(count($ds_params))
-            $urlJsParams = strlen($urlParams) ? "urlParams: '".$urlParams."'" : '';
-            $ds_js_params = get_array_value($this->data_source,'ds_js_params',[],'is_array');
-            if(count($ds_js_params)) {
-                foreach($ds_js_params as $acpk=>$acpv) { $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.': '.$acpv; }
-            }//if(count($ds_js_params))
+            $urlJsParams = '';
+            $dsJsParams = get_array_value($this->data_source,'ds_js_params',[],'is_array');
+            if(count($dsJsParams)) {
+                foreach($dsJsParams as $acpk=>$acpv) {
+                    $urlJsParams .= (strlen($urlJsParams) ? ', ' : '').$acpk.": '".addcslashes($acpv,"'")."'";
+                }//END foreach
+            }//if(count($dsJsParams))
 		    $this->encrypted = $this->encrypted ? 1 : 0;
 		    $this->hide_parents_checkbox = $this->hide_parents_checkbox ? TRUE : FALSE;
-		    NApp::_SetSessionAcceptedRequest($this->uid);
-            NApp::_ExecJs("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}',{{$urlJsParams}},'".NApp::current_namespace()."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
+		    AppSession::SetSessionAcceptedRequest($this->uid,NApp::$currentNamespace);
+            NApp::AddJsScript("InitTCBOFancyTree('{$this->tag_id}','{$this->selected_value}','{$ds_module}','{$ds_method}','{$urlParams}',{{$urlJsParams}},'".NApp::$currentNamespace."','{$this->uid}',{$this->encrypted},".intval($this->hide_parents_checkbox).",".($this->icon ? 'true' : 'false').");");
         }//if(strlen($ds_module) && strlen($ds_method))
 		$result .= $this->GetActions();
 		return $result;

@@ -1,33 +1,29 @@
 <?php
 /**
  * ComboBox control class file
- *
  * Standard ComboBox control
- *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    2.5.0.0
+ * @version    3.0.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
 use NApp;
 /**
  * ComboBox control
- *
  * Standard ComboBox control
- *
  * @package  NETopes\Controls
- * @access   public
  */
 class ComboBox extends Control {
+    use TControlDataSource;
+    use TControlFields;
     /**
 	 * SmartComboBox constructor.
-	 *
 	 * @param null $params
 	 */
 	public function __construct($params = NULL) {
@@ -53,7 +49,7 @@ class ComboBox extends Control {
 	 */
 	protected function SetControl(): ?string {
         $this->ProcessActions();
-        $litems = DataSource::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+        $litems = DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         $placeholderFieldName = (is_string($this->display_field) ? $this->display_field : '__text__');
         $ph_class = '';
         $t_required = '';
@@ -88,17 +84,17 @@ class ComboBox extends Control {
 				break;
 			case 'value':
 			    if(is_array($this->value)) {
-                    $this->value = DataSource::ConvertArrayToDataSet($this->value,VirtualEntity::class);
+                    $this->value = DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
                 } elseif(!is_object($this->value)) {
-                    $this->value = DataSource::ConvertArrayToDataSet([],VirtualEntity::class);
+                    $this->value = DataSourceHelpers::ConvertArrayToDataSet([],VirtualEntity::class);
                 }//if(is_array($this->value))
 				if(is_object($this->value) && $this->value->count()) {  $litems->merge($this->value->toArray()); }
 				break;
 			default:
 				throw new AppException('Invalid ComboBox load type!');
 		}//END switch
-		// NApp::_Dlog($this->tag_id,'$this->tag_id');
-		// NApp::_Dlog($litems,'$litems');
+		// NApp::Dlog($this->tag_id,'$this->tag_id');
+		// NApp::Dlog($litems,'$litems');
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		foreach($litems as $item) {
@@ -146,14 +142,14 @@ class ComboBox extends Control {
                 $rOptions[''][] = "\t\t\t".'<option value="'.$lval.'"'.$lselected.(strlen($loptionclass) ? ' class="'.$loptionclass.'"' : '').$o_data.(strlen($lcolorcodefield) ? ' style="'.$lcolorcodefield.'"' : '').'>'.html_entity_decode($ltext).'</option>'."\n";
             }//if(is_string($this->group_field) && strlen($this->group_field))
 		}//END foreach
-		// NApp::_Dlog($rOptions,'$rOptions');
+		// NApp::Dlog($rOptions,'$rOptions');
 		$rOptionsStr = '';
 		foreach(array_keys($rOptions) as $group) {
 		    if(strlen($group)) { $rOptionsStr .= "\t\t\t<optgroup label=\"{$group}\">\n"; }
             $rOptionsStr .= implode('',$rOptions[$group]);
             if(strlen($group)) { $rOptionsStr .= "\t\t\t</optgroup>\n"; }
 		}//END foreach
-		// NApp::_Dlog($rOptionsStr,'$rOptionsStr');
+		// NApp::Dlog($rOptionsStr,'$rOptionsStr');
 		// final result processing
         //$this->GetTagClass('SmartCBO')
 		$result = "\t\t".'<select'.$t_required.$this->GetTagId(TRUE).$lselclass.$this->GetTagAttributes().$this->GetTagActions().'>'."\n";
