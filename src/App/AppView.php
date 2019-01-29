@@ -312,6 +312,15 @@ class AppView {
 		return strlen($this->_title)>0;
 	}//END public function HasTitle
 	/**
+     * Set pass-trough
+     * @param string $name
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function SetParam(string $name,$value): void {
+		$this->_params[$name] = $value;
+	}//END public function SetParam
+	/**
 	 * @param array $content
 	 * @return void
 	 */
