@@ -312,7 +312,7 @@ class AppView {
 		return strlen($this->_title)>0;
 	}//END public function HasTitle
 	/**
-     * Set pass-trough
+     * Set pass-trough parameter value
      * @param string $name
 	 * @param mixed $value
 	 * @return void
