@@ -131,9 +131,13 @@ class TableView {
 	 */
 	public $alternate_row_color = FALSE;
 	/**
-	 * @var    string Color row dynamically from a data field value
+	 * @var    string|null Color row dynamically from a data field value
 	 */
 	public $row_color_field = NULL;
+	/**
+	 * @var    string|null Row CSS class dynamically from a data field value
+	 */
+	public $row_class_field = NULL;
 	/**
 	 * @var    bool Switch compact mode on/off
 	 */
@@ -1654,14 +1658,14 @@ class TableView {
 	 * @param object $row
 	 * @param      $v
 	 * @param      $name
-	 * @param null $has_child
+	 * @param null $hasChild
 	 * @param null $r_lvl
 	 * @param null $r_tree_state
 	 * @param bool $is_iterator
 	 * @return string Returns the table cell html
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function SetCell(&$row,&$v,$name,$has_child = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
+	protected function SetCell(&$row,&$v,$name,$hasChild = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
 		$cell_type = strtolower(get_array_value($v,'type','','is_string'));
 		$result = '';
 		$c_style = '';
@@ -1715,12 +1719,12 @@ class TableView {
 				$t_value = '';
 				if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string')) {
 					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
-					if($has_child) {
+					if($hasChild) {
 						$t_s_val = $r_tree_state ? 1 : 0;
 						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
-					}//if($has_child)
+					}//if($hasChild)
 				}//if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string'))
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$c_def_value = get_array_value($v,'default_value','','is_string');
@@ -1790,12 +1794,12 @@ class TableView {
 	/**
 	 * Gets the table row html
 	 * @param object $row
-	 * @param null $r_cclass
-	 * @param bool $has_child
+	 * @param null $rcClass
+	 * @param bool $hasChild
 	 * @return string Returns the table row html
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function SetRow($row,$r_cclass = NULL,$has_child = FALSE) {
+	protected function SetRow($row,$rcClass = NULL,$hasChild = FALSE) {
 		$result = '';
 		$r_style = '';
 		$r_tdata = '';
@@ -1810,7 +1814,7 @@ class TableView {
 				if(strlen($r_color)) { $r_style .= ' background-color: '.$r_color.';'; }
 				if(!$r_tree_state) { $r_style .= ' display: none;'; }
 				$r_style = strlen($r_style) ? ' style="'.$r_style.'"' : '';
-				$r_cclass .= (strlen($r_cclass) ? ' ' : '').'clsTreeGridChildOf'.$row->safeGetIdParent(NULL,'is_integer');
+				$rcClass .= (strlen($rcClass) ? ' ' : '').'clsTreeGridChildOf'.$row->safeGetIdParent(NULL,'is_integer');
 				$r_tdata = $row->safeGetHasChild(0,'is_integer') ? ' data-id="'.$row->safeGetId(NULL,'is_integer').'"' : '';
 			} elseif(strlen($r_color)) {
 				$r_style = ' style="background-color: '.$r_color.';"';
@@ -1819,13 +1823,17 @@ class TableView {
 			$r_cc_class = get_array_value($this->row_conditional_class,'class','','is_string');
 			$r_cc_cond = get_array_value($this->row_conditional_class,'conditions',NULL,'is_array');
 			if(strlen($r_cc_class) && ControlsHelpers::CheckRowConditions($row,$r_cc_cond)) {
-				$r_cclass = ($r_cclass ? ' ' : '').$r_cc_class;
+				$rcClass = ($rcClass ? ' ' : '').$r_cc_class;
 				$r_cc = TRUE;
 			}//if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond))
-			$r_class = $r_cclass ? $r_cclass : ($this->alternate_row_color && !$r_cc ? 'stdc' : '');
-			$r_tooltip = $this->GetToolTip($row,$r_class,$this->row_tooltip);
-			$r_class = strlen($r_class) ? ' class="'.$r_class.'"' : '';
-			$result .= "\t\t\t".'<tr'.$r_class.$r_style.$r_tooltip.$r_tdata.'>'."\n";
+			if(strlen($this->row_class_field)) {
+			    $rClassFromField = $row->getProperty($this->row_class_field,'','is_string');
+			    if(strlen($rClassFromField)) { $rcClass = strlen($rcClass) ? $rcClass.' '.$rClassFromField : $rClassFromField; }
+			}//if(strlen($this->row_class_field))
+			$rClass = $rcClass ? $rcClass : ($this->alternate_row_color && !$r_cc ? 'stdc' : '');
+			$r_tooltip = $this->GetToolTip($row,$rClass,$this->row_tooltip);
+			$rClass = strlen($rClass) ? ' class="'.$rClass.'"' : '';
+			$result .= "\t\t\t".'<tr'.$rClass.$r_style.$r_tooltip.$r_tdata.'>'."\n";
 		}//if(!$this->export_only)
 		foreach($this->columns as $k=>$v) {
 			$c_type = strtolower(get_array_value($v,'type','','is_string'));
@@ -1866,7 +1874,7 @@ class TableView {
 							$this->GetCellValue($i_row,$i_v,$k.'-'.$it[$ik],$c_type);
 						}//if(get_array_value($v,'export',TRUE,'bool'))
 					} else {
-						$result .= $this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$has_child,$r_lvl,$r_tree_state,TRUE);
+						$result .= $this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$hasChild,$r_lvl,$r_tree_state,TRUE);
 						$col_no++;
 					}//if($this->export_only)
 				}//END foreach
@@ -1877,7 +1885,7 @@ class TableView {
 						$this->GetCellValue($row,$v,$k,$c_type);
 					}//if(get_array_value($v,'export',TRUE,'bool'))
 				} else {
-					$result .= $this->SetCell($row,$v,$k,$has_child,$r_lvl,$r_tree_state);
+					$result .= $this->SetCell($row,$v,$k,$hasChild,$r_lvl,$r_tree_state);
 					$col_no++;
 				}//if($this->export_only)
 			}//if(count($iterator))
@@ -1950,14 +1958,14 @@ class TableView {
      * Gets the table html iterating data array
      * @param DataSet                  $data
      * @param \NETopes\Core\App\Params $params
-     * @param null                     $r_cclass
+     * @param null                     $rcClass
      * @param null                     $lvl
      * @param null                     $id_parent
      * @return string Returns the table html
      * @throws \NETopes\Core\AppException
      */
-	protected function IterateData($data,Params $params,$r_cclass = NULL,$lvl = NULL,$id_parent = NULL) {
-		// NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$r_cclass),'IterateData');
+	protected function IterateData($data,Params $params,$rcClass = NULL,$lvl = NULL,$id_parent = NULL) {
+		// NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$rcClass),'IterateData');
 		if(!is_object($data) || !count($data)) { return NULL; }
 		$result = '';
 		if($this->tree) {
@@ -1970,16 +1978,16 @@ class TableView {
                 $data->remove($rowid);
 				if($this->export_only) {
                     if($row->getProperty('has_child',0,'is_integer')==1) {
-                        $this->IterateData($data,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
+                        $this->IterateData($data,$params,$rcClass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
                     }//if($row->getProperty('has_child',0,'is_integer')==1)
-					$this->SetRow($row,$r_cclass,FALSE);
+					$this->SetRow($row,$rcClass,FALSE);
 				} else {
 					$children = '';
-					$r_cclass = $this->alternate_row_color ? ($r_cclass ? '' : 'altc') : '';
+					$rcClass = $this->alternate_row_color ? ($rcClass ? '' : 'altc') : '';
 					if($row->getProperty('has_child',0,'is_integer')==1) {
-					    $children = $this->IterateData($data,$params,$r_cclass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
+					    $children = $this->IterateData($data,$params,$rcClass,$lvl+1,$row->safeGetId(NULL,'is_integer'));
 					}//if($row->getProperty('has_child',0,'is_integer')==1)
-					$result .= $this->SetRow($row,$r_cclass,strlen($children) ? TRUE : FALSE);
+					$result .= $this->SetRow($row,$rcClass,strlen($children) ? TRUE : FALSE);
 					$result .= $children;
 				}//if($this->export_only)
 			}//END foreach
@@ -1988,7 +1996,7 @@ class TableView {
 				foreach($data as $rowid=>$row) {
 					$row->__rowid = $rowid;
 					$row->__rowno = $rowid;
-					$this->SetRow($row,$r_cclass);
+					$this->SetRow($row,$rcClass);
 				}//END foreach
 			} else {
 				$firstrow = $lastrow = NULL;
@@ -1997,8 +2005,8 @@ class TableView {
 				foreach($data as $row) {
 					$row->__rowid = $rowid;
 					$row->__rowno = abs($firstrow) + $rowid;
-					$r_cclass = $this->alternate_row_color ? ($r_cclass ? '' : 'altc') : '';
-					$result .= $this->SetRow($row,$r_cclass);
+					$rcClass = $this->alternate_row_color ? ($rcClass ? '' : 'altc') : '';
+					$result .= $this->SetRow($row,$rcClass);
 					$rowid++;
 				}//END foreach
 			}//if($this->export_only)
