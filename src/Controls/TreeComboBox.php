@@ -13,8 +13,7 @@ namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppSession;
 /**
- * TreeComboBox control
- * Tree ComboBox control
+ * Class TreeComboBox
  * @package  NETopes\Controls
  */
 class TreeComboBox extends Control {
