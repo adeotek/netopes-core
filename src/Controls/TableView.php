@@ -1919,8 +1919,8 @@ class TableView {
 			if(strlen($c_valign)) { $c_style .= 'vertical-align: '.$c_valign.'; '; }
 			if(strlen($c_style)) { $c_style =  ' style="'.trim($c_style).'"'; }
 			$c_class = ' class="'.trim('td-totals '.get_array_value($v,'class','','is_string')).'"';
-			$td_tagid = get_array_value($v,'total_cell_id','','is_string');
-			if(strlen($td_tagid)) { $td_tagid = ' id="'.$td_tagid.'"'; }
+			$tdTagId = get_array_value($v,'total_cell_id','','is_string');
+			if(strlen($tdTagId)) { $tdTagId = ' id="'.$tdTagId.'"'; }
 			if(array_key_exists($k,$this->totals)) {
 				$c_sumtype = $this->totals[$k]['type'];
 				if($c_sumtype=='average') {
@@ -1945,10 +1945,10 @@ class TableView {
 						}//if($c_format)
 					}//if($c_format)
 				}//if($c_sumtype=='count')
-				$result .= "\t\t\t\t".'<td'.$td_tagid.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
+				$result .= "\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
 			} else {
 				$c_value = get_array_value($v,'summarize_label','&nbsp;','is_notempty_string');
-				$result .= "\t\t\t\t".'<td'.$td_tagid.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
+				$result .= "\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
 			}//if(array_key_exists($k,$this->totals))
 		}//END foreach
 		$result .= "\t\t\t".'</tr>'."\n";

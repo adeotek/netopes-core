@@ -87,7 +87,7 @@ class BasicForm {
 	/**
 	 * @var    string Sub-form tag ID
 	 */
-	public $sub_form_tagid = NULL;
+	public $sub_form_tag_id = NULL;
 	/**
 	 * @var    string Sub-form tag extra CSS class
 	 */
@@ -300,11 +300,11 @@ class BasicForm {
 			$lsidecolumn = $rsidecolumn = '';
 		}//if(!$this->width || $this->width='100%')
 		$result = '';
-		if(strlen($this->sub_form_tagid)) {
+		if(strlen($this->sub_form_tag_id)) {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
 			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
-			$result .= '<div class="'.$sfclass.'" id="'.$this->sub_form_tagid.'"'.$sfextratagparam.'>'."\n";
-		}//if(strlen($this->sub_form_tagid))
+			$result .= '<div class="'.$sfclass.'" id="'.$this->sub_form_tag_id.'"'.$sfextratagparam.'>'."\n";
+		}//if(strlen($this->sub_form_tag_id))
 		$result .= '<table'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="'.$lclass.'"'.$lstyle.'>'."\n";
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
@@ -391,7 +391,7 @@ class BasicForm {
 			$result .= "\t".'</tr>'."\n";
 		}//if(is_array($this->actions) && count($this->actions))
 		$result .= '</table>';
-		if(strlen($this->sub_form_tagid)) { $result .= '</div>'."\n"; }
+		if(strlen($this->sub_form_tag_id)) { $result .= '</div>'."\n"; }
 		return $result;
 	}//END protected function GetTableControl
     /**
@@ -405,14 +405,14 @@ class BasicForm {
 		if($this->positioning_type!='vertical') { $lclass .= ' form-horizontal'; }
 		if(strlen($this->controls_size)) { $lclass .= ' form-'.$this->controls_size; }
 		if($this->cols_no>1) { $lclass .= ' multi'; }
-		if(strlen($this->sub_form_tagid)) {
+		if(strlen($this->sub_form_tag_id)) {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
 			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
-			$result = '<div class="'.$sfclass.'" id="'.$this->sub_form_tagid.'"'.$sfextratagparam.'>'."\n";
+			$result = '<div class="'.$sfclass.'" id="'.$this->sub_form_tag_id.'"'.$sfextratagparam.'>'."\n";
 			$result .= '<div'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="clsFormContainer '.$lclass.'">'."\n";
 		} else {
 			$result = '<div class="row"><div class="col-md-12 '.$lclass.'"'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').'>'."\n";
-		}//if(strlen($this->sub_form_tagid))
+		}//if(strlen($this->sub_form_tag_id))
 		foreach($this->content as $row) {
 			if(!is_array($row) || !count($row)) { continue; }
 			$sr_type = get_array_value($row,'separator',NULL,'is_notempty_string');
