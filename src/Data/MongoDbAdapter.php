@@ -28,11 +28,11 @@ class MongoDbDbAdapter extends DataAdapter {
 	protected function Init($connection) {
 		$db_port = (array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : ':27017';
 		try {
-			self::$napp->StartTimeTrack('mongodb_connect');
+			NApp::StartTimeTrack('mongodb_connect');
 			$mg_conn = new MongoClient('mongodb://'.$connection['db_user'].':'.get_array_value($connection,'db_password','','is_string').'@'.$connection['db_server'].$db_port.'/'.$this->dbName);
 			$mg_dbname = $this->dbName;
 			$this->connection = $mg_conn->$mg_dbname;
-			self::$napp->Dlog(self::$napp->ShowTimeTrack('mongodb_connect'),'mongodb_connect');
+			NApp::Dlog(NApp::ShowTimeTrack('mongodb_connect'),'mongodb_connect');
 		} catch(MongoConnectionException $e) {
 			throw new AException("FAILED TO CONNECT TO DATABASE: ".$this->dbName." (".$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		} catch(MongoException $e){
@@ -52,7 +52,7 @@ class MongoDbDbAdapter extends DataAdapter {
 		if(array_key_exists($name,$this->transactions) && $this->transactions[$name] && !$overwrite){ return NULL; }
 		// TODO: to be implemented
 		$this->transactions[$name] = NULL;
-		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
+		NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
 		return $this->transactions[$name];
 	}//END public function MongoDbBeginTran
 	/**
@@ -64,7 +64,7 @@ class MongoDbDbAdapter extends DataAdapter {
 		if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
 			// TODO: to be implemented
 			unset($this->transactions[$name]);
-			self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
+			NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
 			return TRUE;
 		}//if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name]))
 		return FALSE;
@@ -79,7 +79,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			// TODO: to be implemented
 			unset($this->transactions[$name]);
 			if($preserve) { $this->MongoDbBeginTran($name); }
-			self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
+			NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$name),$log);
 			return TRUE;
 		}//if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name]))
 		return FALSE;
@@ -140,7 +140,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			$this->MongoDbRollbackTran($transaction);
 			throw new AException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		}//END try
-		self::$napp->Dlog($result,'MongoDbCommandResult');
+		NApp::Dlog($result,'MongoDbCommandResult');
 		/*if(ibase_errmsg() || $result===FALSE) {
 			$iberror = ibase_errmsg();
 			$iberrorcode = ibase_errcode();
@@ -159,15 +159,15 @@ class MongoDbDbAdapter extends DataAdapter {
 		}//END try
 		if(strlen($tran_name)==0) { $this->MongoDbCommitTran($transaction); }
 		if($this->debug) {
-			self::$napp->Dlog($query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','Query');
+			NApp::Dlog($query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','Query');
 			if($this->debug2file) {
-				self::$napp->Write2LogFile('Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
+				NApp::Write2LogFile('Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
 			}//if($this->debug2file)
 			if($this->debug2screen) {
 				echo '#Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec#<br/>';
 			}//if($this->debug2screen)
 		}//if($this->debug)
-		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
+		NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
 		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteQuery
 	/**
@@ -229,7 +229,7 @@ class MongoDbDbAdapter extends DataAdapter {
 			$this->MongoDbRollbackTran($transaction);
 			throw new AException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		}//END try
-		self::$napp->Dlog($result,'MongoDbExecuteResult');
+		NApp::Dlog($result,'MongoDbExecuteResult');
 		/*if(strlen(ibase_errmsg())>0) { //|| $result===FALSE) {
 			$iberror = ibase_errmsg();
 			$iberrorcode = ibase_errcode();
@@ -248,15 +248,15 @@ class MongoDbDbAdapter extends DataAdapter {
 		}//END try
 		if(strlen($tran_name)==0) { $this->MongoDbCommitTran($transaction); }
 		if($this->debug) {
-			self::$napp->Dlog($query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','Query');
+			NApp::Dlog($query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','Query');
 			if($this->debug2file) {
-				self::$napp->Write2LogFile('Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
+				NApp::Write2LogFile('Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
 			}//if($this->debug2file)
 			if($this->debug2screen) {
 				echo '#Query: '.$query.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec#<br/>';
 			}//if($this->debug2screen)
 		}//if($this->debug)
-		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
+		NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$query,'duration'=>(microtime(TRUE)-$time)),$log);
 		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteProcedure
 	/**
@@ -294,15 +294,15 @@ class MongoDbDbAdapter extends DataAdapter {
 			throw new AException("FAILED EXECUTE METHOD: ".$e->getMessage()." in statement: $dbg_method",E_USER_ERROR,1,__FILE__,__LINE__,'mongodb',0);
 		}//END try
 		if($this->debug) {
-			self::$napp->Dlog($dbg_method.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','DbMethod');
+			NApp::Dlog($dbg_method.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','DbMethod');
 			if($this->debug2file) {
-				self::$napp->Write2LogFile('DbMethod: '.$dbg_method.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
+				NApp::Write2LogFile('DbMethod: '.$dbg_method.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec','debug');
 			}//if($this->debug2file)
 			if($this->debug2screen) {
 				echo '#DbMethod: '.$dbg_method.'   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec#<br/>';
 			}//if($this->debug2screen)
 		}//if($this->debug)
-		self::$napp->AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$dbg_method.'('.print_r($params,TRUE).')','duration'=>(microtime(TRUE)-$time)),$log);
+		NApp::AppLoggerAddEvent(array('action'=>__FUNCTION__,'data'=>$dbg_method.'('.print_r($params,TRUE).')','duration'=>(microtime(TRUE)-$time)),$log);
 		return change_array_keys_case($final_result,TRUE);
 	}//END public function MongoDbExecuteMethod
 	/**
