@@ -1659,13 +1659,13 @@ class TableView {
 	 * @param      $v
 	 * @param      $name
 	 * @param null $hasChild
-	 * @param null $r_lvl
-	 * @param null $r_tree_state
+	 * @param null $rLvl
+	 * @param null $rTreeState
 	 * @param bool $is_iterator
 	 * @return string Returns the table cell html
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function SetCell(&$row,&$v,$name,$hasChild = NULL,$r_lvl = NULL,$r_tree_state = NULL,$is_iterator = FALSE) {
+	protected function SetCell(&$row,&$v,$name,$hasChild = NULL,$rLvl = NULL,$rTreeState = NULL,$is_iterator = FALSE) {
 		$cell_type = strtolower(get_array_value($v,'type','','is_string'));
 		$result = '';
 		$c_style = '';
@@ -1718,9 +1718,9 @@ class TableView {
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
 				$t_value = '';
 				if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string')) {
-					$t_value .= ($r_lvl>1 ? str_pad('',strlen($this->tree_ident)*($r_lvl-1),$this->tree_ident) : '');
+					$t_value .= ($rLvl>1 ? str_pad('',strlen($this->tree_ident)*($rLvl-1),$this->tree_ident) : '');
 					if($hasChild) {
-						$t_s_val = $r_tree_state ? 1 : 0;
+						$t_s_val = $rTreeState ? 1 : 0;
 						$t_value .= '<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
 					} else {
 						$t_value .= '<span class="clsTreeGridBtnNoChild"></span>';
@@ -1808,17 +1808,17 @@ class TableView {
 		if(!$this->export_only) {
 			$r_color = '';
 			if(strlen($this->row_color_field)) { $r_color = $row->getProperty($this->row_color_field,'','is_string'); }
-			$r_lvl = $row->safeGetLvl(1,'is_integer');
-			$r_tree_state = get_array_value($this->tree,'opened',FALSE,'bool');
-			if($this->tree && $r_lvl>$this->tree_top_lvl) {
+			$rLvl = $row->safeGetLvl(1,'is_integer');
+			$rTreeState = get_array_value($this->tree,'opened',FALSE,'bool');
+			if($this->tree && $rLvl>$this->tree_top_lvl) {
 				if(strlen($r_color)) { $r_style .= ' background-color: '.$r_color.';'; }
-				if(!$r_tree_state) { $r_style .= ' display: none;'; }
+				if(!$rTreeState) { $r_style .= ' display: none;'; }
 				$r_style = strlen($r_style) ? ' style="'.$r_style.'"' : '';
 				$rcClass .= (strlen($rcClass) ? ' ' : '').'clsTreeGridChildOf'.$row->safeGetIdParent(NULL,'is_integer');
 				$r_tdata = $row->safeGetHasChild(0,'is_integer') ? ' data-id="'.$row->safeGetId(NULL,'is_integer').'"' : '';
 			} elseif(strlen($r_color)) {
 				$r_style = ' style="background-color: '.$r_color.';"';
-			}//if($this->tree && $r_lvl>$this->tree_top_lvl)
+			}//if($this->tree && $rLvl>$this->tree_top_lvl)
 			$r_cc = FALSE;
 			$r_cc_class = get_array_value($this->row_conditional_class,'class','','is_string');
 			$r_cc_cond = get_array_value($this->row_conditional_class,'conditions',NULL,'is_array');
@@ -1874,7 +1874,7 @@ class TableView {
 							$this->GetCellValue($i_row,$i_v,$k.'-'.$it[$ik],$c_type);
 						}//if(get_array_value($v,'export',TRUE,'bool'))
 					} else {
-						$result .= $this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$hasChild,$r_lvl,$r_tree_state,TRUE);
+						$result .= $this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$hasChild,$rLvl,$rTreeState,TRUE);
 						$col_no++;
 					}//if($this->export_only)
 				}//END foreach
@@ -1885,7 +1885,7 @@ class TableView {
 						$this->GetCellValue($row,$v,$k,$c_type);
 					}//if(get_array_value($v,'export',TRUE,'bool'))
 				} else {
-					$result .= $this->SetCell($row,$v,$k,$hasChild,$r_lvl,$r_tree_state);
+					$result .= $this->SetCell($row,$v,$k,$hasChild,$rLvl,$rTreeState);
 					$col_no++;
 				}//if($this->export_only)
 			}//if(count($iterator))
