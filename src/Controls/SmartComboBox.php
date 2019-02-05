@@ -49,6 +49,7 @@ class SmartComboBox extends Control {
 	/**
 	 * SmartComboBox constructor.
 	 * @param null $params
+     * @throws \NETopes\Core\AppException
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
@@ -72,6 +73,7 @@ class SmartComboBox extends Control {
 		        $this->option_data = [];
 		    }//if(is_string($this->option_data) && strlen($this->option_data))
 		}//if(!is_array($this->option_data))
+		if(!strlen($this->width) && !strlen($this->fixed_width)) { $this->fixed_width = '100%'; }
 	}//END public function __construct
     /**
      * @return string|null
@@ -218,7 +220,7 @@ class SmartComboBox extends Control {
 		$rOptions = [''=>[]];
 		$def_record = FALSE;
 		$s_multiple = '';
-		if($this->multiple===TRUE || $this->multiple===1 || $this->multiple==='1') { $s_multiple = ' multiple="multiple"'; }
+		if((bool)$this->multiple) { $s_multiple = ' multiple="multiple"'; }
 		foreach($litems as $item) {
 		    if($this->load_type=='ajax') { continue; }
 		    if(!is_object($item) || !$item->hasProperty($this->value_field)) {

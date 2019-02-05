@@ -101,6 +101,7 @@ abstract class Control {
 	 * Control class constructor
 	 * @param  array $params An array of params
 	 * @return void
+     * @throws \NETopes\Core\AppException
 	 */
 	public function __construct($params = NULL) {
 		$this->chash = AppSession::GetNewUID(get_class_basename($this));
@@ -224,6 +225,7 @@ abstract class Control {
 	/**
 	 * Get the actions html string
 	 * @return int Returns actions string
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function GetActions() {
 		if(!$this->HasActions()) { return NULL; }
@@ -290,7 +292,7 @@ abstract class Control {
 						case 'SmartComboBox':
 							if($this->theme_type!='bootstrap2') { $lclass .= ' form-control'; }
 							if(strlen($this->size)) { $lclass .= ' input-'.$this->size; }
-							if($raw===TRUE && ($this->required===TRUE || $this->required===1 || $this->required==='1')) { $lclass .= ' clsRequiredField'; }
+							if($raw===TRUE && (bool)$this->required) { $lclass .= ' clsRequiredField'; }
 							break;
 						default:
 							if($this->theme_type!='bootstrap2') { $lclass .= ' form-control'; }
@@ -301,7 +303,7 @@ abstract class Control {
 				default:
 					switch(get_class_basename($this)) {
 						case 'SmartComboBox':
-							if($raw===TRUE && ($this->required===TRUE || $this->required===1 || $this->required==='1')) { $lclass .= ' clsRequiredField'; }
+							if($raw===TRUE && (bool)$this->required) { $lclass .= ' clsRequiredField'; }
 							break;
 						default:
 							break;
@@ -311,7 +313,7 @@ abstract class Control {
 		}//if(!$this->clear_base_class)
 		if(strlen($extra)) { $lclass .= ' '.$extra; }
 		if($raw===TRUE) { return trim($lclass); }
-		if($this->required===TRUE || $this->required===1 || $this->required==='1') { $lclass .= ' clsRequiredField'; }
+		if((bool)$this->required) { $lclass .= ' clsRequiredField'; }
 		if($this->postable) { $lclass .= ' postable'; }
 		if(strlen($this->onenter)) { $lclass .= ' clsOnEnterAction'; }
 		if(strlen($this->onenter_button)) { $lclass .= ' clsOnEnterActionButton'; }
@@ -382,8 +384,8 @@ abstract class Control {
 	protected function GetTagAttributes($style = TRUE,$extra = NULL) {
 		$lattr = '';
 		if($style) { $lattr .= $this->GetTagStyle(); }
-		if($this->disabled===TRUE || $this->disabled===1 || $this->disabled==='1') { $lattr .= ' disabled="disabled"'; }
-		if($this->readonly===TRUE || $this->readonly===1 || $this->readonly==='1') { $lattr .= ' readonly="readonly"'; }
+		if((bool)$this->disabled) { $lattr .= ' disabled="disabled"'; }
+		if((bool)$this->readonly) { $lattr .= ' readonly="readonly"'; }
 		if(strlen($this->placeholder)) { $lattr .= ' placeholder="'.$this->placeholder.'"'; }
 		if(is_numeric($this->tabindex) && $this->tabindex>0) { $lattr .= ' tabindex="'.$this->tabindex.'"'; }
 		if(strlen($this->onenter)) { $lattr .= ' data-onenter="'.$this->onenter.'"'; }
@@ -398,6 +400,7 @@ abstract class Control {
      * @param array|null    $base
      * @param  string|null $extra Other html attributes to be included
      * @return string Returns the html tag attributes
+     * @throws \NETopes\Core\AppException
      */
 	protected function GetTagActions(?array $base = NULL,?string $extra = NULL): string {
 		if($this->readonly || $this->disabled) { return ''; }
@@ -420,6 +423,7 @@ abstract class Control {
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
+     * @throws \NETopes\Core\AppException
      */
 	protected function GetOnClickAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -457,6 +461,7 @@ abstract class Control {
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
+     * @throws \NETopes\Core\AppException
      */
 	protected function GetOnChangeAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -490,6 +495,7 @@ abstract class Control {
      * @param string|null $base
      * @param bool        $actOnly
      * @return string Returns the html tag attribute
+     * @throws \NETopes\Core\AppException
      */
 	protected function GetOnKeyPressAction(?string $base = NULL,bool $actOnly = FALSE): string {
 		$action = '';
@@ -599,6 +605,7 @@ abstract class Control {
 	/**
 	 * Convert Ncol width to standard
 	 * @return string Custom actions HTML string
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function ProcessCustomActions() {
 		// NApp::Dlog($this->custom_actions,'$this->custom_actions');
@@ -641,6 +648,7 @@ abstract class Control {
 	 * description
 	 * @param $tag
 	 * @return string|null
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function SetContainer($tag): ?string {
 		$tag .= $this->ProcessCustomActions();
@@ -657,6 +665,7 @@ abstract class Control {
 	/**
 	 * description
 	 * @return string
+     * @throws \NETopes\Core\AppException
 	 */
 	public function Show() {
 		if($this->buffered){ return $this->output_buffer; }
