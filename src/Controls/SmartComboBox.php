@@ -94,11 +94,11 @@ class SmartComboBox extends Control {
 		if(strlen($this->cbo_placeholder)) { $js_script .= "\t\t\tplaceholder: '{$this->cbo_placeholder}',\n"; }
 		if(strlen($this->fixed_width)) { $js_script .= "\t\t\twidth: '{$this->fixed_width}',\n"; }
 		if($this->load_type=='ajax' || $this->allow_clear) { $js_script .= "\t\t\tallowClear: true,\n"; }
-		if($this->load_type!='ajax' && isset($this->minimum_results_for_search) && $this->minimum_results_for_search==0) {
+		if($this->load_type!='ajax' && strlen($this->minimum_results_for_search) && $this->minimum_results_for_search==0) {
 			$js_script .= "\t\t\tminimumResultsForSearch: Infinity,\n";
 		} elseif(is_numeric($this->minimum_results_for_search) && $this->minimum_results_for_search>0) {
 			$js_script .= "\t\t\tminimumResultsForSearch: {$this->minimum_results_for_search},\n";
-		}//if($this->load_type!='ajax' && isset($this->minimum_results_for_search) && $this->minimum_results_for_search==0)
+		}//if($this->load_type!='ajax' && strlen($this->minimum_results_for_search) && $this->minimum_results_for_search==0)
 		if($this->load_type=='ajax') {
 			$js_script .= "\t\t\tminimumInputLength: ".($this->minimum_input_length>0 ? $this->minimum_input_length : '3').",\n";
 		} elseif(is_numeric($this->minimum_input_length) && $this->minimum_input_length>0) {
