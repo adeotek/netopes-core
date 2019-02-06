@@ -203,7 +203,7 @@ class DataSet implements Collection {
         return $this->elements[$key] ?? null;
     }
     /**
-     * @param string|int  $key
+     * @param mixed       $key
      * @param mixed       $default_value
      * @param string|null $validation
      * @return mixed
