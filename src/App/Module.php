@@ -31,6 +31,46 @@ use NApp;
  */
 class Module {
 	/**
+     * Deny view right
+     */
+    const DRIGHT_VIEW = 'view';
+    /**
+     * Deny list right
+     */
+    const DRIGHT_LIST = 'list';
+    /**
+     * Deny search right
+     */
+    const DRIGHT_SEARCH = 'search';
+    /**
+     * Deny add right
+     */
+    const DRIGHT_ADD = 'add';
+    /**
+     * Deny edit right
+     */
+    const DRIGHT_EDIT = 'edit';
+    /**
+     * Deny delete right
+     */
+    const DRIGHT_DELETE = 'delete';
+    /**
+     * Deny print right
+     */
+    const DRIGHT_PRINT = 'print';
+    /**
+     * Deny validate right
+     */
+    const DRIGHT_VALIDATE = 'validate';
+    /**
+     * Deny export right
+     */
+    const DRIGHT_EXPORT = 'export';
+    /**
+     * Deny import right
+     */
+    const DRIGHT_IMPORT = 'import';
+	/**
 	 * @var    array Modules instances array
 	 * @access private
 	 */
