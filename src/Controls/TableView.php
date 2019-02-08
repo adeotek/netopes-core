@@ -1154,10 +1154,11 @@ class TableView {
 	 * @param string $name
 	 * @param string $type
 	 * @param bool $is_iterator
+     * @param string $cClass
 	 * @return mixed Returns the table cell value
 	 * @throws \NETopes\Core\AppException
 	 */
-	protected function GetCellValue(&$row,&$v,$name,$type,$is_iterator = FALSE) {
+	protected function GetCellValue(&$row,&$v,$name,$type,bool $is_iterator = FALSE,?string &$cClass = NULL) {
 		$result = NULL;
 		switch($type) {
 			case 'actions':
@@ -1431,6 +1432,10 @@ class TableView {
                 }//if(is_array($this->value))
 				$i_field = get_array_value($v,'index_field','name','is_notempty_string');
 				$ci_def_value = get_array_value($v,'default_value',NULL,'is_string');
+				$c_collection_class = get_array_value($v,'collection_class_field','','is_string');
+				if(isset($cClass) && strlen($c_collection_class) && $ci_values->safeGet($ci_value)) {
+				    $cClass = trim($cClass.' '.$ci_values->safeGet($ci_value)->getProperty($c_collection_class,'','is_string'));
+				}//if(strlen($c_collection_class) && $ci_values->safeGet($ci_value))
 				$c_value = $ci_values->safeGet($ci_value) ? $ci_values->safeGet($ci_value)->getProperty($i_field,$ci_def_value,'is_string') : $ci_def_value;
 				if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
 					$this->SetCellSubTotal($name,$c_value,'count');
@@ -1680,6 +1685,8 @@ class TableView {
 			$c_style .= $c_style ? '"' : '';
 		}//if($cell_type!='actions')
 		$c_class = get_array_value($v,'class','','is_string');
+		$c_class_field = get_array_value($v,'class_field','','is_string');
+		if(strlen($c_class_field)) { $c_class = trim($c_class.' '.get_array_value($row,$c_class_field,'','is_string')); }
 		$c_tooltip = $this->GetToolTip($row,$c_class,get_array_value($v,'tooltip',NULL,'isset'));
 		$c_cond_format_class = get_array_value($v,['conditional_class','class'],'','is_string');
 		$c_cond_format_conditions = get_array_value($v,['conditional_class','conditions'],[],'is_array');
@@ -1689,9 +1696,9 @@ class TableView {
 			}//if(ControlsHelpers::CheckRowConditions($row,$c_cond_format_conditions))
 		}//if(strlen($c_cond_format_class) && count($c_cond_format_conditions))
 		if($cell_type=='actions') { $c_class = trim('act-col '.$c_class); }
-		$c_class = $c_class ? ' class="'.$c_class.'"' : '';
 		switch($cell_type) {
 			case 'actions':
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				$ac_width = get_array_value($v,'width',NULL,'is_notempty_string');
 				if(is_null($ac_width) && is_object(NApp::$theme)) {
 					$ac_width = NApp::$theme->GetTableViewActionsWidth(get_array_value($v,'visual_count',0,'is_integer'));
@@ -1708,11 +1715,13 @@ class TableView {
 				$result .= "\t\t\t\t".'</td>'."\n";
 				break;
 			case 'control':
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
 				break;
 			case 'relation':
 			case 'value':
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
@@ -1741,6 +1750,7 @@ class TableView {
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
 				break;
 			case 'sum':
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
@@ -1760,6 +1770,7 @@ class TableView {
 				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
 				break;
 			case '__rowno':
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
@@ -1779,9 +1790,17 @@ class TableView {
 				break;
 			case 'multi-value':
 			case 'indexof':
+			    if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
+					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
+				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
+				$c_value = $this->GetCellValue($row,$v,$name,$cell_type,$is_iterator,$c_class);
+				$c_class = $c_class ? ' class="'.$c_class.'"' : '';
+				$result .= "\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
+				break;
 			case 'translate':
 			case 'checkbox':
 			default:
+			    $c_class = $c_class ? ' class="'.$c_class.'"' : '';
 				if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
 					$this->export_data['columns'][$name] = array_merge($v,array('name'=>$name));
 				}//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
