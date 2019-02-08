@@ -10,6 +10,8 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NETopes\Core\Validators\TDateTimeHelpers;
+use NETopes\Core\Validators\Validator;
 use PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -24,6 +26,7 @@ use NApp;
  * @package  NETopes\Core\Data
  */
 class ExcelExport {
+    use TDateTimeHelpers;
 	/**
 	 * @var    array PHP Spreadsheet accepted file types
 	 */
@@ -330,7 +333,7 @@ class ExcelExport {
 			$v_dtype = is_numeric($col_value) ? 'numeric' : 'string';
 			$data_type = get_array_value($column,'data_type',$v_dtype,'is_notempty_string');
 			if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
-				$dt_value = unixts2excel($col_value,AppConfig::GetValue('server_timezone'),$this->timezone);
+				$dt_value = static::datetimeToExcelTimestamp(Validator::ConvertDateTimeToObject($col_value,NULL,$this->timezone),$this->timezone);
 				if($dt_value) {
 					$col_value = $dt_value;
 					$data_type = 'datetime';

@@ -253,7 +253,6 @@ class ConverterAdapter {
      * @param string|null $langCode
      * @param bool        $useIntl
      * @return string|null
-     * @throws \NETopes\Core\AppException
      */
 	public static function NumberToWords(float $value,?string $currency = NULL,?string $subCurrency = NULL,?string $langCode = NULL,bool $useIntl = TRUE): ?string {
 		$langCode = strlen($langCode) ? $langCode : NApp::GetLanguageCode();

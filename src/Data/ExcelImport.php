@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NETopes\Core\DataHelpers;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -21,6 +22,10 @@ use NApp;
  * @package  NETopes\Core\Data
  */
 class ExcelImport {
+	/**
+	 * @var    bool Sanitize header row
+	 */
+    protected $sanitizeHeader = TRUE;
 	/**
 	 * @var    string Decimal separator
 	 */
@@ -75,6 +80,7 @@ class ExcelImport {
     public function __construct(array $fields,array $params = []) {
 		if(!count($fields)) { throw new AppException('Invalid ExcelImport fields list!',E_ERROR,1); }
 		$this->fields = $fields;
+		$this->sanitizeHeader = get_array_value($params,'sanitize_header',TRUE,'bool');
         $this->dsep = get_array_value($params,'decimal_separator',NApp::GetParam('decimal_separator'),'is_string');
 		$this->gsep = get_array_value($params,'group_separator',NApp::GetParam('group_separator'),'is_string');
 		$this->ds_name = get_array_value($params,'ds_name','','is_notempty_string');
@@ -118,7 +124,11 @@ class ExcelImport {
 		// Read header row and associate fields to columns
 		$hrow = $this->sheet->getRowIterator($header_row)->current();
 		foreach($hrow->getCellIterator() as $cell) {
+		    if($this->sanitizeHeader) {
+                $colname = strtolower(DataHelpers::normalizeString($cell->getValue(),TRUE,FALSE));
+            } else {
 			$colname = strtolower(trim($cell->getValue()));
+		    }//if($this->sanitizeHeader)
 			if(!array_key_exists($colname,$this->fields)) { continue; }
 			$this->fields[$colname]['column'] = $cell->getColumn();
 		}//END foreach
@@ -215,4 +225,3 @@ class ExcelImport {
 		}//END try
 	}//END protected function ProcessDataRow
 }//END class ExcelImport
-?>
