@@ -44,7 +44,7 @@ trait TDateTimeHelpers {
     }//END public static function datetimeToExcelTimestamp
     /**
      * Converts a date from excel serial to unix time stamp
-     * @param  float       $date The date to be converted from excel serial format
+     * @param  mixed       $date The date to be converted from excel serial format
      * @param  string|null $timezone User's time zone
      * @param  string|null $newTimezone The time zone for the string data to be converted
      * If NULL or empty, numeric time stamp is returned

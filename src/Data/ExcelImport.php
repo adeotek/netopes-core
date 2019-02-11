@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Data;
 use NETopes\Core\DataHelpers;
+use NETopes\Core\Validators\TDateTimeHelpers;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -22,6 +23,7 @@ use NApp;
  * @package  NETopes\Core\Data
  */
 class ExcelImport {
+    use TDateTimeHelpers;
 	/**
 	 * @var    bool Sanitize header row
 	 */
@@ -186,20 +188,25 @@ class ExcelImport {
 	 * @param mixed $value
 	 * @param array $field
 	 * @return mixed
+     * @throws \NETopes\Core\AppException
 	 */
     protected function FormatValue($value,array $field) {
 		$format_value_func = get_array_value($field,'format_value_func',NULL,'is_notempty_string');
 		if($format_value_func && method_exists($this,$format_value_func)) {
 			return $this->$format_value_func($value,$field);
 		}//if($format_value_func && method_exists($this,$format_value_func))
-	    $format = get_array_value($field,'format',get_array_value($field,'type','','is_string'),'is_string');
+		$dataType = get_array_value($field,'type','','is_string');
 		$validation = get_array_value($field,'validation','isset','is_notempty_string');
-		return Validator::ValidateValue($value,NULL,$validation,$format);
+		if(in_array($dataType,['datetime','date','time'])) {
+		    return static::excelTimestampToDatetime($value,NULL,NULL,'Y-m-d H:i:s');
+		}//if(in_array($dataType,['datetime','date','time']))
+		return Validator::ValidateValue($value,NULL,$validation);
 	}//END protected function FormatValue
 	/**
 	 * description
 	 * @param array $row
 	 * @return bool
+     * @throws \Exception
 	 */
     protected function ProcessDataRow(array &$row): bool {
     	if(!$this->send_to_db || !count($row) || !isset($row['_has_error']) || $row['_has_error']==1) { return FALSE; }
