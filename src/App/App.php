@@ -177,6 +177,8 @@ abstract class App implements IApp {
 		static::$appPublicPath = _NAPP_ROOT_PATH._NAPP_PUBLIC_ROOT_PATH._NAPP_PUBLIC_PATH;
 		static::$keepAlive = $doNotKeepAlive;
 		static::$currentNamespace = array_key_exists('namespace',$params) && strlen($params['namespace']) ? $params['namespace'] : NULL;
+		$customUserSessionAdapter = AppConfig::GetValue('user_session_adapter_class');
+		if(strlen($customUserSessionAdapter)) { UserSession::SetAdapterClass($customUserSessionAdapter); }
 	    if($isCli) {
 	        AppSession::SetWithSession(FALSE);
 			$appDomain = trim(get_array_value($_GET,'domain','','is_string'),' /\\');
@@ -231,8 +233,6 @@ abstract class App implements IApp {
 		}//if(static::$_isAjax!==TRUE)
 		if(AppSession::WithSession() && array_key_exists('robot',$_SESSION) && $_SESSION['robot']==1) { AppConfig::SetValue('debug',FALSE); }
 		static::$debug = AppConfig::GetValue('debug');
-		$customUserSessionAdapter = AppConfig::GetValue('user_session_adapter_class');
-		if(strlen($customUserSessionAdapter)) { UserSession::SetAdapterClass($customUserSessionAdapter); }
 	}//END public static function Start
 	/**
 	 * Gets application state
