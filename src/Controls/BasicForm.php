@@ -123,7 +123,7 @@ class BasicForm {
 	/**
 	 * @var    string Sub-form tag extra attributes
 	 */
-	public $sub_form_extratagparam = NULL;
+	public $sub_form_extra_tag_params = NULL;
 	/**
 	 * @var    string Basic form base class
 	 */
@@ -302,7 +302,7 @@ class BasicForm {
 		$result = '';
 		if(strlen($this->sub_form_tag_id)) {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
-			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
+			$sfextratagparam = (strlen($this->sub_form_extra_tag_params) ? ' '.$this->sub_form_extra_tag_params : '');
 			$result .= '<div class="'.$sfclass.'" id="'.$this->sub_form_tag_id.'"'.$sfextratagparam.'>'."\n";
 		}//if(strlen($this->sub_form_tag_id))
 		$result .= '<table'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="'.$lclass.'"'.$lstyle.'>'."\n";
@@ -407,7 +407,7 @@ class BasicForm {
 		if($this->cols_no>1) { $lclass .= ' multi'; }
 		if(strlen($this->sub_form_tag_id)) {
 			$sfclass = 'clsSubForm'.(strlen($this->sub_form_class) ? ' '.$this->sub_form_class : '');
-			$sfextratagparam = (strlen($this->sub_form_extratagparam) ? ' '.$this->sub_form_extratagparam : '');
+			$sfextratagparam = (strlen($this->sub_form_extra_tag_params) ? ' '.$this->sub_form_extra_tag_params : '');
 			$result = '<div class="'.$sfclass.'" id="'.$this->sub_form_tag_id.'"'.$sfextratagparam.'>'."\n";
 			$result .= '<div'.($this->tag_id ? ' id="'.$this->tag_id.'"' : '').' class="clsFormContainer '.$lclass.'">'."\n";
 		} else {
