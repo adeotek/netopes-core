@@ -12,14 +12,57 @@
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\Module;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\VirtualEntity;
-use NETopes\Core\AppException;
 use NApp;
 use GibberishAES;
 use Translate;
+
 /**
  * Class Control
+ *
  * @package NETopes\Core\Controls
+ * @property mixed    custom_actions
+ * @property int|null tabindex
+ * @property mixed  label_width
+ * @property int      label_cols
+ * @property mixed  width
+ * @property int      cols
+ * @property mixed  height
+ * @property mixed    label
+ * @property mixed  required
+ * @property mixed    disabled
+ * @property mixed    readonly
+ * @property mixed    actions
+ * @property mixed    clear_base_class
+ * @property mixed    class
+ * @property string     label_position
+ * @property mixed      size
+ * @property mixed      dynamic_target
+ * @property mixed      tag_name
+ * @property mixed      onenter
+ * @property mixed      onenter_button
+ * @property mixed      fixed_width
+ * @property mixed      width_offset
+ * @property mixed      style
+ * @property mixed      align
+ * @property mixed        placeholder
+ * @property mixed        paf_property
+ * @property mixed        extra_tag_params
+ * @property mixed        loader
+ * @property int|string   label_cwidth
+ * @property int|string   cwidth
+ * @property mixed        confirm_text
+ * @property mixed        data_onclick
+ * @property mixed        onkeypress_str
+ * @property mixed        action_params
+ * @property mixed        onchange_str
+ * @property mixed        data_onkeypress
+ * @property mixed        module
+ * @property mixed        method
+ * @property mixed|string onkeypress
+ * @property mixed        data_onchange
+ * @property mixed|string onchange
+ * @property mixed        onclick_str
+ * @property mixed        onclick
  */
 abstract class Control {
 	/**
@@ -122,7 +165,7 @@ abstract class Control {
 		}//if(is_array($params) && count($params))
 		$this->tag_id = $this->tag_id=='__auto' ? AppSession::GetNewUID() : $this->tag_id;
 		if($this->required===1 || $this->required==='1') { $this->required = TRUE; }
-		if(is_null($this->label)) { $this->no_label = TRUE; }
+		if(!is_string($this->label)) { $this->no_label = TRUE; }
 		switch($this->theme_type) {
 			case 'bootstrap2':
 			case 'bootstrap3':
@@ -451,7 +494,7 @@ abstract class Control {
 		}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate::Get('title_confirm').'\',ok:\''.Translate::Get('button_ok').'\',cancel:\''.Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
 		if($actOnly) { return $action; }
 		return ($this->data_onclick===TRUE ? 'data-' : '').'onclick="'.trim($action).'"';
@@ -485,7 +528,7 @@ abstract class Control {
 		}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate::Get('title_confirm').'\',ok:\''.Translate::Get('button_ok').'\',cancel:\''.Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
 		if($actOnly) { return $action; }
 		return ($this->data_onclick===TRUE ? 'data-' : '').'onchange="'.trim($action).'"';
@@ -519,7 +562,7 @@ abstract class Control {
 		}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
-            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.\Translate::Get('title_confirm').'\',ok:\''.\Translate::Get('button_ok').'\',cancel:\''.\Translate::Get('button_cancel').'\'});';
+            $action = 'var cCB=function(){'.trim($action).'}; ShowConfirmDialog(\''.$this->confirm_text.'\',cCB,false,{title:\''.Translate::Get('title_confirm').'\',ok:\''.Translate::Get('button_ok').'\',cancel:\''.Translate::Get('button_cancel').'\'});';
 			}//if(strlen($this->confirm_text))
 		if($actOnly) { return $action; }
 		return ($this->data_onclick===TRUE ? 'data-' : '').'onkeypress="'.trim($action).'"';
@@ -606,7 +649,7 @@ abstract class Control {
 	 * Convert Ncol width to standard
 	 * @return string Custom actions HTML string
      * @throws \NETopes\Core\AppException
-	 */
+     */
 	protected function ProcessCustomActions() {
 		// NApp::Dlog($this->custom_actions,'$this->custom_actions');
 		if(!is_array($this->custom_actions) || !count($this->custom_actions)) { return NULL; }
@@ -616,8 +659,9 @@ abstract class Control {
 			$ca_params = get_array_value($ca,'params',[],'is_array');
 			$ca_params['theme_type'] = $this->theme_type;
 			$ca_params['size'] = $this->size;
-			$ca_type = get_array_value($ca,'type','DivButton','is_notempty_string');
-			if(!class_exists($ca_type)){ continue; }
+			$caType = get_array_value($ca,'type','DivButton','is_notempty_string');
+            $caClass = '\NETopes\Core\Controls\\'.$caType;
+			if(!class_exists($caClass)) { continue; }
 			$ca_dright = get_array_value($ca,'dright','','is_string');
 			if(strlen($ca_dright)) {
 				$dright = Module::GetDRights($this->module,$this->method,$ca_dright);
@@ -637,8 +681,8 @@ abstract class Control {
 				}//END foreach
 				$ca_params['onclick'] = NApp::Ajax()->Prepare($ca_command,$this->loader);
 			}//if($acommand)
-			$ca_ctrl = new $ca_type($ca_params);
-			if(get_array_value($ca,'clear_base_class',FALSE,'bool')){ $ca_ctrl->ClearBaseClass(); }
+			$ca_ctrl = new $caClass($ca_params);
+			if(get_array_value($ca,'clear_base_class',FALSE,'bool')) { $ca_ctrl->ClearBaseClass(); }
 			$result .= $ca_ctrl->Show();
 		}//END foreach
 		// NApp::Dlog($result,'custom_actions>$result');
@@ -649,10 +693,11 @@ abstract class Control {
 	 * @param $tag
 	 * @return string|null
      * @throws \NETopes\Core\AppException
-	 */
+     */
 	protected function SetContainer($tag): ?string {
 		$tag .= $this->ProcessCustomActions();
 		$container_class = 'NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
+		/** @var \NETopes\Core\Controls\IControlContainer $ctrl_container */
 		$ctrl_container = new $container_class($this);
 		$result = $ctrl_container->GetHtml($tag);
 		return $result;
