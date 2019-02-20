@@ -28,13 +28,13 @@ class ContainerBootstrap4 implements IControlContainer {
         $this->control = $control;
     }//END public function __construct
     /**
-     * description
      * @param string $content
+     * @param string|null $secondaryContent
      * @return string
      */
-    public function GetHtml($content) {
+    public function GetHtml(string $content,?string $secondaryContent = NULL) {
         if(!$this->control->container && $this->control->no_label) {
-            $result = $content;
+            $result = $content.$secondaryContent;
         } else {
             $result = '';
             $c_label_cols = 0;
@@ -65,6 +65,7 @@ class ContainerBootstrap4 implements IControlContainer {
                 $content = "\t\t\t".$content."\n";
             }//if($this->control->hasActions())
             $result .= $content;
+            if($secondaryContent) { $result .= "\t\t".'<div class="col-md-12">'.$secondaryContent.'</div>'."\n"; }
             if(is_string($this->control->field_hint) && strlen($this->control->field_hint)) {
                 $result .= "\t\t\t".'<p'.(strlen($this->control->tag_id) ? ' id="'.$this->control->tag_id.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))

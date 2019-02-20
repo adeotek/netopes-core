@@ -10,12 +10,13 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSet;
-use NApp;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
+use NApp;
 use Translate;
 /**
  * GroupCheckBox class
@@ -46,6 +47,7 @@ class GroupCheckBox extends Control {
     /**
      * Control class constructor
      * @param  array $params An array of params
+     * @throws \NETopes\Core\AppException
      * @return void
      */
     public function __construct($params = NULL) {
@@ -119,4 +121,3 @@ class GroupCheckBox extends Control {
         return $result;
     }//END protected function SetControl
 }//END class GroupCheckBox extends Control
-?>
