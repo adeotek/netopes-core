@@ -282,14 +282,14 @@ abstract class Control {
 			}//if(NApp::ajax() && is_object(NApp::Ajax()))
 		}//if(strlen($this->dynamic_target))
 		foreach($this->ctrl_actions as $act) {
-			$act_params = $act['params'];
-			$act_params['action_params'] = get_array_value($act,'action_params',NULL,'is_notempty_array');
-			$act_params['onclick'] = 'var thisval = $(\'#'.$this->tag_id.'\').val(); '.get_array_value($act_params,'onclick','','is_string');
-			$act_params['disabled'] = $this->disabled;
-			$act_params['style'] = get_array_value($act,'style','','is_string');
-			$act_button = new Button($act_params);
-			$act_button->ClearBaseClass();
-			$result .= $act_button->Show();
+			$actParams = $act['params'];
+			$actParams['action_params'] = get_array_value($act,'action_params',NULL,'is_notempty_array');
+			$actParams['onclick'] = 'var thisval = $(\'#'.$this->tag_id.'\').val(); '.get_array_value($actParams,'onclick','','is_string');
+			$actParams['disabled'] = (bool)$this->disabled || get_array_value($actParams,'disabled',FALSE,'bool');
+			$actParams['style'] = get_array_value($act,'style','','is_string');
+			$actButton = new Button($actParams);
+			$actButton->ClearBaseClass();
+			$result .= $actButton->Show();
 		}//END foreach
 		if($this->container) { $result .= "\t\t\t\t".'</span>'."\n"; }
 		return $result;
@@ -476,13 +476,13 @@ abstract class Control {
 		}//if(is_string($this->onclick) && strlen($this->onclick) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onclick_str,'#action_params#')!==FALSE) {
-				$act_params = '';
+				$actParams = '';
 				if(is_array($this->action_params) && count($this->action_params)) {
 					foreach($this->action_params as $pk=>$pv) {
-						$act_params .= ($act_params ? '~' : '')."'{$pk}'|'{$pv}'";
+						$actParams .= ($actParams ? '~' : '')."'{$pk}'|'{$pv}'";
 					}//END foreach
 				}//if(is_array($this->action_params) && count($this->action_params))
-				$lonclick_scr = str_replace('#action_params#',$act_params,$this->onclick_str);
+				$lonclick_scr = str_replace('#action_params#',$actParams,$this->onclick_str);
 			} else {
 				$lonclick_scr = $this->onclick_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
@@ -514,13 +514,13 @@ abstract class Control {
 		}//if(is_string($this->onchange) && strlen($this->onchange) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onchange_str,'#action_params#')!==FALSE) {
-				$act_params = '';
+				$actParams = '';
 				if(is_array($this->action_params) && count($this->action_params)) {
 					foreach($this->action_params as $pk=>$pv) {
-						$act_params .= ($act_params ? '~' : '')."'{$pk}'|'{$pv}'";
+						$actParams .= ($actParams ? '~' : '')."'{$pk}'|'{$pv}'";
 					}//END foreach
 				}//if(is_array($this->action_params) && count($this->action_params))
-				$onchange_str = str_replace('#action_params#',$act_params,$this->onchange_str);
+				$onchange_str = str_replace('#action_params#',$actParams,$this->onchange_str);
 			} else {
 				$onchange_str = $this->onchange_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
@@ -548,13 +548,13 @@ abstract class Control {
 		}//if(is_string($this->onkeypress) && strlen($this->onkeypress) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE)) {
 			if(strpos($this->onkeypress_str,'#action_params#')!==FALSE) {
-				$act_params = '';
+				$actParams = '';
 				if(is_array($this->action_params) && count($this->action_params)) {
 					foreach($this->action_params as $pk=>$pv) {
-						$act_params .= ($act_params ? '~' : '')."'{$pk}'|'{$pv}'";
+						$actParams .= ($actParams ? '~' : '')."'{$pk}'|'{$pv}'";
 					}//END foreach
 				}//if(is_array($this->action_params) && count($this->action_params))
-				$onkeypress_str = str_replace('#action_params#',$act_params,$this->onkeypress_str);
+				$onkeypress_str = str_replace('#action_params#',$actParams,$this->onkeypress_str);
 			} else {
 				$onkeypress_str = $this->onkeypress_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
@@ -695,11 +695,11 @@ abstract class Control {
      * @throws \NETopes\Core\AppException
      */
 	protected function SetContainer($tag): ?string {
-		$tag .= $this->ProcessCustomActions();
-		$container_class = 'NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
-		/** @var \NETopes\Core\Controls\IControlContainer $ctrl_container */
-		$ctrl_container = new $container_class($this);
-		$result = $ctrl_container->GetHtml($tag);
+		$cActions = $this->ProcessCustomActions();
+		$containerClass = 'NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
+		/** @var \NETopes\Core\Controls\IControlContainer $ctrlContainer */
+		$ctrlContainer = new $containerClass($this);
+		$result = $ctrlContainer->GetHtml($tag,$cActions);
 		return $result;
 	}//END protected function SetContainer
 	/**

@@ -9,13 +9,22 @@
  * @version    3.0.0.0
  * @filesource
  */
-    namespace NETopes\Core\Controls;
-	/**
-	 * Control container interface
-	 * Interface for controls containers
-	 * @package  NETopes\Core\Controls
-	 */
-	interface IControlContainer {
-		function __construct($control);
-		function GetHtml($content);
-	}//END interface IControlContainer
+namespace NETopes\Core\Controls;
+/**
+ * Control container interface
+ * Interface for controls containers
+ * @package  NETopes\Core\Controls
+ */
+interface IControlContainer {
+    /**
+     * Control container class constructor
+     * @param $control
+     */
+	function __construct($control);
+    /**
+     * @param string $content
+     * @param string|null $secondaryContent
+     * @return string
+     */
+    public function GetHtml(string $content,?string $secondaryContent = NULL);
+}//END interface IControlContainer
