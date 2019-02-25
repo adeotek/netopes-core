@@ -141,7 +141,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
 	 * @return void
 	 * @throws AppException
 	 */
-	public static function ErrorHandlerFunction(int $errNo = -1,string $errMessage = 'Unknown error',?string $errFile = NULL,?int $errLine = NULL,array $errContext = []) {
+	public static function ErrorHandlerFunction(int $errNo = -1,string $errMessage = 'Unknown error',?string $errFile = NULL,?int $errLine = NULL,?array $errContext = []) {
 		$errFile = str_replace(_NAPP_ROOT_PATH,'',$errFile);
 		switch($errNo) {
 			case E_NOTICE:
