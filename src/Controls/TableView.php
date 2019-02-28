@@ -463,12 +463,26 @@ class TableView {
 						$params[$fkey] = $a['value'];
 					} else {
 					    $fField = get_array_value($this->columns[$a['type']],'entity_property',get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string'),'is_notempty_string');
+					    // NApp::Dlog($fField,'field[0]');
                         $fcRelations = get_array_value($this->columns[$a['type']],'relation',[],'is_array');
+                        $fieldPrefix = '';
                         if(count($fcRelations)) {
                             end($fcRelations);
-                            $fField = key($fcRelations).'.'.$fField;
+                            $fieldPrefix = key($fcRelations).'.';
                         }//if(count($fcRelations))
-                        // NApp::Dlog($fField,'field');
+                        // NApp::Dlog($fieldPrefix,'$fieldPrefix');
+                        $fcFilterFields = [];
+                        if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
+                            $fcFilterFields = get_array_value($this->columns[$a['type']],'filter_target_fields',[],'is_array');
+                        }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
+                        if(count($fcFilterFields)) {
+                            $fField = [];
+                            foreach($fcFilterFields as $fItem) { $fField[] =  $fieldPrefix.$fItem; }
+                        } else {
+                            $fField = $fieldPrefix.$fField;
+                        }//if(count($fcFilterFields))
+                        // NApp::Dlog($fField,'field[1]');
+                        // NApp::Dlog($a,'$a');
 						$extra_params['filters'][] = array(
 							'field'=>$fField,
 							'condition_type'=>$a['condition_type'],
