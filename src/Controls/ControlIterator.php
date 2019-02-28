@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Controls;
 use NETopes\Core\App\ModulesProvider;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
@@ -20,30 +21,19 @@ use NETopes\Core\Data\VirtualEntity;
  * @package  NETopes\Controls
  */
 class ControlIterator extends Control {
+    use TControlDataSource;
     /**
      * @var    string Iterator type (array/DataSource/Module)
      */
     public $iterator_type = 'list';
     /**
-     * @var    string Iterator class name (DataSource/Module name)
+     * @var    array Elements data source
      */
-    public $iterator_name = NULL;
-    /**
-     * @var    string Iterator method (DataSource/Module method)
-     */
-    public $iterator_method = NULL;
-    /**
-     * @var    array Iterator parameters array
-     */
-    public $iterator_params = NULL;
-    /**
-     * @var    array Iterator extra parameters array
-     */
-    public $iterator_extra_params = [];
+    public $data_source = [];
     /**
      * @var    array Iterator items array
      */
-    public $items = [];
+    public $items = NULL;
     /**
      * @var    string Dynamic control parameters prefix
      */
@@ -62,11 +52,14 @@ class ControlIterator extends Control {
     public $conditions = [];
     /**
      * ControlIterator constructor.
+     *
      * @param null $params
+     * @throws \NETopes\Core\AppException
      */
     public function __construct($params = NULL) {
         $this->postable = FALSE;
         parent::__construct($params);
+        if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID('GroupCheckBox','md5'); }
         switch($this->theme_type) {
             case 'bootstrap2':
             case 'bootstrap3':
@@ -86,19 +79,10 @@ class ControlIterator extends Control {
         $items = NULL;
         switch(strtolower($this->iterator_type)) {
             case 'module':
-                if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method) && ModulesProvider::ModuleMethodExists($this->iterator_name,$this->iterator_method)) {
-                    $iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
-                    $items = ModulesProvider::Exec($this->iterator_name,$this->iterator_method,$iparams);
-                }//if(...
+                $items = $this->LoadData($this->data_source,TRUE);
                 break;
             case 'datasource':
-                $iparams = is_array($this->iterator_params) ? $this->iterator_params : [];
-                $ieparams = is_array($this->iterator_extra_params) ? $this->iterator_extra_params : [];
-                if(is_string($this->iterator_name) && strlen($this->iterator_name) && is_string($this->iterator_method) && strlen($this->iterator_method)) {
-                    if(DataProvider::MethodExists($this->iterator_name,$this->iterator_method,get_array_value($ieparams,'mode',NULL,'is_notempty_string'))) {
-                        $items = DataProvider::Get($this->iterator_name,$this->iterator_method,$iparams,$ieparams);
-                    }//if(...
-                }//if(...
+                $items = $this->LoadData($this->data_source);
                 break;
             case 'list':
             default:
@@ -137,21 +121,21 @@ class ControlIterator extends Control {
         if(strlen($this->control) && is_object($this->items) && $this->items->count()) {
             $controlClass = 'NETopes\Core\Controls\\'.$this->control;
             if(class_exists($controlClass)) {
-            foreach($this->items as $k=>$v) {
-                if(is_array($this->conditions) && count($this->conditions)) {
-                    $iconditions = ControlsHelpers::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
-                    if(!ControlsHelpers::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
-                }//if(is_array($this->conditions) && count($this->conditions))
-                if(is_array($this->params)) {
-                    $lparams = ControlsHelpers::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
-                } else {
-                    $lparams = [];
-                }//if(is_array($this->params))
+                foreach($this->items as $k=>$v) {
+                    if(is_array($this->conditions) && count($this->conditions)) {
+                        $iconditions = ControlsHelpers::ReplaceDynamicParams($this->conditions,$v,TRUE,$this->params_prefix);
+                        if(!ControlsHelpers::CheckRowConditions($v->toArray(),$iconditions)) { continue; }
+                    }//if(is_array($this->conditions) && count($this->conditions))
+                    if(is_array($this->params)) {
+                        $lparams = ControlsHelpers::ReplaceDynamicParams($this->params,$v,TRUE,$this->params_prefix);
+                    } else {
+                        $lparams = [];
+                    }//if(is_array($this->params))
                     $ctrl = new $controlClass($lparams);
-                $lcontent .= $lprefix.$ctrl->Show()."\n".$lsufix;
-                unset($ctrl);
-                unset($lparams);
-            }//END foreach
+                    $lcontent .= $lprefix.$ctrl->Show()."\n".$lsufix;
+                    unset($ctrl);
+                    unset($lparams);
+                }//END foreach
             }//if(class_exists($controlClass))
         }//if(strlen($this->control) && class_exists($this->control) && is_object($this->items) && $this->items->count())
         switch($this->theme_type) {
@@ -171,4 +155,3 @@ class ControlIterator extends Control {
         return $result;
     }//END protected function SetControl
 }//END class ControlIterator extends Control
-?>

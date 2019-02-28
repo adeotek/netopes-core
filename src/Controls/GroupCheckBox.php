@@ -24,6 +24,7 @@ use Translate;
  * @package  Hinter\NETopes\Controls
  */
 class GroupCheckBox extends Control {
+    use TControlDataSource;
     /**
      * @var    array Elements data source
      */
@@ -52,28 +53,15 @@ class GroupCheckBox extends Control {
      */
     public function __construct($params = NULL) {
         parent::__construct($params);
-        if(!is_object($this->items)) { $this->items = DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class);}
+        if(isset($this->items) && !is_object($this->items)) { $this->items = DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class); }
         if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID('GroupCheckBox','md5'); }
     }//END public function __construct
-    /**
-     * @throws \NETopes\Core\AppException
-     */
-    protected function GetItems() {
-        if(isset($this->items)) { return; }
-        $ds_class = get_array_value($this->data_source,'ds_class','','is_string');
-        $ds_method = get_array_value($this->data_source,'ds_method','','is_string');
-        $ds_params = get_array_value($this->data_source,'ds_params',[],'is_array');
-        $ds_extra_params = get_array_value($this->data_source,'ds_extra_params',[],'is_array');
-        $mode = get_array_value($ds_extra_params,'mode',NULL,'is_notempty_string');
-        if(!strlen($ds_class) || !strlen($ds_method) || !DataProvider::MethodExists($ds_class,$ds_method,$mode)) { return; }
-        $this->items = DataProvider::Get($ds_class,$ds_method,$ds_params,$ds_extra_params);
-    }//END protected function GetItems
     /**
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $this->GetItems();
+        if(is_null($this->items)) { $this->items = $this->LoadData($this->data_source); }
         $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
         $labelfield = is_string($this->label_field) && strlen($this->label_field) ? $this->label_field : 'name';
         $relation = is_string($this->relation) && strlen($this->relation) ? $this->relation : '';
