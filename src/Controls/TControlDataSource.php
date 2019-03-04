@@ -30,11 +30,11 @@ trait TControlDataSource {
         $ds_method = get_array_value($params,'ds_method','','is_string');
         if(!strlen($ds_name) || !strlen($ds_method)) { return NULL; }
         $ds_params = get_array_value($params,'ds_params',[],'is_array');
-        $da_eparams = get_array_value($params,'ds_extra_params',[],'is_array');
+        $ds_eparams = get_array_value($params,'ds_extra_params',[],'is_array');
 		if($fromModule) {
-		    $ds_params['extra_params'] = $da_eparams;
+		    $ds_params['extra_params'] = $ds_eparams;
             return ModulesProvider::Exec($ds_name,$ds_method,$ds_params);
         }//if($fromModule)
-		return DataProvider::Get($ds_name,$ds_method,$ds_params,$da_eparams);
+		return DataProvider::Get($ds_name,$ds_method,$ds_params,$ds_eparams);
 	}//END protected function LoadData
 }//END trait TControlDataSource
