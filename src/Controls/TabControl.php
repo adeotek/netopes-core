@@ -136,7 +136,8 @@ class TabControl {
 				$ct_result .= get_array_value($tab,'content','&nbsp;','is_notempty_string');
 				break;
 		}//END switch
-		$result .= "\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ct_data.'>'."\n";
+		$tabClass = get_array_param($tab,'class','','is_string');
+        $result .= "\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ct_data.(strlen($tabClass) ? ' class="'.$tabClass.'"' : '').'>'."\n";
 		$result .= $ct_result;
 		$result .= "\t".'</div>'."\n";
 		return $result;

@@ -40,7 +40,7 @@ class CkEditor extends Control {
             try {
                 $lextraconfig = json_encode($this->extra_config);
             } catch(\Exception $je) {
-                NApp::Elog($e);
+                NApp::Elog($je);
                 $lextraconfig = 'undefined';
             }//END try
         } elseif(is_string($this->extra_config) && strlen($this->extra_config)) {
