@@ -5,7 +5,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.0.1.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -245,6 +245,10 @@ class TableView {
 	 */
 	public $auto_load_data = TRUE;
 	/**
+	 * @var    bool Switch auto data loading on filters change on/off
+	 */
+	public $auto_load_data_on_filter_change = TRUE;
+	/**
 	 * @var    array Array for setting custom css class for rows, based on a condition
 	 */
 	public $row_conditional_class = NULL;
@@ -359,6 +363,9 @@ class TableView {
 		$exec_callback = TRUE;
 		$onload_callback = TRUE;
 		switch($type) {
+		    case 'apply_filters':
+				$call = "ControlAjaxRequest('{$this->chash}','Show','faction'|'apply','".$this->GetThis()."',1)->{$this->target}";
+				break;
 			case 'update_filter':
 				$exec_callback = FALSE;
 				$call = "ControlAjaxRequest('{$this->chash}','ShowFiltersBox','fop'|{$this->tag_id}-f-operator:value~'type'|{$this->tag_id}-f-type:value~'f-cond-type'|".$params->safeGet('fctype',"''",'is_string').",'".$this->GetThis()."',1)->{$this->tag_id}-filters";
@@ -404,7 +411,7 @@ class TableView {
 				break;
 			case 'refresh':
 			default:
-				$call = "ControlAjaxRequest('{$this->chash}','Show','','".$this->GetThis()."',1)->{$this->target}";
+				$call = "ControlAjaxRequest('{$this->chash}','Show','faction'|'refresh','".$this->GetThis()."',1)->{$this->target}";
 				break;
 		}//END switch
 		if(!$process_call) { return $call; }
@@ -616,11 +623,17 @@ class TableView {
 			$result .= "\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
 			if($with_filters) {
 				$result .= "\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
+				if(!$this->auto_load_data_on_filter_change) {
+				    $result .= "\t\t\t".'<button class="f-apply-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('apply_filters').'" title="'.Translate::Get('button_apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
+				}//if(!$this->auto_load_data_on_filter_change)
 			}//if($with_filters)
 		} else {
 			$result .= "\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::Get('button_refresh').'</button>'."\n";
 			if($with_filters) {
 				$result .= "\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.Translate::Get('button_clear_filters').'</button>'."\n";
+				if(!$this->auto_load_data_on_filter_change) {
+                    $result .= "\t\t\t".'<button class="f-apply-btn" onclick="'.$this->GetActionCommand('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::Get('button_apply_filters').'</button>'."\n";
+                }//if(!$this->auto_load_data_on_filter_change)
 			}//if($with_filters)
 		}//if($this->compact_mode)
 		}//if(strlen($this->data_source) && strlen($this->ds_method))
@@ -2147,9 +2160,20 @@ class TableView {
 		// NApp::Dlog($params,'SetControl>>$params');
 		$this->LoadState($params);
 		// NApp::Dlog($this->filters,'SetControl>>$this->filters');
-		$items = $this->auto_load_data ? $this->GetData() : new DataSet();
+		// NApp::Dlog($this->auto_load_data_on_filter_change,'SetControl>>auto_load_data_on_filter_change');
+		$fActionsParam = $params->safeGet('faction',NULL,'?is_string');
+		// NApp::Dlog($fActionsParam,'SetControl>>$fActionsParam');
+		if(isset($fActionsParam)) {
+		    if($this->auto_load_data_on_filter_change || in_array($fActionsParam,['apply','refresh'])) {
+                $items = $this->GetData();
+            } else {
+                $items = new DataSet();
+            }//if($this->auto_load_data_on_filter_change || in_array($fActionsParam,['apply','refresh']))
+		} else {
+			$items = $this->auto_load_data ? $this->GetData() : new DataSet();
+			$this->auto_load_data = TRUE;
+		}//if(isset($fActionsParam))
 		// NApp::Dlog($items,'SetControl>>$items');
-		$this->auto_load_data = TRUE;
 		$table_data = NULL;
 		if(is_object($items)) {
 			if($this->exportable) { $this->export_data = array('columns'=>[],'data'=>[]); }
