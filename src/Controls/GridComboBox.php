@@ -16,9 +16,9 @@ use NApp;
  */
 class GridComboBox extends Control {
     /**
-     * @var    string Data adapter name
+     * @var    string Data source class
      */
-    public $data_source = NULL;
+    public $ds_class = NULL;
     /**
      * @var    string Data adapter method name
      */
@@ -173,7 +173,7 @@ class GridComboBox extends Control {
             'sortby'=>array('column'=>$this->display_field,'direction'=>'asc'),
             'initial_filters'=>$ifilters,
             'qsearch'=>$qsearch_field,
-            'data_source'=>$this->data_source,
+            'ds_class'=>$this->ds_class,
             'ds_method'=>$this->ds_method,
             'ds_params'=>$this->ds_params,
             'ds_extra_params'=>$this->ds_extra_params,

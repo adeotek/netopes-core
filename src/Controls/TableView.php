@@ -219,7 +219,7 @@ class TableView {
 	/**
 	 * @var    string Data call data adapter name
 	 */
-	public $data_source = NULL;
+	public $ds_class = NULL;
 	/**
 	 * @var    string Data call method
 	 */
@@ -527,7 +527,7 @@ class TableView {
 	 */
 	protected function GetData() {
 		$this->totals = [];
-		if(!strlen($this->data_source) || !strlen($this->ds_method)) {
+		if(!strlen($this->ds_class) || !strlen($this->ds_method)) {
 			if(is_object($this->data)) {
 				$result = $this->data;
 			} else {
@@ -535,12 +535,12 @@ class TableView {
 			}//if(is_object($this->data))
 			$result->total_count = $result->count();
 			return $result;
-		}//if(!strlen($this->data_source) || !strlen($this->ds_method))
+		}//if(!strlen($this->ds_class) || !strlen($this->ds_method))
 		$daparams = $daeparams = [];
 		$this->ProcessDataCallParams($daparams,$daeparams);
 		// NApp::Dlog($daparams,'$daparams');
 		// NApp::Dlog($daeparams,'$daeparams');
-		$data = DataProvider::Get($this->data_source,$this->ds_method,$daparams,$daeparams,FALSE,$this->ds_out_params);
+		$data = DataProvider::Get($this->ds_class,$this->ds_method,$daparams,$daeparams,FALSE,$this->ds_out_params);
 		NApp::SetPageParam($this->tag_id.'#ds_out_params',$this->ds_out_params);
 		if(!is_object($data)) { return new DataSet(); }
 		return $data;
@@ -618,25 +618,25 @@ class TableView {
 				$result .= "\t\t\t".'<a class="dg-export-btn" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
 			}//if($this->compact_mode)
 		}//if($this->export_button)
-		if(strlen($this->data_source) && strlen($this->ds_method)) {
-		if($this->compact_mode) {
-			$result .= "\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
-			if($with_filters) {
-				$result .= "\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
-				if(!$this->auto_load_data_on_filter_change) {
-				    $result .= "\t\t\t".'<button class="f-apply-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('apply_filters').'" title="'.Translate::Get('button_apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
-				}//if(!$this->auto_load_data_on_filter_change)
-			}//if($with_filters)
-		} else {
-			$result .= "\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::Get('button_refresh').'</button>'."\n";
-			if($with_filters) {
-				$result .= "\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.Translate::Get('button_clear_filters').'</button>'."\n";
-				if(!$this->auto_load_data_on_filter_change) {
-                    $result .= "\t\t\t".'<button class="f-apply-btn" onclick="'.$this->GetActionCommand('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::Get('button_apply_filters').'</button>'."\n";
-                }//if(!$this->auto_load_data_on_filter_change)
-			}//if($with_filters)
-		}//if($this->compact_mode)
-		}//if(strlen($this->data_source) && strlen($this->ds_method))
+		if(strlen($this->ds_class) && strlen($this->ds_method)) {
+			if($this->compact_mode) {
+				$result .= "\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
+				if($with_filters) {
+					$result .= "\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
+					if(!$this->auto_load_data_on_filter_change) {
+					    $result .= "\t\t\t".'<button class="f-apply-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('apply_filters').'" title="'.Translate::Get('button_apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
+					}//if(!$this->auto_load_data_on_filter_change)
+				}//if($with_filters)
+			} else {
+				$result .= "\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::Get('button_refresh').'</button>'."\n";
+				if($with_filters) {
+					$result .= "\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.Translate::Get('button_clear_filters').'</button>'."\n";
+					if(!$this->auto_load_data_on_filter_change) {
+	                    $result .= "\t\t\t".'<button class="f-apply-btn" onclick="'.$this->GetActionCommand('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::Get('button_apply_filters').'</button>'."\n";
+	                }//if(!$this->auto_load_data_on_filter_change)
+				}//if($with_filters)
+			}//if($this->compact_mode)
+		}//if(strlen($this->ds_class) && strlen($this->ds_method))
 		return $result;
 	}//END protected function GetActionsBarControls
 	/**
@@ -739,20 +739,24 @@ class TableView {
 		} else {
 			$this->filter_cond_val_source = NULL;
 		}//if($fc_cond_type===TRUE && !$is_qsearch)
-		$ctrl_params = get_array_value($selectedv,'filter_params',[],'is_array');
-		$ctrl_params['tag_id'] = $this->tag_id.'-f-value';
-		$ctrl_params['class'] = 'f-value';
-		$ctrl_params['clear_base_class'] = TRUE;
-		$ctrl_params['container'] = FALSE;
-		$ctrl_params['no_label'] = TRUE;
-		$ctrl_params['postable'] = FALSE;
+		$ctrlParams = get_array_value($selectedv,'filter_params',[],'is_array');
+		$ctrlParams['tag_id'] = $this->tag_id.'-f-value';
+		$ctrlParams['class'] = 'f-value';
+		$ctrlParams['clear_base_class'] = TRUE;
+		$ctrlParams['container'] = FALSE;
+		$ctrlParams['no_label'] = TRUE;
+		$ctrlParams['postable'] = FALSE;
 		$aoc_check = NULL;
 		$fval = NULL;
 		$fsval = NULL;
 		$f_subtype = NULL;
 		switch(strtolower($cfctype)) {
 			case 'smartcombobox':
-				$ctrl_filter_value = new SmartComboBox($ctrl_params);
+			    $ctrlParams['placeholder'] = get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
+			    $ctrlParams['allow_clear'] = get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
+			    $ctrlParams['load_type'] = get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+			    $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+				$ctrl_filter_value = new SmartComboBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value:option';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
@@ -764,16 +768,13 @@ class TableView {
 				}//if($this->compact_mode)
 				break;
 			case 'combobox':
-				$ctrl_filter_items = [];
-				$cf_dc = get_array_value($selectedv,'filter_data_call',NULL,'is_notempty_array');
-				if($cf_dc) {
-					$cf_da = get_array_value($cf_dc,'data_source',NULL,'is_notempty_string');
-					$cf_dm = get_array_value($cf_dc,'ds_method',NULL,'is_notempty_string');
-					$cf_dep = get_array_value($cf_dc,'ds_extra_params',[],'is_array');
-					if($cf_da && $cf_dm) { $ctrl_filter_items = DataProvider::GetArray($cf_da,$cf_dm,get_array_value($cf_dc,'ds_params',[],'is_array'),$cf_dep); }
-				}//if($cf_dc)
-				$ctrl_params['value'] = $ctrl_filter_items;
-				$ctrl_filter_value = new ComboBox($ctrl_params);
+			    if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text'])) {
+			        $ctrlParams['please_select_text'] = Translate::GetLabel('please_select');
+			        $ctrlParams['please_select_value'] = NULL;
+			    }//if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text']))
+				$ctrlParams['load_type'] = get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+			    $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+				$ctrl_filter_value = new ComboBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value:option';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
@@ -785,7 +786,9 @@ class TableView {
 				}//if($this->compact_mode)
 				break;
 			case 'treecombobox':
-				$ctrl_filter_value = new TreeComboBox($ctrl_params);
+			    $ctrlParams['load_type'] = get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+			    $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+				$ctrl_filter_value = new TreeComboBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value-cbo:value';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				// $ctrl_filter_value->ClearBaseClass();
@@ -797,8 +800,8 @@ class TableView {
 				}//if($this->compact_mode)
 				break;
 		  	case 'checkbox':
-				$ctrl_params['value'] = 0;
-				$ctrl_filter_value = new CheckBox($ctrl_params);
+				$ctrlParams['value'] = 0;
+				$ctrl_filter_value = new CheckBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value:value';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
 				$ctrl_filter_value->ClearBaseClass();
@@ -835,25 +838,25 @@ class TableView {
 				}//if(!$f_subtype)
 				switch($f_subtype) {
 					case 'DatePicker':
-					    $ctrl_params['size'] = 'xxs';
-						$ctrl_params['value'] = '';
-						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
+					    $ctrlParams['size'] = 'xxs';
+						$ctrlParams['value'] = '';
+						$ctrlParams['onenter_button'] = $this->tag_id.'-f-add-btn';
 						if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
-							$ctrl_params['timepicker'] = TRUE;
-							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy HH'.NApp::GetParam('time_separator').'mm'.NApp::GetParam('time_separator').'ss"';
+							$ctrlParams['timepicker'] = TRUE;
+							// $ctrlParams['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy HH'.NApp::GetParam('time_separator').'mm'.NApp::GetParam('time_separator').'ss"';
 						} else {
-							$ctrl_params['timepicker'] = FALSE;
-							// $ctrl_params['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy"';
+							$ctrlParams['timepicker'] = FALSE;
+							// $ctrlParams['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy"';
 						}//if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj'))
-						$ctrl_params['align'] = 'center';
-						$ctrl_filter_value = new DatePicker($ctrl_params);
+						$ctrlParams['align'] = 'center';
+						$ctrl_filter_value = new DatePicker($ctrlParams);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tag_id.'-f-value:dvalue';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
-							$ctrl_filter_value = new DatePicker($ctrl_params);
+							$ctrlParams['tag_id'] = $this->tag_id.'-f-svalue';
+							$ctrl_filter_value = new DatePicker($ctrlParams);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 							$fsval = $this->tag_id.'-f-svalue:dvalue';
@@ -862,19 +865,19 @@ class TableView {
 						}//if($fc_type=='><')
 						break;
 					case 'NumericTextBox':
-					    $ctrl_params['class'] .= ' t-box';
-						$ctrl_params['value'] = '';
-						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
-						$ctrl_params['number_format'] = get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
-						$ctrl_params['align'] = 'center';
-						$ctrl_filter_value = new NumericTextBox($ctrl_params);
+					    $ctrlParams['class'] .= ' t-box';
+						$ctrlParams['value'] = '';
+						$ctrlParams['onenter_button'] = $this->tag_id.'-f-add-btn';
+						$ctrlParams['number_format'] = get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
+						$ctrlParams['align'] = 'center';
+						$ctrl_filter_value = new NumericTextBox($ctrlParams);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tag_id.'-f-value:nvalue';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
-							$ctrl_filter_value = new NumericTextBox($ctrl_params);
+							$ctrlParams['tag_id'] = $this->tag_id.'-f-svalue';
+							$ctrl_filter_value = new NumericTextBox($ctrlParams);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 							$fsval = $this->tag_id.'-f-svalue:nvalue';
@@ -885,17 +888,17 @@ class TableView {
 						break;
 					case 'TextBox':
 					default:
-					    $ctrl_params['class'] .= ' t-box';
-						$ctrl_params['value'] = '';
-						$ctrl_params['onenter_button'] = $this->tag_id.'-f-add-btn';
-						$ctrl_filter_value = new TextBox($ctrl_params);
+					    $ctrlParams['class'] .= ' t-box';
+						$ctrlParams['value'] = '';
+						$ctrlParams['onenter_button'] = $this->tag_id.'-f-add-btn';
+						$ctrl_filter_value = new TextBox($ctrlParams);
 						$ctrl_filter_value->ClearBaseClass();
 						$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 						$fval = $this->tag_id.'-f-value:value';
 						if($fc_type=='><') {
 							$filters .= "\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-							$ctrl_params['tag_id'] = $this->tag_id.'-f-svalue';
-							$ctrl_filter_value = new TextBox($ctrl_params);
+							$ctrlParams['tag_id'] = $this->tag_id.'-f-svalue';
+							$ctrl_filter_value = new TextBox($ctrlParams);
 							$ctrl_filter_value->ClearBaseClass();
 							$filters .= "\t\t\t".$ctrl_filter_value->Show()."\n";
 							$fsval = $this->tag_id.'-f-svalue:value';

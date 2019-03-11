@@ -173,7 +173,7 @@ class TabControl {
 	protected function GetTabData($tab) {
 		if(!is_array($tab)) { return $tab; }
 		$result = $tab;
-		$ds_class = get_array_value($tab,'data_source','','is_string');
+		$ds_class = get_array_value($tab,'ds_class','','is_string');
 		$ds_method = get_array_value($tab,'ds_method','','is_string');
 		if(strlen($ds_class) && strlen($ds_method)) {
 			$ds_params = get_array_value($tab,'ds_params',[],'is_array');

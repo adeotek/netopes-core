@@ -20,6 +20,7 @@ class TimePicker extends Control {
 	/**
 	 * TimePicker constructor.
 	 * @param null $params
+     * @throws \NETopes\Core\AppException
 	 */
 	public function __construct($params = NULL) {
 		$this->button = TRUE;
@@ -37,6 +38,7 @@ class TimePicker extends Control {
 	/**
 	 * Set control HTML tag
 	 * @return string
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function SetControl(): ?string {
 		switch(strtolower($this->plugin_type)) {
@@ -52,6 +54,7 @@ class TimePicker extends Control {
 	/**
 	 * Set jQuery UI control HTML tag
 	 * @return string
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function SetJQueryUIControl(): string {
 		$dpclass = '';
@@ -83,10 +86,11 @@ class TimePicker extends Control {
 		$result .= $this->GetActions();
 		return $result;
 	}//END protected function SetJQueryUIControl
-	/**
-	 * Set Bootstrap 3 control HTML tag
-	 * @return string
-	 */
+    /**
+     * Set Bootstrap 3 control HTML tag
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
 	protected function SetBootstrap3Control(): string {
 		if(strlen($this->js_params)) {
 			$jsparams = $this->js_params;
@@ -95,7 +99,8 @@ class TimePicker extends Control {
 				."locale: '{$this->locale}', "
 				."format: '{$this->format}', "
 				."showTodayButton: ".($this->now_button ? 'true' : 'false').", "
-				."stepping: {$this->minutes_stepping}"
+				."stepping: {$this->minutes_stepping},"
+				."useCurrent: ".($this->use_current ? 'true' : 'false')
 				." }";
 		}//if(strlen($this->js_params))
 		// NApp::Dlog($jsparams);
@@ -127,6 +132,7 @@ class TimePicker extends Control {
 	/**
 	 * Set Bootstrap 4 control HTML tag
 	 * @return string
+     * @throws \NETopes\Core\AppException
 	 */
 	protected function SetBootstrap4Control(): string {
 		if(strlen($this->js_params)) {
@@ -136,7 +142,8 @@ class TimePicker extends Control {
 				."locale: '{$this->locale}', "
 				."format: '{$this->format}', "
 				."showTodayButton: ".($this->now_button ? 'true' : 'false').", "
-				."stepping: {$this->minutes_stepping}"
+				."stepping: {$this->minutes_stepping},"
+				."useCurrent: ".($this->use_current ? 'true' : 'false')
 				." }";
 		}//if(strlen($this->js_params))
 		// NApp::Dlog($jsparams);

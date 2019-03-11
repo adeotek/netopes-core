@@ -25,6 +25,7 @@ class ComboBox extends Control {
     /**
 	 * SmartComboBox constructor.
 	 * @param null $params
+     * @throws \NETopes\Core\AppException
 	 */
 	public function __construct($params = NULL) {
 		parent::__construct($params);
