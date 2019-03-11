@@ -102,7 +102,7 @@ class Url {
 	 * @param string $appWebProtocol
 	 * @param string $urlFolder
 	 */
-	public function __construct(string $appDomain,string $appWebProtocol,string $urlFolder) {
+	public function __construct(string $appDomain,string $appWebProtocol,?string $urlFolder = NULL) {
 		$this->appDomain = $appDomain;
 		$this->appWebProtocol = $appWebProtocol;
 		$this->urlFolder = strlen(trim($urlFolder,'\/ ')) ? '/'.trim($urlFolder,'\/ ') : '';
