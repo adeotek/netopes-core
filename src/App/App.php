@@ -5,7 +5,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.0.1.2
  * @filesource
  */
 namespace NETopes\Core\App;
@@ -225,7 +225,7 @@ abstract class App implements IApp {
 		static::$guiLoaded = static::$_isAjax;
 		static::$_url->data = static::$_isAjax ? (is_array(static::GetPageParam('get_params')) ? static::GetPageParam('get_params') : []) : static::$_url->data;
 		static::SetPageParam('get_params',static::$_url->data);
-		static::$_url->special_params = array('language','urlid','namespace');
+		static::$_url->specialParams = array('language','urlid','namespace');
 		if(!static::$_isAjax!==TRUE) {
 			$curl = static::$_url->GetCurrentUrl();
 			if(static::GetPageParam('current_url')!=$curl) { static::SetPageParam('old_url',static::GetPageParam('current_url')); }
@@ -241,6 +241,17 @@ abstract class App implements IApp {
 	public static function GetAppState(): bool {
 		return static::$_appState;
 	}//END public static function GetAppState
+    /**
+     * Set base URL
+     * @param string      $appDomain
+     * @param string|null $appWebProtocol
+     * @param string|null $urlFolder
+     * @return void
+     */
+	public static function SetUrl(string $appDomain,?string $appWebProtocol = NULL,?string $urlFolder = NULL): void {
+        static::$_url = new Url($appDomain,$appWebProtocol??'http://',$urlFolder);
+		static::$appBaseUrl = static::$_url->GetWebLink();
+	}//END public static function SetUrl
 	/**
 	 * Gets the account API security key (auto loaded on LoadAppSettings() method)
 	 * @return string|null Returns account API security key
