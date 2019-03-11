@@ -755,7 +755,9 @@ class TableView {
 			    $ctrlParams['placeholder'] = get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
 			    $ctrlParams['allow_clear'] = get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
 			    $ctrlParams['load_type'] = get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-			    $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+			    if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+			        $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+			    }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
 				$ctrl_filter_value = new SmartComboBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value:option';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
@@ -773,7 +775,9 @@ class TableView {
 			        $ctrlParams['please_select_value'] = NULL;
 			    }//if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text']))
 				$ctrlParams['load_type'] = get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-			    $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+				if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+			        $ctrlParams['data_source'] = get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+			    }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
 				$ctrl_filter_value = new ComboBox($ctrlParams);
 				$dvalue = $this->tag_id.'-f-value:option';
 				if(!$this->filter_cond_val_source) { $this->filter_cond_val_source = $this->tag_id.'-f-value:option:data-ctype'; }
