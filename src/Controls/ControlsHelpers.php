@@ -58,7 +58,8 @@ class ControlsHelpers {
 			if(is_array($rv_arr[0])) {
 				foreach($rv_arr[0] as $pfr) {
 					if(strpos($result,$pfr)===FALSE) { continue; }
-					$result = str_replace($pfr,addslashes($lRow->getProperty(trim($pfr,'{}'),NULL,'isset')),$result);
+					$pfrValue = $lRow->getProperty(trim($pfr,'{}'),NULL,'isset');
+					$result = is_object($pfrValue) ? $pfrValue : str_replace($pfr,addslashes($pfrValue),$result);
 				}//END foreach
 			}//if(is_array($rv_arr[0]))
 			return $result;

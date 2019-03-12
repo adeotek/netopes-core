@@ -115,6 +115,10 @@ class TableView {
 	 */
 	public $class = NULL;
 	/**
+	 * @var    string Control elements class
+	 */
+	public $container_class = NULL;
+	/**
 	 * @var    mixed TableView width (numeric in px or as string percent)
 	 */
 	public $width = NULL;
@@ -2230,7 +2234,7 @@ class TableView {
 					$result .= $this->GetFilterBox(new Params());
 					$result .= "\t\t\t".'</div>'."\n";
 				}//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
-				$result .= "\t".'<div class="clsTContainer">'."\n";
+				$result .= "\t".'<div class="clsTContainer'.(strlen($this->container_class) ? ' '.$this->container_class : '').'">'."\n";
 				$t_c_width = NULL;
 				$th_result = $this->GetTableHeader($t_c_width);
 				$tcontainerfull = '';

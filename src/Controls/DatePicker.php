@@ -33,6 +33,9 @@ class DatePicker extends Control {
 		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 1; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->today_button)) { $this->today_button = TRUE; }
+		if(is_object($this->value) && $this->value instanceof \DateTime) {
+		    $this->value = $this->timepicker ? $this->value->format(NApp::GetDateTimeFormat(TRUE)) : $this->value->format(NApp::GetDateFormat(TRUE));
+		}//if(is_object($this->value) && $this->value instanceof \DateTime)
 	}//END public function __construct
 	/**
 	 * Set control HTML tag

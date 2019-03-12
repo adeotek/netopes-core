@@ -34,6 +34,7 @@ class TimePicker extends Control {
 		if(!is_integer($this->minutes_stepping) || $this->minutes_stepping<=0) { $this->minutes_stepping = 5; }
 		if(!is_string($this->align)) { $this->align = 'center'; }
 		if(!is_bool($this->now_button)) { $this->now_button = TRUE; }
+		if(is_object($this->value) && $this->value instanceof \DateTime) { $this->value = $this->value->format(NApp::GetTimeFormat(TRUE)); }
 	}//END public function __construct
 	/**
 	 * Set control HTML tag
@@ -116,7 +117,7 @@ class TimePicker extends Control {
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
-			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
+			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-time"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
 	    } else {
@@ -159,7 +160,7 @@ class TimePicker extends Control {
 			$result = "\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
 	        $result .= "\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
 	        $result .= "\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
-			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
+			$result .= "\t\t\t\t".'<span class="glyphicon glyphicon-time"></span>'."\n";
 			$result .= "\t\t\t".'</span>'."\n";
 	        $result .= "\t\t".'</div>'."\n";
 	    } else {
