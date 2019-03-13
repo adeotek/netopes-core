@@ -154,8 +154,7 @@ class TabControl {
                 }//if(method_exists($control,'GetJsScript'))
 				break;
 			case self::MODULE_CONTENT:
-			    $tContent = get_array_value($tab,'content',NULL,'is_notempty_string');
-
+			    $tContent = get_array_value($tab,'content',NULL,'is_array');
                 $module = get_array_value($tContent,'module','','is_string');
                 $method = get_array_value($tContent,'method','','is_string');
                 if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
