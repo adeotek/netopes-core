@@ -161,13 +161,15 @@ class TabControl {
                     NApp::Wlog('Invalid module content parameters [tab:'.get_array_value($tab,'uid','-','is_string').':'.print_r($tContent,1).']!');
                     continue;
                 }//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
-                $customParams = get_array_value($tContent,'params',NULL,'isset');
+                $customParams = get_array_value($tContent,'params',[],'is_array');
                 $customParams = ControlsHelpers::ReplaceDynamicParams($customParams,[
                     't_uid'=>$tab['t_uid'],
                     't_name'=>$tab['t_name'],
                     't_target'=>$this->tag_id.'-'.$tab['t_uid'],
                 ]);
-                $ctResult = ModulesProvider::Exec($module,$method,$customParams);
+                ob_start();
+                ModulesProvider::Exec($module,$method,$customParams);
+                $ctResult = ob_get_clean();
                 break;
 			case static::STRING_CONTENT:
 			default:
