@@ -6,10 +6,11 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.0.2.3
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
 use NApp;
 /**
@@ -18,6 +19,26 @@ use NApp;
  * @package  NETopes\Controls
  */
 class TabControl {
+    /**
+     * AJAX content constant
+     */
+    const AJAX_CONTENT = 'ajax';
+    /**
+     * Control content constant
+     */
+    const CONTROL_CONTENT = 'control';
+    /**
+     * File content constant
+     */
+    const FILE_CONTENT = 'file';
+    /**
+     * Module content contant
+     */
+    const MODULE_CONTENT = 'module';
+    /**
+     * Control content constant
+     */
+    const STRING_CONTENT = 'string';
 	/**
 	 * @var    bool Generate content on construct and cache it
 	 */
@@ -78,67 +99,85 @@ class TabControl {
      * @param  array      $tab Tab parameters array
      * @param string|null $contentType
      * @return string Returns content HTML for one tab
+     * @throws \NETopes\Core\AppException
      */
 	protected function SetContent(array $tab,?string &$contentType = NULL): string {
 		$result = '';
-		$ct_result = '';
+		$ctResult = '';
 		$ct_data = '';
 		$contentType = get_array_value($tab,'content_type','content','is_notempty_string');
 		switch($contentType) {
-		    case 'file':
-				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
-				if($tcontent && file_exists($tcontent)) {
+            case static::FILE_CONTENT:
+				$tContent = get_array_value($tab,'content',NULL,'is_notempty_string');
+				if($tContent && file_exists($tContent)) {
 					ob_start();
 					$data = get_array_value($tab,'data',NULL,'is_notempty_array');
-					require($tcontent);
-					$ct_result .= ob_get_contents();
+					require($tContent);
+					$ctResult .= ob_get_contents();
 					ob_end_clean();
-				}//if($tcontent && file_exists($tcontent))
+				}//if($tContent && file_exists($tContent))
 				break;
-			case 'ajax':
-				$tcontent = get_array_value($tab,'content',NULL,'is_notempty_string');
-				if(!$tcontent) { $ct_result .= '&nbsp;'; break; }
+			case static::AJAX_CONTENT:
+				$tContent = get_array_value($tab,'content',NULL,'is_notempty_string');
+				if(!$tContent) { $ctResult .= '&nbsp;'; break; }
 				$reload_onchange = get_array_value($tab,'reload_onchange',FALSE,'bool');
 				$ct_data .= $reload_onchange ? ' data-reload="1"' : '';
-				$tcontent = str_replace('{{t_uid}}',$tab['t_uid'],$tcontent);
-				$tcontent = str_replace('{{t_name}}',$tab['t_name'],$tcontent);
-				$tcontent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tcontent);
+				$tContent = str_replace('{{t_uid}}',$tab['t_uid'],$tContent);
+				$tContent = str_replace('{{t_name}}',$tab['t_name'],$tContent);
+				$tContent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tContent);
 				$tscript = get_array_value($tab,'load_script','','is_string');
-				$js_command = NApp::Ajax()->Prepare($tcontent,1,NULL,$tscript);
+				$js_command = NApp::Ajax()->Prepare($tContent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
 				if(get_array_value($tab,'autoload',TRUE,'bool')) {
 					NApp::AddJsScript($js_command);
 				}//if(get_array_value($tab,'autoload',TRUE,'bool'))
 				break;
-			case 'control':
-				$tcontent = get_array_value($tab,'content',[],'is_array');
-				$c_type = get_array_value($tcontent,'control_type',NULL,'is_notempty_string');
+			case static::CONTROL_CONTENT:
+				$tContent = get_array_value($tab,'content',[],'is_array');
+				$c_type = get_array_value($tContent,'control_type',NULL,'is_notempty_string');
 				$c_type = $c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
-				if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type)) {
+				if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type)) {
 					NApp::Elog('Control class ['.$c_type.'] not found!');
 					continue;
-				}//if(!is_array($tcontent) || !count($tcontent) || !$c_type || !class_exists($c_type))
-				$c_params = get_array_value($tcontent,'control_params',[],'is_array');
-				$tt_params = get_array_value($tcontent,'template_params',[],'is_array');
+				}//if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type))
+				$c_params = get_array_value($tContent,'control_params',[],'is_array');
+				$tt_params = get_array_value($tContent,'template_params',[],'is_array');
 				foreach($tt_params as $ttkey=>$ttparam) {
 					if(array_key_exists($ttkey,$c_params)) { $c_params[$ttkey] = $ttparam; }
 				}//END foreach
 				$control = new $c_type($c_params);
-				if(get_array_value($col,'clear_base_class',FALSE,'bool')){ $control->ClearBaseClass(); }
-				$ct_result .= $control->Show();
+				if(get_array_value($col,'clear_base_class',FALSE,'bool')) { $control->ClearBaseClass(); }
+				$ctResult .= $control->Show();
                 if(method_exists($control,'GetJsScript')) {
                     $jsScript = $control->GetJsScript();
                     if(strlen($jsScript)) { $this->js_scripts[] = $jsScript; }
                 }//if(method_exists($control,'GetJsScript'))
 				break;
-			case 'content':
+			case self::MODULE_CONTENT:
+			    $tContent = get_array_value($tab,'content',NULL,'is_notempty_string');
+
+                $module = get_array_value($tContent,'module','','is_string');
+                $method = get_array_value($tContent,'method','','is_string');
+                if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
+                    NApp::Wlog('Invalid module content parameters [tab:'.get_array_value($tab,'uid','-','is_string').':'.print_r($tContent,1).']!');
+                    continue;
+                }//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
+                $customParams = get_array_value($tContent,'params',NULL,'isset');
+                $customParams = ControlsHelpers::ReplaceDynamicParams($customParams,[
+                    't_uid'=>$tab['t_uid'],
+                    't_name'=>$tab['t_name'],
+                    't_target'=>$this->tag_id.'-'.$tab['t_uid'],
+                ]);
+                $ctResult = ModulesProvider::Exec($module,$method,$customParams);
+                break;
+			case static::STRING_CONTENT:
 			default:
-				$ct_result .= get_array_value($tab,'content','&nbsp;','is_notempty_string');
+				$ctResult .= get_array_value($tab,'content','&nbsp;','is_notempty_string');
 				break;
 		}//END switch
 		$tabClass = get_array_param($tab,'class','','is_string');
         $result .= "\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ct_data.(strlen($tabClass) ? ' class="'.$tabClass.'"' : '').'>'."\n";
-		$result .= $ct_result;
+		$result .= $ctResult;
 		$result .= "\t".'</div>'."\n";
 		return $result;
 	}//END protected function SetContent

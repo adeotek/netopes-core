@@ -18,7 +18,7 @@ use NApp;
  */
 class AppView {
     /**
-     * Control content constant
+     * String content constant
      */
     const STRING_CONTENT = 'string';
     /**
