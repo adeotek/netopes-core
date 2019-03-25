@@ -161,13 +161,10 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      */
 	public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
-		$lname = strlen($name) ? $name : $this->default_tran;
-		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname] && !$overwrite){ return NULL; }
-		if(!strlen($name)) {
-			$this->transactions[$lname] = sqlsrv_begin_transaction($this->connection);
-		} else {
-			$this->transactions[$lname] = sqlsrv_query($this->connection,'BEGIN TRAN '.$name);
-		}//if(!strlen($name))
+		// $lname = strlen($name) ? $name : $this->default_tran;
+		$lname = $this->default_tran;
+		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname] && !$overwrite) { return NULL; }
+		$this->transactions[$lname] = sqlsrv_begin_transaction($this->connection);
 		if($this->transactions[$lname]===FALSE) { throw new  AppException("FAILED TO BEGIN TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
 		return $this->transactions[$lname];
 	}//END public function SqlSrvBeginTran
@@ -179,15 +176,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function SqlSrvRollbackTran($name = NULL,$log = TRUE) {
-		$lname = strlen($name) ? $name : $this->default_tran;
+		// $lname = strlen($name) ? $name : $this->default_tran;
+		$lname = $this->default_tran;
 		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
-			if(!strlen($name)) {
-				$this->transactions = [];
-				if(sqlsrv_rollback($this->connection)===FALSE) { throw new  AppException("FAILED TO ROLLBACK TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
-			} else {
-				unset($this->transactions[$lname]);
-				if(sqlsrv_query($this->connection,'ROLLBACK TRAN '.$name)===FALSE) { throw new  AppException("FAILED TO ROLLBACK TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
-			}//if(!strlen($name))
+			$this->transactions = [];
+			if(sqlsrv_rollback($this->connection)===FALSE) { throw new  AppException("FAILED TO ROLLBACK TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
 			return TRUE;
 		}//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
 		return FALSE;
@@ -201,15 +194,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
 	 * @throws \NETopes\Core\AppException
 	 */
 	public function SqlSrvCommitTran($name = NULL,$log = TRUE,$preserve = FALSE) {
-		$lname = strlen($name) ? $name : $this->default_tran;
+		// $lname = strlen($name) ? $name : $this->default_tran;
+		$lname = $this->default_tran;
 		if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
-			if(!strlen($name)) {
-				$this->transactions = [];
-				if(sqlsrv_commit($this->connection)===FALSE) { throw new  AppException("FAILED TO COMMIT TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
-			} else {
-				unset($this->transactions[$lname]);
-				if(sqlsrv_query($this->connection,'COMMIT TRAN '.$name)===FALSE) { throw new  AppException("FAILED TO COMMIT TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
-			}//if(!strlen($name))
+			$this->transactions = [];
+			if(sqlsrv_commit($this->connection)===FALSE) { throw new  AppException("FAILED TO COMMIT TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
 			if($preserve) { return $this->SqlSrvBeginTran($name,$log); }
 			return TRUE;
 		}//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
