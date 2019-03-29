@@ -255,6 +255,7 @@ class TabControl {
 		$ltabs = [];
 		foreach($this->tabs as $tab) {
 			if(!is_array($tab) || !count($tab)) { continue; }
+			$cssClass = get_array_value($tab, 'css_class', NULL, '?is_string');
 			switch(get_array_value($tab,'type','fixed','is_notempty_string')) {
 				case 'template':
 					$tCollection = get_array_value($tab,'source_array',[],'is_array');
@@ -262,14 +263,14 @@ class TabControl {
 					foreach($tCollection as $ctab) {
 						$ct_uid = get_array_value($ctab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
 						$ct_name = get_array_value($ctab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
-						$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
+						$result .= "\t\t".'<li'.(strlen($cssClass) ? ' class="'.$cssClass.'"' : '').'><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 						$ltabs[] = array_merge($tab,array('t_type'=>'template','t_name'=>$ct_name,'t_uid'=>$ct_uid,'t_row'=>$ctab));
 					}//END foreach
 					break;
 				case 'fixed':
 					$ct_uid = get_array_value($tab,'uid','def','isset');
 					$ct_name = get_array_value($tab,'name','','is_string');
-					$result .= "\t\t".'<li><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
+					$result .= "\t\t".'<li'.(strlen($cssClass) ? ' class="'.$cssClass.'"' : '').'><a href="#'.$this->tag_id.'-'.$ct_uid.'">'.$ct_name.'</a></li>'."\n";
 					$ltabs[] = array_merge($tab,array('t_type'=>'fixed','t_name'=>$ct_name,'t_uid'=>$ct_uid));
 					break;
 			}//END switch
