@@ -1,5 +1,6 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
+use DateTime;
 use NETopes\Core\AppConfig;
 use NApp;
 use Doctrine\ORM\QueryBuilder;
@@ -9,10 +10,10 @@ use NETopes\Core\AppException;
  * @package NETopes\Core\Data
  */
 trait RepositoryBaseTrait {
-	/**
-	 * @return array
-	 */
-	public function getOperators(): array {
+    /**
+     * @return array
+     */
+    public function getOperators(): array {
         return [
             '=='=>'eq',
             '>'=>'gt',
@@ -30,6 +31,7 @@ trait RepositoryBaseTrait {
             'between'=>'between',
         ];
     }
+
     /**
      * @param             $query
      * @param null|string $label
@@ -37,32 +39,33 @@ trait RepositoryBaseTrait {
      * @param bool        $forced
      * @throws \NETopes\Core\AppException
      */
-	protected function DbDebug($query,?string $label = NULL,?float $time = NULL,bool $forced = FALSE) {
-		if(!AppConfig::GetValue('db_debug') && !$forced) { return; }
-		$llabel = strlen($label) ? $label : 'DbDebug';
-		if(is_object($query)) {
-			$lparams = '';
-			foreach($query->getParameters()->toArray() as $p) {
-			    if(is_object($p->getValue())) {
-                    if($p->getValue() instanceof \DateTime) {
+    protected function DbDebug($query,?string $label = NULL,?float $time = NULL,bool $forced = FALSE) {
+        if(!AppConfig::GetValue('db_debug') && !$forced) { return; }
+        $llabel = strlen($label) ? $label : 'DbDebug';
+        if(is_object($query)) {
+            $lparams = '';
+            foreach($query->getParameters()->toArray() as $p) {
+                if(is_object($p->getValue())) {
+                    if($p->getValue() instanceof DateTime) {
                         $pValue = $p->getValue()->format('Y-m-d H:i:s');
                     } else {
                         $pValue = $p->getValue()->getId();
                     }//if($p->getValue() instanceof \DateTime)
                 } else {
-			        $pValue = $p->getValue();
+                    $pValue = $p->getValue();
                 }//if(is_object($p->getValue()))
-				$lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.$pValue;
-			}//END foreach
-			$lquery = $query->getSql().' ['.$lparams.']';
-		} else {
-			$lquery = $query;
-		}//if(is_object($query))
-		$lquery .= ($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
-		NApp::Dlog($lquery,$llabel);
-		if(AppConfig::GetValue('db_debug2file')) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
-	}//END protected function DbDebug
-	/**
+                $lparams .= (strlen($lparams) ? ', ' : '').$p->getName().' => '.$pValue;
+            }//END foreach
+            $lquery = $query->getSql().' ['.$lparams.']';
+        } else {
+            $lquery = $query;
+        }//if(is_object($query))
+        $lquery .= ($time ? '   =>   Duration: '.number_format((microtime(TRUE)-$time),3,'.','').' sec' : '');
+        NApp::Dlog($lquery,$llabel);
+        if(AppConfig::GetValue('db_debug2file')) { NApp::Write2LogFile($llabel.': '.$lquery,'debug'); }
+    }//END protected function DbDebug
+
+    /**
      * Finds entities by a set of criteria.
      * @param array      $criteria
      * @property $_em
@@ -72,6 +75,7 @@ trait RepositoryBaseTrait {
         $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
         return $persister->count($criteria);
     }//END public function countBy
+
     /**
      * Adds where conditions to the Query for searching all words in $searchTerm
      * @param \Doctrine\ORM\QueryBuilder $qb
@@ -89,6 +93,7 @@ trait RepositoryBaseTrait {
         }//END foreach
         return $qb;
     }//END public function countBy
+
     /**
      * @param string      $rawName
      * @param string|null $alias

@@ -10,6 +10,11 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppException;
+use PhpConsole\Connector;
+use PhpConsole\Storage\File;
+use QuantumPHP;
+use Throwable;
+
 /**
  * Class Debugger
  * @package  NETopes\Core\App
@@ -118,9 +123,9 @@ class Debugger {
 			switch($dk) {
 				case 'PhpConsole':
 					if(!class_exists('\PhpConsole\Connector')) { continue; }
-					\PhpConsole\Connector::setPostponeStorage(new \PhpConsole\Storage\File((strlen($tmpPath) ? rtrim($tmpPath,'/') : '').'/phpcons.data'));
-					$this->debugObjects[$dk] = \PhpConsole\Connector::getInstance();
-					if(\PhpConsole\Connector::getInstance()->isActiveClient()) {
+                    Connector::setPostponeStorage(new File((strlen($tmpPath) ? rtrim($tmpPath,'/') : '').'/phpcons.data'));
+                    $this->debugObjects[$dk]=Connector::getInstance();
+                    if(Connector::getInstance()->isActiveClient()) {
 						$this->debugObjects[$dk]->setServerEncoding('UTF-8');
 						if(isset($this->jsConsolePassword) && strlen($this->jsConsolePassword)) { $this->debugObjects[$dk]->setPassword($this->jsConsolePassword); }
 					} else {
@@ -131,13 +136,13 @@ class Debugger {
 					if(!class_exists('\QuantumPHP')) { continue; }
 					switch($browser_type) {
 						case 'Chrome':
-							\QuantumPHP::$MODE = 3;
+                            QuantumPHP::$MODE=3;
 							break;
 						case 'Firefox':
-							\QuantumPHP::$MODE = 2;
+                            QuantumPHP::$MODE=2;
 							break;
 						default:
-							\QuantumPHP::$MODE = 1;
+                            QuantumPHP::$MODE=1;
 							if(!is_array($this->debugScripts)) { $this->debugScripts = []; }
 							$this->debugScripts[$dk] = 'QuantumPHP.min.js';
 							break;
@@ -156,7 +161,7 @@ class Debugger {
 			foreach($this->debugObjects as $dk=>$dv) {
 				switch($dk) {
 					case 'QuantumPHP':
-							\QuantumPHP::send();
+                        QuantumPHP::send();
 						break;
 					default:
 						break;
@@ -215,26 +220,26 @@ class Debugger {
 					if(!class_exists('\\QuantumPHP')) { break; }
 						switch($type) {
 							case self::DBG_WARNING:
-								\QuantumPHP::add($value,'warning');
+                                QuantumPHP::add($value,'warning');
 								break;
 							case self::DBG_ERROR:
 							if(is_object($value) && strpos(get_class($value),'Exception')!==FALSE) {
-									\QuantumPHP::add($label,'error',$value);
+                                QuantumPHP::add($label,'error',$value);
 							} else {
-									\QuantumPHP::add($value,'error');
+                                QuantumPHP::add($value,'error');
 							}//if(is_object($value) && strpos(get_class($value),'Exception')!==FALSE)
 								break;
 							case self::DBG_INFO:
-								\QuantumPHP::log($label.': '.print_r($value,1));
+                                QuantumPHP::log($label.': '.print_r($value,1));
 								break;
 						  	case self::DBG_DEBUG:
 						  	default:
 						    if(is_null($value)) {
-							        \QuantumPHP::log($label.': [NULL]');
+                                QuantumPHP::log($label.': [NULL]');
 						    } elseif(is_string($value)) {
-							        \QuantumPHP::log($label.': '.$value);
+                                QuantumPHP::log($label.': '.$value);
 						    } else {
-							        \QuantumPHP::add($value,$label,FALSE,FALSE,FALSE,FALSE,TRUE);
+                                QuantumPHP::add($value,$label,FALSE,FALSE,FALSE,FALSE,TRUE);
 						    }//if(is_null($value))
 								break;
 						}//END switch($type)
@@ -294,7 +299,7 @@ class Debugger {
 			$caller = array_shift($dbg);
 			$label = '['.($path===TRUE ? $caller['file'] : basename($caller['file'])).':'.$caller['line'].']'.$label;
 		}//if($file===TRUE)
-		if($value instanceof \Throwable) {
+        if($value instanceof Throwable) {
             if($showExceptionsTrace || $this->showExceptionsTrace) {
                 $this->Debug($value->getMessage(),($label??get_class($value)).':MESSAGE>> ',self::DBG_ERROR);
                 $this->Debug($value->getTrace(),($label??get_class($value)).':TRACE>> ',self::DBG_ERROR);

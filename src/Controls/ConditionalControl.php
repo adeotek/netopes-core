@@ -10,9 +10,12 @@
  * @filesource
  */
     namespace NETopes\Core\Controls;
-	/**
-	 * Conditional control
+    use NETopes\Core\AppException;
+
+    /**
+     * Conditional control
 	 * Control for an dynamically select a control based on given conditions
+     *
 	 * @package  NETopes\Controls
 	 */
 	class ConditionalControl extends Control {
@@ -36,7 +39,7 @@
 					$ctrl = new $c_name($c_params);
 					$result = $ctrl->Show();
 					break;
-				} catch(\NETopes\Core\AppException $e) {
+                } catch(AppException $e) {
 					continue;
 				}//END try
 			}//END foreach

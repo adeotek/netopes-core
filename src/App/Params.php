@@ -13,6 +13,8 @@
 namespace NETopes\Core\App;
 use ArrayIterator;
 use Closure;
+use Exception;
+use NApp;
 use NETopes\Core\Data\Collection;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
@@ -52,7 +54,7 @@ class Params implements Collection {
 				}//END foreach
 				return $result;
 			}//if(in_array(substr(trim($input),0,1),['{','[']))
-		} catch(\Exception $e) {
+        } catch(Exception $e) {
 			throw new AppException($e->getMessage(),E_ERROR,1);
 		}//END try
 	}//END public static function ConvertStringToArray
@@ -267,7 +269,7 @@ class Params implements Collection {
 	 * @return mixed
 	 */
     public function safeGetValue($key,$defaultValue = NULL,$format = NULL,$validation = NULL,$sub_key = NULL) {
-        \NApp::Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
+        NApp::Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
         if(!strlen($validation)) {
             if(strlen($format)) {
                 $validation = in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;

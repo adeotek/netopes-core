@@ -9,8 +9,11 @@
  * @filesource
  */
 namespace NETopes\Core;
+use Exception;
+
 /**
  * Class DataHelpers
+ *
  * @package NETopes\Core
  */
 class DataHelpers {
@@ -23,6 +26,7 @@ class DataHelpers {
         foreach($params as $p) { if(isset($p)) { return $p; } }
         return NULL;
     }//END public static function coalesce
+
     /**
      * SQL-like coalesce for strings
      * (empty string is considered null)
@@ -39,6 +43,7 @@ class DataHelpers {
         }//END foreach
         return NULL;
     }//END public static function stringCoalesce
+
     /**
      * Check if a string contains one or more strings.
      * @param   string $haystack The string to be searched.
@@ -63,6 +68,7 @@ class DataHelpers {
         }//if(is_array($needle))
         return strpos($haystack,$needle,$offset)!==FALSE;
     }//END public static function stringContains
+
     /**
      * Remove all instances of white-spaces from both ends of the string,
      * as well as remove duplicate white-space characters inside the string
@@ -84,6 +90,7 @@ class DataHelpers {
         }//if($what===NULL)
         return trim(preg_replace("/[".$what."]+/",$with,$input),$what);
     }//END public static function trimAll
+
     /**
      * @param $string
      * @return null|string
@@ -92,6 +99,7 @@ class DataHelpers {
         if(!is_string($string)) { return NULL; }
         return nl2br(str_replace("\t",'&nbsp;&nbsp;&nbsp;',$string));
     }//END public static function nl2br
+
     /**
      * @param $string
      * @return mixed|null
@@ -100,6 +108,7 @@ class DataHelpers {
         if(!is_string($string)) { return NULL; }
         return str_replace('&nbsp;&nbsp;&nbsp;',"\t",str_replace(array('<br/>','<br />','<br>'),"\n",$string));
     }//END public static function br2nl
+
     /**
      * Replace last occurrence of a substring
      * @param string $search Substring to be replaced
@@ -111,6 +120,7 @@ class DataHelpers {
         if(($pos = strrpos($str,$search))===FALSE) { return $str; }
         return substr_replace($str,$replace,$pos,strlen($search));
     }//END public static function stringReplaceLast
+
     /**
      * Normalize string
      * @param string $input String to be normalized
@@ -132,6 +142,7 @@ class DataHelpers {
         if($trim) { $result = trim($result); }
         return $result;
     }//END public static function normalizeString
+
     /**
      * Convert string from unknown character set to UTF-8
      * @param      string $value The string to be converted
@@ -139,14 +150,17 @@ class DataHelpers {
      * @throws \Exception
      */
     public static function utf8Encode($value) {
-        if(!function_exists('mb_detect_encoding')) { throw new \Exception('Function mb_detect_encoding() not found!'); }
+        if(!function_exists('mb_detect_encoding')) {
+            throw new Exception('Function mb_detect_encoding() not found!');
+        }
         $enc = mb_detect_encoding($value,mb_detect_order(),TRUE);
         if(strtoupper($enc)=='UTF-8' || !function_exists('iconv')) { return $value; }
         return iconv($enc,'UTF-8',$value);
     }//END public static function utf8Encode
+
     /**
      * Returns a string containing a formatted number
-     * @param float   $value The number to be formatted
+     * @param float   $value  The number to be formatted
      * @param  string $format The format string in NETopes style
      * (NETopes format: "[number of decimals]|[decimal separator|[group separator]|[sufix]"
      * @return string Returns the formatted number or NULL in case of errors
@@ -157,6 +171,7 @@ class DataHelpers {
         if(!is_array($f_arr) || count($f_arr)!=4) { return NULL; }
         return number_format($value,$f_arr[0],$f_arr[1],$f_arr[2]).$f_arr[3];
     }//END public static function numberFormat
+
     /**
      * Convert number (integer part) to words representation
      * @param float $value Number to be converted (only integer part will be processed)
@@ -228,6 +243,7 @@ class DataHelpers {
         }//END foreach
         return implode(' ',$words);
     }//END public static function convertNumberToWords
+
     /**
      * String explode public static function based on standard php explode function.
      * Explode on two levels to generate a table-like array.
@@ -241,8 +257,8 @@ class DataHelpers {
     public static function explodeToTable($str,$rsep = '|:|',$csep = ']#[',$ksep = NULL,$keys_case = CASE_LOWER) {
         $result = [];
         if(!is_string($str) || !strlen($str) || !is_string($rsep) || !strlen($rsep)
-                || (isset($csep) && (!is_string($csep) || !strlen($csep)))
-            ) { return $result; }
+            || (isset($csep) && (!is_string($csep) || !strlen($csep)))
+        ) { return $result; }
         foreach(explode($rsep,$str) as $row) {
             if(!strlen($row)) { continue; }
             if(!$csep) {
@@ -271,6 +287,7 @@ class DataHelpers {
         }//END foreach
         return $result;
     }//END public static function explodeToTable
+
     /**
      * Array merge with overwrite option (the 2 input arrays remains untouched).
      * The second array will overwrite the first.
@@ -303,6 +320,7 @@ class DataHelpers {
         }//if(is_array($initial_arr2) && count($initial_arr2))
         return $result;
     }//END public static function customArrayMerge
+
     /**
      * Read a CSV file and convert content to an associative array
      * @param string $file Input file full name (including path)
@@ -334,6 +352,7 @@ class DataHelpers {
         fclose($handle);
         return $result;
     }//END public static function csvFileToArray
+
     /**
      * description
      * @param array|null $input
@@ -354,13 +373,14 @@ class DataHelpers {
         }//foreach ($input as $k=>$v)
         return $result;
     }//END public static function changeArrayValuesCase
+
     /**
-      * description
+     * description
      * @param      $array
      * @param      $structure
      * @param null $uppercasekeys
      * @return array|null
-      */
+     */
     public static function convertDbArrayToTree($array,$structure,$uppercasekeys = NULL) {
         if(!is_array($array) || count($array)==0) { return NULL; }
         if((!is_array($structure) && strlen($structure)==0) || (is_array($structure) && count($structure)==0)) { return $array; }
@@ -383,12 +403,13 @@ class DataHelpers {
         foreach($array as $row) { eval('$result'.$keystr.' = $row["'.$valkey.'"];'); }
         return $result;
     }//END public static function convertDbArrayToTree
+
     /**
-      * description
+     * description
      * @param      $array
      * @param bool $return
      * @return array|null
-      */
+     */
     public static function customShuffle(&$array,$return = TRUE) {
         if(!is_array($array)) { if($return) { return $array; } else { return NULL; } }
         $keys = array_keys($array);

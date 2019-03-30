@@ -10,10 +10,13 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use ErrorHandler;
+use Exception;
 use NETopes\Ajax\BaseRequest;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
+use Throwable;
 
 /**
  * Class App
@@ -418,7 +421,7 @@ abstract class App implements IApp {
      * @param  bool        $showErrors           Display errors TRUE/FALSE
      * @param  string|null $key                  Session key to commit (do partial commit)
      * @param  string|null $phash                Page (tab) hash
-     * @param  bool        $reload               Reload session data after commit
+     * @param  bool $reload Reload session data after commit
      * @return void
      * @poaram bool $reload Reload session after commit (default TRUE)
      * @throws \NETopes\Core\AppException
@@ -426,7 +429,7 @@ abstract class App implements IApp {
     public static function SessionCommit(bool $clear=FALSE,bool $preserveOutputBuffer=FALSE,bool $showErrors=TRUE,?string $key=NULL,?string $phash=NULL,bool $reload=TRUE) {
         if(!AppSession::WithSession()) {
             if($showErrors && method_exists('\ErrorHandler','ShowErrors')) {
-                \ErrorHandler::ShowErrors();
+                ErrorHandler::ShowErrors();
             }
             if(!$preserveOutputBuffer) {
                 static::FlushOutputBuffer();
@@ -442,7 +445,7 @@ abstract class App implements IApp {
     /**
      * Commit the namespace temporary session into the session
      *
-     * @param bool|null   $clear
+     * @param bool|null $clear
      * @param bool        $preserveOutputBuffer
      * @param bool        $showErrors
      * @param string|null $namespace
@@ -1070,7 +1073,7 @@ HTML;
                 $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
             }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
             static::$debugger->Debug($value,$label,Debugger::DBG_DEBUG);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Dlog
@@ -1095,7 +1098,7 @@ HTML;
                 $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
             }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
             static::$debugger->Debug($value,$label,Debugger::DBG_WARNING);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Wlog
@@ -1118,10 +1121,10 @@ HTML;
             if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
                 $dbg=debug_backtrace();
                 $caller=array_shift($dbg);
-                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label ?? ($value instanceof \Throwable ? get_class($value) : ''));
+                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label ?? ($value instanceof Throwable ? get_class($value) : ''));
             }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
             static::$debugger->Elog($value,$label,$showExceptionsTrace,FALSE,FALSE);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Elog
@@ -1146,7 +1149,7 @@ HTML;
                 $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
             }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
             static::$debugger->Debug($value,$label,Debugger::DBG_INFO);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Ilog

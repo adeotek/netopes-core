@@ -18,11 +18,11 @@ $(function() {
 	ShowPopover('.clsDarkWebuiSPopover',false);
 });//$(function()
 
-$(document).on('onARequestInit',function(e) {
+window.addEventListener('onNAppRequestInit', function (e) {
 	if(typeof(e.target)=='string') { DestroyCkEditors(window.name,e.target); }
-});
+}, false);
 
-$(document).on('onARequestComplete',function(e) {
+window.addEventListener('onNAppRequestComplete', function (e) {
 	ShowErrorDialog(false);
 	SmartCBOInitialize();
 	ShowToolTip('.clsTitleToolTip');
@@ -33,7 +33,7 @@ $(document).on('onARequestComplete',function(e) {
 	ShowPopover('.clsDarkWebuiPopover',true);
 	ShowPopover('.clsWebuiSPopover',false);
 	ShowPopover('.clsDarkWebuiSPopover',false);
-});
+}, false);
 
 /*** For Errors Popup ***/
 function ShowErrorDialog(errstr,encrypted,targetid,title) {
@@ -254,7 +254,9 @@ function ShowToolTip(etype,source) {
 
 function ShowPopover(etype,encrypted) {
 	var styleClass = '';
-	if(etype=='.clsDarkWebuiPopover') { styleClass = 'inverse'; }
+	if (etype === '.clsDarkWebuiPopover') {
+		styleClass = 'inverse';
+	}
 	$(etype).webuiPopover({
 		// title: function() {
 		// 	var ldata = $(this).attr('data-title');

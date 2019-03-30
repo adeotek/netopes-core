@@ -9,7 +9,11 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use GibberishAES;
 use NApp;
+use NETopes\Core\AppException;
+use Translate;
+
 /**
  * Class GridComboBox
  * @package NETopes\Core\Controls
@@ -47,6 +51,7 @@ class GridComboBox extends Control {
      * @var    bool Drop down state (loaded or not)
      */
     protected $loaded = FALSE;
+
     /**
      * GridComboBox class constructor
      * @param  array $params An array of params
@@ -58,10 +63,11 @@ class GridComboBox extends Control {
         $this->autoload = FALSE;
         parent::__construct($params);
         if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns)) {
-            throw new \NETopes\Core\AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
+            throw new AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
         }//if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns))
         $this->target = $this->tag_id.'-gcbo-target';
     }//END public function __construct
+
     protected function SetControl(): ?string {
         $this->ProcessActions();
         $ar_class = '';
@@ -100,12 +106,12 @@ class GridComboBox extends Control {
         if(is_array($this->dynamic_params) && count($this->dynamic_params)) {
             foreach($this->dynamic_params as $dk=>$dv) { $dparams .= "~'dynf[{$dk}]'|$dv"; }
         }//if(is_array($this->dynamic_params) && count($this->dynamic_params))
-        $dd_action = NApp::Ajax()->Prepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tag_id}:value~'qsearch'|{$this->tag_id}-cbo:value~'text'|{$this->tag_id}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tag_id}'); }");
+        $dd_action=NApp::Ajax()->LegacyPrepare("ControlAjaxRequest('$this->chash','ShowDropDown','selected_value'|{$this->tag_id}:value~'qsearch'|{$this->tag_id}-cbo:value~'text'|{$this->tag_id}-cbo:attr:data-text{$dparams},'".$this->GetThis()."',1)->{$this->target}","function(s){ GCBOLoader(s,'{$this->tag_id}'); }");
         $isvalue = strlen($this->selected_value) ? $this->selected_value : NULL;
         $demptyval = strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
         $result = '<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
         $result .= "\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.' data-text="'.($isvalue ? $this->selected_text : '').'"'.$demptyval.'>'."\n";
-        $result .= "\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.($isvalue ? $this->selected_text : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-ajax="'.\GibberishAES::enc($dd_action,$this->tag_id).'" data-id="'.$this->tag_id.'">'."\n";
+        $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.($isvalue ? $this->selected_text : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-ajax="'.GibberishAES::enc($dd_action,$this->tag_id).'" data-id="'.$this->tag_id.'">'."\n";
         $result .= "\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'" onclick="GCBODDBtnClick(\''.$this->tag_id.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
         $result .= "\t".'<div id="'.$this->tag_id.'-clear" class="'.$cbtnclass.'" onclick="GCBOSetValue(\''.$this->tag_id.'\',null,\'\',false);"></div>'."\n";
         if($this->autoload || $isvalue) {
@@ -133,9 +139,12 @@ class GridComboBox extends Control {
         $result .= $this->GetActions();
         return $result;
     }//END protected function SetControl
+
     public function ShowDropDown($params = NULL) {
         //NApp::Dlog($params,'ShowDropDown');
-        if(!is_object(NApp::Ajax())) { throw new \NETopes\Core\AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1); }
+        if(!is_object(NApp::Ajax())) {
+            throw new AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
+        }
         if(array_key_exists('params',$params)) {
             $lparams = $params['params'];
         } else {
@@ -185,7 +194,7 @@ class GridComboBox extends Control {
                     'actions'=>array(
                         array(
                             'type'=>'CheckBox',
-                            'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-{{'.$this->value_field.'}}','tooltip'=>\Translate::Get('button_select'),'class'=>$this->base_class.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tag_id}','{{{$this->value_field}}}','{{{$this->display_field}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->value_field}}}=='{$selectedvalue}' ? 1 : 0);")),
+                            'params'=>array('container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-{{'.$this->value_field.'}}','tooltip'=>Translate::Get('button_select'),'class'=>$this->base_class.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tag_id}','{{{$this->value_field}}}','{{{$this->display_field}}}',true)",'value'=>array('type'=>'eval','arg'=>"return ({{{$this->value_field}}}=='{$selectedvalue}' ? 1 : 0);")),
                         ),
                     ),
                 ),

@@ -9,8 +9,11 @@
  * @filesource
  */
 namespace NETopes\Core;
+use Exception;
+
 /**
  * Class Helpers
+ *
  * @package NETopes\Core
  */
 class Helpers {
@@ -21,12 +24,18 @@ class Helpers {
      */
     public static function safeUnlink($file) {
         if(!is_string($file) || !strlen($file) || !file_exists($file)) { return FALSE; }
-        try { unlink($file); return TRUE; } catch(\Exception $e) { return FALSE; }
+        try {
+            unlink($file);
+            return TRUE;
+        } catch(Exception $e) {
+            return FALSE;
+        }
     }//END public static function safeUnlink
+
     /**
      * Eliminate last N folders from a path.
-     * @param   string $path The path to be processed.
-     * @param   integer $no The number of folders to be removed from the end of the path (default 1).
+     * @param   string  $path The path to be processed.
+     * @param   integer $no   The number of folders to be removed from the end of the path (default 1).
      * @return  string The processed path.
      */
     public static function upInPath($path,$no = 1) {
@@ -36,6 +45,7 @@ class Helpers {
         }//for($i=0; $i<$no; $i++)
         return $result;
     }//END public static function upInPath
+
     /**
      * Replaces all url not accepted characters with minus character (-)
      * @param   string $string String to be processed.
@@ -44,6 +54,7 @@ class Helpers {
     public static function stringToUrl($string) {
         return trim(str_replace(array('--','~~','~',','),'-',preg_replace('/(\W)/','-',trim($string))),'-');
     }//END public static function stringToUrl
+
     /**
      * Converts a hex color to RGB
      * @param  string $hex Color hex code
@@ -53,18 +64,19 @@ class Helpers {
      * @return array Returns an array containing the RGB values - array(R,G,B)
      */
     public static function hex2rgb($hex,&$r = NULL,&$g = NULL,&$b = NULL) {
-       $hex = str_replace('#','',$hex);
-       if(strlen($hex)==3) {
-          $r = hexdec(substr($hex,0,1).substr($hex,0,1));
-          $g = hexdec(substr($hex,1,1).substr($hex,1,1));
-          $b = hexdec(substr($hex,2,1).substr($hex,2,1));
-       } else {
-          $r = hexdec(substr($hex,0,2));
-          $g = hexdec(substr($hex,2,2));
-          $b = hexdec(substr($hex,4,2));
-       }//if(strlen($hex)==3)
-       return array($r,$g,$b);
+        $hex = str_replace('#','',$hex);
+        if(strlen($hex)==3) {
+            $r = hexdec(substr($hex,0,1).substr($hex,0,1));
+            $g = hexdec(substr($hex,1,1).substr($hex,1,1));
+            $b = hexdec(substr($hex,2,1).substr($hex,2,1));
+        } else {
+            $r = hexdec(substr($hex,0,2));
+            $g = hexdec(substr($hex,2,2));
+            $b = hexdec(substr($hex,4,2));
+        }//if(strlen($hex)==3)
+        return array($r,$g,$b);
     }//END public static function hex2rgb
+
     /**
      * Returns an array of files from the provided path and all its sub folders.
      * For each file the value is an array with the following structure:
@@ -99,6 +111,7 @@ class Helpers {
         }//END foreach
         return $result;
     }//END public static function getFilesRecursive
+
     /**
      * Get file mime type by extension
      * @param  string $filename Target file name (with or without path)
@@ -106,28 +119,29 @@ class Helpers {
      */
     public static function getFileMimeTypeByExtension($filename) {
         $standard_mime_types = array(
-                'pdf'=>'application/pdf',
-                'txt'=>'text/plain',
-                'html'=>'text/html',
-                'htm'=>'text/html',
-                'exe'=>'application/octet-stream',
-                'zip'=>'application/zip',
-                'doc'=>'application/msword',
-                'xls'=>'application/vnd.ms-excel',
-                'xlsx'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'ppt'=>'application/vnd.ms-powerpoint',
-                'dbf'=>'application/x-dbf',
-                'gif'=>'image/gif',
-                'png'=>'image/png',
-                'jpeg'=>'image/jpg',
-                'jpg'=>'image/jpg',
-                'php'=>'text/plain',
-                'apk'=>'application/octet-stream',
-                'log'=>'text/plain',
-            );
+            'pdf'=>'application/pdf',
+            'txt'=>'text/plain',
+            'html'=>'text/html',
+            'htm'=>'text/html',
+            'exe'=>'application/octet-stream',
+            'zip'=>'application/zip',
+            'doc'=>'application/msword',
+            'xls'=>'application/vnd.ms-excel',
+            'xlsx'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt'=>'application/vnd.ms-powerpoint',
+            'dbf'=>'application/x-dbf',
+            'gif'=>'image/gif',
+            'png'=>'image/png',
+            'jpeg'=>'image/jpg',
+            'jpg'=>'image/jpg',
+            'php'=>'text/plain',
+            'apk'=>'application/octet-stream',
+            'log'=>'text/plain',
+        );
         $fileext = substr($filename,strrpos($filename,'.')+1);
         return (array_key_exists($fileext,$standard_mime_types) ? $standard_mime_types[$fileext] : 'application/force-download');
     }//END public static function getFileMimeTypeByExtension
+
     /**
      * Get file extension by mime type
      * @param  string $mime_type Target mime type
@@ -152,20 +166,22 @@ class Helpers {
         foreach($standard_extensions as $k=>$v) { if(strpos(strtolower($mime_type),$k)!==FALSE) { return $v; } }
         return NULL;
     }//END public static function getFileExtensionByMimeType
+
     /**
-      * description
+     * description
      * @param $path
      * @return string
-      */
+     */
     public static function win2unixPath(string $path): string {
         return DIRECTORY_SEPARATOR=='\\' ? str_replace('\\','/',$path) : $path;
     }//END public static function win2unixPath
+
     /**
-      * description
+     * description
      * @param      $file
      * @param null $ext
      * @return bool|int
-      */
+     */
     public static function checkFile404($file,$ext = NULL) {
         $file = preg_replace('{ +}','%20',trim($file));
         if(substr($file,0,7)!=="http://") { $file = "http://".$file; }
@@ -176,13 +192,14 @@ class Helpers {
         }//if($ext)
         try {
             $file_headers = @get_headers($file);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             $file_headers = NULL;
         }//END try
         if(!$file_headers) { return 2; }
         if($file_headers[0] == 'HTTP/1.1 404 Not Found') { return 404; }
         return TRUE;
     }//END public static function checkFile404
+
     /**
      * description
      * @param array $params Parameters object (instance of [Params])
@@ -226,9 +243,12 @@ class Helpers {
         $error = curl_error($c_url);
         $info = curl_getinfo($c_url);
         curl_close($c_url);
-        if($error) { throw new \Exception($error); }
+        if($error) {
+            throw new Exception($error);
+        }
         return $result;
     }//END public static function curlCall
+
     /**
      * description
      * @param object|null $params Parameters object (instance of [Params])
@@ -265,6 +285,7 @@ class Helpers {
         if($error) { return $error; }
         return $result;
     }//END public static function asyncCurlCall
+
     /**
      * Emulate ping command
      * @param     $host
@@ -279,7 +300,7 @@ class Helpers {
             $sconn = fSockOpen($host,$port,$errorNo,$errorMessage,$timeout);
             if(!$sconn || $errorNo) { return 'Timeout/Error: ['.$errorNo.'] '.$errorMessage; }
             return round(((microtime(true) - $ts) * 1000), 0).' ms';
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             return 'Exception: '.$e->getMessage();
         }//END try
     }//END public static function ping

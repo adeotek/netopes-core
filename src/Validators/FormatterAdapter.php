@@ -11,6 +11,8 @@
  */
 namespace NETopes\Core\Validators;
 use NApp;
+use ReflectionMethod;
+
 /**
  * Class FormatterAdapter
  * @package NETopes\Core\Validators
@@ -39,7 +41,7 @@ class FormatterAdapter {
             NApp::Elog('Invalid formatter adapter method ['.static::class.'::'.$method.']!');
             return is_string($value) ? $prefix.$value.$sufix : NULL;
         }//if(!method_exists(static::class,$method))
-        $reflection = new \ReflectionMethod(static::class,$method);
+        $reflection=new ReflectionMethod(static::class,$method);
         $arguments = [];
         foreach($reflection->getParameters() as $param) {
             switch(strtolower($param->getName())) {

@@ -16,12 +16,12 @@ $(function() {
 	ShowPopover('.clsDarkWebuiPopover');
 });//$(function()
 
-$(document).on('onARequestInit',function(e) {
+window.addEventListener('onNAppRequestInit', function (e) {
 	DestroyCkEditors(window.name,e.target);
 	ToolTipCleanup();
-});
+}, false);
 
-$(document).on('onARequestComplete',function(e) {
+window.addEventListener('onNAppRequestComplete', function (e) {
 	// if(e.source=='runRepeated') { return; }
 	ShowErrorDialog(false);
 	SmartCBOInitialize();
@@ -31,7 +31,7 @@ $(document).on('onARequestComplete',function(e) {
 	ShowToolTip('.clsGCBToolTip');
 	ShowPopover('.clsWebuiPopover');
 	ShowPopover('.clsDarkWebuiPopover');
-});
+}, false);
 
 /*** For Errors Popup ***/
 function ShowErrorDialog(errstr,encrypted,targetid,title) {

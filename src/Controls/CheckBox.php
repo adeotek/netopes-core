@@ -12,6 +12,8 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
+
 /**
  * ClassName description
  * long_description
@@ -32,7 +34,7 @@ class CheckBox extends Control {
                     if(strlen($arg)) {
                         try {
                             $lvalue = eval($arg);
-                        } catch(\NETopes\Core\AppException $ee) {
+                        } catch(AppException $ee) {
                             $lvalue = 0;
                             NApp::Elog($e);
                         }//END try

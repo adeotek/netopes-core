@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use GibberishAES;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
@@ -88,11 +89,11 @@ class UserSession {
         $cHash=static::GetCookieHash($namespace,$name);
         $cCookieHash=NULL;
         if(array_key_exists($cHash,$_COOKIE) && strlen($_COOKIE[$cHash])) {
-            $cCookieHash=\GibberishAES::dec($_COOKIE[$cHash],AppConfig::GetValue('app_encryption_key'));
+            $cCookieHash=GibberishAES::dec($_COOKIE[$cHash],AppConfig::GetValue('app_encryption_key'));
         } elseif($setIfMissing) {
             $cCookieHash=AppSession::GetNewUID();
             $validity=(is_numeric($validity) && $validity>0 ? $validity : 180) * 24 * 3600;
-            $_COOKIE[$cHash]=\GibberishAES::enc($cCookieHash,AppConfig::GetValue('app_encryption_key'));
+            $_COOKIE[$cHash]=GibberishAES::enc($cCookieHash,AppConfig::GetValue('app_encryption_key'));
             setcookie($cHash,$_COOKIE[$cHash],time() + $validity,'/',NApp::Url()->GetAppDomain());
         }//if(array_key_exists($sc_hash,$_COOKIE) && strlen($_COOKIE[$sc_hash]))
         return $cCookieHash;
@@ -119,7 +120,7 @@ class UserSession {
             setcookie($cookieHash,'',time() + $validity,'/',NApp::Url()->GetAppDomain());
             return TRUE;
         }//if(!$uHash)
-        $_COOKIE[$cookieHash]=\GibberishAES::enc($uHash,AppConfig::GetValue('app_encryption_key'));
+        $_COOKIE[$cookieHash]=GibberishAES::enc($uHash,AppConfig::GetValue('app_encryption_key'));
         setcookie($cookieHash,$_COOKIE[$cookieHash],time() + $validity,'/',NApp::Url()->GetAppDomain());
         return TRUE;
     }//END public static function SetLoginCookie

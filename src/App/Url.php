@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
+use NETopes\Core\DataHelpers;
 use NETopes\Core\Helpers;
 /**
  * Class Url
@@ -406,7 +407,9 @@ class Url {
 				}//if(is_array($value))
 			}//END foreach
 		}//if(is_array($rparams) && count($rparams))
-		if(is_array($params) && count($params)) { $data = \NETopes\Core\DataHelpers::customArrayMerge($data,$params,TRUE); }
+        if(is_array($params) && count($params)) {
+            $data=DataHelpers::customArrayMerge($data,$params,TRUE);
+        }
 		return $this->GetNewUrl($data,$url_format);
 	}//END public function GetUrl
 	/**

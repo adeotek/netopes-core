@@ -14,6 +14,10 @@ use NETopes\Core\AppException;
 use NETopes\Core\Controls\ControlsHelpers;
 use GibberishAES;
 use NApp;
+use ReflectionClass;
+use ReflectionException;
+use Translate;
+
 /**
  * Class Module
  * All applications modules extend this base class
@@ -283,7 +287,7 @@ class Module {
 			foreach($params as $k=>$v) {
 				switch($k) {
 					case 'qsearch':
-						$lxparam[$k] = $v==\Translate::Get('qsearch_label') ? '' : $v;
+                        $lxparam[$k]=$v==Translate::Get('qsearch_label') ? '' : $v;
 						break;
 				  	default:
 						$lxparam[$k] = $v;
@@ -324,7 +328,9 @@ class Module {
 		$targetid = $params->safeGet('targetid','','is_string');
 		if($params->safeGet('modal',TRUE,'bool')) {
 			$callback = $params->safeGet('callback','','is_string');
-			if($callback) { \GibberishAES::enc($callback ,'cmf'); }
+            if($callback) {
+                GibberishAES::enc($callback,'cmf');
+            }
 			$dynamic = intval($params->safeGet('dynamic',TRUE,'bool'));
 			NApp::Ajax()->ExecuteJs("CloseModalForm('{$callback}','{$targetid}','{$dynamic}');");
 		} elseif(strlen($targetid)) {
@@ -346,7 +352,7 @@ class Module {
 		    $mParentArray = explode('\\',trim($mParentClass,'\\'));
 			$mParent = array_pop($mParentArray);
 			if($mParent=='Module') { break; }
-			$rc = new \ReflectionClass($mParentClass);
+            $rc=new ReflectionClass($mParentClass);
             $mPath = dirname($rc->getFileName());
 			$result[] = ['name'=>$mParent,'class'=>$mParentClass,'path'=>$mPath];
 			$mParentClass = get_parent_class($mParentClass);
@@ -423,7 +429,7 @@ class Module {
                 }//END foreach
             }//if($parents)
         }//if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath))
-        $rc = new \ReflectionClass($this);
+        $rc=new ReflectionClass($this);
         $mFullPath = dirname($rc->getFileName());
         // NApp::Dlog($mFullPath,'$mFullPath');
 		if($themeDir) {
@@ -465,7 +471,7 @@ class Module {
 		// \NETopes\Core\App\Debugger::StartTimeTrack('MGetViewFile');
 		try {
 		    $result = $this->ViewFileProvider($name,$sub_dir,$theme_dir);
-		} catch(\ReflectionException $re) {
+        } catch(ReflectionException $re) {
 		    throw AppException::GetInstance($re,'reflection',0);
 		}//END try
 		// NApp::Dlog(number_format(\NETopes\Core\App\Debugger::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);

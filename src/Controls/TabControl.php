@@ -126,7 +126,7 @@ class TabControl {
 				$tContent = str_replace('{{t_name}}',$tab['t_name'],$tContent);
 				$tContent = str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tContent);
 				$tscript = get_array_value($tab,'load_script','','is_string');
-				$js_command = NApp::Ajax()->Prepare($tContent,1,NULL,$tscript);
+                $js_command=NApp::Ajax()->LegacyPrepare($tContent,1,NULL,$tscript);
 				$ct_data .= $reload_onchange ? ' data-reload-action="'.$js_command.'"' : '';
 				if(get_array_value($tab,'autoload',TRUE,'bool')) {
 					NApp::AddJsScript($js_command);

@@ -10,6 +10,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use Exception;
+use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSource;
 use NETopes\Core\Data\VirtualEntity;
 use NApp;
@@ -22,21 +24,24 @@ class KVList extends Control {
     protected $postable_elements = TRUE;
     public $lang_items = NULL;
     public $lang_ds = NULL;
+
     public function __construct($params = NULL) {
         parent::__construct($params);
-        if(!$this->postable) { $this->postable_elements = FALSE; }
-        else { $this->postable = FALSE; }
-        if(!strlen($this->tag_id)) { $this->tag_id = \NETopes\Core\AppSession::GetNewUID('KVList'); }
+        if(!$this->postable) { $this->postable_elements = FALSE; } else { $this->postable = FALSE; }
+        if(!strlen($this->tag_id)) {
+            $this->tag_id=AppSession::GetNewUID('KVList');
+        }
         if(!strlen($this->tag_name)) { $this->tag_name = strlen($this->tag_id) ? $this->tag_id : ''; }
         if(is_array($this->lang_items)) { $this->lang_items = DataSourceHelpers::ConvertResultsToDataSet($this->lang_items,VirtualEntity::class); }
     }//END public function __construct
+
     protected function SetControlInstance($with_translations = FALSE,$values = NULL,$lang = NULL) {
         $this->ProcessActions();
         $lvalues = (is_null($values) ? $this->value : $values);
         if(is_string($lvalues) && strlen($lvalues)) {
             try {
                 $lvalues = @json_decode($lvalues,TRUE);
-            } catch(\Exception $e) {
+            } catch(Exception $e) {
                 NApp::Elog($e);
                 $lvalues = [];
             }//END try
@@ -70,6 +75,7 @@ class KVList extends Control {
         $result .= $this->GetActions();
         return $result;
     }//END protected function SetControlInstance
+
     protected function SetControl(): ?string {
         $label = (is_string($this->label) && strlen($this->label) ? $this->label : NULL);
         if(is_iterable($this->lang_items) && count($this->lang_items)) {

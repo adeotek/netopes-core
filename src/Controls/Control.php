@@ -487,9 +487,9 @@ abstract class Control {
 				$lonclick_scr = $this->onclick_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
 			if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func)) {
-				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
+                $action.=($action ? ' ' : '').NApp::Ajax()->LegacyPrepare($lonclick_scr,1,NULL,NULL,1,$this->run_oninit_func);
 			} else {
-				$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($lonclick_scr);
+                $action.=($action ? ' ' : '').NApp::Ajax()->LegacyPrepare($lonclick_scr);
 			}//if(isset($this->run_oninit_func) && is_numeric($this->run_oninit_func))
 		}//if(strlen($this->onclick_str) && ($this->data_onclick!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
@@ -524,7 +524,7 @@ abstract class Control {
 			} else {
 				$onchange_str = $this->onchange_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onchange_str);
+            $action.=($action ? ' ' : '').NApp::Ajax()->LegacyPrepare($onchange_str);
 		}//if(strlen($this->onchange_str) && ($this->data_onchange!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -558,7 +558,7 @@ abstract class Control {
 			} else {
 				$onkeypress_str = $this->onkeypress_str;
 			}//if(strpos($this->onclick_str,'#action_params#')!==FALSE)
-			$action .= ($action ? ' ' : '').NApp::Ajax()->Prepare($onkeypress_str);
+            $action.=($action ? ' ' : '').NApp::Ajax()->LegacyPrepare($onkeypress_str);
 		}//if(strlen($this->onkeypress_str) && ($this->data_onkeypress!==TRUE || $this->disabled!==TRUE))
 		if(!strlen(trim($action))) { return ''; }
 			if(strlen($this->confirm_text)) {
@@ -679,7 +679,7 @@ abstract class Control {
 						$ca_command .= $ce_arr[0];
 					}//if(count($ce_arr)>1)
 				}//END foreach
-				$ca_params['onclick'] = NApp::Ajax()->Prepare($ca_command,$this->loader);
+                $ca_params['onclick']=NApp::Ajax()->LegacyPrepare($ca_command,$this->loader);
 			}//if($acommand)
 			$ca_ctrl = new $caClass($ca_params);
 			if(get_array_value($ca,'clear_base_class',FALSE,'bool')) { $ca_ctrl->ClearBaseClass(); }

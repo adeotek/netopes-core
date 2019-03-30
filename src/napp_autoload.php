@@ -8,6 +8,8 @@
  * @version    3.0.0.0
  * @filesource
  */
+use NETopes\Core\AppException;
+
 /**
  * NETopes autoloader function
  * Used to autoload DataSources and Modules
@@ -31,7 +33,7 @@ function _napp_autoload($class) {
             }//if(file_exists(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR,$a_class).'.php'))
             $dbg_bt = debug_backtrace();
             $dbg_item = count($dbg_bt)<5 ? $dbg_bt[count($dbg_bt)-1] : $dbg_bt[4];
-            $ex = new \NETopes\Core\AppException('Class file not found ['.$class.']',E_ERROR,1,$dbg_item['file'],$dbg_item['line'],'app',NULL,$dbg_bt);
+        $ex=new AppException('Class file not found ['.$class.']',E_ERROR,1,$dbg_item['file'],$dbg_item['line'],'app',NULL,$dbg_bt);
             throw $ex;
         default:
             return FALSE;

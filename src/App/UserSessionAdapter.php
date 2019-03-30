@@ -10,9 +10,13 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use DateInterval;
+use DateTime;
+use GibberishAES;
 use NETopes\Core\AppConfig;
 use NETopes\Core\Data\DataProvider;
 use NApp;
+use Translate;
 
 /**
  * Class UserSession
@@ -53,7 +57,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
         $auto_login=1;
         $user_hash=NApp::Url()->GetParam('uhash');
         if(!strlen($user_hash) && array_key_exists($cookieHash,$_COOKIE) && strlen($_COOKIE[$cookieHash])) {
-            $user_hash=\GibberishAES::dec($_COOKIE[$cookieHash],AppConfig::GetValue('app_encryption_key'));
+            $user_hash=GibberishAES::dec($_COOKIE[$cookieHash],AppConfig::GetValue('app_encryption_key'));
         }//if(!strlen($user_hash) && array_key_exists($cookieHash,$_COOKIE) && strlen($_COOKIE[$cookieHash]))
         if(!strlen($user_hash)) {
             $auto_login=0;
@@ -171,8 +175,8 @@ class UserSessionAdapter implements IUserSessionAdapter {
         //Load user rights
         if(UserSession::$loginStatus && !$notFromDb) {
             $ur_ts=NApp::GetParam('user_rights_revoked_ts');
-            $dt_ur_ts=strlen($ur_ts) ? new \DateTime($ur_ts) : new \DateTime('1900-01-01 01:00:00');
-            if($dt_ur_ts->add(new \DateInterval('PT30M'))<(new \DateTime('now'))) {
+            $dt_ur_ts=strlen($ur_ts) ? new DateTime($ur_ts) : new DateTime('1900-01-01 01:00:00');
+            if($dt_ur_ts->add(new DateInterval('PT30M'))<(new DateTime('now'))) {
                 $rightsrevoked=DataProvider::GetArray('System\Users','GetUserRightsRevoked',['user_id'=>NApp::GetParam(static::GetUserIdKey())],['results_keys_case'=>CASE_LOWER]);
                 NApp::SetParam('user_rights_revoked',AppHelpers::ConvertRightsRevokedArray($rightsrevoked));
                 NApp::SetParam('user_rights_revoked_ts',date('Y-m-d H:i:s'));
@@ -225,23 +229,23 @@ class UserSessionAdapter implements IUserSessionAdapter {
                 $userData=DataProvider::Get('System\Users','GetLogin',['for_username'=>$username]);
         }//END switch
         if(!is_object($userData)) {
-            return \Translate::Get('msg_unknown_error');
+            return Translate::Get('msg_unknown_error');
         }
         $login_msg=$userData->getProperty('login_msg','','is_string');
         if(!strlen($login_msg)) {
-            return \Translate::Get('msg_unknown_error');
+            return Translate::Get('msg_unknown_error');
         }
         if($login_msg!='1') {
-            return \Translate::Get('msg_'.$login_msg);
+            return Translate::Get('msg_'.$login_msg);
         }
         UserSession::$loginStatus=password_verify($password,$userData->getProperty('password_hash'));
         if(!UserSession::$loginStatus) {
-            return \Translate::Get('msg_invalid_password');
+            return Translate::Get('msg_invalid_password');
         }
         NApp::SetParam('login_tries',NULL);
         UserSession::$userStatus=$userData->getProperty('active',0,'is_integer');
         if(UserSession::$userStatus<>1 && UserSession::$userStatus<>2) {
-            return \Translate::Get('msg_inactive_user');
+            return Translate::Get('msg_inactive_user');
         }
         NApp::SetParam(static::GetUserIdKey(),$userData->getProperty('id',NULL,'is_integer'));
         NApp::SetParam('confirmed_user',$userData->getProperty('confirmed',NULL,'is_integer'));

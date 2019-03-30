@@ -116,7 +116,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
      * @param \Throwable $e The exception/error to be added to the stack
      * @return void
      */
-    public static function AddError(\Throwable $e) {
+    public static function AddError(Throwable $e) {
         $errFile=str_replace(_NAPP_ROOT_PATH,'',$e->getFile());
         if(!is_array(self::$errorsStack)) {
             self::$errorsStack=[];
@@ -140,9 +140,9 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
     public static function ExceptionHandlerFunction($exception) {
         if($exception instanceof AppException) {
             $e=$exception;
-        } elseif($exception instanceof \Error) {
+        } elseif($exception instanceof Error) {
             $e=AppException::GetInstance($exception,'php',-1);
-        } elseif($exception instanceof \PDOException) {
+        } elseif($exception instanceof PDOException) {
             $e=AppException::GetInstance($exception,'pdo');
         } else {
             $e=AppException::GetInstance($exception,'other');
@@ -354,7 +354,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
             $error_str.=self::$backtrace ? '<br>Backtrace: '.print_r(debug_backtrace(),TRUE).'<br>' : '';
         }//if(!$errNo && !$errFile && !$errLine)
         if(strlen(self::$jsShowError) && class_exists('NApp') && NApp::$guiLoaded) {
-            $error_str=\GibberishAES::enc($error_str,'HTML');
+            $error_str=GibberishAES::enc($error_str,'HTML');
             if(NApp::ajax()) {
                 if(NApp::IsValidAjaxRequest() && !self::$shutdown) {
                     NApp::AddJsScript(self::$jsShowError."('{$error_str}',true);");

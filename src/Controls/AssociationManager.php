@@ -193,8 +193,8 @@ abstract class AssociationManager {
     protected function GetFilterJs(string $tagId) {
         $this->GetFilterHelperJs();
         $funcSufix = '_'.str_replace('-','_',$tagId);
-        $js = <<<JS
-            var assocManagerFilterElements{$funcSufix} = function(t) {
+        $js=<<<JS
+            var assocManagerFilterElements;{$funcSufix} = function(t) {
                 var thisFilterValue = GetSlug($(t).val());
                 if(!thisFilterValue) {
                     $('#{$tagId} li.am-element').show();
@@ -202,7 +202,7 @@ abstract class AssociationManager {
                     $('#{$tagId} li.am-element').hide();
                     $('#{$tagId} li.am-element.is-filterable[data-search*="'+thisFilterValue+'"]').show();
                 }
-            }
+            };
             $('#filter-{$tagId}').on('keyup',function(){
                 assocManagerFilterElements{$funcSufix}(this);
             });
@@ -262,7 +262,7 @@ HTML;
 			});
 JS;
         if($this->sortable) {
-            $sis_js .= <<<JS
+            $sis_js.=<<<JS
                 $('#{$this->sis_box_tagid}').sortable({
                     placeholder: 'ui-state-highlight',
                     update: function(event,ui) {
@@ -270,7 +270,7 @@ JS;
                         var previd = 0;
                         var newindex = $(ui.item).index();
                         if(newindex>0) { previd = $(ui.item).prev().attr('id'); }
-                        ".NApp::Ajax()->Prepare("AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid~'after_id'|previd,'{$this->sort_target}')->errors-<elid-<previd")."
+                        ".NApp::Ajax()->LegacyPrepare(";AjaxRequest('{$this->sort_module}','{$this->sort_method}','id'|elid;~'after_id'|previd,'{$this->sort_target}';)->errors-<elid-<previd;")."
                     }
                 });
                 $('#{$this->sis_box_tagid}').disableSelection();
