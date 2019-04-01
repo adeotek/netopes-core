@@ -165,13 +165,16 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @return object Returns the transaction instance
      * @throws \NETopes\Core\AppException
      */
-    public function SqlSrvBeginTran($name = NULL,$log = TRUE,$overwrite = TRUE,$custom_tran_params = NULL) {
-        // $lname = strlen($name) ? $name : $this->default_tran;
-        $lname = $this->default_tran;
-        if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname] && !$overwrite) { return NULL; }
-        $this->transactions[$lname] = sqlsrv_begin_transaction($this->connection);
-        if($this->transactions[$lname]===FALSE) { throw new  AppException("FAILED TO BEGIN TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0); }
-        return $this->transactions[$lname];
+    public function SqlSrvBeginTran(&$name=NULL,$log=TRUE,$overwrite=TRUE,$custom_tran_params=NULL) {
+        $name=$this->default_tran;
+        if(array_key_exists($name,$this->transactions) && $this->transactions[$name] && !$overwrite) {
+            return NULL;
+        }
+        $this->transactions[$name]=sqlsrv_begin_transaction($this->connection);
+        if($this->transactions[$name]===FALSE) {
+            throw new  AppException("FAILED TO BEGIN TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+        }
+        return $this->transactions[$name];
     }//END public function SqlSrvBeginTran
 
     /**
@@ -182,7 +185,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      */
     public function SqlSrvRollbackTran($name = NULL,$log = TRUE) {
-        // $lname = strlen($name) ? $name : $this->default_tran;
         $lname = $this->default_tran;
         if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
             $this->transactions = [];
@@ -201,7 +203,6 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      */
     public function SqlSrvCommitTran($name = NULL,$log = TRUE,$preserve = FALSE) {
-        // $lname = strlen($name) ? $name : $this->default_tran;
         $lname = $this->default_tran;
         if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
             $this->transactions = [];
