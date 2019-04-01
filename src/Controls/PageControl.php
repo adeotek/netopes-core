@@ -47,7 +47,7 @@ class PageControl extends Control {
      * @return mixed
      */
     protected function GetAjaxCommandString(?int $first,?int $last,$page) {
-        return NApp::Ajax()->Prepare("{ 'module': '{$this->module}', 'method': '{$this->method}', 'params': { ".(isset($first) ? "'first_row': {$first}, " : '').(isset($last) ? "'last_row': {$last}, " : '')."'current_page': {$page}, 'fullpagination': 1,".($this->passparams ? $this->passparams.', ' : '')."'target': '{$this->target}' }}",$this->target);
+        return NApp::Ajax()->Prepare("{ 'module': '{$this->module}', 'method': '{$this->method}', 'params': { ".(isset($first) ? "'first_row': {$first}, " : '').(isset($last) ? "'last_row': {$last}, " : '')."'current_page': {$page}, 'fullpagination': 1,".($this->passparams ? $this->passparams.', ' : '')."'target': '{$this->target}' !}",$this->target);
     }//END protected function GetAjaxCommandString
 
     /**

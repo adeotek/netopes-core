@@ -826,16 +826,7 @@ abstract class Control {
                 }
             }//if(!$ajaxCommand)
             if($ajaxCommand) {
-                $acParams=explode('}}',$ajaxCommand);
-                $ajaxCommand='';
-                foreach($acParams as $ce) {
-                    $ce_arr=explode('{{',$ce);
-                    if(count($ce_arr)>1) {
-                        $ajaxCommand.=$ce_arr[0].get_array_value($ca,$ce_arr[1],'','is_scalar');
-                    } else {
-                        $ajaxCommand.=$ce_arr[0];
-                    }//if(count($ce_arr)>1)
-                }//END foreach
+                $ajaxCommand=ControlsHelpers::ReplaceDynamicParams($ajaxCommand,$ca,TRUE,NULL,'is_scalar');
                 $caParams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
             }//if($ajaxCommand)
             $caCtrl=new $caClass($caParams);

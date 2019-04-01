@@ -272,7 +272,7 @@ class Report extends ExcelExport {
             $ee_button='';
             if($this->excel_export) {
                 $ee_button.="\t\t".'<span style="float: right; width: 300px; margin-right: 50px;"><div  class="round_button right" onclick="'.NApp::Ajax()->Prepare(
-                        "{ 'module': '{$this->export_module}', 'method': '{$this->export_method}', 'params': { 'fsource': '{$this->cached_file}', 'fname': '{$this->export_file_name}', 'dhash': '{$this->dhash}' }}",'excelexport_errors').'">'.Translate::Get('download_label',$this->langcode).'</div></span>'."\n";
+                        "{ 'module': '{$this->export_module}', 'method': '{$this->export_method}', 'params': { 'fsource': '{$this->cached_file}', 'fname': '{$this->export_file_name}', 'dhash': '{$this->dhash}' !}",'excelexport_errors').'">'.Translate::Get('download_label',$this->langcode).'</div></span>'."\n";
             }//if($this->excel_export)
             if($this->display_records_no) {
                 $this->result.="\t".'<div style="height: 20px; margin-bottom: 10px;">'."\n";

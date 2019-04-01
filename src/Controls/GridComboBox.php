@@ -115,7 +115,7 @@ class GridComboBox extends Control {
                 $dparams.="~'dynf[{$dk}]'|$dv";
             }
         }//if(is_array($this->dynamic_params) && count($this->dynamic_params))
-        $dd_action=NApp::Ajax()->Prepare("{ 'control_hash': '{$this->chash}', 'method': 'ShowDropDown', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'selected_value': '{nGet:{$this->tag_id}:value}', 'qsearch': '{nGet:{$this->tag_id}-cbo:value}', 'text': '{nGet:{$this->tag_id}-cbo:attr:data-text{$dparams}}' }}",$this->target,NULL,TRUE,NULL,TRUE,"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",NULL,TRUE,'ControlAjaxRequest');
+        $dd_action=NApp::Ajax()->Prepare("{ 'control_hash': '{$this->chash}', 'method': 'ShowDropDown', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'selected_value': '{nGet:{$this->tag_id}:value}', 'qsearch': '{nGet:{$this->tag_id}-cbo:value}', 'text': '{nGet:{$this->tag_id}-cbo:attr:data-text{$dparams}}' } }",$this->target,NULL,TRUE,NULL,TRUE,"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",NULL,TRUE,'ControlAjaxRequest');
         $isvalue=strlen($this->selected_value) ? $this->selected_value : NULL;
         $demptyval=strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
         $result='<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
@@ -207,7 +207,7 @@ class GridComboBox extends Control {
                     'actions'=>[
                         [
                             'type'=>'CheckBox',
-                            'params'=>['container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-{{'.$this->value_field.'}}','tooltip'=>Translate::Get('button_select'),'class'=>$this->base_class.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tag_id}','{{{$this->value_field}}}','{{{$this->display_field}}}',true)",'value'=>['type'=>'eval','arg'=>"return ({{{$this->value_field}}}=='{$selectedvalue}' ? 1 : 0);"]],
+                            'params'=>['container'=>FALSE,'no_label'=>TRUE,'tag_id'=>$this->tag_id.'-{!'.$this->value_field.'!}','tooltip'=>Translate::Get('button_select'),'class'=>$this->base_class.' gcbo-selector','postable'=>FALSE,'onclick'=>"GCBOSetValue('{$this->tag_id}','{!{$this->value_field}!}','{!{$this->display_field}!}',true)",'value'=>['type'=>'eval','arg'=>"return ({!{$this->value_field}!}=='{$selectedvalue}' ? 1 : 0);"]],
                         ],
                     ],
                 ],

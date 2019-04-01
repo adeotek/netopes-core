@@ -428,7 +428,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$p) {
                 if($p instanceof DateTime) {
-                    $query=str_replace('{{'.$k.'}}',$p->format('Y-m-d H:i:s'),$query);
+                    $query=str_replace('{!'.$k.'!}',$p->format('Y-m-d H:i:s'),$query);
                 } else {
                     $p=$this->EscapeString($p);
                     if(strlen($p)>4000) {
@@ -440,9 +440,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                             $bind_params=[];
                         }
                         $bind_params[]=$bpid;
-                        $query=str_replace('{{'.$k.'}}','?',$query);
+                        $query=str_replace('{!'.$k.'!}','?',$query);
                     } else {
-                        $query=str_replace('{{'.$k.'}}',$p,$query);
+                        $query=str_replace('{!'.$k.'!}',$p,$query);
                     }//if(strlen($v)>4000)
                 }//if($p instanceof \DateTime)
             }//END foreach

@@ -134,11 +134,11 @@ class TabControl {
                     $reload_onchange=get_array_value($tab,'reload_onchange',FALSE,'bool');
                     $ct_data.=$reload_onchange ? ' data-reload="1"' : '';
                     $tTargetId=$this->tag_id.'-'.$tab['t_uid'];
-                    $tAjaxContent=str_replace('{{t_uid}}',$tab['t_uid'],$tAjaxContent);
-                    $tAjaxContent=str_replace('{{t_name}}',$tab['t_name'],$tAjaxContent);
-                    $tAjaxContent=str_replace('{{t_target}}',$tTargetId,$tAjaxContent);
+                    $tAjaxContent=str_replace('{!t_uid!}',$tab['t_uid'],$tAjaxContent);
+                    $tAjaxContent=str_replace('{!t_name!}',$tab['t_name'],$tAjaxContent);
+                    $tAjaxContent=str_replace('{!t_target!}',$tTargetId,$tAjaxContent);
                     $tScript=get_array_value($tab,'load_script',NULL,'?is_string');
-                    $jsCommand=NApp::Ajax()->Prepare($tAjaxContent,$tTargetId,NULL,$this->loader,NULL,TRUE,NULL,NULL,TRUE,NULL,NULL,NULL,$tScript);
+                    $jsCommand=NApp::Ajax()->Prepare($tAjaxContent,$tTargetId,NULL,TRUE,NULL,TRUE,NULL,NULL,TRUE,NULL,NULL,NULL,$tScript);
                     $ct_data.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
                     if(get_array_value($tab,'autoload',TRUE,'bool')) {
                         NApp::AddJsScript($jsCommand);
@@ -146,9 +146,9 @@ class TabControl {
                 } elseif($tContent=get_array_value($tab,'content',NULL,'is_notempty_string')) {
                     $reload_onchange=get_array_value($tab,'reload_onchange',FALSE,'bool');
                     $ct_data.=$reload_onchange ? ' data-reload="1"' : '';
-                    $tContent=str_replace('{{t_uid}}',$tab['t_uid'],$tContent);
-                    $tContent=str_replace('{{t_name}}',$tab['t_name'],$tContent);
-                    $tContent=str_replace('{{t_target}}',$this->tag_id.'-'.$tab['t_uid'],$tContent);
+                    $tContent=str_replace('{!t_uid!}',$tab['t_uid'],$tContent);
+                    $tContent=str_replace('{!t_name!}',$tab['t_name'],$tContent);
+                    $tContent=str_replace('{!t_target!}',$this->tag_id.'-'.$tab['t_uid'],$tContent);
                     $tScript=get_array_value($tab,'load_script','','is_string');
                     $jsCommand=NApp::Ajax()->LegacyPrepare($tContent,1,NULL,$tScript);
                     $ct_data.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
@@ -270,7 +270,7 @@ class TabControl {
                     //NApp::Dlog($ds_items,'$ds_items1');
                     if(is_array($ds_items) && count($ds_items)) {
                         foreach($ds_items as $k=>$v) {
-                            $result=$this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',get_array_value($v,$ds_field,'','isset'));
+                            $result=$this->ProcessParamsArray($result,'{!'.strtolower($k).'!}',get_array_value($v,$ds_field,'','isset'));
                         }//END foreach
                     }//if(is_array($ds_items) && count($ds_items))
                 }//if(strlen($da_field))
@@ -279,13 +279,13 @@ class TabControl {
                 //NApp::Dlog($ds_items,'$ds_items2');
                 if(is_array($ds_items) && count($ds_items)) {
                     foreach($ds_items as $k=>$v) {
-                        $result=$this->ProcessParamsArray($result,'{{'.strtolower($k).'}}',$v);
+                        $result=$this->ProcessParamsArray($result,'{!'.strtolower($k).'!}',$v);
                     }//END foreach
                 }//if(is_array($ds_items) && count($ds_items))
             }//if(strlen($da_key))
         }//if(strlen($ds_class) && strlen($ds_method))
         // NApp::Dlog($result['content']['control_params'],'control_params>B');
-        $result=$this->ProcessParamsArray($result,'/{{.*}}/','',TRUE);
+        $result=$this->ProcessParamsArray($result,ControlsHelpers::PLACEHOLDERS_REG_EXP,'',TRUE);
         // NApp::Dlog($result['content']['control_params'],'control_params>A');
         return $result;
     }//END protected function GetTabData
@@ -330,7 +330,7 @@ class TabControl {
             switch(get_array_value($tab,'t_type','','is_string')) {
                 case 'template':
                     $tuid=get_array_value($tab,'t_uid',NULL,'is_string');
-                    $ttab=$this->ProcessParamsArray($tab,'{{t_uid}}',$tuid);
+                    $ttab=$this->ProcessParamsArray($tab,'{!t_uid!}',$tuid);
                     $ttab=$this->GetTabData($ttab);
                     $result.=$this->SetContent($ttab);
                     break;
@@ -376,7 +376,7 @@ JS;
                         $tUid=get_array_value($cTab,get_array_value($tab,'uid_field','id','is_notempty_string'),'','isset');
                         $tName=get_array_value($cTab,get_array_value($tab,'name_field','name','is_notempty_string'),'','is_string');
                         $result.="\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
-                        $tTab=$this->ProcessParamsArray($cTab,'{{t_uid}}',$tUid);
+                        $tTab=$this->ProcessParamsArray($cTab,'{!t_uid!}',$tUid);
                         $tTab=$this->GetTabData($tTab);
                         $tTab=array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
                         $contentType=NULL;
@@ -387,7 +387,7 @@ JS;
                     $tUid=get_array_value($tab,'uid','def','isset');
                     $tName=get_array_value($tab,'name','','is_string');
                     $result.="\t".'<h3 data-for="'.$this->tag_id.'-'.$tUid.'">'.$tName.'</h3>'."\n";
-                    $tTab=$this->ProcessParamsArray($tab,'{{t_uid}}',$tUid);
+                    $tTab=$this->ProcessParamsArray($tab,'{!t_uid!}',$tUid);
                     $tTab=array_merge($tTab,['t_type'=>'fixed','t_name'=>$tName,'t_uid'=>$tUid]);
                     $contentType=NULL;
                     $result.=$this->SetContent($tTab,$contentType);

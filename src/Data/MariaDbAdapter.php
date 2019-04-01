@@ -121,7 +121,7 @@ class MariaDbAdapter extends SqlDataAdapter {
     public function MariaDbPrepareQuery(&$query,$params=[],$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
-                $query=str_replace('{{'.$k.'}}',$this->EscapeString($v),$query);
+                $query=str_replace('{!'.$k.'!}',$this->EscapeString($v),$query);
             }
         }//if(is_array($params) && count($params))
         $filter_str='';

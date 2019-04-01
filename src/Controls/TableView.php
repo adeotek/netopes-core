@@ -398,21 +398,21 @@ class TableView {
         switch($type) {
             case 'apply_filters':
                 $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'apply' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'apply' } }";
                 break;
             case 'update_filter':
                 $targetId=$this->tag_id.'-filters';
                 $execCallback=FALSE;
                 $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ShowFiltersBox', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet:{$this->tag_id}-f-operator:value}', 'type': '{nGet:{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet:'.$fcType.'}' : '')."' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'ShowFiltersBox', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet:{$this->tag_id}-f-operator:value}', 'type': '{nGet:{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet:'.$fcType.'}' : '')."' } }";
                 break;
             case 'remove_filter':
                 $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_numeric')."', 'sessact': 'filters' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_numeric')."', 'sessact': 'filters' } }";
                 break;
             case 'clear_filters':
                 $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction':'clear', 'sessact': 'filters' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction':'clear', 'sessact': 'filters' } }";
                 break;
             case 'add_filter':
                 $targetId=$this->target;
@@ -433,29 +433,29 @@ class TableView {
 						'fdvalue'|'{nGet:".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
 						'fsdvalue'|'".(strlen($fsdvalue) ? '{nGet:'.$fsdvalue.'}' : '')."', 
 						'data_type'|'{$fdtype}',
-						'is_ds_param'|'{$isDSParam}' }}";
+						'is_ds_param'|'{$isDSParam}' } }";
                 break;
             case 'sort':
                 $targetId=$this->target;
                 $onloadCallback=FALSE;
                 $sdir=$params->safeGet('direction','asc','is_notempty_string');
                 $sdir=$sdir=='asc' ? 'desc' : 'asc';
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}': 'sessact'|'sort' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}': 'sessact'|'sort' } }";
                 break;
             case 'gotopage':
                 $targetId=$this->target;
                 $onloadCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {{page}}, 'sessact': 'page' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {{page}}, 'sessact': 'page' } }";
                 break;
             case 'export_all':
                 $targetId='errors';
                 $execCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {}}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
                 break;
             case 'refresh':
             default:
                 $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' }}";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
                 break;
         }//END switch
         if(!$processCall) {
@@ -1363,16 +1363,7 @@ class TableView {
                         }
                     }//if(!$ajaxCommand)
                     if($ajaxCommand) {
-                        $ac_params=explode('}}',$ajaxCommand);
-                        $ajaxCommand='';
-                        foreach($ac_params as $ce) {
-                            $ce_arr=explode('{{',$ce);
-                            if(count($ce_arr)>1) {
-                                $ajaxCommand.=$ce_arr[0].$row->GetProperty($ce_arr[1],'','is_scalar');
-                            } else {
-                                $ajaxCommand.=$ce_arr[0];
-                            }//if(count($ce_arr)>1)
-                        }//END foreach
+                        $ajaxCommand=ControlsHelpers::ReplaceDynamicParams($ajaxCommand,$row);
                         $aparams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
                     }//if($ajaxCommand)
                     $btn_action=new $atype($aparams);

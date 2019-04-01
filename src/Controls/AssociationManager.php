@@ -308,7 +308,7 @@ JS;
                         var previd = 0;
                         var newindex = $(ui.item).index();
                         if(newindex>0) { previd = $(ui.item).prev().attr('id'); }
-                        ".NApp::Ajax()->Prepare("{ 'module': '{$this->sort_module}', 'method': '{$this->sort_method}', 'params': { 'id': elid, 'after_id': previd,'target': '{$this->sort_target}' }}",'errors',['elid','previd'])."
+                        ".NApp::Ajax()->Prepare("{ 'module': '{$this->sort_module}', 'method': '{$this->sort_method}', 'params': { 'id': elid, 'after_id': previd,'target': '{$this->sort_target}' !}",'errors',['elid','previd'])."
                     }
                 });
                 $('#{$this->sis_box_tagid}').disableSelection();

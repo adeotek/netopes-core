@@ -268,7 +268,7 @@ class PdfCreator extends TCPDF {
         }//if(is_array($this->pagegroups) && count($this->pagegroups))
         $mask=get_array_value($params,'mask','','is_string');
         if($mask) {
-            $value=str_replace('{{pages_no}}',$cPageAlias,str_replace('{{page}}',$tPagesAlias,$mask));
+            $value=str_replace('{!pages_no!}',$cPageAlias,str_replace('{!page!}',$tPagesAlias,$mask));
         } else {
             $value=$cPageAlias.' / '.$tPagesAlias;
         }//if($mask)

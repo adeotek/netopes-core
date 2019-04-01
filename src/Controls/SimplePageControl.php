@@ -50,7 +50,7 @@ class SimplePageControl extends Control {
      */
     protected function GetAjaxActionString($search=NULL,$replace=NULL) {
         if(is_array($this->onclick_params) && count($this->onclick_params)) {
-            $command=NApp::Ajax()->ProcessParamsArray($this->onclick_params);
+            $command=NApp::Ajax()->GetCommand($this->onclick_params);
         } elseif(is_string($this->onclick_action) && strlen($this->onclick_action)) {
             $command=$this->onclick_action;
         } else {
@@ -80,13 +80,13 @@ class SimplePageControl extends Control {
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('io btn-xxs') : 'btn btn-default io btn-xxs').'"><i class="fa fa-angle-double-left"></i></div>'."\n";
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('io btn-xxs') : 'btn btn-default io btn-xxs').'"><i class="fa fa-angle-left"></i></div>'."\n";
             } else {
-                $lonclick=$this->GetAjaxActionString('{{page}}',1);
+                $lonclick=$this->GetAjaxActionString('{!page!}',1);
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-left"></i></div>'."\n";
-                $lonclick=$this->GetAjaxActionString('{{page}}',($cpage - 1));
+                $lonclick=$this->GetAjaxActionString('{!page!}',($cpage - 1));
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-left"></i></div>'."\n";
             }//if($cpage==1 || $cpage<0)
             $psid=AppSession::GetNewUID(NULL,'md5');
-            $lonclick=$this->GetAjaxActionString('{{page}}',$psid.':value');
+            $lonclick=$this->GetAjaxActionString('{!page!}',$psid.':value');
             $result.="\t".'<select id="'.$psid.'" onchange="'.$lonclick.'">'."\n";
             for($i=1; $i<=$pages_no; $i++) {
                 $lselected=$cpage==$i ? ' selected="selected"' : '';
@@ -101,9 +101,9 @@ class SimplePageControl extends Control {
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('io btn-xxs') : 'btn btn-default io btn-xxs').'"><i class="fa fa-angle-right"></i></div>'."\n";
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnDefaultClass('io btn-xxs') : 'btn btn-default io btn-xxs').'"><i class="fa fa-angle-double-right"></i></div>'."\n";
             } else {
-                $lonclick=$this->GetAjaxActionString('{{page}}',($cpage + 1));
+                $lonclick=$this->GetAjaxActionString('{!page!}',($cpage + 1));
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-right"></i></div>'."\n";
-                $lonclick=$this->GetAjaxActionString('{{page}}',$pages_no);
+                $lonclick=$this->GetAjaxActionString('{!page!}',$pages_no);
                 $result.="\t".'<div class="'.(is_object(NApp::$theme) ? NApp::$theme->GetBtnInfoClass('io btn-xxs') : 'btn btn-info io btn-xxs').'" onclick="'.$lonclick.'"><i class="fa fa-angle-double-right"></i></div>'."\n";
             }//if($cpage==$pages_no || $cpage<0)
         } else {

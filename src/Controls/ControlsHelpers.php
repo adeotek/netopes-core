@@ -25,6 +25,14 @@ use NApp;
  */
 class ControlsHelpers {
     /**
+     * Regular expression for finding placeholders for dynamic parameters
+     */
+    const PLACEHOLDERS_REG_EXP='/{\![^}]*\!}/i';
+    /**
+     * Chars to trim for removing placeholders for dynamic parameters
+     */
+    const PLACEHOLDERS_TRIM_CHARS='{!}';
+    /**
      * Generate parameters URL hash
      *
      * @param array  $params         An array of parameters
@@ -93,31 +101,32 @@ class ControlsHelpers {
      * @param object|array $row       Data row object to be used for replacements
      * @param bool         $recursive Flag indicating if the array should be parsed recursively
      * @param string|null  $paramsPrefix
+     * @param string|null  $validation
      * @return array|string Return processed parameters array
      * @throws \NETopes\Core\AppException
      */
-    public static function ReplaceDynamicParams($params,$row,$recursive=TRUE,$paramsPrefix=NULL) {
+    public static function ReplaceDynamicParams($params,$row,$recursive=TRUE,$paramsPrefix=NULL,?string $validation=NULL) {
         $lRow=is_object($row) ? $row : new VirtualEntity(is_array($row) ? $row : []);
         if(is_string($params)) {
             if(!strlen($params)) {
                 return $params;
             }
             if(is_string($paramsPrefix) && strlen($paramsPrefix)) {
-                $result=str_replace('{'.$paramsPrefix.'{','{{',$params);
+                $result=str_replace('{'.$paramsPrefix.'!','{!',$params);
             } else {
                 $result=$params;
             }//if(is_string($params_prefix) && strlen($params_prefix))
-            $rv_arr=[];
-            preg_match_all('/{{[^}]*}}/i',$result,$rv_arr);
-            if(is_array($rv_arr[0])) {
-                foreach($rv_arr[0] as $pfr) {
+            $dynParams=[];
+            preg_match_all(self::PLACEHOLDERS_REG_EXP,$result,$dynParams);
+            if(is_array($dynParams[0])) {
+                foreach($dynParams[0] as $pfr) {
                     if(strpos($result,$pfr)===FALSE) {
                         continue;
                     }
-                    $pfrValue=$lRow->getProperty(trim($pfr,'{}'),NULL,'isset');
+                    $pfrValue=$lRow->getProperty(trim($pfr,self::PLACEHOLDERS_TRIM_CHARS),NULL,$validation ?? 'isset');
                     $result=is_object($pfrValue) ? $pfrValue : str_replace($pfr,addslashes($pfrValue),$result);
                 }//END foreach
-            }//if(is_array($rv_arr[0]))
+            }//if(is_array($dynParams[0]))
             return $result;
         }//if(is_string($params))
         if(!is_array($params) || !count($params)) {

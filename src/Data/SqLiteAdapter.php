@@ -96,7 +96,7 @@ class SqLiteAdapter extends SqlDataAdapter {
     public function SqLitePrepareQuery(&$query,$params=[],$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL) {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
-                $query=str_replace('{{'.$k.'}}',$this->SqLiteEscapeString($v),$query);
+                $query=str_replace('{!'.$k.'!}',$this->SqLiteEscapeString($v),$query);
             }
         }//if(is_array($params) && count($params))
         $filter_str='';

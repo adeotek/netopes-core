@@ -13,6 +13,7 @@ namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NApp;
+use NETopes\Core\Controls\ControlsHelpers;
 
 /**
  * Application BaseView class
@@ -617,43 +618,43 @@ class AppView {
             return FALSE;
         }
         if(strlen($targetId)) {
-            if(strpos($container,'{{TARGETID}}')===FALSE) {
+            if(strpos($container,'{!TARGETID!}')===FALSE) {
                 if($this->_debug) {
-                    NApp::Wlog('{{TARGETID}} placeholder is missing for view container ['.$containerType.']!');
+                    NApp::Wlog('{!TARGETID!} placeholder is missing for view container ['.$containerType.']!');
                 }
             } else {
-                $container=str_replace('{{TARGETID}}',$targetId,$container);
-            }//if(strpos($container,'{{TARGETID}}')===FALSE)
+                $container=str_replace('{!TARGETID!}',$targetId,$container);
+            }//if(strpos($container,'{!TARGETID!}')===FALSE)
         }//if(strlen($targetId))
         if(strlen(trim($containerClass))) {
-            if(strpos($container,'{{CSSCLASS}}')===FALSE) {
+            if(strpos($container,'{!CSSCLASS!}')===FALSE) {
                 if($this->_debug) {
-                    NApp::Wlog('{{CSSCLASS}} placeholder is missing for view container ['.$containerType.']!');
+                    NApp::Wlog('{!CSSCLASS!} placeholder is missing for view container ['.$containerType.']!');
                 }
             } else {
-                $container=str_replace('{{CSSCLASS}}',' '.trim($containerClass),$container);
-            }//if(strpos($container,'{{CSSCLASS}}')===FALSE)
+                $container=str_replace('{!CSSCLASS!}',' '.trim($containerClass),$container);
+            }//if(strpos($container,'{!CSSCLASS!}')===FALSE)
         }//if(strlen(trim($containerClass)))
         if(strlen($title)) {
-            if(strpos($container,'{{TITLE}}')===FALSE) {
+            if(strpos($container,'{!TITLE!}')===FALSE) {
                 if($this->_debug) {
-                    NApp::Wlog('{{TITLE}} placeholder is missing for view container ['.$containerType.']!');
+                    NApp::Wlog('{!TITLE!} placeholder is missing for view container ['.$containerType.']!');
                 }
             } else {
-                $container=str_replace('{{TITLE}}',' '.$title,$container);
-            }//if(strpos($container,'{{TITLE}}')===FALSE)
+                $container=str_replace('{!TITLE!}',' '.$title,$container);
+            }//if(strpos($container,'{!TITLE!}')===FALSE)
         }//if(strlen($title))
         if(is_array($actions) && count($actions)) {
-            if(strpos($container,'{{ACTIONS}}')===FALSE) {
+            if(strpos($container,'{!ACTIONS!}')===FALSE) {
                 if($this->_debug) {
-                    NApp::Wlog('{{ACTIONS}} placeholder is missing for view container ['.$containerType.']!');
+                    NApp::Wlog('{!ACTIONS!} placeholder is missing for view container ['.$containerType.']!');
                 }
             } else {
-                $container=str_replace('{{ACTIONS}}',implode("\n",$actions),$container);
-            }//if(strpos($container,'{{TITLE}}')===FALSE)
+                $container=str_replace('{!ACTIONS!}',implode("\n",$actions),$container);
+            }//if(strpos($container,'{!TITLE!}')===FALSE)
         }//if(is_array($actions) && count($actions))
         if(strlen($tag)) {
-            $placeholder='{{'.trim($tag,'{}').'}}';
+            $placeholder='{!'.trim($tag,'{}').'!}';
             if(strpos($container,$placeholder)===FALSE) {
                 if($this->_debug) {
                     NApp::Wlog($placeholder.' placeholder is missing for view container ['.$containerType.']!');
@@ -664,13 +665,13 @@ class AppView {
             $content=$this->ReplaceEmptyPlaceholders($content);
             return TRUE;
         }//if(strlen($tag))
-        if(strpos($container,'{{CONTENT}}')===FALSE) {
+        if(strpos($container,'{!CONTENT!}')===FALSE) {
             if($this->_debug) {
-                NApp::Wlog('{{CONTENT}} placeholder is missing for view container ['.$containerType.']!');
+                NApp::Wlog('{!CONTENT!} placeholder is missing for view container ['.$containerType.']!');
             }
             return FALSE;
-        }//if(strpos($container,'{{CONTENT}}')===FALSE)
-        $content=str_replace('{{CONTENT}}',$content,$container);
+        }//if(strpos($container,'{!CONTENT!}')===FALSE)
+        $content=str_replace('{!CONTENT!}',$content,$container);
         $content=$this->ReplaceEmptyPlaceholders($content);
         return FALSE;
     }//END protected function ProcessSubContainer
@@ -760,14 +761,14 @@ class AppView {
                 $processed=$this->ProcessSubContainer($cContent,$cContainerType,$cContainerId,$cContainerClass,$cTag,$cContainerTitle,$cContainerActions);
             }
             if(!$processed && strlen($cTag)) {
-                $placeholder='{{'.trim($cTag,'{}').'}}';
+                $placeholder='{!'.trim($cTag,'{}').'!}';
                 if(strpos($mainContainer,$placeholder)===FALSE) {
                     if($this->_debug) {
                         NApp::Wlog($placeholder.' placeholder is missing for view container ['.$cContainerType.']!');
                     }
                 } else {
                     $mainContainer=str_replace($placeholder,$cContent,$mainContainer);
-                    $placeholder='{{'.trim($cTag,'{}').'_ID}}';
+                    $placeholder='{!'.trim($cTag,'{}').'_ID!}';
                     $mainContainer=str_replace($placeholder,$cContainerId,$mainContainer);
                     $processed=TRUE;
                 }//if(strpos($mainContainer,$placeholder)===FALSE)
@@ -795,22 +796,22 @@ class AppView {
             $this->AddJsScript($mJsScript,TRUE);
         }//if($this->_isModal && $this->_modalAutoJs)
         if(strlen($mainContainer)) {
-            if($this->_debug && strpos($mainContainer,'{{CONTENT}}')===FALSE) {
-                NApp::Wlog('{{CONTENT}} placeholder is missing for view container ['.$this->_containerType.']!');
+            if($this->_debug && strpos($mainContainer,'{!CONTENT!}')===FALSE) {
+                NApp::Wlog('{!CONTENT!} placeholder is missing for view container ['.$this->_containerType.']!');
             }
-            if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{{TARGETID}}')===FALSE) {
-                NApp::Dlog('{{TARGETID}} placeholder is missing for view container ['.$this->_containerType.']!');
+            if($this->_debug && strlen($this->_targetId) && strpos($mainContainer,'{!TARGETID!}')===FALSE) {
+                NApp::Dlog('{!TARGETID!} placeholder is missing for view container ['.$this->_containerType.']!');
             }
-            if($this->_debug && count($this->_actions) && strpos($mainContainer,'{{ACTIONS}}')===FALSE) {
-                NApp::Dlog('{{ACTIONS}} placeholder is missing for view container ['.$this->_containerType.']!');
+            if($this->_debug && count($this->_actions) && strpos($mainContainer,'{!ACTIONS!}')===FALSE) {
+                NApp::Dlog('{!ACTIONS!} placeholder is missing for view container ['.$this->_containerType.']!');
             }
-            if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{{TITLE}}')===FALSE) {
-                NApp::Dlog('{{TITLE}} placeholder is missing for view container ['.$this->_containerType.']!');
+            if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{!TITLE!}')===FALSE) {
+                NApp::Dlog('{!TITLE!} placeholder is missing for view container ['.$this->_containerType.']!');
             }
-            $mainContainer=str_replace('{{TITLE}}',$this->_title,$mainContainer);
-            $mainContainer=str_replace('{{TARGETID}}',$this->_targetId,$mainContainer);
-            $mainContainer=str_replace('{{ACTIONS}}',implode("\n",$this->_actions),$mainContainer);
-            $content=str_replace('{{CONTENT}}',$content,$mainContainer);
+            $mainContainer=str_replace('{!TITLE!}',$this->_title,$mainContainer);
+            $mainContainer=str_replace('{!TARGETID!}',$this->_targetId,$mainContainer);
+            $mainContainer=str_replace('{!ACTIONS!}',implode("\n",$this->_actions),$mainContainer);
+            $content=str_replace('{!CONTENT!}',$content,$mainContainer);
             $content=$this->ReplacePlaceholders($content);
         } else {
             $content=implode("\n",$this->_actions)."\n".$content;
@@ -830,7 +831,7 @@ class AppView {
      * @return string
      */
     protected function ReplaceEmptyPlaceholders(string $content): string {
-        return preg_replace('/{{[^}]*}}/i','',$content);
+        return preg_replace(ControlsHelpers::PLACEHOLDERS_REG_EXP,'',$content);
     }//END protected function ReplaceEmptyPlaceholders
 
     /**
@@ -839,11 +840,11 @@ class AppView {
      */
     protected function ReplacePlaceholders(string $content): string {
         $placeholders=[];
-        if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders)) {
+        if(preg_match_all(ControlsHelpers::PLACEHOLDERS_REG_EXP,$content,$placeholders)) {
             foreach($placeholders[0] as $placeholder) {
-                $content=str_replace($placeholder,get_array_value($this->_placeholders,trim($placeholder,'{}'),'','is_string'),$content);
+                $content=str_replace($placeholder,get_array_value($this->_placeholders,trim($placeholder,ControlsHelpers::PLACEHOLDERS_TRIM_CHARS),'','is_string'),$content);
             }//END foreach
-        }//if(preg_match_all('/{{[^}]*}}/i',$content,$placeholders))
+        }//if(preg_match_all(ControlsHelpers::PLACEHOLDERS_REG_EXP,$content,$placeholders))
         return $content;
     }//END protected function ReplaceEmptyPlaceholders
 }//END class AppView

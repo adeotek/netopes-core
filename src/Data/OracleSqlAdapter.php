@@ -155,7 +155,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
         //OCI_NO_AUTO_COMMIT
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
-                $query=str_replace('{{'.$k.'}}',self::OracleEscapeString($v),$query);
+                $query=str_replace('{!'.$k.'!}',self::OracleEscapeString($v),$query);
             }
         }//if(is_array($params) && count($params))
         $filter_str='';
