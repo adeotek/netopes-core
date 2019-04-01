@@ -2,11 +2,12 @@
 /**
  * SQLite database implementation class file
  * This file contains the implementing class for SQLite database.
+ *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
 /**

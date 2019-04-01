@@ -2,11 +2,12 @@
 /**
  * Data source base class file
  * This contains an class which every data source extends.
+ *
  * @package    @package NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;

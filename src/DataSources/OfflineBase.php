@@ -2,11 +2,12 @@
 /**
  * Arrays data source file
  * Contains calls for arrays data.
+ *
  * @package    NETopes\Core\DataSources
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2018 HTSS
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
 namespace NETopes\Core\DataSources;

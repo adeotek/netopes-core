@@ -2,11 +2,12 @@
 /**
  * MySql database implementation class file
  * This file contains the implementing class for MySql SQL database.
+ *
  * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
 namespace NETopes\Core\Data;
