@@ -10,28 +10,31 @@
  * @version    3.1.0.0
  * @filesource
  */
-    namespace NETopes\Core\Controls;
-	/**
-	 * Message control
-	 * Control for displaying a label/message
-	 * @package  NETopes\Controls
-	 */
-	class Message extends Control {
-		public function __construct($params = NULL) {
-			$this->postable = FALSE;
-			$this->no_label = TRUE;
-			$this->text = NULL;
-			parent::__construct($params);
-		}//END public function __construct
-		/**
-		 * description
-		 * @param object|null $params Parameters object (instance of [Params])
-		 * @return void
-		 */
-		protected function SetControl(): ?string {
-			$lvalue = strlen($this->text) ? $this->text : $this->value;
-			$result = "\t\t".'<span'.$this->GetTagId().$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$lvalue.'</span>'."\n";
-			return $result;
-		}//END protected function SetControl
-	}//END class Message extends Control
+namespace NETopes\Core\Controls;
+/**
+ * Message control
+ * Control for displaying a label/message
+ *
+ * @package  NETopes\Controls
+ */
+class Message extends Control {
+    public function __construct($params=NULL) {
+        $this->postable=FALSE;
+        $this->no_label=TRUE;
+        $this->text=NULL;
+        parent::__construct($params);
+    }//END public function __construct
+
+    /**
+     * description
+     *
+     * @param object|null $params Parameters object (instance of [Params])
+     * @return void
+     */
+    protected function SetControl(): ?string {
+        $lvalue=strlen($this->text) ? $this->text : $this->value;
+        $result="\t\t".'<span'.$this->GetTagId().$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$lvalue.'</span>'."\n";
+        return $result;
+    }//END protected function SetControl
+}//END class Message extends Control
 ?>

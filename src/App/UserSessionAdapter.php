@@ -286,7 +286,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
      * Method called on user logout action for clearing the session
      * and the login cookie
      *
-     * @param  string $namespace If passed, logs out the specified namespace
+     * @param string $namespace  If passed, logs out the specified namespace
      *                           else logs out the current namespace
      * @return void
      * @throws \NETopes\Core\AppException

@@ -13,12 +13,14 @@
 namespace NETopes\Core\Data\Doctrine;
 /**
  * Interface IOnDoctrinePostLoad
+ *
  * @package NETopes\Core\Data\Doctrine
  */
 interface IOnDoctrinePostLoad {
     /**
      * Post-load event callback
      * Entity annotation must include [@]ORM\HasLifecycleCallbacks
+     *
      * @ORM\PrePersist
      */
     public function ExecuteOnPostLoad();

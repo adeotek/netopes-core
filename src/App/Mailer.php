@@ -26,65 +26,67 @@ use Swift_SmtpTransport;
 /**
  * Class Mailer
  * Helper class for sending emails trough SwiftMailer
+ *
  * @package NETopes\Core\App
  */
 class Mailer {
     /**
      * @var bool Debug email sending
      */
-    public static $debug = FALSE;
+    public static $debug=FALSE;
 
     /**
      * Send email
-     * @param $subject string		email subject
-     * @param $afrom array			sender email address (email => label)
-     * @param $ato array			receiver email address (email => label)
-     * @param $msg string			email content
-     * @param $settings array		email content (optional)
-     * @param $abcc array			email BCC address (email => label) (optional)
-     * @param $attachments array	email attachments (optional)
-     * @param $params array			extra parameters (optional)
-     * @param $acc array            email CC addresses (email => label) (optional)
+     *
+     * @param      $subject     string        email subject
+     * @param      $afrom       array            sender email address (email => label)
+     * @param      $ato         array            receiver email address (email => label)
+     * @param      $msg         string            email content
+     * @param      $settings    array        email content (optional)
+     * @param      $abcc        array            email BCC address (email => label) (optional)
+     * @param      $attachments array    email attachments (optional)
+     * @param      $params      array            extra parameters (optional)
+     * @param      $acc         array            email CC addresses (email => label) (optional)
      * @param null $reply_to
-     * @return int 					will be the no of emails sent successfully or 0 if there is an error
+     * @return int                    will be the no of emails sent successfully or 0 if there is an error
      * @throws \NETopes\Core\AppException
      */
-    public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$abcc = NULL,$attachments = [],$params = [],$acc = NULL,$reply_to = NULL) {
+    public static function SendSMTPEmail($subject,$afrom,$ato,$msg,$settings=[],$abcc=NULL,$attachments=[],$params=[],$acc=NULL,$reply_to=NULL) {
         if(!is_array($settings) || !count($settings)) {
-            $id_section = get_array_value($params,'id_section',NApp::GetParam('id_section'),'is_numeric');
-            $id_zone = get_array_value($params,'id_zone',NApp::GetParam('id_zone'),'is_numeric');
-            $items = DataProvider::GetArray('Email\Emailing','GetSettingsItem',array(
+            $id_section=get_array_value($params,'id_section',NApp::GetParam('id_section'),'is_numeric');
+            $id_zone=get_array_value($params,'id_zone',NApp::GetParam('id_zone'),'is_numeric');
+            $items=DataProvider::GetArray('Email\Emailing','GetSettingsItem',[
                 'section_id'=>(is_numeric($id_section) ? $id_section : NULL),
                 'zone_id'=>(is_numeric($id_zone) ? $id_zone : NULL),
                 'for_stype'=>get_array_value($params,'nwl_stype',2,'is_numeric'),
                 'for_active'=>1,
                 'for_implicit'=>1,
-            ));
-            $settings = get_array_value($items,0,[],'is_array');
+            ]);
+            $settings=get_array_value($items,0,[],'is_array');
         }//if(!is_array($settings) || !count($settings))
-        $sendmail = get_array_value($settings,'sendmail',0,'is_numeric');
+        $sendmail=get_array_value($settings,'sendmail',0,'is_numeric');
         if($sendmail!=1) {
-            $smtphost = get_array_value($settings,'smtp_server','localhost','is_string');
-            $smtpport = get_array_value($settings,'smtp_port',25,'is_numeric');
-            $smtpauth = get_array_value($settings,'smtp_auth',0,'is_numeric');
-            $smtpuser = get_array_value($settings,'smtp_user','','is_string');
-            $smtppass = get_array_value($settings,'smtp_password','','is_string');
-            $smtpencrypt = get_array_value($settings,'smtp_encrypt',0,'is_numeric');
-            $replyto = strlen($reply_to) ? $reply_to : get_array_value($settings,'reply_to','','is_string');
-            $returnpath = get_array_value($settings,'return_path','','is_string');
-            $exchangedomain = get_array_value($settings,'exchange_domain','','is_string');
+            $smtphost=get_array_value($settings,'smtp_server','localhost','is_string');
+            $smtpport=get_array_value($settings,'smtp_port',25,'is_numeric');
+            $smtpauth=get_array_value($settings,'smtp_auth',0,'is_numeric');
+            $smtpuser=get_array_value($settings,'smtp_user','','is_string');
+            $smtppass=get_array_value($settings,'smtp_password','','is_string');
+            $smtpencrypt=get_array_value($settings,'smtp_encrypt',0,'is_numeric');
+            $replyto=strlen($reply_to) ? $reply_to : get_array_value($settings,'reply_to','','is_string');
+            $returnpath=get_array_value($settings,'return_path','','is_string');
+            $exchangedomain=get_array_value($settings,'exchange_domain','','is_string');
         }//if($sendmail!=1)
         try {
             if($sendmail!=1) {
                 switch($smtpencrypt) {
                     case 1:
-                        $encryption = 'tls';
+                        $encryption='tls';
                         break;
                     case 2:
-                        $encryption = 'ssl';
+                        $encryption='ssl';
                         break;
                     default:
-                        $encryption = NULL;
+                        $encryption=NULL;
                         break;
                 }//END switch
                 // NApp::Dlog(array(
@@ -107,7 +109,9 @@ class Mailer {
                         ->setPassword($smtppass)
                         ->setTimeout(10);
                 }//if($smtpauth==0)
-                if(strlen($exchangedomain)) { $transport->setLocalDomain($exchangedomain); }
+                if(strlen($exchangedomain)) {
+                    $transport->setLocalDomain($exchangedomain);
+                }
             } else {
                 // NApp::Dlog($sendmail,'sendmail');
                 $transport=Swift_SendmailTransport::newInstance('/usr/sbin/sendmail -t -i');
@@ -121,20 +125,24 @@ class Mailer {
                 ->setBcc($abcc)
                 ->setBody($msg,'text/html');
             $message->setEncoder(Swift_Encoding::get8BitEncoding());
-            if(strlen($replyto)) { $message->setReplyTo($replyto); }
-            if(strlen($returnpath)) { $message->setReturnPath($returnpath); }
+            if(strlen($replyto)) {
+                $message->setReplyTo($replyto);
+            }
+            if(strlen($returnpath)) {
+                $message->setReturnPath($returnpath);
+            }
             if(is_array($attachments) && count($attachments)) {
                 foreach($attachments as $attach) {
                     if(strlen($attach)>0 && file_exists($attach)) {
-                        $atachname = substr($attach,strrpos($attach,'/')+1);
+                        $atachname=substr($attach,strrpos($attach,'/') + 1);
                         $message->attach(Swift_Attachment::fromPath($attach)->setFilename($atachname));
                     }//if(strlen($attach)>0 && file_exists($attach))
                 }//END foreach
             } elseif(is_string($attachments) && strlen($attachments) && file_exists($attachments)) {
-                $atachname = substr($attachments,strrpos($attachments,'/')+1);
+                $atachname=substr($attachments,strrpos($attachments,'/') + 1);
                 $message->attach(Swift_Attachment::fromPath($attachments)->setFilename($atachname));
             }//if(is_array($attachments) && count($attachments))
-            $result = $mailer->send($message);
+            $result=$mailer->send($message);
             if(self::$debug) {
                 NApp::Log2File('SendSMTPEmail result: '.print_r($result,1).'  >>  '.print_r([
                         // 'replyto'=>$replyto,
@@ -149,7 +157,7 @@ class Mailer {
             return $result;
         } catch(Exception $e) {
             NApp::Elog($e);
-            $result = strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
+            $result=strpos($e->getMessage(),'235 2.7.0 Authentication successful')!==FALSE ? 1 : 0;
             if(self::$debug) {
                 NApp::Log2File('SendSMTPEmail Error['.$result.']: '.$e->getMessage().'  >>  '.print_r([
                         // 'replyto'=>$replyto,
@@ -160,25 +168,28 @@ class Mailer {
                         'abcc'=>$abcc,
                     ],1),NApp::$appPath.AppConfig::GetValue('logs_path').'/emails_debug.log');
             }//if(self::$debug)
-            if($result) { return $result; }
+            if($result) {
+                return $result;
+            }
             throw new AppException($e->getMessage(),E_ERROR,0);
         }//try
     }//END public static function SendSMTPEmail
 
     /**
      * Simple email send via SMTP
-     * @param      $subject string        email subject
-     * @param      $afrom array            sender email address (email => label)
-     * @param      $ato array            receiver email address (email => label)
-     * @param      $msg string            email content
+     *
+     * @param      $subject  string        email subject
+     * @param      $afrom    array            sender email address (email => label)
+     * @param      $ato      array            receiver email address (email => label)
+     * @param      $msg      string            email content
      * @param      $settings array        email content (optional)
-     * @param      $acc array            email CC adresses (email => label) (optional)
-     * @param      $abcc array            email BCC address (email => label) (optional)
+     * @param      $acc      array            email CC adresses (email => label) (optional)
+     * @param      $abcc     array            email BCC address (email => label) (optional)
      * @param null $reply_to
      * @return int                    will be the no of emails sent successfully or 0 if there is an error
      * @throws \NETopes\Core\AppException
      */
-    public static function SimpleSendSMTPEmail($subject,$afrom,$ato,$msg,$settings = [],$acc = NULL,$abcc = NULL,$reply_to = NULL) {
+    public static function SimpleSendSMTPEmail($subject,$afrom,$ato,$msg,$settings=[],$acc=NULL,$abcc=NULL,$reply_to=NULL) {
         return self::SendSMTPEmail($subject,$afrom,$ato,$msg,$settings,$abcc,[],[],$acc,$reply_to);
     }//END public static function SimpleSendSMTPEmail
 }//END class Mailer

@@ -133,7 +133,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
     /**
      * Method called through set_exception_handler() on exception thrown
      *
-     * @param  \Throwable $exception The thrown exception
+     * @param \Throwable $exception The thrown exception
      * @return void
      * @throws AppException
      */
@@ -157,11 +157,11 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
     /**
      * Method called through set_error_handler() on error
      *
-     * @param  int         $errNo      Error code
-     * @param  string      $errMessage Error location (file)
-     * @param  string|null $errFile
-     * @param  int|null    $errLine    Error location (line)
-     * @param  array       $errContext Error context
+     * @param int         $errNo      Error code
+     * @param string      $errMessage Error location (file)
+     * @param string|null $errFile
+     * @param int|null    $errLine    Error location (line)
+     * @param array       $errContext Error context
      * @return void
      * @throws AppException
      */
@@ -232,7 +232,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
     /**
      * Method called through register_shutdown_function() on shutdown
      *
-     * @param  bool $output Flag to allow or restrict output
+     * @param bool $output Flag to allow or restrict output
      * @return void
      * @throws AppException
      */
@@ -322,10 +322,10 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
      * If silent errors is not off or debug mode is on
      * displays an error (modal if GUI is loaded)
      *
-     * @param  string $errMessage Error location (file)
-     * @param  int    $errNo      Error code
-     * @param null    $errFile
-     * @param  int    $errLine    Error location (line)
+     * @param string $errMessage Error location (file)
+     * @param int    $errNo      Error code
+     * @param null   $errFile
+     * @param int    $errLine    Error location (line)
      * @return void
      */
     public static function DisplayError($errMessage='',$errNo=NULL,$errFile=NULL,$errLine=NULL) {

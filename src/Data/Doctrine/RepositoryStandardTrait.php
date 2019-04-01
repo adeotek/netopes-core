@@ -5,8 +5,10 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use NETopes\Core\AppException;
+
 /**
  * Trait RepositoryStandardTrait
+ *
  * @package NETopes\Core\Data
  */
 trait RepositoryStandardTrait {
@@ -17,20 +19,24 @@ trait RepositoryStandardTrait {
      * @return array|null
      * @throws \NETopes\Core\AppException
      */
-    public function findFiltered(?array $params = []): ?array {
+    public function findFiltered(?array $params=[]): ?array {
         try {
-            $s_query = get_array_value($params,'query',NULL,'is_object');
-            if($s_query instanceof Query) { return $s_query->getResult(); }
-            $firstrow = get_array_value($params,'first_row',0,'is_integer');
-            $lastrow = get_array_value($params,'last_row',0,'is_integer');
-            $sort = get_array_value($params,'sort',[],'is_array');
-            $relations = get_array_value($params,'relations',[],'is_array');
-            $filters = get_array_value($params,'filters',[],'is_array');
-            $tcount = 0;
-            $qb = $this->createQueryBuilder('e');
+            $s_query=get_array_value($params,'query',NULL,'is_object');
+            if($s_query instanceof Query) {
+                return $s_query->getResult();
+            }
+            $firstrow=get_array_value($params,'first_row',0,'is_integer');
+            $lastrow=get_array_value($params,'last_row',0,'is_integer');
+            $sort=get_array_value($params,'sort',[],'is_array');
+            $relations=get_array_value($params,'relations',[],'is_array');
+            $filters=get_array_value($params,'filters',[],'is_array');
+            $tcount=0;
+            $qb=$this->createQueryBuilder('e');
             if(count($relations)) {
                 foreach($relations as $k=>$r) {
-                    if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
+                    if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) {
+                        continue;
+                    }
                     if(strpos($r,'.')!==FALSE) {
                         $qb->leftJoin($r,$k);
                     } else {
@@ -40,21 +46,25 @@ trait RepositoryStandardTrait {
             }//if(count($relations))
             if(count($filters)) {
                 foreach($filters as $k=>$f) {
-                    $field = get_array_value($f,'field',NULL,'isset');
-                    $value = get_array_value($f,'value',NULL,'isset');
-                    if(is_null($field) || is_null($value)) { continue; }
-                    $operators = $this->getOperators();
-                    $operator = get_array_value($operators,strtolower(get_array_value($f,'condition_type','==','is_string')),'','is_string');
-                    if(!strlen($operator)) { continue; }
-                    $logical_operator = get_array_value($f,'logical_separator','and','is_notempty_string');
+                    $field=get_array_value($f,'field',NULL,'isset');
+                    $value=get_array_value($f,'value',NULL,'isset');
+                    if(is_null($field) || is_null($value)) {
+                        continue;
+                    }
+                    $operators=$this->getOperators();
+                    $operator=get_array_value($operators,strtolower(get_array_value($f,'condition_type','==','is_string')),'','is_string');
+                    if(!strlen($operator)) {
+                        continue;
+                    }
+                    $logical_operator=get_array_value($f,'logical_separator','and','is_notempty_string');
                     if(is_array($field) && count($field)) {
-                        $expression = $qb->expr()->orX();
-                        $fieldParams = [];
+                        $expression=$qb->expr()->orX();
+                        $fieldParams=[];
                         foreach($field as $mfi) {
-                            $mfi = $this->getFieldName($mfi,'e');
-                            $paramName = 'in'.$k.'_'.str_replace('.','_',$mfi);
+                            $mfi=$this->getFieldName($mfi,'e');
+                            $paramName='in'.$k.'_'.str_replace('.','_',$mfi);
                             $expression->add($qb->expr()->$operator($mfi,':'.$paramName));
-                            $fieldParams[] = $paramName;
+                            $fieldParams[]=$paramName;
                         }//END foreach
                         if(strtolower($logical_operator)=='or') {
                             $qb->orWhere($expression);
@@ -79,9 +89,9 @@ trait RepositoryStandardTrait {
                             }//END switch
                         }//END foreach
                     } elseif(is_string($field) && strlen($field)) {
-                        $field = $this->getFieldName($field,'e');
-                        $paramName = 'in'.$k.'_'.str_replace('.','_',$field);
-                        $expression = $qb->expr()->$operator($field,':'.$paramName);
+                        $field=$this->getFieldName($field,'e');
+                        $paramName='in'.$k.'_'.str_replace('.','_',$field);
+                        $expression=$qb->expr()->$operator($field,':'.$paramName);
                         if(strtolower($logical_operator)=='or') {
                             $qb->orWhere($expression);
                         } else {
@@ -109,16 +119,16 @@ trait RepositoryStandardTrait {
             }//if(count($filters))
             if($firstrow>0 && $lastrow>0) {
                 $qb->select('count(e)');
-                $stime = microtime(TRUE);
-                $tcount = $qb->getQuery()->getSingleScalarResult();
+                $stime=microtime(TRUE);
+                $tcount=$qb->getQuery()->getSingleScalarResult();
                 $this->DbDebug($qb->getQuery(),'findFiltered[count]',$stime);
             }//if($firstrow>0 && $lastrow>0)
             if(count($sort)) {
-                $first = TRUE;
+                $first=TRUE;
                 foreach($sort as $c=>$d) {
-                    $field = $this->getFieldName($c,'e');
+                    $field=$this->getFieldName($c,'e');
                     if($first) {
-                        $first = FALSE;
+                        $first=FALSE;
                         $qb->orderBy($field,strtoupper($d));
                     } else {
                         $qb->addOrderBy($field,strtoupper($d));
@@ -127,8 +137,8 @@ trait RepositoryStandardTrait {
             }//if(count($sort))
             if($firstrow>0) {
                 if($lastrow>0) {
-                    $qb->setFirstResult($firstrow-1);
-                    $qb->setMaxResults(($lastrow-$firstrow+1));
+                    $qb->setFirstResult($firstrow - 1);
+                    $qb->setMaxResults(($lastrow - $firstrow + 1));
                 } else {
                     $qb->setMaxResults($firstrow);
                 }//if($lastrow>0)
@@ -136,14 +146,18 @@ trait RepositoryStandardTrait {
             $qb->select('e');
             if(count($relations)) {
                 foreach($relations as $k=>$r) {
-                    if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) { continue; }
+                    if(!is_string($r) || !strlen($r) || !is_string($k) || !strlen($k)) {
+                        continue;
+                    }
                     $qb->addSelect($k);
                 }//END foreach
             }//if(count($relations))
-            $stime = microtime(TRUE);
-            $data = $qb->getQuery()->getResult();
+            $stime=microtime(TRUE);
+            $data=$qb->getQuery()->getResult();
             $this->DbDebug($qb->getQuery(),'findFiltered',$stime);
-            if(get_array_value($params,'collection',FALSE,'bool')) { return $data; }
+            if(get_array_value($params,'collection',FALSE,'bool')) {
+                return $data;
+            }
             return ['data'=>$data,'count'=>$tcount];
         } catch(QueryException $qe) {
             // \NApp::Dlog($qe->getTrace());

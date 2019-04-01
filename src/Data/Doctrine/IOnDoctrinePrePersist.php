@@ -13,12 +13,14 @@
 namespace NETopes\Core\Data\Doctrine;
 /**
  * Interface IOnDoctrinePrePersist
+ *
  * @package NETopes\Core\Data\Doctrine
  */
 interface IOnDoctrinePrePersist {
     /**
      * Pre-persist event callback
      * Entity annotation must include [@]ORM\HasLifecycleCallbacks
+     *
      * @ORM\PrePersist
      */
     public function ExecuteOnPrePersist();

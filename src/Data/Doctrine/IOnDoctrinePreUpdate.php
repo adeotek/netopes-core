@@ -13,12 +13,14 @@
 namespace NETopes\Core\Data\Doctrine;
 /**
  * Interface IOnDoctrinePreUpdate
+ *
  * @package NETopes\Core\Data\Doctrine
  */
 interface IOnDoctrinePreUpdate {
     /**
      * Pre-update callback
      * Entity annotation must include [@]ORM\HasLifecycleCallbacks
+     *
      * @ORM\PreUpdate
      */
     public function ExecuteOnPreUpdate();

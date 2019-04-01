@@ -181,12 +181,12 @@ abstract class App implements IApp {
     /**
      * Application initializer method
      *
-     * @param  bool      $isAjax         Optional flag indicating whether is an ajax request or not
-     * @param  array     $params         An optional key-value array containing to be assigned to non-static properties
+     * @param bool      $isAjax          Optional flag indicating whether is an ajax request or not
+     * @param array     $params          An optional key-value array containing to be assigned to non-static properties
      *                                   (key represents name of the property and value the value to be assigned)
-     * @param  bool      $sessionInit    Flag indicating if session should be started or not
-     * @param  bool|null $doNotKeepAlive Flag indicating if session should be kept alive by the current request
-     * @param  bool      $isCli          Run in CLI mode
+     * @param bool      $sessionInit     Flag indicating if session should be started or not
+     * @param bool|null $doNotKeepAlive  Flag indicating if session should be kept alive by the current request
+     * @param bool      $isCli           Run in CLI mode
      * @return void
      * @throws \NETopes\Core\AppException
      * @throws \Exception
@@ -314,7 +314,7 @@ abstract class App implements IApp {
     /**
      * Page hash setter
      *
-     * @param  string $value The new value for phash property
+     * @param string $value The new value for phash property
      * @return void
      */
     public static function SetPhash(?string $value): void {
@@ -324,7 +324,7 @@ abstract class App implements IApp {
     /**
      * Gets a parameter from the temporary session
      *
-     * @param  string     $key   The name of the parameter
+     * @param string      $key   The name of the parameter
      * @param bool        $pHash The page hash (default FALSE, global context)
      *                           If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
@@ -340,8 +340,8 @@ abstract class App implements IApp {
     /**
      * Gets a parameter from the temporary session
      *
-     * @param  string     $key   The name of the parameter
-     * @param  string     $pHash The page hash (default NULL)
+     * @param string      $key   The name of the parameter
+     * @param string      $pHash The page hash (default NULL)
      *                           If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return mixed  Returns the parameter value or NULL
@@ -354,8 +354,8 @@ abstract class App implements IApp {
     /**
      * Sets a parameter to the temporary session
      *
-     * @param  string     $key   The name of the parameter
-     * @param  mixed      $val   The value of the parameter
+     * @param string      $key   The name of the parameter
+     * @param mixed       $val   The value of the parameter
      * @param bool        $pHash The page hash (default FALSE, global context)
      *                           If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
@@ -371,9 +371,9 @@ abstract class App implements IApp {
     /**
      * Sets a parameter to the temporary session
      *
-     * @param  string     $key   The name of the parameter
-     * @param  mixed      $val   The value of the parameter
-     * @param  string     $pHash The page hash (default NULL)
+     * @param string      $key   The name of the parameter
+     * @param mixed       $val   The value of the parameter
+     * @param string      $pHash The page hash (default NULL)
      *                           If FALSE is passed, the main (NApp property) page hash will not be used
      * @param string|null $namespace
      * @return void
@@ -386,10 +386,10 @@ abstract class App implements IApp {
     /**
      * Delete a parameter from the temporary session
      *
-     * @param  string $key   The name of the parameter
-     * @param bool    $pHash The page hash (default FALSE, global context)
+     * @param string $key    The name of the parameter
+     * @param bool   $pHash  The page hash (default FALSE, global context)
      *                       If FALSE is passed, the main (NApp property) page hash will not be used
-     * @param null    $namespace
+     * @param null   $namespace
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -402,10 +402,10 @@ abstract class App implements IApp {
     /**
      * Delete a parameter from the temporary session
      *
-     * @param  string $key   The name of the parameter
-     * @param  string $pHash The page hash (default NULL)
+     * @param string $key    The name of the parameter
+     * @param string $pHash  The page hash (default NULL)
      *                       If FALSE is passed, the main (NApp property) page hash will not be used
-     * @param null    $namespace
+     * @param null   $namespace
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -416,12 +416,12 @@ abstract class App implements IApp {
     /**
      * Commit the temporary session into the session
      *
-     * @param  bool        $clear                If TRUE is passed the session will be cleared
-     * @param  bool        $preserveOutputBuffer If true output buffer is preserved
-     * @param  bool        $showErrors           Display errors TRUE/FALSE
-     * @param  string|null $key                  Session key to commit (do partial commit)
-     * @param  string|null $phash                Page (tab) hash
-     * @param  bool $reload Reload session data after commit
+     * @param bool        $clear                If TRUE is passed the session will be cleared
+     * @param bool        $preserveOutputBuffer If true output buffer is preserved
+     * @param bool        $showErrors           Display errors TRUE/FALSE
+     * @param string|null $key                  Session key to commit (do partial commit)
+     * @param string|null $phash                Page (tab) hash
+     * @param bool        $reload               Reload session data after commit
      * @return void
      * @poaram bool $reload Reload session after commit (default TRUE)
      * @throws \NETopes\Core\AppException
@@ -445,7 +445,7 @@ abstract class App implements IApp {
     /**
      * Commit the namespace temporary session into the session
      *
-     * @param bool|null $clear
+     * @param bool|null   $clear
      * @param bool        $preserveOutputBuffer
      * @param bool        $showErrors
      * @param string|null $namespace
@@ -568,8 +568,8 @@ abstract class App implements IApp {
     /**
      * Initialize AJAX Request object
      *
-     * @param  array  $postParams Default parameters to be send via post on ajax requests
-     * @param  string $subSession Sub-session key/path
+     * @param array  $postParams Default parameters to be send via post on ajax requests
+     * @param string $subSession Sub-session key/path
      * @return bool
      * @throws \NETopes\Core\AppException
      */
@@ -677,8 +677,8 @@ HTML;
     /**
      * Add javascript code to the dynamic js queue (executed at the end of the current request)
      *
-     * @param  string $value Javascript code
-     * @param bool    $dynamic
+     * @param string $value Javascript code
+     * @param bool   $dynamic
      * @return void
      */
     public static function AddJsScript(string $value,bool $dynamic=FALSE) {
@@ -722,8 +722,8 @@ HTML;
      * Gets the application base link with or without language path
      *
      * @param string|null      $uri
-     * @param  string          $namespace Namespace for generating app_web_link or NULL for current namespace
-     * @param  bool            $base      If set to TRUE will return only base link (app_web_link property) else will return base link + language path
+     * @param string           $namespace Namespace for generating app_web_link or NULL for current namespace
+     * @param bool             $base      If set to TRUE will return only base link (app_web_link property) else will return base link + language path
      * @param string|bool|null $langCode
      * @return string The link of the application (with or without language path)
      * @throws \NETopes\Core\AppException
@@ -767,10 +767,10 @@ HTML;
     /**
      * Redirect to a url
      *
-     * @param  string $url                Target URL for the redirect
+     * @param string $url                 Target URL for the redirect
      *                                    (if empty or null, the redirect will be made to the application root url)
-     * @param  bool   $doNotCommitSession Flag for bypassing session commit on redirect
-     * @param  bool   $exit               Flag for stopping or not the request execution
+     * @param bool   $doNotCommitSession  Flag for bypassing session commit on redirect
+     * @param bool   $exit                Flag for stopping or not the request execution
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -796,10 +796,10 @@ HTML;
     /**
      * Redirect to a url by modifying headers
      *
-     * @param  string $url                Target URL for the redirect
+     * @param string $url                 Target URL for the redirect
      *                                    (if empty or null, the redirect will be made to the application root url)
-     * @param  bool   $doNotCommitSession Flag for bypassing session commit on redirect
-     * @param  bool   $exit               Flag for stopping or not the request execution
+     * @param bool   $doNotCommitSession  Flag for bypassing session commit on redirect
+     * @param bool   $exit                Flag for stopping or not the request execution
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -818,7 +818,7 @@ HTML;
     /**
      * Get current namespace section relative path (with theme)
      *
-     * @param  string $themeDir Optional theme directory
+     * @param string $themeDir  Optional theme directory
      *                          For non-web namespaces overwrites configuration theme
      * @return string Returns the current namespace section relative path
      *                          For non-web namespaces includes theme directory
@@ -1056,10 +1056,10 @@ HTML;
     /**
      * Displays a value in the debugger plug-in as a debug message
      *
-     * @param  mixed   $value Value to be displayed by the debug objects
-     * @param  string  $label Label assigned to the value to be displayed
-     * @param  boolean $file  Output file name
-     * @param  boolean $path  Output file path
+     * @param mixed   $value Value to be displayed by the debug objects
+     * @param string  $label Label assigned to the value to be displayed
+     * @param boolean $file  Output file name
+     * @param boolean $path  Output file path
      * @return void
      */
     public static function Dlog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
@@ -1081,10 +1081,10 @@ HTML;
     /**
      * Displays a value in the debugger plug-in as a warning message
      *
-     * @param  mixed   $value Value to be displayed by the debug objects
-     * @param  string  $label Label assigned to the value to be displayed
-     * @param  boolean $file  Output file name
-     * @param  boolean $path  Output file path
+     * @param mixed   $value Value to be displayed by the debug objects
+     * @param string  $label Label assigned to the value to be displayed
+     * @param boolean $file  Output file name
+     * @param boolean $path  Output file path
      * @return void
      */
     public static function Wlog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
@@ -1106,11 +1106,11 @@ HTML;
     /**
      * Displays a value in the debugger plug-in as an error message
      *
-     * @param  mixed   $value Value to be displayed by the debug objects
-     * @param  string  $label Label assigned to the value to be displayed
-     * @param bool     $showExceptionsTrace
-     * @param  boolean $file  Output file name
-     * @param  boolean $path  Output file path
+     * @param mixed   $value Value to be displayed by the debug objects
+     * @param string  $label Label assigned to the value to be displayed
+     * @param bool    $showExceptionsTrace
+     * @param boolean $file  Output file name
+     * @param boolean $path  Output file path
      * @return void
      */
     public static function Elog($value,?string $label=NULL,bool $showExceptionsTrace=FALSE,bool $file=FALSE,bool $path=FALSE) {
@@ -1132,10 +1132,10 @@ HTML;
     /**
      * Displays a value in the debugger plug-in as an info message
      *
-     * @param  mixed   $value Value to be displayed by the debug objects
-     * @param  string  $label Label assigned to the value to be displayed
-     * @param  boolean $file  Output file name
-     * @param  boolean $path  Output file path
+     * @param mixed   $value Value to be displayed by the debug objects
+     * @param string  $label Label assigned to the value to be displayed
+     * @param boolean $file  Output file name
+     * @param boolean $path  Output file path
      * @return void
      */
     public static function Ilog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
@@ -1157,9 +1157,9 @@ HTML;
     /**
      * Add entry to log file
      *
-     * @param  string|array $msg        Text to be written to log
-     * @param  string|null  $file       Custom log file complete name (path + name)
-     * @param  string|null  $scriptName Name of the file that sent the message to log (optional)
+     * @param string|array $msg        Text to be written to log
+     * @param string|null  $file       Custom log file complete name (path + name)
+     * @param string|null  $scriptName Name of the file that sent the message to log (optional)
      * @return bool|string Returns TRUE for success or error message on failure
      */
     public static function Log2File($msg,?string $file=NULL,?string $scriptName=NULL) {
@@ -1169,10 +1169,10 @@ HTML;
     /**
      * Writes a message in one of the application log files
      *
-     * @param  string      $msg  Text to be written to log
-     * @param  string      $type Log type (log, error or debug) (optional)
-     * @param  string|null $file Custom log file complete name (path + name) (optional)
-     * @param string|null  $path
+     * @param string      $msg  Text to be written to log
+     * @param string      $type Log type (log, error or debug) (optional)
+     * @param string|null $file Custom log file complete name (path + name) (optional)
+     * @param string|null $path
      * @return bool|string
      * @throws \NETopes\Core\AppException
      */

@@ -64,7 +64,7 @@ class UserSession {
     /**
      * Gets the login cookie hash
      *
-     * @param  string     $namespace The namespace for the cookie or NULL for current namespace
+     * @param string      $namespace The namespace for the cookie or NULL for current namespace
      * @param string|null $salt
      * @return string The name (hash) of the login cookie
      * @throws \NETopes\Core\AppException
@@ -102,10 +102,10 @@ class UserSession {
     /**
      * Set the login cookie
      *
-     * @param  string  $uHash      The user hash
-     * @param  integer $validity   The cookie lifetime or NULL for default
-     * @param  string  $cookieHash The name (hash) of the login cookie
-     * @param  string  $namespace  The namespace for the cookie or NULL for current namespace
+     * @param string  $uHash      The user hash
+     * @param integer $validity   The cookie lifetime or NULL for default
+     * @param string  $cookieHash The name (hash) of the login cookie
+     * @param string  $namespace  The namespace for the cookie or NULL for current namespace
      * @return bool True on success or false
      * @throws \NETopes\Core\AppException
      */
@@ -183,7 +183,7 @@ class UserSession {
      * Method called on user logout action for clearing the session
      * and the login cookie
      *
-     * @param  string $namespace If passed, logs out the specified namespace
+     * @param string $namespace  If passed, logs out the specified namespace
      *                           else logs out the current namespace
      * @return void
      * @throws \NETopes\Core\AppException

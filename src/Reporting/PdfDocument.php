@@ -17,6 +17,7 @@ use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NApp;
 use Translate;
+
 /**
  * General purpose PDF
  */
@@ -37,109 +38,112 @@ define('X_PAY_DOC_TYPE_PDF',3);
  * Reports
  */
 define('X_REPORT_TYPE_PDF',4);
+
 /**
  * PdfDocumentBase class
  * PDF document generator that implements class PdfCreator
+ *
  * @package  NETopes\Reporting
  */
 class PdfDocument {
     /**
      * @var    array An array containing default formats
      */
-    protected $default_formats = array(
-        'header'=>array('padding'=>'0 2px','font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'F0F0F0'),
-        'footer'=>array('font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'DBEEF3'),
-        'standard'=>array('font'=>'helvetica','font_size'=>8,'align_h'=>'h_left','align_v'=>'v_middle'),
-        'left'=>array('align_h'=>'h_left'),
-        'center'=>array('align_h'=>'h_center'),
-        'right'=>array('align_h'=>'h_right'),
-    );
+    protected $default_formats=[
+        'header'=>['padding'=>'0 2px','font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'F0F0F0'],
+        'footer'=>['font'=>'helvetica','font_size'=>8,'align_h'=>'h_center','align_v'=>'v_middle','bold'=>TRUE,'background_color'=>'DBEEF3'],
+        'standard'=>['font'=>'helvetica','font_size'=>8,'align_h'=>'h_left','align_v'=>'v_middle'],
+        'left'=>['align_h'=>'h_left'],
+        'center'=>['align_h'=>'h_center'],
+        'right'=>['align_h'=>'h_right'],
+    ];
     /**
      * @var    array An array containing default footer parameters
      */
-    public $footer_params = FALSE;
+    public $footer_params=FALSE;
     /**
      * @var    array Borders settings array
      */
-    protected $border_settings = array('LTRB'=>array('width'=>0.1));
+    protected $border_settings=['LTRB'=>['width'=>0.1]];
     //, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)
     /**
      * @var    bool Flag indicating if borders are used
      */
-    protected $with_borders = FALSE;
+    protected $with_borders=FALSE;
     /**
      * @var    array An array containing all instance formats
      */
-    protected $formats = [];
+    protected $formats=[];
     /**
      * @var    string Decimal separator
      */
-    protected $decimal_separator = NULL;
+    protected $decimal_separator=NULL;
     /**
      * @var    string Group separator
      */
-    protected $group_separator = NULL;
+    protected $group_separator=NULL;
     /**
      * @var    string Date separator
      */
-    protected $date_separator = NULL;
+    protected $date_separator=NULL;
     /**
      * @var    string Time separator
      */
-    protected $time_separator = NULL;
+    protected $time_separator=NULL;
     /**
      * @var    string Language code
      */
-    protected $langcode = NULL;
+    protected $langcode=NULL;
     /**
      * @var    string Document HTML data
      */
-    protected $orientation = 'P';
+    protected $orientation='P';
     /**
      * @var    string Document font
      */
-    protected $font = 'freesans';
+    protected $font='freesans';
     /**
      * @var    string Document HTML data
      */
-    protected $page_size = 'A4';
+    protected $page_size='A4';
     /**
      * @var    array An array containing extra parameters or extra data
      */
-    protected $params = NULL;
+    protected $params=NULL;
     /**
      * @var    int Document type
      */
-    public $type = X_GENERAL_TYPE_PDF;
+    public $type=X_GENERAL_TYPE_PDF;
     /**
      * @var    bool Unicode TCPDF initialization value
      */
-    public $unicode = TRUE;
+    public $unicode=TRUE;
     /**
      * @var    string Charset TCPDF initialization value
      */
-    public $charset = 'UTF-8';
+    public $charset='UTF-8';
     /**
      * @var    object TCPDF instance
      */
-    public $pdf = NULL;
+    public $pdf=NULL;
     /**
      * @var    string PDF file name (including extension)
      */
-    public $file_name = NULL;
+    public $file_name=NULL;
     /**
      * @var    string HTML data to be write in the PDF
      */
-    public $html_data = NULL;
+    public $html_data=NULL;
     /**
      * @var    array Class dynamic properties array
      * @access private
      */
-    private $pdata = [];
+    private $pdata=[];
 
     /**
      * Class dynamic getter method
-     * @param  string $name The name o the property
+     *
+     * @param string $name The name o the property
      * @return mixed Returns the value of the property
      */
     public function __get($name) {
@@ -148,47 +152,54 @@ class PdfDocument {
 
     /**
      * Class dynamic setter method
-     * @param  string $name The name o the property
-     * @param  mixed  $value The value to be set
+     *
+     * @param string $name  The name o the property
+     * @param mixed  $value The value to be set
      * @return void
      */
     public function __set($name,$value) {
-        if(!is_array($this->pdata)) { $this->pdata = []; }
-        $this->pdata[$name] = $value;
+        if(!is_array($this->pdata)) {
+            $this->pdata=[];
+        }
+        $this->pdata[$name]=$value;
     }//END public function __set
 
     /**
      * PdfDocumentBase class constructor
-     * @param  array $params Constructor parameters array
-     * @throws \NETopes\Core\AppException
+     *
+     * @param array $params Constructor parameters array
      * @return void
+     * @throws \NETopes\Core\AppException
      */
-    public function __construct($params = NULL) {
-        $this->decimal_separator = NApp::GetParam('decimal_separator');
-        $this->group_separator = NApp::GetParam('group_separator');
-        $this->date_separator = NApp::GetParam('date_separator');
-        $this->time_separator = NApp::GetParam('time_separator');
-        $this->langcode = NApp::GetLanguageCode();
-        $this->file_name = date('YmdHis').'.pdf';
+    public function __construct($params=NULL) {
+        $this->decimal_separator=NApp::GetParam('decimal_separator');
+        $this->group_separator=NApp::GetParam('group_separator');
+        $this->date_separator=NApp::GetParam('date_separator');
+        $this->time_separator=NApp::GetParam('time_separator');
+        $this->langcode=NApp::GetLanguageCode();
+        $this->file_name=date('YmdHis').'.pdf';
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
-                if(!property_exists($this,$k)) { continue; }
-                $this->$k = $v;
+                if(!property_exists($this,$k)) {
+                    continue;
+                }
+                $this->$k=$v;
                 unset($params[$k]);
             }//END foreach
-            $this->params = $params ? $params : NULL;
+            $this->params=$params ? $params : NULL;
         }//if(is_array($params) && count($params))
         $this->_Init();
     }//END public function __construct
 
     /**
      * PDF class initializer
+     *
      * @return void
      * @throws \NETopes\Core\AppException
      */
     protected function _Init() {
         set_time_limit(1800);
-        $this->pdf = new PdfCreator($this->orientation,'mm',$this->page_size,$this->unicode,$this->charset);
+        $this->pdf=new PdfCreator($this->orientation,'mm',$this->page_size,$this->unicode,$this->charset);
         $this->pdf->SetCreator('NETopes');
         $this->pdf->SetAuthor(AppConfig::GetValue('app_name'));
         switch($this->type) {
@@ -197,8 +208,8 @@ class PdfDocument {
                 //$this->pdf->SetTitle(isset($pdfTitle)?$pdfTitle:'');
                 //$this->pdf->SetSubject(isset($pdfSubject)?$pdfSubject:'');
                 $this->pdf->SetMargins(8,10,8,TRUE);
-                $this->x = 8;
-                $this->y = 10;
+                $this->x=8;
+                $this->y=10;
                 //set auto page breaks
                 $this->pdf->SetAutoPageBreak(TRUE,10);
                 //set image scale factor
@@ -210,8 +221,8 @@ class PdfDocument {
                 //$this->pdf->SetTitle(isset($pdfTitle)?$pdfTitle:'');
                 //$this->pdf->SetSubject(isset($pdfSubject)?$pdfSubject:'');
                 $this->pdf->SetMargins(10,10,10,TRUE);
-                $this->x = 10;
-                $this->y = 10;
+                $this->x=10;
+                $this->y=10;
                 //set auto page breaks
                 $this->pdf->SetAutoPageBreak(TRUE,10);
                 //set image scale factor
@@ -225,31 +236,40 @@ class PdfDocument {
 
     /**
      * description
-     * @param bool  $new
+     *
+     * @param bool        $new
      * @param string|null $orientation
      * @param string|null $page_size
      * @return void
      */
-    protected function AddPage($new = FALSE,$orientation = NULL,$page_size = NULL) {
-        if($this->pages_no && $new!==TRUE) { return; }
-        if($this->pages_no) { $this->SetPageFooter(); }
+    protected function AddPage($new=FALSE,$orientation=NULL,$page_size=NULL) {
+        if($this->pages_no && $new!==TRUE) {
+            return;
+        }
+        if($this->pages_no) {
+            $this->SetPageFooter();
+        }
         $this->pages_no++;
         $this->pdf->AddPage($orientation ? $orientation : $this->orientation,$page_size ? $page_size : $this->page_size);
     }//END protected function AddPage
 
     /**
      * description
+     *
      * @param string|null $orientation
      * @param string|null $page_size
      * @return void
      */
-    protected function StartPageGroup($newPage = FALSE,$orientation = NULL,$page_size = NULL) {
+    protected function StartPageGroup($newPage=FALSE,$orientation=NULL,$page_size=NULL) {
         $this->pdf->startPageGroup();
-        if($newPage) { $this->AddPage(TRUE,$orientation,$page_size); }
+        if($newPage) {
+            $this->AddPage(TRUE,$orientation,$page_size);
+        }
     }//END protected function StartPageGroup
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetHeader() {
@@ -260,6 +280,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetFooter() {
@@ -270,13 +291,14 @@ class PdfDocument {
         }//if(!$this->footer_params)
         $this->pdf->setPrintFooter(TRUE);
         $this->pdf->SetFooterMargin(abs(get_array_value($this->footer_params,'bottom_margin',12,'is_numeric')));
-        $this->pdf->custom_footer = TRUE;
-        $this->pdf->custom_footer_params = $this->footer_params;
+        $this->pdf->custom_footer=TRUE;
+        $this->pdf->custom_footer_params=$this->footer_params;
         return TRUE;
     }//END protected function SetFooter
 
     /**
      * description
+     *
      * @param int|null $docId Data key (ID)
      * @return void
      * @throws \NETopes\Core\AppException
@@ -284,39 +306,53 @@ class PdfDocument {
     protected function LoadData(?int $docId): void {
         switch($this->type) {
             case X_STOCK_DOC_TYPE_PDF:
-                if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
-                $document = DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docId]);
-                if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
-                $this->langcode = get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
-                $this->decimal_separator = get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
-                $this->group_separator = get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
-                $this->date_separator = get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
+                if(!$docId) {
+                    throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__));
+                }
+                $document=DataProvider::GetArray('Tran\Documents','GetItemData',['for_id'=>$docId]);
+                if(!$document) {
+                    throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__));
+                }
+                $this->langcode=get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
+                $this->decimal_separator=get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
+                $this->group_separator=get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
+                $this->date_separator=get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
                 if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-                    $this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
+                    $this->footer_params['mask']=Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
                 }//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
-                $id_entity = get_array_value($document,'id_entity',NULL,'is_integer');
-                $id_location = get_array_value($document,'id_location',NULL,'is_integer');
-                if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
-                $lines = DataProvider::GetArray('Tran\Documents','GetItemLines',array('document_id'=>$docId,'taxes_as_lines'=>1,'discount_as_lines'=>1));
-                if(!$lines) { throw new AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__)); }
-                $this->document_data = is_array($document) && count($document) ? $document : NULL;
-                $this->details_data = is_array($lines) && count($lines) ? $lines : NULL;
+                $id_entity=get_array_value($document,'id_entity',NULL,'is_integer');
+                $id_location=get_array_value($document,'id_location',NULL,'is_integer');
+                if(!$id_entity || !$id_location) {
+                    throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__));
+                }
+                $lines=DataProvider::GetArray('Tran\Documents','GetItemLines',['document_id'=>$docId,'taxes_as_lines'=>1,'discount_as_lines'=>1]);
+                if(!$lines) {
+                    throw new AppException('Invalid document lines!',E_ERROR,1,basename(__FILE__));
+                }
+                $this->document_data=is_array($document) && count($document) ? $document : NULL;
+                $this->details_data=is_array($lines) && count($lines) ? $lines : NULL;
                 break;
             case X_PAY_DOC_TYPE_PDF:
-                if(!$docId) { throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__)); }
-                $document = DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docId]);
-                if(!$document) { throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__)); }
-                $this->langcode = get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
-                $this->decimal_separator = get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
-                $this->group_separator = get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
-                $this->date_separator = get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
+                if(!$docId) {
+                    throw new AppException('Invalid document!',E_ERROR,1,basename(__FILE__));
+                }
+                $document=DataProvider::GetArray('Tran\Payments','GetItemData',['for_id'=>$docId]);
+                if(!$document) {
+                    throw new AppException('Invalid document data!',E_ERROR,1,basename(__FILE__));
+                }
+                $this->langcode=get_array_value($document,'lang_code',$this->langcode,'is_notempty_string');
+                $this->decimal_separator=get_array_value($document,'decimal_separator',$this->decimal_separator,'is_notempty_string');
+                $this->group_separator=get_array_value($document,'group_separator',$this->group_separator,'is_notempty_string');
+                $this->date_separator=get_array_value($document,'date_separator',$this->date_separator,'is_notempty_string');
                 if(is_array($this->footer_params) && isset($this->footer_params['mask'])) {
-                    $this->footer_params['mask'] = Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
+                    $this->footer_params['mask']=Translate::Get('dlabel_page',$this->langcode).' {{page}} '.Translate::Get('dlabel_from',$this->langcode).' {{pages_no}}';
                 }//if(is_array($this->footer_params) && isset($this->footer_params['mask']))
-                $id_entity = get_array_value($document,'id_entity',NULL,'is_integer');
-                $id_location = get_array_value($document,'id_location',NULL,'is_integer');
-                if(!$id_entity || !$id_location) { throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__)); }
-                $this->document_data = is_array($document) && count($document) ? $document : NULL;
+                $id_entity=get_array_value($document,'id_entity',NULL,'is_integer');
+                $id_location=get_array_value($document,'id_location',NULL,'is_integer');
+                if(!$id_entity || !$id_location) {
+                    throw new AppException('Invalid entity!',E_ERROR,1,basename(__FILE__));
+                }
+                $this->document_data=is_array($document) && count($document) ? $document : NULL;
                 break;
             case X_REPORT_TYPE_PDF:
             case X_HTML_TYPE_PDF:
@@ -329,6 +365,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetDocument() {
@@ -337,6 +374,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetDocumentHeader() {
@@ -345,6 +383,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetPageHeader() {
@@ -353,6 +392,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetPageFooter() {
@@ -361,6 +401,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetDocumentLines() {
@@ -369,6 +410,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetDocumentFooter() {
@@ -377,6 +419,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetDocumentContent() {
@@ -390,27 +433,38 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return bool
      */
     protected function SetContentFromHtml() {
-        $html = [];
+        $html=[];
         if(is_array($this->html_data)) {
-            if(!count($this->html_data)) { return FALSE; }
-            $html = $this->html_data;
+            if(!count($this->html_data)) {
+                return FALSE;
+            }
+            $html=$this->html_data;
         } elseif(is_string($this->html_data)) {
-            if(!strlen($this->html_data)) { return FALSE; }
-            $html[] = $this->html_data;
+            if(!strlen($this->html_data)) {
+                return FALSE;
+            }
+            $html[]=$this->html_data;
         } else {
             return FALSE;
         }//if(is_array($this->html_data))
-        if(!count($html)) { return FALSE; }
+        if(!count($html)) {
+            return FALSE;
+        }
         // set default monospaced font
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         // set auto page breaks
         $this->pdf->SetAutoPageBreak(TRUE,PDF_MARGIN_BOTTOM);
         foreach($html as $k=>$v) {
-            if(!is_string($v) || !strlen($v)) { continue; }
-            if($k>0) { $this->pdf->lastPage(); }
+            if(!is_string($v) || !strlen($v)) {
+                continue;
+            }
+            if($k>0) {
+                $this->pdf->lastPage();
+            }
             $this->pdf->setFont('freeserif');
             // add a page
             $this->pdf->AddPage();
@@ -422,6 +476,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -450,6 +505,7 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @return void
      * @throws \NETopes\Core\AppException
      * @throws \Exception
@@ -461,14 +517,16 @@ class PdfDocument {
                 break;
             case X_STOCK_DOC_TYPE_PDF:
             case X_PAY_DOC_TYPE_PDF:
-                $docId = get_array_value($this->params,'key',NULL,'isset');
-                $docIds = [];
+                $docId=get_array_value($this->params,'key',NULL,'isset');
+                $docIds=[];
                 if(is_array($docId)) {
-                    $docIds = $docId;
+                    $docIds=$docId;
                 } elseif(is_numeric($docId)) {
-                    $docIds = [$docId];
+                    $docIds=[$docId];
                 }//if(is_array($docId))
-                if(!count($docIds)) { throw new AppException('Invalid document identifier!',E_ERROR,1,basename(__FILE__)); }
+                if(!count($docIds)) {
+                    throw new AppException('Invalid document identifier!',E_ERROR,1,basename(__FILE__));
+                }
                 foreach($docIds as $i=>$docId) {
                     $this->StartPageGroup($i>0);
                     $this->LoadData($docId);
@@ -491,23 +549,28 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @param array $params Input parameters array
      * @return mixed
      */
-    public function Output($params = NULL) {
+    public function Output($params=NULL) {
         try {
             $this->WriteData();
-            if(get_array_value($params,'auto_print',FALSE,'bool')) { $this->pdf->IncludeJS('print(true);'); }
+            if(get_array_value($params,'auto_print',FALSE,'bool')) {
+                $this->pdf->IncludeJS('print(true);');
+            }
         } catch(Exception $e) {
             NApp::Write2LogFile($e->getMessage(),'error');
             NApp::Elog($e);
             echo $e->getMessage();
             return FALSE;
         }//END try
-        $file_name = get_array_value($params,'file_name',$this->file_name,'is_notempty_string');
-        $output_type = get_array_value($params,'output_type','S','is_notempty_string');
+        $file_name=get_array_value($params,'file_name',$this->file_name,'is_notempty_string');
+        $output_type=get_array_value($params,'output_type','S','is_notempty_string');
         if(strtoupper($output_type)=='S') {
-            if(get_array_value($params,'base64',FALSE,'bool')) { return base64_encode($this->pdf->Output($file_name,$output_type)); }
+            if(get_array_value($params,'base64',FALSE,'bool')) {
+                return base64_encode($this->pdf->Output($file_name,$output_type));
+            }
             return $this->pdf->Output($file_name,$output_type);
         }//if(strtoupper($output_type)=='S')
         return $this->pdf->Output($file_name,$output_type);
@@ -515,17 +578,21 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @param array $params Input parameters array
      * @return void
      */
-    public function Show($params = NULL) {
-        if(!is_array($params)) { $params = []; }
-        $params['output_type'] = 'I';
+    public function Show($params=NULL) {
+        if(!is_array($params)) {
+            $params=[];
+        }
+        $params['output_type']='I';
         $this->Output($params);
     }//END public function Show
-// For Report type PDF
+    // For Report type PDF
     /**
      * description
+     *
      * @return void
      */
     protected function SetReportContent() {
@@ -574,19 +641,21 @@ class PdfDocument {
 
     /**
      * description
+     *
      * @param array $formats
      * @return void
      */
-    protected function SetFormats($formats = []) {
+    protected function SetFormats($formats=[]) {
         if(!is_array($formats) || !count($formats)) {
-            $this->formats = $this->default_formats;
+            $this->formats=$this->default_formats;
         } else {
-            $this->formats = array_merge($this->default_formats,$formats);
+            $this->formats=array_merge($this->default_formats,$formats);
         }//if(!is_array($formats) || !count($formats))
     }//END protected function SetFormats
 
     /**
      * description
+     *
      * @param $data
      * @param $column
      * @param $col
@@ -594,46 +663,48 @@ class PdfDocument {
      */
     protected function GetCellValue($data,$column,$col) {
         if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {
-            $col_value = $this->$column['format_value_func']($data,$column);
+            $col_value=$this->$column['format_value_func']($data,$column);
         } else {
-            $col_value = '';
-            $dbfield = $column['dbfield'];
-            if(!is_array($column['dbfield'])) { $dbfield = array($column['dbfield']); }
+            $col_value='';
+            $dbfield=$column['dbfield'];
+            if(!is_array($column['dbfield'])) {
+                $dbfield=[$column['dbfield']];
+            }
             foreach($dbfield as $field) {
                 if(array_key_exists('indexof',$column) && $column['indexof']) {
                     if(is_array($column['indexof'])) {
-                        $aname = $column['indexof'][0];
-                        $kvalue = count($column['indexof'])>1 ? $column['indexof'][1] : 'name';
+                        $aname=$column['indexof'][0];
+                        $kvalue=count($column['indexof'])>1 ? $column['indexof'][1] : 'name';
                     } else {
-                        $aname = $column['indexof'];
-                        $kvalue = 'name';
+                        $aname=$column['indexof'];
+                        $kvalue='name';
                     }//if(is_array($column['indexof']))
-                    $tmp_value = (array_key_exists($aname,$this->extra_params) && is_array($this->extra_params[$aname]) && array_key_exists($field,$data) && array_key_exists($data[$field],$this->extra_params[$aname]) && array_key_exists($kvalue,$this->extra_params[$aname][$data[$field]])) ? $this->extra_params[$aname][$data[$field]][$kvalue] : '';
-                }else{
-                    $tmp_value = array_key_exists($field,$data) ? $data[$field] : '';
+                    $tmp_value=(array_key_exists($aname,$this->extra_params) && is_array($this->extra_params[$aname]) && array_key_exists($field,$data) && array_key_exists($data[$field],$this->extra_params[$aname]) && array_key_exists($kvalue,$this->extra_params[$aname][$data[$field]])) ? $this->extra_params[$aname][$data[$field]][$kvalue] : '';
+                } else {
+                    $tmp_value=array_key_exists($field,$data) ? $data[$field] : '';
                 }//if(array_key_exists('indexof',$column) && $column['indexof'])
-                $col_value .= ($tmp_value ? ((array_key_exists('separator',$column) && $column['separator']) ? $column['separator'] : ' ').$tmp_value : '');
+                $col_value.=($tmp_value ? ((array_key_exists('separator',$column) && $column['separator']) ? $column['separator'] : ' ').$tmp_value : '');
             }//END foreach
         }//if(array_key_exists('format_value_func',$column) && $column['format_value_func'])
-        $col_value = (isset($col_value) ? $col_value : '');
+        $col_value=(isset($col_value) ? $col_value : '');
         if(array_key_exists('total_row',$column) && $column['total_row']) {
             if(array_key_exists('value_total_row',$column) && $column['total_row']) {
                 switch(strtolower($column['total_row'])) {
                     case 'sum':
                     case 'average':
-                        $this->total_row[$col] += is_numeric($col_value) ? $col_value : 0;
+                        $this->total_row[$col]+=is_numeric($col_value) ? $col_value : 0;
                         break;
                     case 'count':
-                        $this->total_row[$col] += $col_value ? 1 : 0;
+                        $this->total_row[$col]+=$col_value ? 1 : 0;
                         break;
                     default:
                         break;
                 }//END switch
             } else {
-                $this->total_row[$col] = TRUE;
+                $this->total_row[$col]=TRUE;
             }//if(array_key_exists('value_total_row',$column) && $column['total_row'])
         }//if(array_key_exists('total_row',$column) && $column['total_row'])
-        $col_value .= (array_key_exists('sufix',$column) && $column['sufix']) ? $column['sufix'] : '';
+        $col_value.=(array_key_exists('sufix',$column) && $column['sufix']) ? $column['sufix'] : '';
         return $col_value;
     }//END protected function GetCellValue
 
@@ -643,7 +714,9 @@ class PdfDocument {
      * @return null|string
      */
     protected function NumberFormat0($data,$column) {
-        if(is_array($column['dbfield'])) { return NULL; }
+        if(is_array($column['dbfield'])) {
+            return NULL;
+        }
         return number_format($data[$column['dbfield']],0,$this->decimal_separator,$this->group_separator);
     }//END protected function NumberFormat0
 
@@ -653,7 +726,9 @@ class PdfDocument {
      * @return null|string
      */
     protected function NumberFormat2($data,$column) {
-        if(is_array($column['dbfield'])) { return NULL; }
+        if(is_array($column['dbfield'])) {
+            return NULL;
+        }
         return number_format($data[$column['dbfield']],2,$this->decimal_separator,$this->group_separator);
     }//END protected function NumberFormat2
 }//END class PdfDocument

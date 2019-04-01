@@ -1,7 +1,9 @@
 <?php
 use NETopes\Core\AppConfig;
 
-if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
+if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) {
+    die('Invalid request!');
+}
 // Load helper functions
 require_once(__DIR__.'/functions.php');
 // Load AppConfig

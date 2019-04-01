@@ -14,17 +14,19 @@ namespace NETopes\Core\Controls;
 /**
  * PreviewBox control
  * Control for previewing HTML content
+ *
  * @package  NETopes\Controls
  */
 class PreviewBox extends Control {
-    public function __construct($params = NULL){
-        $this->postable = FALSE;
-        $this->label_position = 'left';
+    public function __construct($params=NULL) {
+        $this->postable=FALSE;
+        $this->label_position='left';
         parent::__construct($params);
     }//END public function __construct
+
     protected function SetControl(): ?string {
-        $tagClass = $this->auto_height ? 'can-grow-v' : NULL;
-        $result = "\t\t".'<div'.$this->GetTagId(2).$this->GetTagClass($tagClass).$this->GetTagAttributes().$this->GetTagActions().'>'.$this->value.'</div>'."\n";
+        $tagClass=$this->auto_height ? 'can-grow-v' : NULL;
+        $result="\t\t".'<div'.$this->GetTagId(2).$this->GetTagClass($tagClass).$this->GetTagAttributes().$this->GetTagActions().'>'.$this->value.'</div>'."\n";
         return $result;
     }//END protected function SetControl
 }//END class PreviewBox extends Control

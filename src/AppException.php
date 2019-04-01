@@ -26,29 +26,30 @@ final class AppException extends Exception {
     /**
      * @var int Exception severity (1 non-blocking, <=0 blocking)
      */
-    protected $severity = 1;
+    protected $severity=1;
     /**
      * @var  string Exception type (default: app)
      * posible values: app, firebird, mysql, pdo, mssql
      */
-    protected $type = NULL;
+    protected $type=NULL;
     /**
      * @var  string Stores the original exception message
      */
-    protected $originalMessage = NULL;
+    protected $originalMessage=NULL;
     /**
      * @var  mixed External error code
      * (used generally for database exceptions)
      */
-    protected $externalCode = NULL;
+    protected $externalCode=NULL;
     /**
      * @var  array More exception information
      * (inherited from PDOException)
      */
-    public $errorInfo = [];
+    public $errorInfo=[];
 
     /**
      * Get AppException instance from another exception instance
+     *
      * @param \Throwable  $e
      * @param string|null $type
      * @param int         $severity
@@ -64,29 +65,30 @@ final class AppException extends Exception {
 
     /**
      * Class constructor method
-     * @param  string          $message      Exception message
-     * @param  int             $code         Exception message
-     * @param  int             $severity     Exception severity
-     * <= 0 - stops the execution
-     * > 0 continues execution
-     * @param  string|null     $file         Exception location (file)
-     * @param  int|null        $line         Exception location (line)
-     * @param  string          $type         Exception type
-     * @param  mixed           $externalCode Extra error code
-     * @param  array           $errorInfo    PDO specific error information
-     * @param  \Throwable|null $previous
+     *
+     * @param string          $message      Exception message
+     * @param int             $code         Exception message
+     * @param int             $severity     Exception severity
+     *                                      <= 0 - stops the execution
+     *                                      > 0 continues execution
+     * @param string|null     $file         Exception location (file)
+     * @param int|null        $line         Exception location (line)
+     * @param string          $type         Exception type
+     * @param mixed           $externalCode Extra error code
+     * @param array           $errorInfo    PDO specific error information
+     * @param \Throwable|null $previous
      */
     public function __construct(string $message,int $code=-1,int $severity=1,?string $file=NULL,?int $line=NULL,string $type='app',$externalCode=NULL,array $errorInfo=[],?Throwable $previous=NULL) {
-        $this->severity = $severity;
-        $this->type = strtolower($type);
-        $this->externalCode = $externalCode;
-        $this->errorInfo = $errorInfo;
-        $this->originalMessage = $message;
-        $this->file = $file;
-        $this->line = $line;
+        $this->severity=$severity;
+        $this->type=strtolower($type);
+        $this->externalCode=$externalCode;
+        $this->errorInfo=$errorInfo;
+        $this->originalMessage=$message;
+        $this->file=$file;
+        $this->line=$line;
         switch($this->type) {
             case 'firebird':
-                $this->externalCode = is_numeric($this->externalCode) ?  $this->externalCode*(-1) : $this->externalCode;
+                $this->externalCode=is_numeric($this->externalCode) ? $this->externalCode * (-1) : $this->externalCode;
                 break;
             case 'mysql':
             case 'mongodb':
@@ -97,8 +99,8 @@ final class AppException extends Exception {
                 switch($this->externalCode) {
                     case 'HY000':
                         if(is_array($this->errorInfo) && count($this->errorInfo)>2) {
-                            $this->externalCode = is_numeric($this->errorInfo[1]) ?  $this->errorInfo[1]*(-1) : $this->errorInfo[1];
-                            $message = 'SQL ERROR: '.$this->errorInfo[2];
+                            $this->externalCode=is_numeric($this->errorInfo[1]) ? $this->errorInfo[1] * (-1) : $this->errorInfo[1];
+                            $message='SQL ERROR: '.$this->errorInfo[2];
                         }//if(is_array($this->errorInfo) && count($this->errorInfo)>2)
                         break;
                     default:
@@ -106,7 +108,7 @@ final class AppException extends Exception {
                 }//END switch
                 break;
             default:
-                $this->type = 'app';
+                $this->type='app';
                 break;
         }//END switch
         parent::__construct($message,$code,$previous);
@@ -114,6 +116,7 @@ final class AppException extends Exception {
 
     /**
      * Gets the exception severity
+     *
      * @return int The severity level of the exception.
      */
     final public function getSeverity(): int {
@@ -122,6 +125,7 @@ final class AppException extends Exception {
 
     /**
      * Gets the external error code
+     *
      * @return int Returns external error code
      */
     final public function getExtCode() {
@@ -130,6 +134,7 @@ final class AppException extends Exception {
 
     /**
      * Gets the original exception message
+     *
      * @return string Returns original exception message
      */
     final public function getOriginalMessage() {
@@ -138,22 +143,28 @@ final class AppException extends Exception {
 
     /**
      * Sets the original exception message
-     * @param  string $message New message to be stored in the
-     * original message property
+     *
+     * @param string $message New message to be stored in the
+     *                        original message property
      * @return void
      */
     final public function setOriginalMessage($message) {
-        $this->originalMessage = $message;
+        $this->originalMessage=$message;
     }//END public function setOriginalMessage
 
     /**
      * Gets the full exception message
+     *
      * @return string Returns full exception message
      */
     final public function getFullMessage() {
-        $result = $this->message;
-        if($this->file) { $result .= ' in file ['.$this->file.']'; }
-        if($this->line) { $result .= ' at line ['.$this->line.']'; }
+        $result=$this->message;
+        if($this->file) {
+            $result.=' in file ['.$this->file.']';
+        }
+        if($this->line) {
+            $result.=' at line ['.$this->line.']';
+        }
         return $result;
     }//END public function getFullMessage
 }//END class AppException extends \Exception

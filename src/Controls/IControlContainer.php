@@ -14,18 +14,21 @@ namespace NETopes\Core\Controls;
 /**
  * Control container interface
  * Interface for controls containers
+ *
  * @package  NETopes\Core\Controls
  */
 interface IControlContainer {
     /**
      * Control container class constructor
+     *
      * @param $control
      */
-	function __construct($control);
+    function __construct($control);
+
     /**
-     * @param string $content
+     * @param string      $content
      * @param string|null $secondaryContent
      * @return string
      */
-    public function GetHtml(string $content,?string $secondaryContent = NULL);
+    public function GetHtml(string $content,?string $secondaryContent=NULL);
 }//END interface IControlContainer
