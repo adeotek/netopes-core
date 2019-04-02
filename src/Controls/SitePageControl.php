@@ -24,7 +24,7 @@ class SitePageControl extends Control {
         $this->buffered=TRUE;
         $this->no_label=TRUE;
         $this->container=FALSE;
-        $this->totalrows=0;
+        $this->total_rows=0;
         $this->current_page=1;
         parent::__construct($params);
     }//END public function __construct
@@ -32,11 +32,11 @@ class SitePageControl extends Control {
     protected function SetControl(): ?string {
         $limit=NApp::GetParam('rows_per_page');
         $limit=$limit>0 ? $limit : 20; //crapa cu division by zero daca nu are inregistrare in admin_user_options
-        $totalnrofpages=ceil($this->totalrows / $limit);
+        $totalnrofpages=ceil($this->total_rows / $limit);
         $cpage=(is_numeric($this->current_page) && $this->current_page>0) ? $this->current_page : -1;
         $result='';
         $result.="\t".'<div class="paginationcontainer">'."\n";
-        $result.="\t\t".'<div class="totalrows"><strong>'.$this->totalrows.'</strong> '.Translate::Get('results_label').'</div>'."\n";
+        $result.="\t\t".'<div class="total_rows"><strong>'.$this->total_rows.'</strong> '.Translate::Get('results_label').'</div>'."\n";
         $result.="\t\t".'<div class="pagination">Pag.';
         $this->hreflink=strpos($this->hreflink,'?')===FALSE ? $this->hreflink.'?' : $this->hreflink.'&';
         if($cpage>0) {

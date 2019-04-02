@@ -422,30 +422,19 @@ class TableView {
                 //~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
                 //~'fcond'|{$this->tag_id}-f-cond-type:value
                 $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {
-                        'faction': 'add',
-						'sessact'|'filters',
-						'fop'|'".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."',
-						'ftype'|'{nGet|{$this->tag_id}-f-type:value}',
-						'fcond'|'{nGet|{$this->filter_cond_val_source}}',
-						'fvalue'|'{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
-						'fsvalue'|'".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."',
-						'fdvalue'|'{nGet|".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
-						'fsdvalue'|'".(strlen($fsdvalue) ? '{nGet|'.$fsdvalue.'}' : '')."', 
-						'data_type'|'{$fdtype}',
-						'is_ds_param'|'{$isDSParam}' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{nGet|".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsdvalue': '".(strlen($fsdvalue) ? '{nGet|'.$fsdvalue.'}' : '')."', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}' } }";
                 break;
             case 'sort':
                 $targetId=$this->target;
                 $onloadCallback=FALSE;
                 $sdir=$params->safeGet('direction','asc','is_notempty_string');
                 $sdir=$sdir=='asc' ? 'desc' : 'asc';
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}': 'sessact'|'sort' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
                 break;
             case 'gotopage':
                 $targetId=$this->target;
                 $onloadCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {{page}}, 'sessact': 'page' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
                 break;
             case 'export_all':
                 $targetId='errors';
@@ -1076,7 +1065,7 @@ class TableView {
             $result.="\t".'</div>'."\n";
             return $result;
         }//if(!$this->with_pagination)
-        $pagination=new SimplePageControl(['phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','totalrows'=>$records_no,'onclickparams'=>$this->GetActionCommand('gotopage',[],FALSE),'js_callback'=>$this->onchange_js_callback,'current_page'=>$this->current_page]);
+        $pagination=new SimplePageControl(['phash'=>$this->phash,'theme_type'=>$this->theme_type,'width'=>'100%','total_rows'=>$records_no,'target_id'=>$this->target,'ajax_method'=>'ControlAjaxRequest','onclick_action'=>$this->GetActionCommand('gotopage',NULL,FALSE),'js_callback'=>$this->onchange_js_callback,'current_page'=>$this->current_page]);
         $result="\t".'<div class="'.$this->base_class.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
         $result.=$pagination->Show();
         $result.="\t".'</div>'."\n";

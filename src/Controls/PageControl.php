@@ -18,7 +18,7 @@ use Translate;
  * long_description
  *
  * @property mixed passparams
- * @property int   totalrows
+ * @property int   total_rows
  * @property mixed target
  * @property mixed current_page
  * @property mixed withcount
@@ -36,7 +36,7 @@ class PageControl extends Control {
         $this->buffered=TRUE;
         $this->no_label=TRUE;
         $this->container=FALSE;
-        $this->totalrows=0;
+        $this->total_rows=0;
         parent::__construct($params);
     }//END public function __construct
 
@@ -57,7 +57,7 @@ class PageControl extends Control {
         $result='';
         $rpp=NApp::GetParam('rows_per_page');
         $rpp=$rpp>0 ? $rpp : 20;
-        $p_no=ceil($this->totalrows / $rpp);
+        $p_no=ceil($this->total_rows / $rpp);
         if(!$this->withcount || !$this->current_page) {
             $p_current_arr=NApp::GetParam($this->module.$this->method.$this->phash);
             $withcount=get_array_value($p_current_arr,'fullpagination',0,'is_numeric');
@@ -75,7 +75,7 @@ class PageControl extends Control {
         }//if(is_numeric($this->width) && $this->width>0)
         $result.="\t".'<div class="paginationcontainer'.$c_class.'"'.$c_width.'>'."\n";
         if($withcount==1) {
-            $result.="\t\t".'<div class="itemscount span-cent15"><strong>'.$this->totalrows.'</strong> '.Translate::Get('results_label').'</div>'."\n";
+            $result.="\t\t".'<div class="itemscount span-cent15"><strong>'.$this->total_rows.'</strong> '.Translate::Get('results_label').'</div>'."\n";
             $result.="\t\t".'<div class="span-cent70 pagination">Pag.';
             if($p_current>0) {
                 if($p_current>1) {
