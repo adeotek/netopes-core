@@ -416,13 +416,20 @@ class TableView {
                 break;
             case 'add_filter':
                 $targetId=$this->target;
-                $fsValue=$params->safeGet('fsvalue','','is_notempty_string');
-                $fsdvalue=$params->safeGet('fsdvalue','','is_notempty_string');
+                $fsValue=$params->safeGet('fsvalue','','is_string');
+                $fdvalue=$params->safeGet('fdvalue','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
+                if(strlen($fdvalue) && strpos($fdvalue,'{nEval|')===FALSE && strpos($fdvalue,'{nGet|')===FALSE) {
+                    $fdvalue='{nGet|'.$fdvalue.'}';
+                }
+                $fsdvalue=$params->safeGet('fsdvalue','','is_string');
+                if(strlen($fsdvalue) && strpos($fsdvalue,'{nEval|')===FALSE && strpos($fsdvalue,'{nGet|')===FALSE) {
+                    $fsdvalue='{nGet|'.$fsdvalue.'}';
+                }
                 $fdtype=$params->safeGet('data_type','','is_string');
                 //~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
                 //~'fcond'|{$this->tag_id}-f-cond-type:value
                 $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{nGet|".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsdvalue': '".(strlen($fsdvalue) ? '{nGet|'.$fsdvalue.'}' : '')."', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{$fdvalue}', 'fsdvalue': '{$fsdvalue}', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}' } }";
                 break;
             case 'sort':
                 $targetId=$this->target;
@@ -841,7 +848,7 @@ class TableView {
                     $ctrlParams['data_source']=get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
                 }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
                 $ctrl_filter_value=new SmartComboBox($ctrlParams);
-                $dvalue=$this->tag_id.'-f-value:option';
+                $dvalue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-f-value\',false)}';
                 if(!$this->filter_cond_val_source) {
                     $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
                 }
