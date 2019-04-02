@@ -12,6 +12,7 @@
 namespace NETopes\Core\Controls;
 use GibberishAES;
 use NApp;
+use NETopes\Core\App\Params;
 use NETopes\Core\AppException;
 use Translate;
 
@@ -22,21 +23,9 @@ use Translate;
  */
 class GridComboBox extends Control {
     /**
-     * @var    string Data source class
+     * @var    array|null Data source array
      */
-    public $ds_class=NULL;
-    /**
-     * @var    string Data adapter method name
-     */
-    public $ds_method=NULL;
-    /**
-     * @var    array Data adapter method parameters array
-     */
-    public $ds_params=NULL;
-    /**
-     * @var    array Data adapter method extra parameters array
-     */
-    public $ds_extra_params=NULL;
+    public $data_source=NULL;
     /**
      * @var    array Grid columns array
      */
@@ -65,12 +54,16 @@ class GridComboBox extends Control {
         $this->visible_tooltip=TRUE;
         $this->autoload=FALSE;
         parent::__construct($params);
-        if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns)) {
+        if(!is_array($this->data_source) || !count($this->data_source) || !is_array($this->columns) || !count($this->columns)) {
             throw new AppException('Wrong GridComboBox control parameters !',E_ERROR,1);
-        }//if(!strlen($this->data_source) || !strlen($this->ds_method) || !is_array($this->columns) || !count($this->columns))
+        }//if(!is_array($this->data_source) || !count($this->data_source) || !is_array($this->columns) || !count($this->columns))
         $this->target=$this->tag_id.'-gcbo-target';
     }//END public function __construct
 
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControl(): ?string {
         $this->ProcessActions();
         $ar_class='';
@@ -115,12 +108,12 @@ class GridComboBox extends Control {
                 $dparams.="~'dynf[{$dk}]'|$dv";
             }
         }//if(is_array($this->dynamic_params) && count($this->dynamic_params))
-        $dd_action=NApp::Ajax()->Prepare("{ 'control_hash': '{$this->chash}', 'method': 'ShowDropDown', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'selected_value': '{nGet:{$this->tag_id}:value}', 'qsearch': '{nGet:{$this->tag_id}-cbo:value}', 'text': '{nGet:{$this->tag_id}-cbo:attr:data-text{$dparams}}' } }",$this->target,NULL,TRUE,NULL,TRUE,"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",NULL,TRUE,'ControlAjaxRequest');
+        $ddAction=NApp::Ajax()->Prepare("{ 'control_hash': '{$this->chash}', 'method': 'ShowDropDown', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'selected_value': '{nGet|{$this->tag_id}:value}', 'qsearch': '{nGet|{$this->tag_id}-cbo:value}', 'text': '{nGet|{$this->tag_id}-cbo:attr:data-text{$dparams}}' } }",$this->target,NULL,TRUE,NULL,TRUE,"function(s){ GCBOLoader(s,'{$this->tag_id}'); }",NULL,TRUE,'ControlAjaxRequest');
         $isvalue=strlen($this->selected_value) ? $this->selected_value : NULL;
         $demptyval=strlen($this->empty_value) ? ' data-eval="'.$this->empty_value.'"' : '';
         $result='<div id="'.$this->tag_id.'-container" class="'.$cclass.'"'.$ccstyle.'>'."\n";
         $result.="\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$lclass.($this->postable ? ' postable' : '').'"'.$lonchange.' data-text="'.($isvalue ? $this->selected_text : '').'"'.$demptyval.'>'."\n";
-        $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.($isvalue ? $this->selected_text : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-ajax="'.GibberishAES::enc($dd_action,$this->tag_id).'" data-id="'.$this->tag_id.'">'."\n";
+        $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.($isvalue ? $this->selected_text : '').'" class="'.$lclass.'"'.$lstyle.$lplaceholder.$ltabindex.$lextratagparam.' data-value="'.$this->selected_value.'" data-ajax="'.GibberishAES::enc($ddAction,$this->tag_id).'" data-id="'.$this->tag_id.'">'."\n";
         $result.="\t".'<div id="'.$this->tag_id.'-ddbtn" class="'.$ddbtnclass.'" onclick="GCBODDBtnClick(\''.$this->tag_id.'\');"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
         $result.="\t".'<div id="'.$this->tag_id.'-clear" class="'.$cbtnclass.'" onclick="GCBOSetValue(\''.$this->tag_id.'\',null,\'\',false);"></div>'."\n";
         if($this->autoload || $isvalue) {
@@ -129,9 +122,9 @@ class GridComboBox extends Control {
             $result.="\t\t".'<div id="'.$this->tag_id.'-gcbo-target" class="gcbo-target">'."\n";
             if(strlen($dparams)) {
                 if(NApp::ajax() && is_object(NApp::Ajax())) {
-                    NApp::Ajax()->ExecuteJs($dd_action);
+                    NApp::Ajax()->ExecuteJs($ddAction);
                 } else {
-                    $result.="\t"."<script type=\"text/javascript\">{$dd_action}</script>"."\n";
+                    $result.="\t"."<script type=\"text/javascript\">{$ddAction}</script>"."\n";
                 }//if(NApp::ajax() && is_object(NApp::Ajax()))
             } else {
                 $result.=$this->ShowDropDown(['return'=>TRUE,'selected_value'=>$isvalue]);
@@ -149,30 +142,32 @@ class GridComboBox extends Control {
         return $result;
     }//END protected function SetControl
 
-    public function ShowDropDown($params=NULL) {
+    /**
+     * @param \NETopes\Core\App\Params $params
+     * @return string|void|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function ShowDropDown(Params $params) {
         //NApp::Dlog($params,'ShowDropDown');
         if(!is_object(NApp::Ajax())) {
             throw new AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
         }
-        if(array_key_exists('params',$params)) {
-            $lparams=$params['params'];
-        } else {
-            $lparams=$params;
-        }//if(array_key_exists('params',$params))
         $qsearch_field=strlen($this->qsearch_da_param) ? $this->qsearch_da_param : 'for_text';
         $value_filter=strlen($this->value_da_param) ? $this->value_da_param : 'for_id';
         $ifilters=[];
         $s_params=[];
-        $selectedvalue=get_array_value($lparams,'selected_value',NULL,'is_notempty_string');
-        $qsearch=get_array_value($lparams,'qsearch','','is_string');
-        $selectedtext=get_array_value($lparams,'text','','is_string');
-        $dynf=get_array_value($lparams,'dynf',[],'is_array');
+        $selectedvalue=$params->safeGet('selected_value',NULL,'is_notempty_string');
+        $qsearch=$params->safeGet('qsearch','','is_string');
+        $selectedtext=$params->safeGet('text','','is_string');
+        $dynf=$params->safeGet('dynf',[],'is_array');
+        $dsParams=get_array_value($this->data_source,'ds_params',[],'is_array');
         foreach($dynf as $dk=>$dv) {
-            if(!is_array($this->ds_params) || !array_key_exists($dk,$this->ds_params)) {
+            if(!array_key_exists($dk,$dsParams)) {
                 continue;
             }
-            $this->ds_params[$dk]=$dv;
+            $dsParams[$dk]=$dv;
         }//END foreach
+        $this->data_source['ds_params']=$dsParams;
         if($qsearch && $qsearch!=$selectedtext) {
             $s_params=['faction'=>'add','sessact'=>'filters','fop'=>'and','ftype'=>0,'fcond'=>'like','fvalue'=>$qsearch,'fsvalue'=>'','fdvalue'=>$qsearch,'data_type'=>''];
         } else {
@@ -195,15 +190,15 @@ class GridComboBox extends Control {
             'sortby'=>['column'=>$this->display_field,'direction'=>'asc'],
             'initial_filters'=>$ifilters,
             'qsearch'=>$qsearch_field,
-            'ds_class'=>$this->ds_class,
-            'ds_method'=>$this->ds_method,
-            'ds_params'=>$this->ds_params,
-            'ds_extra_params'=>$this->ds_extra_params,
+            'ds_class'=>get_array_value($this->data_source,'ds_class',NULL,'?is_string'),
+            'ds_method'=>get_array_value($this->data_source,'ds_method',NULL,'?is_string'),
+            'ds_params'=>get_array_value($this->data_source,'ds_params',[],'is_array'),
+            'ds_extra_params'=>get_array_value($this->data_source,'ds_extra_params',[],'is_array'),
             'auto_load_data'=>get_array_value($this->grid_params,'auto_load_data',TRUE,'bool'),
             'columns'=>[
                 'actions'=>[
                     'type'=>'actions',
-                    'width'=>'18',
+                    'visual_count'=>1,
                     'actions'=>[
                         [
                             'type'=>'CheckBox',

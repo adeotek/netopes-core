@@ -157,7 +157,7 @@ class PageControl extends Control {
             }//if($p_current>0)
             $result.="\t\t".'</div>'."\n";
             $result.="\t\t".'<div class="span-cent15 salt">';
-            $result.="\t\t\t".'<select class="clsComboBox right" id="pagination-cbo-'.$this->module.$this->method.$this->phash.'" onchange="'.$this->GetAjaxCommandString(NULL,NULL,'{nGet:pagination-cbo-'.$this->module.$this->method.$this->phash.':value').'">'."\n";
+            $result.="\t\t\t".'<select class="clsComboBox right" id="pagination-cbo-'.$this->module.$this->method.$this->phash.'" onchange="'.$this->GetAjaxCommandString(NULL,NULL,'{nGet|pagination-cbo-'.$this->module.$this->method.$this->phash.':value').'">'."\n";
             for($i=1; $i<=$p_no; $i++) {
                 $selected=$i==$p_current ? 'selected="selected"' : '';
                 $result.="\t\t".'<option '.$selected.' value="'.$i.'">'.$i.'</option>'."\n";

@@ -404,7 +404,7 @@ class TableView {
                 $targetId=$this->tag_id.'-filters';
                 $execCallback=FALSE;
                 $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ShowFiltersBox', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet:{$this->tag_id}-f-operator:value}', 'type': '{nGet:{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet:'.$fcType.'}' : '')."' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': 'ShowFiltersBox', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
                 break;
             case 'remove_filter':
                 $targetId=$this->target;
@@ -425,13 +425,13 @@ class TableView {
                 $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {
                         'faction': 'add',
 						'sessact'|'filters',
-						'fop'|'".((is_array($this->filters) && count($this->filters)) ? "{nGet:".$this->tag_id."-f-operator:value}" : 'and')."',
-						'ftype'|'{nGet:{$this->tag_id}-f-type:value}',
-						'fcond'|'{nGet:{$this->filter_cond_val_source}}',
-						'fvalue'|'{nGet:".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
-						'fsvalue'|'".(strlen($fsValue) ? '{nGet:'.$fsValue.'}' : '')."',
-						'fdvalue'|'{nGet:".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
-						'fsdvalue'|'".(strlen($fsdvalue) ? '{nGet:'.$fsdvalue.'}' : '')."', 
+						'fop'|'".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."',
+						'ftype'|'{nGet|{$this->tag_id}-f-type:value}',
+						'fcond'|'{nGet|{$this->filter_cond_val_source}}',
+						'fvalue'|'{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
+						'fsvalue'|'".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."',
+						'fdvalue'|'{nGet|".$params->safeGet('fdvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}',
+						'fsdvalue'|'".(strlen($fsdvalue) ? '{nGet|'.$fsdvalue.'}' : '')."', 
 						'data_type'|'{$fdtype}',
 						'is_ds_param'|'{$isDSParam}' } }";
                 break;
