@@ -24,16 +24,16 @@ use Translate;
  * All applications modules extend this base class
  *
  * @package  NETopes\Core\App
- * @method ViewDRights()
- * @method ListDRights()
- * @method SearchDRights()
- * @method AddDRights()
- * @method EditDRights()
- * @method DeleteDRights()
- * @method PrintDRights()
- * @method ValidateDRights()
- * @method ExportDRights()
- * @method ImportDRights()
+ * @method static ViewDRights()
+ * @method static ListDRights()
+ * @method static SearchDRights()
+ * @method static AddDRights()
+ * @method static EditDRights()
+ * @method static DeleteDRights()
+ * @method static PrintDRights()
+ * @method static ValidateDRights()
+ * @method static ExportDRights()
+ * @method static ImportDRights()
  */
 class Module {
     /**

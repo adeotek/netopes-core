@@ -227,8 +227,8 @@ abstract class AssociationManager {
         $this->GetFilterHelperJs();
         $funcSufix='_'.str_replace('-','_',$tagId);
         $js=<<<JS
-            var assocManagerFilterElements;{$funcSufix} = function(t) {
-                var thisFilterValue = GetSlug($(t).val());
+            let assocManagerFilterElements;{$funcSufix} = function(t) {
+                let thisFilterValue = GetSlug($(t).val());
                 if(!thisFilterValue) {
                     $('#{$tagId} li.am-element').show();
                 } else {
@@ -249,6 +249,7 @@ JS;
     /**
      * @param string $tagId
      * @return string
+     * @throws \NETopes\Core\AppException
      */
     protected function GetItemsFilter(string $tagId): string {
         $placeholder=Translate::Get('filter_items');
@@ -266,6 +267,7 @@ HTML;
      * Get associated items actions HTML
      *
      * @return string
+     * @throws \NETopes\Core\AppException
      */
     protected function GetAssociatedItemsActions() {
         $result="\t\t\t".'<div class="subFormActions clearfix">'."\n";
