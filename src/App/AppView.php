@@ -703,7 +703,7 @@ class AppView {
                         if($this->_debug) {
                             NApp::Wlog('Invalid content class/value [control:index:'.$k.']!');
                         }
-                        continue;
+                        continue 2;
                     }//if(!strlen($class) || !strlen($value))
                     $args=get_array_value($c,'args',NULL,'?is_array');
                     $customParams=get_array_value($c,'params',NULL,'?is_array');
@@ -714,7 +714,7 @@ class AppView {
                         if($this->_debug) {
                             NApp::Wlog('Invalid content value [file:index:'.$k.']!');
                         }
-                        continue;
+                        continue 2;
                     }//if(!strlen($value))
                     $customParams=get_array_value($c,'params',NULL,'?is_array');
                     $cContent=$this->GetFileContent($value,$customParams);
@@ -726,7 +726,7 @@ class AppView {
                         if($this->_debug) {
                             NApp::Wlog('Invalid module content parameters [index:'.$k.':'.print_r($c,1).']!');
                         }
-                        continue;
+                        continue 2;
                     }//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
                     $customParams=get_array_value($c,'params',NULL,'isset');
                     $cContent=$this->GetModuleContent($module,$method,$customParams);
@@ -738,7 +738,7 @@ class AppView {
                         if($this->_debug) {
                             NApp::Wlog('Invalid content class/value [object:method:'.$method.']!');
                         }
-                        continue;
+                        continue 2;
                     }//if(!$object || !strlen($method) || !method_exists($object,$method))
                     $args=get_array_value($c,'args',NULL,'?is_array');
                     if(is_array($args) && count($args)) {
