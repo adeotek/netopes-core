@@ -2,16 +2,19 @@
 /**
  * NETopes application configuration structure file
  * Here are all the configuration elements definition for NETopes
+ *
  * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
-if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) { die('Invalid request!'); }
-$_NAPP_CONFIG_STRUCTURE = [
-//START NETopes configuration
+if(!defined('_VALID_NAPP_REQ') || _VALID_NAPP_REQ!==TRUE) {
+    die('Invalid request!');
+}
+$_NAPP_CONFIG_STRUCTURE=[
+    //START NETopes configuration
     // Files non-public repository path (absolute)
     'repository_path'=>['access'=>'readonly','default'=>NULL,'validation'=>'is_string'],
     // Use CDN for loading resources
@@ -84,8 +87,8 @@ $_NAPP_CONFIG_STRUCTURE = [
     'sys_tasks_log_file'=>['access'=>'readonly','default'=>'sys_tasks.log','validation'=>'is_notempty_string'],
     // Name of the API cron jobs log file
     'api_cron_jobs_log_file'=>['access'=>'readonly','default'=>'api_cron_jobs.log','validation'=>'is_notempty_string'],
-//END START NETopes configuration
-//START NETopes base configuration
+    //END START NETopes configuration
+    //START NETopes base configuration
     // Root namespace
     'app_root_namespace'=>['access'=>'readonly','default'=>'NETopes','validation'=>'is_notempty_string'],
     // Modules (controllers) namespace prefix
@@ -143,8 +146,8 @@ $_NAPP_CONFIG_STRUCTURE = [
     'cookie_login_lifetime'=>['access'=>'readonly','default'=>15,'validation'=>'is_not0_integer'],
     // Use internal cache system
     'app_encryption_key'=>['access'=>'readonly','default'=>'nAppEk','validation'=>'is_notempty_string'],
-//END NETopes base configuration
-//START Session configuration
+    //END NETopes base configuration
+    //START Session configuration
     // Server timezone
     'server_timezone'=>['access'=>'readonly','default'=>'Europe/Bucharest','validation'=>'is_notempty_string'],
     // PHP Session name (NULL for default)
@@ -169,8 +172,8 @@ $_NAPP_CONFIG_STRUCTURE = [
     'session_key'=>['access'=>'readonly','default'=>'1234567890','validation'=>'is_string'],
     // Session array keys case: CASE_LOWER/CASE_UPPER or NULL for no case modification
     'session_keys_case'=>['access'=>'readonly','default'=>CASE_LOWER,'validation'=>'is_integer'],
-//END Session configuration
-//START Logs & errors reporting
+    //END Session configuration
+    //START Logs & errors reporting
     // Debug mode on/off
     'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
     // Database debug mode on/off
@@ -191,5 +194,5 @@ $_NAPP_CONFIG_STRUCTURE = [
     'errors_log_file'=>['access'=>'readonly','default'=>'errors.log','validation'=>'is_notempty_string'],
     // Name of the debugging log file
     'debug_log_file'=>['access'=>'readonly','default'=>'debugging.log','validation'=>'is_notempty_string'],
-//END START Logs & errors reporting
+    //END START Logs & errors reporting
 ];

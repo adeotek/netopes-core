@@ -38,7 +38,9 @@ function getCookie(name) {
 	return result || undefined;
 }//END function getCookie
 
-$.fn.andSelf = function() { return this.addBack.apply(this, arguments); }
+$.fn.andSelf = function () {
+	return this.addBack.apply(this, arguments);
+};
 
 String.prototype.ucfirst = function(all) {
 	if(this==='') { return this; }
@@ -310,8 +312,8 @@ function print_r(arr,level) {
 //                      9/2/00
 //  "MMM dd, yyyy hh:mm:ssa" matches: "January 01, 2000 12:30:45AM"
 // ------------------------------------------------------------------
-var MONTH_NAMES=new Array('January','February','March','April','May','June','July','August','September','October','November','December','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
-var DAY_NAMES=new Array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sun','Mon','Tue','Wed','Thu','Fri','Sat');
+var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 function LZ(x) {return(x<0||x>9?"":"0")+x}
 // ------------------------------------------------------------------
 // isDate ( date_string, format_string )
@@ -364,7 +366,7 @@ function formatDate(date,format) {
 	var s=date.getSeconds();
 	var yyyy,yy,MMM,MM,dd,hh,h,mm,ss,ampm,HH,H,KK,K,kk,k;
 	// Convert real date parts into formatted versions
-	var value=new Object();
+	var value = {};
 	if (y.length < 4) {y=""+(y-0+1900);}
 	value["y"]=""+y;
 	value["yyyy"]=y;
@@ -566,10 +568,10 @@ function getDateFromFormat(val,format) {
 // ------------------------------------------------------------------
 function parseDate(val) {
 	var preferEuro=(arguments.length==2)?arguments[1]:false;
-	generalFormats=new Array('y-M-d','MMM d, y','MMM d,y','y-MMM-d','d-MMM-y','MMM d');
-	monthFirst=new Array('M/d/y','M-d-y','M.d.y','MMM-d','M/d','M-d');
-	dateFirst =new Array('d/M/y','d-M-y','d.M.y','d-MMM','d/M','d-M');
-	var checkList=new Array('generalFormats',preferEuro?'dateFirst':'monthFirst',preferEuro?'monthFirst':'dateFirst');
+	generalFormats = ['y-M-d', 'MMM d, y', 'MMM d,y', 'y-MMM-d', 'd-MMM-y', 'MMM d'];
+	monthFirst = ['M/d/y', 'M-d-y', 'M.d.y', 'MMM-d', 'M/d', 'M-d'];
+	dateFirst = ['d/M/y', 'd-M-y', 'd.M.y', 'd-MMM', 'd/M', 'd-M'];
+	var checkList = ['generalFormats', preferEuro ? 'dateFirst' : 'monthFirst', preferEuro ? 'monthFirst' : 'dateFirst'];
 	var d=null;
 	for (var i=0; i<checkList.length; i++) {
 		var l=window[checkList[i]];

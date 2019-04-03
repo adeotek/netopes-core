@@ -2,11 +2,12 @@
 /**
  * Basic controls classes file
  * File containing basic controls classes
+ *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.0.0.0
+ * @version    3.1.0.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -18,9 +19,11 @@ use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NApp;
 use Translate;
+
 /**
  * GroupCheckBox class
  * Control class for group checkbox (radio button alternative)
+ *
  * @package  Hinter\NETopes\Controls
  */
 class GroupCheckBox extends Control {
@@ -28,84 +31,93 @@ class GroupCheckBox extends Control {
     /**
      * @var    array Elements data source
      */
-    public $data_source = [];
+    public $data_source=[];
     /**
      * @var    DataSet Elements list
      */
-    public $items = NULL;
+    public $items=NULL;
     /**
      * @var    string Elements list orientation
      */
-    public $orientation = 'horizontal';
+    public $orientation='horizontal';
     /**
      * @var    string Elements default value field name
      */
-    public $default_value_field = NULL;
+    public $default_value_field=NULL;
     /**
      * @var    mixed Initial value
      */
-    public $value = NULL;
+    public $value=NULL;
+
     /**
      * Control class constructor
-     * @param  array $params An array of params
-     * @throws \NETopes\Core\AppException
+     *
+     * @param array $params An array of params
      * @return void
+     * @throws \NETopes\Core\AppException
      */
-    public function __construct($params = NULL) {
+    public function __construct($params=NULL) {
         parent::__construct($params);
-        if(isset($this->items) && !is_object($this->items)) { $this->items = DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class); }
-        if(!strlen($this->tag_id)) { $this->tag_id = AppSession::GetNewUID('GroupCheckBox','md5'); }
+        if(isset($this->items) && !is_object($this->items)) {
+            $this->items=DataSourceHelpers::ConvertArrayToDataSet($this->items,VirtualEntity::class);
+        }
+        if(!strlen($this->tag_id)) {
+            $this->tag_id=AppSession::GetNewUID('GroupCheckBox','md5');
+        }
     }//END public function __construct
+
     /**
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        if(is_null($this->items)) { $this->items = $this->LoadData($this->data_source); }
-        $idfield = is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
-        $labelfield = is_string($this->label_field) && strlen($this->label_field) ? $this->label_field : 'name';
-        $relation = is_string($this->relation) && strlen($this->relation) ? $this->relation : '';
-        $statefield = is_string($this->state_field) && strlen($this->state_field) ? $this->state_field : NULL;
-        $activestate = is_string($this->active_state) && strlen($this->active_state) ? $this->active_state : '1';
+        if(is_null($this->items)) {
+            $this->items=$this->LoadData($this->data_source);
+        }
+        $idfield=is_string($this->id_field) && strlen($this->id_field) ? $this->id_field : 'id';
+        $labelfield=is_string($this->label_field) && strlen($this->label_field) ? $this->label_field : 'name';
+        $relation=is_string($this->relation) && strlen($this->relation) ? $this->relation : '';
+        $statefield=is_string($this->state_field) && strlen($this->state_field) ? $this->state_field : NULL;
+        $activestate=is_string($this->active_state) && strlen($this->active_state) ? $this->active_state : '1';
         $this->ProcessActions();
-        $result = '<div id="'.$this->tag_id.'-container" class='.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
-        $result .= "\t".'<input type="hidden" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagActions().' value="'.$this->value.'">'."\n";
-        $ul_class = 'clsGCKBList '.(strtolower($this->orientation)==='vertical' ? 'oVertical' : 'oHorizontal');
-        $result .= "\t".'<ul class="'.$ul_class.'">'."\n";
+        $result='<div id="'.$this->tag_id.'-container" class='.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
+        $result.="\t".'<input type="hidden" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagActions().' value="'.$this->value.'">'."\n";
+        $ul_class='clsGCKBList '.(strtolower($this->orientation)==='vertical' ? 'oVertical' : 'oHorizontal');
+        $result.="\t".'<ul class="'.$ul_class.'">'."\n";
         // $items = $this->items['data'] ?? $this->items;
         if(is_object($this->items) && $this->items->count()) {
             foreach($this->items as $k=>$v) {
-                $i_value = $v->getProperty($idfield,NULL,'is_string');
+                $i_value=$v->getProperty($idfield,NULL,'is_string');
                 if(strlen($relation)) {
-                    $relObj = $v->getProperty($relation,'','is_string');
+                    $relObj=$v->getProperty($relation,'','is_string');
                     if(is_object($relObj)) {
-                        $i_label = $relObj->getProperty($labelfield,NULL,'is_object');
+                        $i_label=$relObj->getProperty($labelfield,NULL,'is_object');
                     } else {
-                        $i_label = '';
+                        $i_label='';
                     }//if(is_object($relObj))
                 } else {
-                    $i_label = $v->getProperty($labelfield,'','is_string');
+                    $i_label=$v->getProperty($labelfield,'','is_string');
                 }//if(strlen($relation))
                 if(isset($this->value)) {
-                    $i_val = $i_value==$this->value ? 1 : 0;
+                    $i_val=$i_value==$this->value ? 1 : 0;
                 } elseif(strlen($this->default_value_field)) {
-                    $i_val = $v->getProperty($this->default_value_field,0,'is_numeric')==1 ? 1 : 0;
+                    $i_val=$v->getProperty($this->default_value_field,0,'is_numeric')==1 ? 1 : 0;
                 } else {
-                    $i_val = 0;
+                    $i_val=0;
                 }//if(isset($this->value))
                 if($this->disabled || $this->readonly) {
-                    $i_active = FALSE;
+                    $i_active=FALSE;
                 } else {
-                    $i_active = strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
+                    $i_active=strlen($statefield) ? $v->getProperty($statefield,NULL,'is_string')==$activestate : TRUE;
                 }//if($this->disabled || $this->readonly)
-                $result .= "\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
+                $result.="\t\t".'<li><input type="image" class="clsGCKBItem'.($i_active ? ' active' : ' disabled').'" data-id="'.$this->tag_id.'" data-val="'.$i_value.'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$i_val.'"><label class="clsGCKBLabel">'.$i_label.'</label></li>'."\n";
             }//END foreach
         } else {
-            $result .= "\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";
+            $result.="\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";
         }//if(is_array($this->items) && count($this->items))
-        $result .= "\t".'</ul>'."\n";
-        $result .= '</div>'."\n";
-        $result .= $this->GetActions();
+        $result.="\t".'</ul>'."\n";
+        $result.='</div>'."\n";
+        $result.=$this->GetActions();
         return $result;
     }//END protected function SetControl
 }//END class GroupCheckBox extends Control
