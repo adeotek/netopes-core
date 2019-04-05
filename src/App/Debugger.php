@@ -139,7 +139,7 @@ class Debugger {
             switch($dk) {
                 case 'PhpConsole':
                     if(!class_exists('\PhpConsole\Connector')) {
-                        continue;
+                        break;
                     }
                     Connector::setPostponeStorage(new File((strlen($tmpPath) ? rtrim($tmpPath,'/') : '').'/phpcons.data'));
                     $this->debugObjects[$dk]=Connector::getInstance();
@@ -154,7 +154,7 @@ class Debugger {
                     break;
                 case 'QuantumPHP':
                     if(!class_exists('\QuantumPHP')) {
-                        continue;
+                        break;
                     }
                     switch($browser_type) {
                         case 'Chrome':
