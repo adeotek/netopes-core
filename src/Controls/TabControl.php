@@ -112,7 +112,7 @@ class TabControl {
      * @return string Returns content HTML for one tab
      * @throws \NETopes\Core\AppException
      */
-    protected function SetContent(array $tab,?string &$contentType=NULL): string {
+    protected function SetContent(array $tab,?string &$contentType=NULL): ?string {
         $result='';
         $ctResult='';
         $ct_data='';
@@ -165,7 +165,7 @@ class TabControl {
                 $c_type=$c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
                 if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type)) {
                     NApp::Elog('Control class ['.$c_type.'] not found!');
-                    continue;
+                    return NULL;
                 }//if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type))
                 $c_params=get_array_value($tContent,'control_params',[],'is_array');
                 $tt_params=get_array_value($tContent,'template_params',[],'is_array');
@@ -192,7 +192,7 @@ class TabControl {
                 $method=get_array_value($tContent,'method','','is_string');
                 if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
                     NApp::Wlog('Invalid module content parameters [tab:'.get_array_value($tab,'uid','-','is_string').':'.print_r($tContent,1).']!');
-                    continue;
+                    return NULL;
                 }//if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method))
                 $customParams=get_array_value($tContent,'params',[],'is_array');
                 $customParams=ControlsHelpers::ReplaceDynamicParams($customParams,[
