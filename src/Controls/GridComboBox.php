@@ -152,8 +152,8 @@ class GridComboBox extends Control {
         if(!is_object(NApp::Ajax())) {
             throw new AppException('Wrong ajax object for GridComboBox control !',E_ERROR,1);
         }
-        $qsearch_field=strlen($this->qsearch_da_param) ? $this->qsearch_da_param : 'for_text';
-        $value_filter=strlen($this->value_da_param) ? $this->value_da_param : 'for_id';
+        $qsearch_field=strlen($this->qsearch_ds_param) ? $this->qsearch_ds_param : 'for_text';
+        $value_filter=strlen($this->value_ds_param) ? $this->value_ds_param : 'for_id';
         $ifilters=[];
         $s_params=[];
         $selectedvalue=$params->safeGet('selected_value',NULL,'is_notempty_string');

@@ -446,13 +446,13 @@ function TCBOSetValue(elementid,val,title,update_tree,reload) {
 
 function InitTCBOFancyTree(elementid,val,module,method,url_params,js_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
 	if(!elementid || elementid.length===0) { return; }
-	var lval = encodeURIComponent(val);
-	var aurl = nAppBaseUrl+'/aindex.php?namespace='+namespace;
-	var lparams = '&module='+module+'&method='+method;
+	let lval=encodeURIComponent(val);
+	let aurl=nAppBaseUrl + '/aindex.php?namespace=' + namespace;
+	let lparams='&module=' + module + '&method=' + method;
 	if(hide_parents_checkbox) { lparams += '&hpc=1'; }
 	if(uid || uid.length>0) { lparams += '&uid='+uid; }
 	if(url_params) { lparams += url_params }
-	var urlCallback = function() {
+	let urlCallback=function() {
 		let paramsString = '';
 		if(typeof(js_params)==='object') {
 			for(let pk in js_params) {
