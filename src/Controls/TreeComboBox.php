@@ -17,6 +17,10 @@ use NETopes\Core\AppSession;
 /**
  * Class TreeComboBox
  *
+ * @property mixed dropdown_width
+ * @property mixed please_select_text
+ * @property mixed hide_parents_checkbox
+ * @property mixed selected_value
  * @package  NETopes\Controls
  */
 class TreeComboBox extends Control {
@@ -34,6 +38,7 @@ class TreeComboBox extends Control {
      *
      * @param array $params An array of params
      * @return void
+     * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
         parent::__construct($params);
@@ -43,6 +48,7 @@ class TreeComboBox extends Control {
      * Set control HTML string
      *
      * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
         $this->ProcessActions();
