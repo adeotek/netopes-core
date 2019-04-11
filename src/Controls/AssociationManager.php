@@ -226,14 +226,14 @@ abstract class AssociationManager {
     protected function GetFilterJs(string $tagId) {
         $this->GetFilterHelperJs();
         $funcSufix='_'.str_replace('-','_',$tagId);
-        $js=<<<JS
-            let assocManagerFilterElements;{$funcSufix} = function(t) {
+        $js="
+            let assocManagerFilterElements{$funcSufix} = function(t) {
                 let thisFilterValue = GetSlug($(t).val());
                 if(!thisFilterValue) {
                     $('#{$tagId} li.am-element').show();
                 } else {
                     $('#{$tagId} li.am-element').hide();
-                    $('#{$tagId} li.am-element.is-filterable[data-search*="'+thisFilterValue+'"]').show();
+                    $('#{$tagId} li.am-element.is-filterable[data-search*=\"'+thisFilterValue+'\"]').show();
                 }
             };
             $('#filter-{$tagId}').on('keyup',function(){
@@ -242,7 +242,7 @@ abstract class AssociationManager {
             $('#filter-{$tagId}').focusout(function(){
                 assocManagerFilterElements{$funcSufix}(this);
             });
-JS;
+        ";
         NApp::AddJsScript($js);
     }//END protected function GetFilterJs
 
