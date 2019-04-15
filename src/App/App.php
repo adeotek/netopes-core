@@ -236,10 +236,11 @@ abstract class App implements IApp {
             AppSession::SetWithSession(FALSE);
         }//if($session_init)
         static::$_isAjax=$isAjax;
-        $appWebProtocol=(isset($_SERVER["HTTPS"]) ? 'https' : 'http').'://';
+        $appWebProtocol=(isset($_SERVER['HTTPS']) ? 'https' : 'http').'://';
         $appDomain=strtolower((array_key_exists('HTTP_HOST',$_SERVER) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
         $urlFolder=Url::ExtractUrlPath((is_array($params) && array_key_exists('startup_path',$params) ? $params['startup_path'] : NULL));
-        static::$_url=new Url($appDomain,$appWebProtocol,$urlFolder);
+        $urlRemoveParams=isset($_GET['language']) && strlen($_GET['language']) ? [$_GET['language']] : NULL;
+        static::$_url=new Url($appDomain,$appWebProtocol,$urlFolder,$urlRemoveParams);
         static::$appBaseUrl=static::$_url->GetWebLink();
         if(AppConfig::GetValue('split_session_by_page')) {
             static::$_pHash=get_array_value($_GET,'phash',get_array_value($_POST,'phash',NULL,'is_notempty_string'),'is_notempty_string');
