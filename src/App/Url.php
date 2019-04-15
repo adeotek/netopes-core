@@ -108,17 +108,24 @@ class Url {
     /**
      * AppUrl constructor.
      *
-     * @param string $appDomain
-     * @param string $appWebProtocol
-     * @param string $urlFolder
+     * @param string     $appDomain
+     * @param string     $appWebProtocol
+     * @param string     $urlFolder
+     * @param array|null $removeFromPath
      */
-    public function __construct(string $appDomain,string $appWebProtocol,?string $urlFolder=NULL) {
+    public function __construct(string $appDomain,string $appWebProtocol,?string $urlFolder=NULL,?array $removeFromPath=NULL) {
         $this->appDomain=$appDomain;
         $this->appWebProtocol=$appWebProtocol;
         $this->urlFolder=strlen(trim($urlFolder,'\/ ')) ? '/'.trim($urlFolder,'\/ ') : '';
         if(isset($_SERVER['REQUEST_URI'])) {
             $uri_len=strpos($_SERVER['REQUEST_URI'],'?')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'?') : (strpos($_SERVER['REQUEST_URI'],'#')!==FALSE ? strpos($_SERVER['REQUEST_URI'],'#') : strlen($_SERVER['REQUEST_URI']));
-            $this->urlBase=$this->appWebProtocol.$this->appDomain.substr($_SERVER['REQUEST_URI'],0,$uri_len);
+            $this->urlVirtualPath=trim(substr($_SERVER['REQUEST_URI'],0,$uri_len),'/');
+            if(is_array($removeFromPath) && count($removeFromPath)) {
+                foreach($removeFromPath as $r) {
+                    $this->urlVirtualPath=str_replace('/'.trim($r,'/ '),'',$this->urlVirtualPath);
+                }//END foreach
+            }
+            $this->urlBase=$this->appWebProtocol.$this->appDomain.'/'.$this->urlVirtualPath;
         } else {
             $this->urlBase=$this->appWebProtocol.$this->appDomain;
         }//if(isset($_SERVER['REQUEST_URI']))
@@ -378,14 +385,14 @@ class Url {
     /**
      * description
      *
-     * @param int  $url_format
+     * @param int  $urlFormat
      * @param null $params
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    public function GetBase($url_format=self::URL_FORMAT_FRIENDLY,$params=NULL) {
-        $lurl_format=AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
-        switch($lurl_format) {
+    public function GetBase($urlFormat=self::URL_FORMAT_FRIENDLY,$params=NULL) {
+        $lUrlFormat=AppConfig::GetValue('app_mod_rewrite') ? $urlFormat : self::URL_FORMAT_SHORT;
+        switch($lUrlFormat) {
             case self::URL_FORMAT_FRIENDLY:
                 $lang=NULL;
                 $urlid=NULL;
