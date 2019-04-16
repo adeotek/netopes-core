@@ -268,21 +268,25 @@ abstract class Control {
      * @return array|null
      */
     protected function ProcessActions(): ?array {
-        if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions)) {
-            $this->ctrl_actions=[];
-            foreach($this->actions as $av) {
-                $c_a_params=get_array_value($av,'params',NULL,'is_notempty_array');
-                if(!$c_a_params) {
-                    continue;
-                }
-                $c_a_params['theme_type']=$this->theme_type;
-                $c_a_params['size']=$this->size;
-                $this->ctrl_actions[]=[
-                    'params'=>$c_a_params,
-                    'action_params'=>get_array_value($av,'action_params',NULL,'is_notempty_array'),
-                ];
-            }//END foreach
-        }//if(!$this->disabled && !$this->readonly && is_array($this->actions) && count($this->actions))
+        if(!is_array($this->actions) || !count($this->actions)) {
+            return $this->ctrl_actions;
+        }
+        $this->ctrl_actions=[];
+        foreach($this->actions as $av) {
+            if(($this->disabled || $this->readonly) && !get_array_value($av,'display_always',FALSE,'bool')) {
+                continue;
+            }
+            $c_a_params=get_array_value($av,'params',NULL,'is_notempty_array');
+            if(!$c_a_params) {
+                continue;
+            }
+            $c_a_params['theme_type']=$this->theme_type;
+            $c_a_params['size']=$this->size;
+            $this->ctrl_actions[]=[
+                'params'=>$c_a_params,
+                'action_params'=>get_array_value($av,'action_params',NULL,'is_notempty_array'),
+            ];
+        }//END foreach
         return $this->ctrl_actions;
     }//END protected function ProcessActions
 
@@ -332,7 +336,7 @@ abstract class Control {
             $actParams=$act['params'];
             $actParams['action_params']=get_array_value($act,'action_params',NULL,'is_notempty_array');
             $actParams['onclick']='var thisval = $(\'#'.$this->tag_id.'\').val(); '.get_array_value($actParams,'onclick','','is_string');
-            $actParams['disabled']=(bool)$this->disabled || get_array_value($actParams,'disabled',FALSE,'bool');
+            $actParams['disabled']=get_array_value($actParams,'disabled',FALSE,'bool');
             $actParams['style']=get_array_value($act,'style','','is_string');
             $actButton=new Button($actParams);
             $actButton->ClearBaseClass();
