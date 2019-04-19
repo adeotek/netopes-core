@@ -613,7 +613,7 @@ function GetSmartCBOValue(element,asObject) {
 	if(typeof(element)!='object') { lelement = $('#'+element); }
 	if(!$(lelement).length) { return null; }
 	let lval = $(lelement).val() || '';
-	if(typeof(lval)!='object' || asObject==true || asObject==1) { return lval; }
+    if(!Array.isArray(lval) || asObject===true || asObject==1) { return lval; }
 	lval = lval.join(',');
 	return lval;
 }//END function GetSmartCBOValue
