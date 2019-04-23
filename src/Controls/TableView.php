@@ -1414,7 +1414,7 @@ class TableView {
                     $c_type='\NETopes\Core\Controls\\'.$c_type_s;
                     if(!$c_type_s || !class_exists($c_type)) {
                         NApp::Elog('Control class ['.$c_type.'] not found!');
-                        continue;
+                        break;
                     }//if(!$c_type_s || !class_exists($c_type))
                     $cParams=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
                     if($is_iterator) {
