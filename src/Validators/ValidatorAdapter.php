@@ -352,7 +352,7 @@ class ValidatorAdapter {
             return FALSE;
         }
         $value=trim($value);
-        if(!preg_match('/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- .]+$/',$value)) {
+        if(!preg_match('/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d\- \.]+$/',$value)) {
             return FALSE;
         }
         return (strlen(preg_replace('/[^0-9]/','',$value))>2);
@@ -370,7 +370,7 @@ class ValidatorAdapter {
         if(!strlen($value)) {
             return TRUE;
         }
-        if(!preg_match('/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- .]+$/',$value)) {
+        if(!preg_match('/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d\- \.]+$/',$value)) {
             return FALSE;
         }
         return (strlen(preg_replace('/[^0-9]/','',$value))>2);
