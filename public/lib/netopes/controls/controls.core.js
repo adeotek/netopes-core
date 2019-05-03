@@ -1038,9 +1038,14 @@ function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
 /*** END For TreeGrid ***/
 
 /*** For Dynamic Forms ***/
+
+/**
+ * @return {boolean}
+ */
 function RepeatControl(obj,tagid) {
     if(!obj || !tagid) { return false; }
-    let $ltag=$(obj).parent().find('[data-tid=\'' + tagid + '\']').last();
+    let $obj=$(obj);
+    let $ltag=$obj.parent().find('[data-tid=\'' + tagid + '\']').last();
     if($ltag.length<=0) { return false; }
     let lindex=Number($ltag.attr('data-ti'));
     let lntagid=tagid + '-' + (lindex + 1);
@@ -1060,14 +1065,19 @@ function RepeatControl(obj,tagid) {
     $lntag.attr('id',lntagid);
     $lntag.val('');
     $lntag.addClass('ctrl-clone');
-    $lntag.insertBefore($(obj));
-    let lract=$(obj).attr('data-ract');
-    $('<button class="clsRepeatableCtrlBtn remove-ctrl-btn" onclick="RemoveRepeatableControl(this,\'' + lntagid + '\')"><i class="fa fa-minus-circle" aria-hidden="true"></i>' + (lract ? lract : '') + '</button>').insertBefore($(obj));
+    $lntag.insertBefore($obj);
+    let rAction=$obj.attr('data-ract');
+    let rActionClass=$obj.attr('data-ract-class');
+    $('<button class="' + (rActionClass ? rActionClass : 'clsRepeatableCtrlBtn remove-ctrl-btn') + '" onclick="RemoveRepeatableControl(this,\'' + lntagid + '\')"><i class="fa fa-minus-circle" aria-hidden="true"></i>' + (rAction ? rAction : '') + '</button>').insertBefore($obj);
 }//END function RepeatControl
 
+/**
+ * @return {boolean}
+ */
 function RemoveRepeatableControl(obj,elementid) {
     if(!elementid) { return false; }
     $('#' + elementid).remove();
     $(obj).remove();
 }//END function RemoveRepeatableControl
+
 /*** END For Dynamic Forms ***/
