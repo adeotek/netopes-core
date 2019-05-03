@@ -24,7 +24,7 @@ trait TDateTimeLocale {
      * @return string
      */
     public function ConvertDateTimeFormat(string $format): string {
-        return preg_replace('/([a-zA-Z]{1})/','%$1',str_replace(['D','M','y','i','s'],['A','B','Y','M','S'],$format));
+        return preg_replace('/([a-zA-Z]{1})/','%$1',str_replace(['D','M','y','i','s','h'],['A','B','Y','M','S','l'],$format));
     }//END public function ConvertDateTimeFormat
 
     /**
