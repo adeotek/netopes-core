@@ -334,6 +334,21 @@ class AppView {
     }//END public function SetTargetId
 
     /**
+     * @return array
+     */
+    public function GetActions(): array {
+        return $this->_actions;
+    }//END public function GetActions
+
+    /**
+     * @param array $actions
+     * @return void
+     */
+    public function SetActions(array $actions): void {
+        $this->_actions=$actions;
+    }//END public function SetActions
+
+    /**
      * @param string $action
      * @return void
      */
