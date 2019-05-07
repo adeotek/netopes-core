@@ -139,6 +139,10 @@ class BasicForm {
      * @var    array Javascript code execution queue
      */
     protected $js_scripts=[];
+    /**
+     * @var    bool If TRUE, sets all form controls to readonly TRUE
+     */
+    protected $readonly=FALSE;
 
     /**
      * BasicForm class constructor method
@@ -597,6 +601,9 @@ class BasicForm {
                 $jsScript=trim(get_array_value($col,'js_script','','is_string'));
                 if(strlen($jsScript)) {
                     $this->js_scripts[]=$jsScript;
+                }
+                if($this->readonly===TRUE || $this->readonly===1 || $this->readonly==='1') {
+                    $ctrl_params['SmartComboBox' ? 'disabled' : 'readonly']=TRUE;
                 }
                 $control=new $c_type($ctrl_params);
                 if(property_exists($c_type,'tabindex') && !Validator::IsValidValue($control->tabindex,'is_not0_integer')) {
