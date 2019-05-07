@@ -1330,6 +1330,7 @@ class TableView {
                     if(get_array_value($act,'hidden',FALSE,'bool')) {
                         continue;
                     }
+                    $act=ControlsHelpers::ReplaceDynamicParams($act,$row);
                     $aparams=get_array_value($act,'params',[],'is_array');
                     $aparams=ControlsHelpers::ReplaceDynamicParams($aparams,$row);
                     // Check conditions for displaing action
@@ -1354,23 +1355,21 @@ class TableView {
                     $targetId=get_array_value($act,'ajax_target_id',NULL,'is_notempty_string');
                     if(!$ajaxCommand) {
                         $aCommand=get_array_value($act,'command_string',NULL,'?is_string');
-                        if(strlen($aCommand)) {
-                            $ajaxCommand=NApp::Ajax()->LegacyProcessParamsString($aCommand,$targetId);
-                        }
                     }//if(!$ajaxCommand)
                     if($ajaxCommand) {
-                        $ajaxCommand=ControlsHelpers::ReplaceDynamicParams($ajaxCommand,$row);
                         $aparams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
                     }//if($ajaxCommand)
                     $btn_action=new $atype($aparams);
                     if(get_array_value($act,'clear_base_class',FALSE,'bool')) {
                         $btn_action->ClearBaseClass();
-                    }
+                    }//if(get_array_value($act,'clear_base_class',FALSE,'bool'))
                     $result.=$btn_action->Show();
-                    $embedded_form=get_array_value($act,'embedded_form','','is_string');
-                    if(strlen($embedded_form)) {
+                    $embedded_form=get_array_value($act,'embedded_form',NULL,'isset');
+                    if(is_string($embedded_form) && strlen($embedded_form)) {
+                        $this->row_embedded_form[]=['tag_id'=>ControlsHelpers::ReplaceDynamicParams($embedded_form,$row)];
+                    } elseif(is_array($embedded_form) && count($embedded_form)) {
                         $this->row_embedded_form[]=ControlsHelpers::ReplaceDynamicParams($embedded_form,$row);
-                    }//if(strlen($embedded_form))
+                    }//if(is_string($embedded_form) && strlen($embedded_form))
                 }//END foreach
                 break;
             case 'conditional_control':
@@ -2156,12 +2155,15 @@ class TableView {
         if(!$this->export_only) {
             $result.="\t\t\t".'</tr>'."\n";
             if(is_array($this->row_embedded_form) && count($this->row_embedded_form)) {
-                foreach($this->row_embedded_form as $ef) {
-                    if(!is_string($ef) || !strlen($ef)) {
+                foreach($this->row_embedded_form as $eForm) {
+                    if(!isset($eForm['tag_id']) || !is_string($eForm['tag_id']) || !strlen($eForm['tag_id'])) {
                         continue;
                     }
                     $re_colspan=$col_no>1 ? ' colspan="'.$col_no.'"' : '';
-                    $result.="\t\t\t".'<tr id="'.$ef.'-row" class="clsFormRow" style="display: none;"><td id="'.$ef.'"'.$re_colspan.'></td></tr>'."\n";
+                    $eFormClass=get_array_value($eForm,'class','','is_string');
+                    $eFormExtraAttr=get_array_value($eForm,'extra_attributes','','is_string');
+                    $hidden=get_array_value($eForm,'hidden',TRUE,'bool');
+                    $result.="\t\t\t".'<tr id="'.$eForm['tag_id'].'-row" class="clsFormRow'.trim(' '.$eFormClass).'"'.trim(' '.$eFormExtraAttr).($hidden ? ' style="display: none;"' : '').'><td id="'.$eForm['tag_id'].'"'.$re_colspan.'></td></tr>'."\n";
                 }//END foreach
             }//if(is_array($this->row_embedded_form) && count($this->row_embedded_form))
         }//if(!$this->export_only)
