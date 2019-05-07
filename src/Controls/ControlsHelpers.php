@@ -32,6 +32,7 @@ class ControlsHelpers {
      * Chars to trim for removing placeholders for dynamic parameters
      */
     const PLACEHOLDERS_TRIM_CHARS='{!}';
+
     /**
      * Generate parameters URL hash
      *
@@ -97,7 +98,7 @@ class ControlsHelpers {
     /**
      * Replace dynamic parameters
      *
-     * @param array        $params    The parameters array to be parsed
+     * @param array|string $params    The parameters array to be parsed
      * @param object|array $row       Data row object to be used for replacements
      * @param bool         $recursive Flag indicating if the array should be parsed recursively
      * @param string|null  $paramsPrefix
