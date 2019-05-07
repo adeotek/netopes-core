@@ -423,6 +423,9 @@ class BasicForm {
                 if(strlen($this->tags_names_sufix) && isset($ctrl_params['tag_name'])) {
                     $ctrl_params['tag_name'].=$this->tags_names_sufix;
                 }
+                if($this->readonly===TRUE || $this->readonly===1 || $this->readonly==='1') {
+                    $ctrl_params['SmartComboBox' ? 'disabled' : 'readonly']=TRUE;
+                }
                 $control=new $c_type($ctrl_params);
                 if(property_exists($c_type,'tabindex') && !Validator::IsValidValue($control->tabindex,'is_not0_integer')) {
                     $control->tabindex=$ltabindex++;
