@@ -142,7 +142,7 @@ class BasicForm {
     /**
      * @var    bool If TRUE, sets all form controls to readonly TRUE
      */
-    protected $readonly=FALSE;
+    protected $disabled=FALSE;
 
     /**
      * BasicForm class constructor method
@@ -423,8 +423,8 @@ class BasicForm {
                 if(strlen($this->tags_names_sufix) && isset($ctrl_params['tag_name'])) {
                     $ctrl_params['tag_name'].=$this->tags_names_sufix;
                 }
-                if($this->readonly===TRUE || $this->readonly===1 || $this->readonly==='1') {
-                    $ctrl_params['SmartComboBox' ? 'disabled' : 'readonly']=TRUE;
+                if($this->disabled===TRUE || $this->disabled===1 || $this->disabled==='1') {
+                    $ctrl_params['disabled']=TRUE;
                 }
                 $control=new $c_type($ctrl_params);
                 if(property_exists($c_type,'tabindex') && !Validator::IsValidValue($control->tabindex,'is_not0_integer')) {
@@ -605,8 +605,8 @@ class BasicForm {
                 if(strlen($jsScript)) {
                     $this->js_scripts[]=$jsScript;
                 }
-                if($this->readonly===TRUE || $this->readonly===1 || $this->readonly==='1') {
-                    $ctrl_params['SmartComboBox' ? 'disabled' : 'readonly']=TRUE;
+                if($this->disabled===TRUE || $this->disabled===1 || $this->disabled==='1') {
+                    $ctrl_params['disabled']=TRUE;
                 }
                 $control=new $c_type($ctrl_params);
                 if(property_exists($c_type,'tabindex') && !Validator::IsValidValue($control->tabindex,'is_not0_integer')) {
