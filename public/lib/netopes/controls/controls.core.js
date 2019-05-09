@@ -724,23 +724,32 @@ $(document).on('keydown','.clsOnEnterActionButton',function(e) {
     }//if(e.keyCode==13)
 });//$(document).on('keydown','.clsOnEnterActionButton',function(e)
 
-function AddClassOnErrorByParent(parentid,reset,errclass) {
-    let lclass=errclass ? errclass : 'clsFieldError';
+function AddClassOnErrorByParent(parentId,reset,errClass) {
+    let lClass=errClass ? errClass : 'clsFieldError';
     if(reset) {
-        $('#' + parentid + ' .clsRequiredField').removeClass(lclass);
+        $('#' + parentId + ' .clsRequiredField').removeClass(lClass);
     } else {
-        $('#' + parentid + ' .clsRequiredField').addClass(lclass);
+        $('#' + parentId + ' .clsRequiredField').addClass(lClass);
     }//if(reset)
 }//END function AddClassOnErrorByParent
 
-function AddClassOnError(elementid,reset,errclass) {
-    let lclass=errclass ? errclass : 'clsFieldError';
+function AddClassOnError(elementId,reset,errClass) {
+    let lClass=errClass ? errClass : 'clsFieldError';
     if(reset) {
-        $('#' + elementid).removeClass(lclass);
+        $('#' + elementId).removeClass(lClass);
     } else {
-        $('#' + elementid).addClass(lclass);
+        $('#' + elementId).addClass(lClass);
     }//if(reset)
 }//function AddClassOnError
+
+function AddClassOnErrorByName(formId,elementName,reset,errClass) {
+    let lClass=errClass ? errClass : 'clsFieldError';
+    if(reset) {
+        $('#' + formId + ' [name="' + elementName + '"]').removeClass(lClass);
+    } else {
+        $('#' + formId + ' [name="' + elementName + '"]').addClass(lClass);
+    }//if(reset)
+}//function AddClassOnErrorByName
 /*** END For Actions ***/
 
 /*** For Validations ***/
