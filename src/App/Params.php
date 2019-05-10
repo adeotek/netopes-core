@@ -17,6 +17,7 @@ use Closure;
 use Exception;
 use NApp;
 use NETopes\Core\Data\Collection;
+use NETopes\Core\DataHelpers;
 use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
 
@@ -106,7 +107,7 @@ class Params implements Collection {
         if(is_null($keysCase)) {
             return $this->elements;
         }
-        return array_change_key_case_recursive($this->elements,$keysCase);
+        return DataHelpers::changeArrayValuesCase($this->elements,TRUE,$keysCase);
     }
 
     /**
@@ -273,7 +274,7 @@ class Params implements Collection {
         }//if(is_null($validation))
         if(is_null($result)) {
             $dbgTrace=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
-            throw new AppException($failMessage ?? 'Invalid value for: '.print_r($key),E_ERROR,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
+            throw new AppException($failMessage ?? 'Invalid value for: '.print_r($key),-1,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
         }//if(is_null($result))
         return $result;
     }
@@ -405,6 +406,7 @@ class Params implements Collection {
 
     /**
      * {@inheritDoc}
+     * @throws \NETopes\Core\AppException
      */
     public function partition(Closure $p) {
         $matches=$noMatches=[];
@@ -458,7 +460,7 @@ class Params implements Collection {
                 $this->elements=[];
             }
             if($recursive) {
-                $this->elements=array_merge_recursive($this->data,$data->toArray());
+                $this->elements=array_merge_recursive($this->elements,$data->toArray());
             } else {
                 $this->elements=array_merge($this->elements,$data->toArray());
             }//if($recursive)
