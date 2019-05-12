@@ -216,7 +216,7 @@ class UploadHandler {
             // "example.php.png" with embedded PHP code, nor executed by the
             // browser when downloaded, e.g. "example.html.gif" with embedded
             // JavaScript code.
-            'replace_dots_in_filenames'=>'-',
+            'replace_dots_in_filenames'=>FALSE,
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size'=>NULL,
