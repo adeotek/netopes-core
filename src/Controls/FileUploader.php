@@ -7,7 +7,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.1.2.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -16,26 +16,33 @@ use GibberishAES;
 use NETopes\Core\AppSession;
 
 /**
- * ClassName description
- * long_description
+ * FileUploader class
  *
- * @property bool   require_login
- * @property string status_target
+ * @property bool        require_login
+ * @property string      status_target
+ * @property string|null filter
+ * @property string|null sub_folder
+ * @property string|null dropzone_text
+ * @property bool|null   droparea
+ * @property string|null target_dir
+ * @property string|null button_class
+ * @property mixed       callback
+ * @property string|null button_icon
+ * @property string|null button_label
  * @package  NETopes\Controls
  */
 class FileUploader extends Control {
+    /**
+     * FileUploader class constructor
+     *
+     * @param array $params An array of params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
     public function __construct($params=NULL) {
         $this->status_target='ARequestStatus';
-        $this->width=0;
-        $this->height=0;
         $this->require_login=TRUE;
-        $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
-        if(is_array($params) && count($params)) {
-            foreach($params as $k=>$v) {
-                $this->$k=$v;
-            }
-        }//if(is_array($params) && count($params))
-        $this->base_class='cls'.get_class_basename($this);
+        parent::__construct($params);
         $this->container=FALSE;
         $this->no_label=TRUE;
         $this->buffered=FALSE;
@@ -77,7 +84,7 @@ class FileUploader extends Control {
         }
         $lstyle=strlen($lstyle) ? ' style="'.$lstyle.'"' : '';
         $lalign=$this->align=='left' ? ' aleft' : '';
-        $lclass=strlen($this->class) ? ' '.$this->class : '';
+        $lClass=strlen($this->class) ? ' '.$this->class : '';
         $dclass=$this->droparea!==FALSE ? ' clsDropArea' : '';
         $lstatusid=strlen($this->status_target) ? ' data-statusid="'.$this->status_target.'"' : '';
         $lcallback=strlen($this->callback) && !$this->disabled ? ' data-callback="'.rawurlencode(GibberishAES::enc($this->callback,'HTML')).'"' : '';
@@ -88,16 +95,16 @@ class FileUploader extends Control {
             case 'bootstrap3':
             case 'bootstrap4':
                 $bclass=' class="'.(strlen($this->button_class) ? $this->button_class : 'btn btn-info btn-xs').'"';
-                $result="\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
+                $result="\t".'<div class="'.$this->base_class.'Container'.$dclass.$lClass.$lalign.'"'.$lstyle.'>'."\n";
                 if(!$this->disabled) {
-                    $result.="\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n";
+                    $result.="\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lClass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n";
                 }
                 break;
             default:
                 $bclass=strlen($this->button_class) ? ' class="'.$this->button_class.'"' : '';
-                $result="\t".'<div class="'.$this->base_class.'Container'.$dclass.$lclass.$lalign.'"'.$lstyle.'>'."\n";
+                $result="\t".'<div class="'.$this->base_class.'Container'.$dclass.$lClass.$lalign.'"'.$lstyle.'>'."\n";
                 if(!$this->disabled) {
-                    $result.="\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lclass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n";
+                    $result.="\t\t".'<input type="file" id="'.$this->tag_id.'" class="'.$this->base_class.$lClass.'" data-url="'.NApp::$appBaseUrl.'/pipe/upload.php?rpa='.($this->require_login ? 1 : 0).'&namespace='.NApp::$currentNamespace.'&utype='.$utype.'" data-targetdir="'.$this->target_dir.'" data-subfolder="'.$this->sub_folder.'"'.$lstatusid.$lcallback.' name="files[]" multiple>'."\n";
                 }
                 break;
         }//END switch

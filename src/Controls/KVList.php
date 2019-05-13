@@ -13,7 +13,7 @@
 namespace NETopes\Core\Controls;
 use Exception;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataSource;
+use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NApp;
 use Translate;
@@ -21,13 +21,29 @@ use Translate;
 /**
  * Class KVList
  *
+ * @property mixed value
  * @package  Hinter\NETopes\Controls
  */
 class KVList extends Control {
+    /**
+     * @var bool
+     */
     protected $postable_elements=TRUE;
+    /**
+     * @var mixed|null
+     */
     public $lang_items=NULL;
+    /**
+     * @var null
+     */
     public $lang_ds=NULL;
 
+    /**
+     * KVList constructor.
+     *
+     * @param null $params
+     * @throws \NETopes\Core\AppException
+     */
     public function __construct($params=NULL) {
         parent::__construct($params);
         if(!$this->postable) {
@@ -46,6 +62,13 @@ class KVList extends Control {
         }
     }//END public function __construct
 
+    /**
+     * @param bool $with_translations
+     * @param null $values
+     * @param null $lang
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControlInstance($with_translations=FALSE,$values=NULL,$lang=NULL) {
         $this->ProcessActions();
         $lvalues=(is_null($values) ? $this->value : $values);
@@ -87,6 +110,10 @@ class KVList extends Control {
         return $result;
     }//END protected function SetControlInstance
 
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControl(): ?string {
         $label=(is_string($this->label) && strlen($this->label) ? $this->label : NULL);
         if(is_iterable($this->lang_items) && count($this->lang_items)) {
