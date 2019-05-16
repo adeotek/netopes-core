@@ -58,7 +58,7 @@ trait RepositoryBaseTrait {
                 } else {
                     $pValue=$p->getValue();
                 }//if(is_object($p->getValue()))
-                $lparams.=(strlen($lparams) ? ', ' : '').$p->getName().' => '.$pValue;
+                $lparams.=(strlen($lparams) ? ', ' : '').$p->getName().' => '.is_scalar($pValue) ? $pValue : print_r($pValue,1);
             }//END foreach
             $lquery=$query->getSql().' ['.$lparams.']';
         } else {

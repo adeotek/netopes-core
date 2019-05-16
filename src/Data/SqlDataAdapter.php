@@ -136,8 +136,10 @@ abstract class SqlDataAdapter extends DataAdapter {
      * Begins a database transaction
      *
      * @param string $name      Transaction name
+     * @param bool   $log
      * @param bool   $overwrite Flag for overwriting the transaction
      *                          if exists (defaul value FALSE)
+     * @param null   $custom_tran_params
      * @return void
      */
     public function BeginTran(&$name=NULL,$log=FALSE,$overwrite=TRUE,$custom_tran_params=NULL) {
@@ -160,6 +162,8 @@ abstract class SqlDataAdapter extends DataAdapter {
      * Commits a database transaction
      *
      * @param string $name Transaction name
+     * @param bool   $log
+     * @param bool   $preserve
      * @return bool Returns TRUE on success or FALSE otherwise
      */
     public function CommitTran($name=NULL,$log=FALSE,$preserve=FALSE) {
@@ -376,4 +380,3 @@ abstract class SqlDataAdapter extends DataAdapter {
         return change_array_keys_case($final_result,TRUE);
     }//END public function PdoExecuteProcedure
 }//END abstract class SqlDataAdapter extends DataAdapter
-?>

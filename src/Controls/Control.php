@@ -867,7 +867,7 @@ abstract class Control {
     abstract protected function SetControl(): ?string;
 
     /**
-     * description
+     * Process control to generate HTML
      *
      * @return string
      * @throws \NETopes\Core\AppException
