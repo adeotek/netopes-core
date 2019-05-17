@@ -124,6 +124,10 @@ class BasicForm {
      */
     public $required_field_property='is_required';
     /**
+     * @var    string Fields conditions fields order (position) property
+     */
+    public $fields_order_field=NULL;
+    /**
      * @var    string Sub-form tag extra attributes
      */
     public $sub_form_extra_tag_params=NULL;
@@ -653,6 +657,31 @@ class BasicForm {
     }//END protected function GetBootstrap3Control
 
     /**
+     * @return array
+     * @throws \NETopes\Core\AppException
+     */
+    protected function SetContentOrder(): array {
+        $newContent=[];
+        $naIndex=1000;
+        foreach($this->content as $row) {
+            $fieldName=get_array_value($row,[0,'control_params','tag_name'],'','is_string');
+            if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) {
+                $newContent[$naIndex++]=$row;
+            } else {
+                $field=$this->field_conditions->safeGet($fieldName);
+                $position=is_object($field) ? $field->getProperty($this->fields_order_field,0,'is_integer') : 0;
+                if($position>0) {
+                    $newContent[$position]=$row;
+                } else {
+                    $newContent[$naIndex++]=$row;
+                }//if($position>0)
+            }//if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName))
+        }//END foreach
+        ksort($newContent,SORT_NUMERIC);
+        return $newContent;
+    }//END protected function SetContentOrder
+
+    /**
      * Sets the output buffer value
      *
      * @return string|null
@@ -662,6 +691,9 @@ class BasicForm {
         if(!is_array($this->content) || !count($this->content)) {
             return NULL;
         }
+        if(strlen($this->fields_order_field) && is_iterable($this->field_conditions) && count($this->field_conditions)) {
+            $this->content=$this->SetContentOrder();
+        }//if(strlen($this->fields_order_field) && is_iterable($this->field_conditions) && count($this->field_conditions))
         switch($this->theme_type) {
             case 'bootstrap3':
             case 'bootstrap4':
