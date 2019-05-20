@@ -2079,7 +2079,7 @@ class TableView {
                     $r_style=' style="background-color: '.$r_color.';"';
                 }
                 if(strlen($this->row_extra_tag_params)) {
-                    $rTData=' '.$this->row_extra_tag_params;
+                    $rTData=' '.ControlsHelpers::ReplaceDynamicParams($this->row_extra_tag_params,$row);
                 }
             }//if($this->tree && $rLvl>$this->tree_top_lvl)
             $r_cc=FALSE;
