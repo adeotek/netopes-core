@@ -139,6 +139,14 @@ class TableView {
      */
     public $alternate_row_color=FALSE;
     /**
+     * @var    string|null Row custom CSS class
+     */
+    public $row_class=NULL;
+    /**
+     * @var    string|null Row tag extra attributes
+     */
+    public $row_extra_tag_params=NULL;
+    /**
      * @var    string|null Color row dynamically from a data field value
      */
     public $row_color_field=NULL;
@@ -2046,7 +2054,7 @@ class TableView {
     protected function SetRow($row,$rcClass=NULL,$hasChild=FALSE) {
         $result='';
         $r_style='';
-        $r_tdata='';
+        $rTData='';
         $col_no=0;
         $this->row_embedded_form=[];
         if(!$this->export_only) {
@@ -2065,9 +2073,14 @@ class TableView {
                 }
                 $r_style=strlen($r_style) ? ' style="'.$r_style.'"' : '';
                 $rcClass.=(strlen($rcClass) ? ' ' : '').'clsTreeGridChildOf'.$row->safeGetIdParent(NULL,'is_integer');
-                $r_tdata=$row->safeGetHasChild(0,'is_integer') ? ' data-id="'.$row->safeGetId(NULL,'is_integer').'"' : '';
-            } elseif(strlen($r_color)) {
-                $r_style=' style="background-color: '.$r_color.';"';
+                $rTData=$row->safeGetHasChild(0,'is_integer') ? ' data-id="'.$row->safeGetId(NULL,'is_integer').'"' : '';
+            } else {
+                if(strlen($r_color)) {
+                    $r_style=' style="background-color: '.$r_color.';"';
+                }
+                if(strlen($this->row_extra_tag_params)) {
+                    $rTData=' '.$this->row_extra_tag_params;
+                }
             }//if($this->tree && $rLvl>$this->tree_top_lvl)
             $r_cc=FALSE;
             $r_cc_class=get_array_value($this->row_conditional_class,'class','','is_string');
@@ -2082,10 +2095,10 @@ class TableView {
                     $rcClass=strlen($rcClass) ? $rcClass.' '.$rClassFromField : $rClassFromField;
                 }
             }//if(strlen($this->row_class_field))
-            $rClass=$rcClass ? $rcClass : ($this->alternate_row_color && !$r_cc ? 'stdc' : '');
+            $rClass=($rcClass ? $rcClass : ($this->alternate_row_color && !$r_cc ? 'stdc' : '')).(strlen($this->row_class) ? ' '.$this->row_class : '');
             $r_tooltip=$this->GetToolTip($row,$rClass,$this->row_tooltip);
             $rClass=strlen($rClass) ? ' class="'.$rClass.'"' : '';
-            $result.="\t\t\t".'<tr'.$rClass.$r_style.$r_tooltip.$r_tdata.'>'."\n";
+            $result.="\t\t\t".'<tr'.$rClass.$r_style.$r_tooltip.$rTData.'>'."\n";
         }//if(!$this->export_only)
         foreach($this->columns as $k=>$v) {
             $c_type=strtolower(get_array_value($v,'type','','is_string'));
