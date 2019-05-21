@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NETopes\Core\App\Module;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
@@ -24,19 +25,27 @@ use NApp;
  */
 class BasicForm {
     /**
-     * @var    string Theme (form) type: native(table)/bootstrap2/bootstrap3/bootstrap4
+     * @var    string|null Theme (form) type: native(table)/bootstrap2/bootstrap3/bootstrap4
      */
     public $theme_type=NULL;
     /**
-     * @var    string BasicForm table id
+     * @var    string|null BasicForm table id
      */
     public $tag_id=NULL;
     /**
-     * @var    string BasicForm response target id
+     * @var    string|null BasicForm response target id
      */
     public $response_target=NULL;
     /**
-     * @var    string BasicForm width
+     * @var    string|null DRights module
+     */
+    public $module=NULL;
+    /**
+     * @var    string|null DRights method
+     */
+    public $method=NULL;
+    /**
+     * @var    string|null BasicForm width
      */
     public $width=NULL;
     /**
@@ -44,11 +53,11 @@ class BasicForm {
      */
     public $align='center';
     /**
-     * @var    string Separator column width
+     * @var    string|null Separator column width
      */
     public $separator_width=NULL;
     /**
-     * @var    string BasicForm additional class
+     * @var    string|null BasicForm additional class
      */
     public $class=NULL;
     /**
@@ -56,19 +65,19 @@ class BasicForm {
      */
     public $cols_no=NULL;
     /**
-     * @var    string Labels position type (horizontal/vertical)
+     * @var    string|null Labels position type (horizontal/vertical)
      */
     public $positioning_type=NULL;
     /**
-     * @var    int Labels width in grid columns number
+     * @var    int|null Labels width in grid columns number
      */
     public $label_cols=NULL;
     /**
-     * @var    string Controls size CSS class
+     * @var    string|null Controls size CSS class
      */
     public $controls_size=NULL;
     /**
-     * @var    string Actions controls size CSS class
+     * @var    string|null Actions controls size CSS class
      */
     public $actions_size=NULL;
     /**
@@ -80,19 +89,19 @@ class BasicForm {
      */
     public $actions=[];
     /**
-     * @var    string Tags IDs sufix
+     * @var    string|null Tags IDs sufix
      */
     public $tags_ids_sufix=NULL;
     /**
-     * @var    string Tags names sufix
+     * @var    string|null Tags names sufix
      */
     public $tags_names_sufix=NULL;
     /**
-     * @var    string Sub-form tag ID
+     * @var    string|null Sub-form tag ID
      */
     public $sub_form_tag_id=NULL;
     /**
-     * @var    string Sub-form tag extra CSS class
+     * @var    string|null Sub-form tag extra CSS class
      */
     public $sub_form_class=NULL;
     /**
@@ -124,15 +133,15 @@ class BasicForm {
      */
     public $required_field_property='is_required';
     /**
-     * @var    string Fields conditions fields order (position) property
+     * @var    string|null Fields conditions fields order (position) property
      */
     public $fields_order_field=NULL;
     /**
-     * @var    string Sub-form tag extra attributes
+     * @var    string|null Sub-form tag extra attributes
      */
     public $sub_form_extra_tag_params=NULL;
     /**
-     * @var    string Basic form base class
+     * @var    string|null Basic form base class
      */
     protected $base_class=NULL;
     /**
@@ -264,6 +273,10 @@ class BasicForm {
         foreach($this->actions as $action) {
             $act_params=get_array_value($action,'params',[],'is_array');
             if(!count($act_params)) {
+                continue;
+            }
+            $actDRight=get_array_value($action,'dright',NULL,'?is_string');
+            if(strlen($actDRight) && Module::GetDRights($this->module,$this->method,$actDRight)) {
                 continue;
             }
             $a_class=get_array_value($act_params,'class','','is_string');
