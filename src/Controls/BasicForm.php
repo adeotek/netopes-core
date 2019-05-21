@@ -675,16 +675,17 @@ class BasicForm {
      */
     protected function SetContentOrder(): array {
         $newContent=[];
-        $naIndex=1000;
+        $naIndex=10000;
         foreach($this->content as $row) {
-            $fieldName=get_array_value($row,[0,'control_params','tag_name'],'','is_string');
+            $conditionsFieldName=get_array_value($row,[0,'conditions_field_name'],NULL,'?is_notempty_string');
+            $fieldName=$conditionsFieldName ?? get_array_value($row,[0,'control_params','tag_name'],'','is_string');
             if(!strlen($fieldName) || !$this->field_conditions->containsKey($fieldName)) {
                 $newContent[$naIndex++]=$row;
             } else {
                 $field=$this->field_conditions->safeGet($fieldName);
                 $position=is_object($field) ? $field->getProperty($this->fields_order_field,0,'is_integer') : 0;
                 if($position>0) {
-                    $newContent[$position]=$row;
+                    $newContent[$position * 10 + (strlen($conditionsFieldName) ? 1 : 0)]=$row;
                 } else {
                     $newContent[$naIndex++]=$row;
                 }//if($position>0)
