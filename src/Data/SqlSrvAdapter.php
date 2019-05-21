@@ -291,37 +291,37 @@ class SqlSrvAdapter extends SqlDataAdapter {
         switch(strtolower($conditionType)) {
             case 'like':
             case 'notlike':
-                $conditionString=strtolower($conditionType)=='like' ? 'LIKE' : 'NOT LIKE';
+                $conditionString=strtolower($conditionType)=='like' ? 'LIKE ' : 'NOT LIKE ';
                 $filterValue=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                 if(isset($filterValue)) {
-                    $filterValue=(is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'%".$filterValue."%'";
+                    $filterValue=$conditionString.(is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'%".$filterValue."%'";
                 }
                 break;
             case '==':
             case '<>':
-                $conditionString=$conditionType=='==' ? '=' : $conditionType;
+                $conditionString=$conditionType=='==' ? '= ' : $conditionType.' ';
                 $nullConditionString='IS '.($conditionType=='<>' ? ' NOT ' : '').'NULL';
                 if(strtolower($dataType)=='string') {
                     $filterValue=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_string'));
-                    $filterValue=isset($filterValue) ? (is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : $nullConditionString;
+                    $filterValue=isset($filterValue) ? $conditionString.(is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : $nullConditionString;
                 } else {
                     $filterValue=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $filterValueS=Validator::ConvertDateTimeToDbFormat($filterValue,NULL,0);
                         $filterValueE=Validator::ConvertDateTimeToDbFormat($filterValue,NULL,1);
-                        $conditionString=($conditionType=='<>' ? 'NOT ' : '').'BETWEEN';
-                        $filterValue="'".$filterValueS."' AND '".$filterValueE."'";
+                        $conditionString=($conditionType=='<>' ? 'NOT ' : '').'BETWEEN ';
+                        $filterValue=$conditionString."'".$filterValueS."' AND '".$filterValueE."'";
                     } elseif(in_array(strtolower($dataType),['datetime','datetime_obj'])) {
                         $filterValue=Validator::ConvertDateTimeToDbFormat($filterValue);
-                        $filterValue=isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                        $filterValue=isset($filterValue) ? $conditionString."'".$filterValue."'" : $nullConditionString;
                     } else {
-                        $filterValue=isset($filterValue) ? "'".$filterValue."'" : $nullConditionString;
+                        $filterValue=isset($filterValue) ? $conditionString."'".$filterValue."'" : $nullConditionString;
                     }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
                 }//if(strtolower($dataType)=='string')
                 break;
             case '<=':
             case '>=':
-                $conditionString=$conditionType;
+                $conditionString=$conditionType.' ';
                 $filterValue=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
@@ -332,11 +332,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
                     $filterValue=Validator::ConvertDateTimeToDbFormat($filterValue,NULL,$daypart);
                 }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
                 if(isset($filterValue)) {
-                    $filterValue="'".$filterValue."'";
+                    $filterValue=$conditionString."'".$filterValue."'";
                 }
                 break;
             case '><':
-                $conditionString='BETWEEN';
+                $conditionString='BETWEEN ';
                 $filterValueS=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
                 $filterValueE=$this->EscapeString(get_array_value($condition,'svalue',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
@@ -351,21 +351,21 @@ class SqlSrvAdapter extends SqlDataAdapter {
                     $filterValueE=Validator::ConvertDateTimeToDbFormat($filterValueE,NULL,$sdaypart);
                 }//if(in_array(strtolower($dataType),['date','datetime','datetime_obj']))
                 if(isset($filterValueS) && isset($filterValueE)) {
-                    $filterValue="'".$filterValueS."' AND '".$filterValueE."'";
+                    $filterValue=$conditionString."'".$filterValueS."' AND '".$filterValueE."'";
                 }
                 break;
             case 'is':
             case 'isnot':
-                $conditionString=strtolower($conditionType)=='like' ? 'IS' : 'IS NOT';
+                $conditionString=strtolower($conditionType)=='like' ? 'IS ' : 'IS NOT ';
                 $filterValue=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
-                $filterValue=isset($filterValue) ? (is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : 'NULL';
+                $filterValue=isset($filterValue) ? $conditionString.(is_string($filterValue) && !mb_detect_encoding($filterValue,'ASCII',TRUE) ? 'N' : '')."'".$filterValue."'" : 'NULL';
                 break;
         }//END switch
-        if(!$conditionString || !$filterValue) {
+        if(!$filterValue) {
             return '';
         }
         $result=' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
-        $result.=' '.$conditionString.' '.$filterValue;
+        $result.=' '.$filterValue;
         return $result;
     }//END private function GetFilterCondition
 
