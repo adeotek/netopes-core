@@ -158,8 +158,10 @@ class Module {
         if(strpos($name,'DRights')===FALSE) {
             throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
         }
-        $method=get_array_value($arguments,0,$this->name,'is_notempty_string');
-        $module=get_array_value($arguments,1,get_called_class(),'is_notempty_string');
+        $method=get_array_value($arguments,0,call_back_trace(1),'is_notempty_string');
+        $module=get_array_value($arguments,1,$this->name,'is_notempty_string');
+        // NApp::Dlog($module,'$module');
+        // NApp::Dlog($method,'$method');
         return self::GetDRights($module,$method,str_replace('DRights','',$name));
     }//END public function __call
 
@@ -175,8 +177,10 @@ class Module {
         if(strpos($name,'DRights')===FALSE) {
             throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
         }
-        $method=get_array_value($arguments,0,'','is_notempty_string');
+        $method=get_array_value($arguments,0,call_back_trace(1),'is_notempty_string');
         $module=get_array_value($arguments,1,get_called_class(),'is_notempty_string');
+        // NApp::Dlog($module,'$module');
+        // NApp::Dlog($method,'$method');
         return self::GetDRights($module,$method,str_replace('DRights','',$name));
     }//END public static function __callStatic
 
@@ -187,6 +191,7 @@ class Module {
      * @param string $method
      * @param string $type
      * @return mixed
+     * @throws \NETopes\Core\AppException
      */
     public static function GetDRights(string $module,string $method='',string $type='All') {
         if(NApp::GetParam('sadmin')==1) {
