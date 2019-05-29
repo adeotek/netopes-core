@@ -162,20 +162,24 @@ $(document).on('focus','.clsJqTimePicker',function(e) {
 
 /*** For NumericTextBox ***/
 $(document).on('focus','.clsSetNumberFormat',function(e) {
-    let anull=$(this).attr('data-anull');
-    if(anull!==1 || $(this).val()!=='') {
-        let nformat=$(this).attr('data-format');
-        if(nformat) {
-            let farr=nformat.split('|');
-            let formated_value=$(this).val().replaceAll(farr[3],'').replaceAll(farr[2],'');
-            $(this).val(formated_value);
-        }//if(nformat)
-    }//if(anull!=1 || $(this).val()!='')
+    let aNull=$(this).attr('data-anull');
+    if(aNull!==1 || $(this).val()!=='') {
+        let nFormat=$(this).attr('data-format');
+        if(nFormat) {
+            let fArray=nFormat.split('|');
+            // let decimalNo=Number(fArray[0]);
+            // let decimalSeparator=fArray[1];
+            let groupSeparator=fArray[2];
+            let sufix=fArray[3];
+            let formattedValue=$(this).val().replaceAll(sufix,'').replaceAll(groupSeparator,'');
+            $(this).val(formattedValue);
+        }//if(nFormat)
+    }//if(aNull!=1 || $(this).val()!='')
 });//$(document).on('focus','.clsSetNumberFormat',function(e)
 
 $(document).on('focusout','.clsSetNumberFormat',function(e) {
-    let anull=$(this).attr('data-anull');
-    if((anull==='1' || anull==='true') && $(this).val()==='') {
+    let aNull=$(this).attr('data-anull');
+    if((aNull==='1' || aNull==='true') && $(this).val()==='') {
         $(this).css('color','#000000');
     } else {
         if($(this).hasClass('clsNumDiscColor')) {
@@ -185,23 +189,22 @@ $(document).on('focusout','.clsSetNumberFormat',function(e) {
                 $(this).css('color','#CF0000');
             } else { $(this).css('color','#000000'); }
         }//if($(this).hasClass('clsNumDiscColor'))
-        let nformat=$(this).attr('data-format');
-        if(nformat) {
-            let farr=nformat.split('|');
-            let decimal_no=Number(farr[0]);
-            let decimal_separator=farr[1];
-            let group_separator=farr[2];
-            let sufix=farr[3];
-            let tvalue=0;
-            if(decimal_separator) {
-                tvalue=$(this).val().replaceAll('%','').replaceAll(group_separator,'').replaceAll(decimal_separator,'.').replaceAll(sufix,'').trim();
-            } else {
-                tvalue=$(this).val().replaceAll('%','').replaceAll(group_separator,'').replaceAll(sufix,'').trim();
+        let nFormat=$(this).attr('data-format');
+        if(nFormat) {
+            let fArray=nFormat.split('|');
+            let decimalNo=Number(fArray[0]);
+            let decimalSeparator=fArray[1];
+            let groupSeparator=fArray[2];
+            let sufix=fArray[3];
+            let tValue=$(this).val();
+            tValue=tValue.replaceAll('%','').replaceAll(sufix,'').replaceAll(groupSeparator,'');
+            if(decimalSeparator) {
+                tValue=tValue.replaceAll(decimalSeparator,'.').trim();
             }//if(decimal_separator)
-            let formated_value=$.number(tvalue,decimal_no,decimal_separator,group_separator) + sufix;
-            $(this).val(formated_value);
-        }//if(nformat)
-    }//if((anull=='1' || anull=='true') && $(this).val()=='')
+            let formattedValue=$.number(tValue,decimalNo,decimalSeparator,groupSeparator) + sufix;
+            $(this).val(formattedValue);
+        }//if(nFormat)
+    }//if((aNull==='1' || aNull==='true') && $(this).val()==='')
 });//$(document).on('focusout','.clsSetNumberFormat',function(e)
 
 /**
@@ -214,7 +217,7 @@ function FormatToNumericValue(element_value,decimal_separator,group_separator,su
 /**
  * @return {number}
  */
-function GetNumericTextboxValue(element) {
+function GetNumericTextBoxValue(element) {
     let eObj=null;
     if(typeof (element)==='object') {
         if(element.length) {
@@ -230,17 +233,45 @@ function GetNumericTextboxValue(element) {
         console.log(element);
         return null;
     }
-    let dFormat=eObj.data('format');
-    if(!dFormat.length) {
+    let nFormat=eObj.data('format');
+    if(!nFormat.length) {
         return eObj.val();
     } else {
-        let farr=dFormat.split('|');
+        let farr=nFormat.split('|');
         let decimalSeparator=farr[1] || '.';
         let groupSeparator=farr[2] || ',';
         let suffix=farr[3] || '';
         return FormatToNumericValue(eObj.val(),decimalSeparator,groupSeparator,suffix);
     }//if(!dFormat.length)
-}//END function GetNumericTextboxValue
+}//END function GetNumericTextBoxValue
+
+function SetNumericTextBoxValue(element,value) {
+    let eObj=null;
+    if(typeof (element)==='object') {
+        if(element.length) {
+            eObj=element;
+        }
+    } else if(typeof (element)==='string') {
+        if(element.length) {
+            eObj=$('#' + element);
+        }
+    }
+    if(eObj==null) {
+        console.log('Invalid element:');
+        console.log(element);
+    } else {
+        let nFormat=eObj.data('format');
+        if(nFormat && nFormat.length) {
+            let fArray=nFormat.split('|');
+            let decimalNo=Number(fArray[0]);
+            let decimalSeparator=fArray[1];
+            let groupSeparator=fArray[2];
+            let sufix=fArray[3];
+            let formattedValue=$.number(value,decimalNo,decimalSeparator,groupSeparator) + sufix;
+            eObj.val(formattedValue);
+        }//if(nFormat && nFormat.length)
+    }
+}//END function SetNumericTextBoxValue
 
 function GetCalculatedValue(element_value,decimal_separator) {
     let formated_value=element_value + '';
