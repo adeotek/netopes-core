@@ -2173,10 +2173,16 @@ class TableView {
                         continue;
                     }
                     $re_colspan=$col_no>1 ? ' colspan="'.$col_no.'"' : '';
-                    $eFormClass=get_array_value($eForm,'class','','is_string');
-                    $eFormExtraAttr=get_array_value($eForm,'extra_attributes','','is_string');
+                    $eFormClass=trim(get_array_value($eForm,'class','','is_string'));
+                    if(get_array_value($eForm,'clear_base_class',FALSE,'bool')) {
+                        $eFormClass=strlen($eFormClass) ? ' class="'.$eFormClass.'"' : '';
+                    } else {
+                        $eFormClass=' class="clsFormRow'.(strlen($eFormClass) ? ' '.$eFormClass : '').'"';
+                    }//if(get_array_value($eForm,'clear_base_class',FALSE,'bool'))
+                    $eFormExtraAttr=trim(get_array_value($eForm,'extra_attributes','','is_string'));
+                    $eFormExtraAttr=(strlen($eFormExtraAttr) ? ' ' : '').$eFormExtraAttr;
                     $hidden=get_array_value($eForm,'hidden',TRUE,'bool');
-                    $result.="\t\t\t".'<tr id="'.$eForm['tag_id'].'-row" class="clsFormRow'.trim(' '.$eFormClass).'"'.trim(' '.$eFormExtraAttr).($hidden ? ' style="display: none;"' : '').'><td id="'.$eForm['tag_id'].'"'.$re_colspan.'></td></tr>'."\n";
+                    $result.="\t\t\t".'<tr id="'.$eForm['tag_id'].'-row"'.$eFormClass.$eFormExtraAttr.($hidden ? ' style="display: none;"' : '').'><td id="'.$eForm['tag_id'].'"'.$re_colspan.'></td></tr>'."\n";
                 }//END foreach
             }//if(is_array($this->row_embedded_form) && count($this->row_embedded_form))
         }//if(!$this->export_only)
