@@ -13,18 +13,21 @@ $(window).on('beforeunload',function() { setCookie('__napp_pHash_',window.name,1
 RegExp.escape=function(text) { return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g,'\\$&'); };
 
 String.prototype.replaceAll=function(find,replace,noescape) {
-    var str=this;
-    if(noescape===true || noescape===1) { return str.replace(new RegExp(find,'g'),replace); }
-    return str.replace(new RegExp(RegExp.escape(find),'g'),replace);
+    let str=this;
+    if(noescape===true || noescape===1) {
+        return str.replace(new RegExp(find,'g'),replace);
+    } else {
+        return str.replace(new RegExp(RegExp.escape(find),'g'),replace);
+    }
 };//String.prototype.replaceAll = function(find,replace)
 
 function getUid() {
-    var d=new Date();
+    let d=new Date();
     return (Math.round(Math.random() * 1000000)) + '-' + d.getTime() + '-' + d.getMilliseconds();
 }//function getUid
 
 function setCookie(name,value,validity) {
-    var expdate=undefined;
+    let expdate=undefined;
     if(validity>0) {
         expdate=new Date();
         expdate.setDate(expdate.getDate() + validity);
@@ -33,7 +36,7 @@ function setCookie(name,value,validity) {
 }//END function setCookie
 
 function getCookie(name) {
-    var result=null;
+    let result=null;
     if(document.cookie.length>0 && document.cookie.indexOf('|' + name + '=')!==(-1)) { result=decodeURIComponent(document.cookie.substring(document.cookie.indexOf(name + '=') + name.length + 2,document.cookie.indexOf(']' + name + '|'))); }
     return result || undefined;
 }//END function getCookie
@@ -46,11 +49,11 @@ String.prototype.ucfirst=function(all) {
     if(this==='') { return this; }
     if(all) {
         // Split the string into words if string contains multiple words.
-        var x=this.split(/\s+/g);
-        for(var i=0; i<x.length; i++) {
+        let x=this.split(/\s+/g);
+        for(let i=0; i<x.length; i++) {
             // Splits the word into two parts. One part being the first letter,
             // second being the rest of the word.
-            var parts=x[i].match(/(\w)(\w*)/);
+            let parts=x[i].match(/(\w)(\w*)/);
             // Put it back together but uppercase the first letter and
             // lowercase the rest of the word.
             if(parts[1]) { x[i]=parts[1].toUpperCase() + parts[2]; }
@@ -58,10 +61,10 @@ String.prototype.ucfirst=function(all) {
         // Rejoin the string and return.
         return x.join(' ');
     } else {
-        var x=this;
+        let x=this;
         // Splits the word into two parts. One part being the first letter,
         // second being the rest of the word.
-        var parts=x.match(/(\w)(\w*)/);
+        let parts=x.match(/(\w)(\w*)/);
         // Put it back together but uppercase the first letter and
         // lowercase the rest of the word.
         if(parts[1]) { x=parts[1].toUpperCase() + parts[2]; }
@@ -104,21 +107,21 @@ function arrayMerge(initialData,newData,recursive) {
 //jquery.text-overflow
 (function($) {
     $.fn.ellipsis=function(enableUpdating) {
-        var s=document.documentElement.style;
+        let s=document.documentElement.style;
         if(!('textOverflow' in s || 'OTextOverflow' in s)) {
             return this.each(function() {
-                var el=$(this);
+                let el=$(this);
                 if(el.css('overflow')==='hidden') {
-                    var originalText=el.html();
-                    var w=el.width();
-                    var t=$(this.cloneNode(true)).hide().css({
+                    let originalText=el.html();
+                    let w=el.width();
+                    let t=$(this.cloneNode(true)).hide().css({
                         'position': 'absolute',
                         'width': 'auto',
                         'overflow': 'visible',
                         'max-width': 'inherit'
                     });
                     el.after(t);
-                    var text=originalText;
+                    let text=originalText;
                     while(text.length>0 && t.width()>el.width()) {
                         text=text.substr(0,text.length - 1);
                         t.html(text + '...');
@@ -126,7 +129,7 @@ function arrayMerge(initialData,newData,recursive) {
                     el.html(t.html());
                     t.remove();
                     if(enableUpdating===true) {
-                        var oldW=el.width();
+                        let oldW=el.width();
                         setInterval(function() {
                             if(el.width()!==oldW) {
                                 oldW=el.width();
@@ -150,7 +153,7 @@ function is_integer(input) {
 }//END function is_integer
 
 function strpos(haystack,needle,offset) {
-    var i=(haystack + '').indexOf(needle,(offset || 0));
+    let i=(haystack + '').indexOf(needle,(offset || 0));
     return (i=== -1 ? false : i);
 }//function strpos(haystack,needle,offset)
 
@@ -165,7 +168,7 @@ function SetStorageParam(key,value) {
 }//END function SetStorageParam
 
 function GetStorageParam(key) {
-    var result;
+    let result;
     if(typeof (Storage)!=='undefined') {
         result=localStorage.getItem(key);
     } else {
@@ -180,9 +183,9 @@ function GetStorageParam(key) {
 
 function CookiesAccept(elementid) {
     if(!elementid) { return; }
-    var lac=false;
+    let lac=false;
     if(typeof (Storage)!=='undefined') {
-        var lacv=localStorage.getItem('__xUSRCA');
+        let lacv=localStorage.getItem('__xUSRCA');
         lac=lacv!==1 && lacv!=='1';
     } else {
         lac= !(document.cookie.length>0 && document.cookie.indexOf('__xUSRCA=1')!==(-1));
@@ -191,9 +194,9 @@ function CookiesAccept(elementid) {
 }//END CookiesAccept
 
 function SetCookiesAccept() {
-    var expdate=new Date();
+    let expdate=new Date();
     expdate.setMonth(expdate.getMonth() + 12);
-    var cdomain=location.host.toLowerCase();
+    let cdomain=location.host.toLowerCase();
     if(typeof (Storage)!=='undefined') {
         localStorage.setItem('__xUSRCA',1);
     } else {
@@ -202,19 +205,16 @@ function SetCookiesAccept() {
 }//END SetCookiesAccept
 
 function DumpObjectElements(obj,arrresult,noinherited,nomethods,noproperties) {
-    var result=null;
-    var properties=[];
-    var methods=[];
-    for(var e in obj) {
+    let result=null;
+    let properties=[];
+    let methods=[];
+    for(let e in obj) {
         if(!noinherited || obj.hasOwnProperty(e)) {
-            switch(typeof obj[e]) {
-                case 'function':
-                    methods.push(e);
-                    break;
-                default:
-                    properties.push(e);
-                    break;
-            }//switch(typeof obj[e])
+            if(typeof obj[e]==='function') {
+                methods.push(e);
+            } else {
+                properties.push(e);
+            }
         }//if(!noinherited || obj.hasOwnProperty(e))
     }//for(var e in obj)
     if(arrresult) {
@@ -238,14 +238,14 @@ function DumpObjectElements(obj,arrresult,noinherited,nomethods,noproperties) {
 }//function DumpObjectElements(obj,arrresult,noinherited,nomethods,noproperties)
 
 function print_r(arr,level) {
-    var dumped_text='';
+    let dumped_text='';
     if(!level) level=0;
     //The padding given at the beginning of the line.
-    var level_padding='';
-    for(var j=0; j<level + 1; j++) level_padding+='    ';
+    let level_padding='';
+    for(let j=0; j<level + 1; j++) level_padding+='    ';
     if(typeof (arr)=='object') { //Array/Hashes/Objects
-        for(var item in arr) {
-            var value=arr[item];
+        for(let item in arr) {
+            let value=arr[item];
             if(typeof (value)=='object') { //If it is an array,
                 dumped_text+=level_padding + '\'' + item + '\' ...\n';
                 dumped_text+=print_r(value,level + 1);
