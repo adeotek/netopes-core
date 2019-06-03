@@ -210,8 +210,12 @@ $(document).on('focusout','.clsSetNumberFormat',function(e) {
 /**
  * @return {number}
  */
-function FormatToNumericValue(element_value,decimal_separator,group_separator,sufix) {
-    return Number(element_value.replaceAll(sufix,'').replaceAll(group_separator,'').replaceAll(decimal_separator,'.'));
+function FormatToNumericValue(elementValue,decimalSeparator,groupSeparator,sufix) {
+    if(elementValue) {
+        return Number(elementValue.replaceAll(sufix,'').replaceAll(groupSeparator,'').replaceAll(decimalSeparator,'.'));
+    } else {
+        return elementValue;
+    }
 }//END function FormatToNumericValue
 
 /**
@@ -221,7 +225,7 @@ function GetNumericTextBoxValue(element) {
     let eObj=null;
     if(typeof (element)==='object') {
         if(element.length) {
-            eObj=element;
+            eObj=$(element);
         }
     } else if(typeof (element)==='string') {
         if(element.length) {
