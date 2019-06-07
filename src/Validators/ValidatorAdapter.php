@@ -12,6 +12,7 @@
  */
 namespace NETopes\Core\Validators;
 use DateTime;
+use Exception;
 use NApp;
 
 /**
@@ -375,4 +376,36 @@ class ValidatorAdapter {
         }
         return (strlen(preg_replace('/[^0-9]/','',$value))>2);
     }//END public static function IsPhoneOrEmpty
+
+    /**
+     * @param             $value
+     * @param string|null $quoteReplacer
+     * @return bool
+     */
+    public static function ToJson(&$value,?string $quoteReplacer=NULL): bool {
+        if(!is_string($value) || !strlen($value)) {
+            return FALSE;
+        }
+        if(strlen($quoteReplacer)) {
+            $value=str_replace($quoteReplacer,'"',$value);
+        }
+        try {
+            $value=json_decode($value,TRUE);
+            if(json_last_error()!=JSON_ERROR_NONE) {
+                throw new Exception('JSON error: '.json_last_error());
+            }
+        } catch(Exception $e) {
+            $value=NULL;
+            NApp::Elog($e);
+        }//END try
+        return is_array($value);
+    }//END public static function ToJson
+
+    /**
+     * @param             $value
+     * @return bool
+     */
+    public static function CustomToJson(&$value): bool {
+        return static::ToJson($value,'``');
+    }//END public static function ToJson
 }//END class ValidatorBaseAdapter
