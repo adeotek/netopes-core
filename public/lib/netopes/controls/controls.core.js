@@ -319,14 +319,29 @@ function UnselectGroupCheckBoxes(grouptag,obj,valuetag) {
 /*** END For CheckBox control ***/
 /*** For GroupCheckBox control ***/
 function GroupCheckBoxBaseEvent(obj) {
-    if(!obj || $(obj).val()=='1') { return; }
+    let multiple=$(obj).data('multiple') ? $(obj).data('multiple')==1 : false;
+    if(!obj || ($(obj).val()==1 && multiple==false)) { return; }
     let eid=$(obj).attr('data-id');
     if(eid && $('#' + eid).length>0) {
-        $('#' + eid).val($(obj).attr('data-val'));
-        $('#' + eid + '-container input[type=image].clsGCKBItem').val('0');
-        $(obj).val('1');
+        if(multiple) {
+            let values=[];
+            values=$('#' + eid).val().trim()=='' ? [] : $('#' + eid).val().trim().split('|');
+            if($(obj).val()==1) {
+                $(obj).val(0);
+                values=values.filter(function(element) {
+                    return element!=$(obj).data('val');
+                });
+            } else {
+                $(obj).val(1);
+                values.push($(obj).data('val'));
+            }
+            $('#' + eid).val(values.join('|'));
+        } else {
+            $('#' + eid).val($(obj).data('val'));
+            $('#' + eid + '-container input[type=image].clsGCKBItem').val('0');
+            $(obj).val('1');
+        }//if (multiple) {
         $('#' + eid).trigger('change');
-        // console.log($('#'+eid).val());
     }//if(eid && $('#'+eid).length>0)
 }//END function GroupCheckBoxBaseEvent
 
