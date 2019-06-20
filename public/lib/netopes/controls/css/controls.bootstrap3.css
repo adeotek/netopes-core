@@ -284,6 +284,13 @@ div.clsPreviewBox { overflow: hidden; }
     line-height: 14px;
     border-radius: 2px;
 }
+
+.form-xxs .form-group .clsPreviewBox.form-control,
+.form-group-xxs .clsPreviewBox.form-control,
+.clsPreviewBox.input-xxs {
+	min-height: 20px;
+	height: auto;
+}
 .form-xxs .form-group .input-group-addon,
 .form-group-xxs .input-group-addon,
 .input-group-addon.input-xxs { padding: 2px 4px; }
@@ -347,6 +354,13 @@ select.input-xxs { padding: 2px; }
     font-size: 12px;
     line-height: 14px;
     border-radius: 2px;
+}
+
+.form-xs .form-group .clsPreviewBox.form-control,
+.form-group-xs .clsPreviewBox.form-control,
+.clsPreviewBox.input-xs {
+	min-height: 24px;
+	height: auto;
 }
 .form-xs .form-group .input-group-addon,
 .form-group-xs .input-group-addon,
@@ -413,6 +427,12 @@ select.input-xs { padding: 4px 2px; }
     border-radius: 2px;
 }
 
+.form-sm .form-group .clsPreviewBox.form-control,
+.form-group-sm .clsPreviewBox.form-control,
+.clsPreviewBox.input-sm {
+	min-height: 30px;
+	height: auto;
+}
 .form-sm .form-group .form-control.select2-selection--multiple,
 .form-group-sm .form-control.select2-selection--multiple,
 .input-sm.select2-selection--multiple {
