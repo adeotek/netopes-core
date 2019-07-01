@@ -12,23 +12,24 @@
  */
 namespace NETopes\Core\Controls;
 use GibberishAES;
+use NApp;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
-use NETopes\Core\AppConfig;
-use NETopes\Core\AppException;
 use Translate;
-use NApp;
 
 /**
  * ComboBox control
  * Standard ComboBox control
  *
- * @property null   placeholder
- * @property null   onenter_button
- * @property null   cbo_placeholder
- * @property string display_field
+ * @property string|null placeholder
+ * @property string|null onenter_button
+ * @property string|null cbo_placeholder
+ * @property string      display_field
+ * @property string|null template_result
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {
@@ -216,8 +217,12 @@ class SmartComboBox extends Control {
 				        processResults: function(data,params) { return { results: data }; }
 					},
             ".(count($initData) ? 'data: '.json_encode($initData).',' : '')."
-			escapeMarkup: function(markup) { return markup; },
-			templateResult: function(item) { return item.name; },\n";
+			escapeMarkup: function(markup) { return markup; },\n";
+                    if(is_string($this->template_result) && strlen($this->template_result)) {
+                        $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                    } else {
+                        $js_script.="\t\t\ttemplateResult: function(item) { return item.name; },\n";
+                    }//if(is_string($this->template_result) && strlen($this->template_result))
                     if(is_string($this->template_selection) && strlen($this->template_selection)) {
                         $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
                     } else {
@@ -233,6 +238,9 @@ class SmartComboBox extends Control {
                 if(is_object($data) && $data->count()) {
                     $litems->merge($data->toArray());
                 }
+                if(is_string($this->template_result) && strlen($this->template_result)) {
+                    $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                }//if(is_string($this->template_result) && strlen($this->template_result))
                 if(is_string($this->template_selection) && strlen($this->template_selection)) {
                     $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
                 }//if(is_string($this->template_selection) && strlen($this->template_selection))
@@ -247,6 +255,9 @@ class SmartComboBox extends Control {
                     $lValue=DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
                     $litems->merge($lValue->toArray());
                 }//if(is_object($this->value) && $this->value->count())
+                if(is_string($this->template_result) && strlen($this->template_result)) {
+                    $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                }//if(is_string($this->template_result) && strlen($this->template_result))
                 if(is_string($this->template_selection) && strlen($this->template_selection)) {
                     $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
                 }//if(is_string($this->template_selection) && strlen($this->template_selection))

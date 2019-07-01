@@ -12,9 +12,9 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NETopes\Core\Validators\Validator;
 use ArrayIterator;
 use Closure;
+use NETopes\Core\Validators\Validator;
 use function array_filter;
 use function array_key_exists;
 use function array_keys;
@@ -23,15 +23,16 @@ use function array_reverse;
 use function array_search;
 use function array_slice;
 use function array_values;
+use function asort;
 use function count;
 use function current;
 use function end;
 use function in_array;
 use function key;
+use function ksort;
 use function next;
 use function reset;
 use function spl_object_hash;
-use function uasort;
 
 /**
  * DataSet class
@@ -380,6 +381,30 @@ class DataSet implements Collection {
         return array_slice($this->elements,$offset,$length,TRUE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function asort(int $mode=SORT_REGULAR) {
+        asort($this->elements,$mode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function ksort(int $mode=SORT_NUMERIC) {
+        ksort($this->elements,$mode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function reverse(bool $preserveKeys=FALSE) {
+        array_reverse($this->elements,$preserveKeys);
+    }
+
+    /**
+     * @return false|mixed|string
+     */
     public function jsonSerialize() {
         return json_encode($this->elements);
     }
