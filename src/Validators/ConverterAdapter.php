@@ -13,9 +13,9 @@
 namespace NETopes\Core\Validators;
 use DateTime;
 use DateTimeZone;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\DataHelpers;
-use NApp;
 use NumberFormatter;
 use Translate;
 
@@ -292,6 +292,35 @@ class ConverterAdapter {
         }//if(count($timeArray)>=3)
         return $result;
     }//END public static function StrTimeToTimestamp
+
+    /**
+     * Convert timestamp (number of seconds) to duration stored as string (format 'H:i[:s]')
+     *
+     * @param integer|double $input        Time as timestamp (number of seconds)
+     * @param bool           $with_seconds With seconds TRUE/FALSE
+     * @param bool           $zeroHour     Show hour if is 0 TRUE/FALSE
+     * @param string         $separator    Time separator (optional, default is ':')
+     * @return string return Time stored as string (format: 'H:i[:s]')
+     */
+    public static function TimestampToStrDuration($input,$with_seconds=TRUE,$zeroHour=FALSE,$separator=NULL) {
+        if(!is_numeric($input) || $input<0) {
+            return NULL;
+        }
+        $lSeparator=is_string($separator) && strlen($separator) ? $separator : ':';
+        $result='';
+        $hRem=$input % 3600;
+        $hours=($input - $hRem) / 3600;
+        if($hours>0 || $zeroHour) {
+            $result.=$hours.$lSeparator;
+        }
+        $mRem=$hRem % 60;
+        $minutes=($hRem - $mRem) / 60;
+        $result.=($hours>0 || $zeroHour) ? str_pad($minutes,2,'0',STR_PAD_LEFT) : $minutes;
+        if($with_seconds) {
+            $result.=$lSeparator.str_pad($mRem,2,'0',STR_PAD_LEFT);
+        }
+        return $result;
+    }//END public static function TimestampToStrDuration
 
     /**
      * Converts a number to standard format

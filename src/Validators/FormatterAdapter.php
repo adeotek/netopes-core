@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Validators;
+use DateTime;
 use NApp;
 use ReflectionMethod;
 
@@ -171,17 +172,21 @@ class FormatterAdapter {
     /**
      * @param $value
      * @return string|null
+     * @throws \Exception
      */
     public static function HiTs($value): ?string {
-        return timestamp_to_str_time(intval($value),FALSE,TRUE);
+        $dt=new DateTime(intval($value));
+        return $dt->format('H:i');
     }//END public static function HiTs
 
     /**
      * @param $value
      * @return string|null
+     * @throws \Exception
      */
     public static function HisTs($value): ?string {
-        return timestamp_to_str_time(intval($value),TRUE,TRUE);
+        $dt=new DateTime(intval($value));
+        return $dt->format('H:i:s');
     }//END public static function HisTs
 
     /**
@@ -189,7 +194,7 @@ class FormatterAdapter {
      * @return string|null
      */
     public static function DHisTs($value): ?string {
-        return timestamp_to_str_duration(round($value,0),TRUE,TRUE);
+        return ConverterAdapter::TimestampToStrDuration(round($value,0),TRUE,TRUE);
     }//END public static function DHisTs
 
     /**
@@ -197,7 +202,7 @@ class FormatterAdapter {
      * @return string|null
      */
     public static function DIsTs($value): ?string {
-        return timestamp_to_str_duration(round($value,0),TRUE);
+        return ConverterAdapter::TimestampToStrDuration(round($value,0),TRUE);
     }//END public static function DIsTs
 
     /**
