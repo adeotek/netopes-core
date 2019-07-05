@@ -71,6 +71,7 @@ use Translate;
  * @property mixed        onchange_target_id
  * @property mixed        onkeypress_ajax_command
  * @property mixed        onkeypress_target_id
+ * @property mixed        disabled_on_render
  */
 abstract class Control {
     /**
@@ -544,7 +545,7 @@ abstract class Control {
         if($style) {
             $lattr.=$this->GetTagStyle();
         }
-        if((bool)$this->disabled) {
+        if((bool)$this->disabled || (bool)$this->disabled_on_render) {
             $lattr.=' disabled="disabled"';
         }
         if((bool)$this->readonly) {
