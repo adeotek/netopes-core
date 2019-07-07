@@ -690,17 +690,17 @@ function GetSmartCBOText(element,asObject) {
 /**
  * @return {boolean}
  */
-function SetSmartCBOValue(element,new_val) {
+function SetSmartCBOValue(element,newVal) {
     if(!element) { return false; }
     let lElement=element;
-    if(typeof (element)!=='object') { lElement=$('#' + element); }
+    if(typeof (element)!='object') { lElement=$('#' + element); }
     if(!$(lElement).length) { return false; }
-    if(typeof (new_val)==='object') {
-        let sOption=new Option(new_val.id,new_val.name,true,true);
+    if(typeof (newVal)=='object') {
+        let sOption=new Option(newVal.name,newVal.id,true,true);
         $(lElement).append(sOption).trigger('change');
     } else {
-        $(lElement).val(new_val).trigger('change');
-    }//if(typeof(new_val)==='object')
+        $(lElement).val(newVal).trigger('change');
+    }//if(typeof(newVal)==='object')
     return true;
 }//function SetSmartCBOValue
 
