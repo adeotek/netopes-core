@@ -10,22 +10,10 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use Exception;
-use NETopes\Core\App\AppHelpers;
-use NETopes\Core\App\Module;
-use NETopes\Core\App\Params;
-use NETopes\Core\AppConfig;
-use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataSourceHelpers;
-use NETopes\Core\Validators\Validator;
-use NETopes\Core\Data\DataProvider;
-use NETopes\Core\Data\DataSource;
-use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\ExcelExport;
 use GibberishAES;
-use NETopes\Core\Data\VirtualEntity;
-use NETopes\Core\AppException;
 use NApp;
+use NETopes\Core\App\Params;
+use NETopes\Core\Data\DataProvider;
 use Translate;
 
 /**
@@ -33,19 +21,7 @@ use Translate;
  *
  * @package NETopes\Core\Controls
  */
-class FilterBox {
-    /**
-     * @var    string Control instance hash
-     */
-    protected $chash=NULL;
-    /**
-     * @var    array Filters values
-     */
-    protected $filters=[];
-    /**
-     * @var    string Control base class
-     */
-    protected $base_class='';
+class FilterBox extends FilterControl {
     /**
      * @var    string Module name
      */
@@ -54,14 +30,6 @@ class FilterBox {
      * @var    string Module method name
      */
     public $method=NULL;
-    /**
-     * @var    string Main container id
-     */
-    public $tag_id=NULL;
-    /**
-     * @var    string Theme type
-     */
-    public $theme_type=NULL;
     /**
      * @var    array Items configuration params
      */
@@ -79,55 +47,9 @@ class FilterBox {
      */
     public $js_callbacks=NULL;
     /**
-     * @var    string TableView target
-     */
-    public $target='';
-    /**
-     * @var    mixed Ajax calls loader: 1=default loader; 0=no loader;
-     * [string]=html element id or javascript function
-     */
-    public $loader=1;
-    /**
-     * @var    string Control elements class
-     */
-    public $class=NULL;
-    /**
      * @var    array Apply filters button configuration.
      */
     public $apply_filters_conf=[];
-
-    /**
-     * FilterBox class constructor method
-     *
-     * @param array $params Parameters array
-     * @return void
-     */
-    public function __construct($params=NULL) {
-        $this->chash=AppSession::GetNewUID();
-        $this->base_class='cls'.get_class_basename($this);
-        $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
-        if(is_array($params) && count($params)) {
-            foreach($params as $k=>$v) {
-                if(property_exists($this,$k)) {
-                    $this->$k=$v;
-                }
-            }//foreach ($params as $k=>$v)
-        }//if(is_array($params) && count($params))
-        $this->tag_id=$this->tag_id ? $this->tag_id : $this->chash;
-    }//END public function __construct
-
-    /**
-     * Gets this instance as a serialized string
-     *
-     * @param bool $encrypted Switch on/off encrypted result
-     * @return string Return serialized control instance
-     */
-    protected function GetThis($encrypted=TRUE) {
-        if($encrypted) {
-            return GibberishAES::enc(serialize($this),$this->chash);
-        }
-        return serialize($this);
-    }//END protected function GetThis
 
     /**
      * Gets the javascript callback string
@@ -165,7 +87,7 @@ class FilterBox {
      * @return string Returns action javascript command string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE) {
+    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE): ?string {
         $params=is_object($params) ? $params : new Params($params);
         $targetId=NULL;
         $execCallback=TRUE;
@@ -203,11 +125,13 @@ class FilterBox {
                 $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
                 $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{$fdvalue}', 'fsdvalue': '{$fsdvalue}', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}', 'groupid': '{nGet|{$this->tag_id}-f-group:value}' } }";
                 break;
-            case 'refresh':
             default:
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
+                $command=NULL;
                 break;
         }//END switch
+        if(is_null($command)) {
+            return NULL;
+        }
         if(!$processCall) {
             return $command;
         }
@@ -218,7 +142,7 @@ class FilterBox {
     /**
      * Gets the actions bar controls html (except controls for filters)
      *
-     * @param bool $with_filters
+     * @param array $filtersGroups
      * @return string Returns the actions bar controls html
      * @throws \NETopes\Core\AppException
      */
@@ -238,27 +162,6 @@ class FilterBox {
         $result.="\t\t\t".'<button class="f-apply-btn pull-right" onclick="'.$onClick.'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::Get('button_apply_filters').'</button>'."\n";
         return $result;
     }//END protected function GetActionsBarControls
-
-    /**
-     * Gets the filter box html
-     *
-     * @param string|int Key (type) of the filter to be checked
-     * @return bool Returns TRUE if filter is used and FALSE otherwise
-     */
-    protected function CheckIfFilterIsActive($key) {
-        if(!is_numeric($key) && (!is_string($key) || !strlen($key))) {
-            return FALSE;
-        }
-        if(!is_array($this->filters) || !count($this->filters)) {
-            return FALSE;
-        }
-        foreach($this->filters as $f) {
-            if(get_array_value($f,'type','','is_string').''==$key.'') {
-                return TRUE;
-            }
-        }
-        return FALSE;
-    }//protected function CheckIfFilterIsActive
 
     /**
      * Gets the filter box html
@@ -534,50 +437,6 @@ class FilterBox {
     }//END protected function GetFilterBox
 
     /**
-     * @param array $filters
-     * @return string
-     */
-    protected function GetFiltersGroups(array $filtersGroups): string {
-        $filtersString='';
-        if(count($filtersGroups)) {
-            $filtersString.="\t\t\t".'<select id="'.$this->tag_id.'-f-group" class="f-group">'."\n";
-            $filtersString.="\t\t\t\t".'<option value="'.uniqid().'">'.Translate::Get('group_with_filter').'</option>'."\n";
-            $gIndex=1;
-            foreach($filtersGroups as $gid=>$group) {
-                $filtersString.="\t\t\t\t".'<option value="'.$gid.'">'.$gIndex.'</option>'."\n";
-                $gIndex++;
-            }
-            $filtersString.="\t\t\t".'</select>'."\n";
-        }
-        return $filtersString;
-    }
-
-    /**
-     * Gets the control's content (html)
-     *
-     * @param Params|array|null $params An array of parameters
-     *                                  * phash (string) = new page hash (window.name)
-     *                                  * output (bool|numeric) = flag indicating direct (echo)
-     *                                  or indirect (return) output (default FALSE - indirect (return) output)
-     *                                  * other pass through params
-     * @return string Returns the control's content (html)
-     * @throws \NETopes\Core\AppException
-     */
-    public function Show($params=NULL) {
-        $o_params=is_object($params) ? $params : new Params($params);
-        $phash=$o_params->safeGet('phash',NULL,'is_notempty_string');
-        $output=$o_params->safeGet('output',FALSE,'bool');
-        if($phash) {
-            $this->phash=$phash;
-        }
-        if($output) {
-            echo $this->SetControl($o_params);
-        } else {
-            return $this->SetControl($o_params);
-        }
-    }//END public function Show
-
-    /**
      * Sets the output buffer value
      *
      * @param \NETopes\Core\App\Params $params
@@ -605,63 +464,4 @@ class FilterBox {
         }//END switch
         return $result;
     }//END private function SetControl
-
-    /**
-     * Process the active filters (adds/removes filters)
-     *
-     * @param \NETopes\Core\App\Params $params Parameters for processing
-     * @return array Returns the updated filters array
-     * @throws \NETopes\Core\AppException
-     */
-    protected function ProcessActiveFilters(Params $params) {
-        $action=$params->safeGet('faction',NULL,'is_notempty_string');
-        if(!$action || !in_array($action,['add','remove','clear'])) {
-            return $this->filters;
-        }
-        if($action=='clear') {
-            return [];
-        }
-        if($action=='remove') {
-            $key=$params->safeGet('fkey',NULL,'is_string');
-            return array_filter($this->filters,function($filter) use ($key) {
-                return $filter['groupid']!==$key;
-            });
-        }//if($action=='remove')
-        $lfilters=$this->filters;
-        $multif=$params->safeGet('multif',[],'is_array');
-        if(count($multif)) {
-            foreach($multif as $fparams) {
-                $op=get_array_value($fparams,'fop',NULL,'is_notempty_string');
-                $type=get_array_value($fparams,'ftype',NULL,'is_notempty_string');
-                $cond=get_array_value($fparams,'fcond',NULL,'is_notempty_string');
-                $value=get_array_value($fparams,'fvalue',NULL,'isset');
-                $svalue=get_array_value($fparams,'fsvalue',NULL,'isset');
-                $dvalue=get_array_value($fparams,'fdvalue',NULL,'isset');
-                $sdvalue=get_array_value($fparams,'fsdvalue',NULL,'isset');
-                $fdtype=get_array_value($fparams,'data_type','','is_string');
-                $isDSParam=get_array_value($fparams,'is_ds_param',0,'is_numeric');
-                $groupid=get_array_value($fparams,'groupid',uniqid(),'is_string');
-                if(!$op || !isset($type) || !$cond || !isset($value)) {
-                    continue;
-                }
-                $lfilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam,'groupid'=>$groupid];
-            }//END foreach
-        } else {
-            $op=$params->safeGet('fop',NULL,'is_notempty_string');
-            $type=$params->safeGet('ftype',NULL,'is_notempty_string');
-            $cond=$params->safeGet('fcond',NULL,'is_notempty_string');
-            $value=$params->safeGet('fvalue',NULL,'isset');
-            $svalue=$params->safeGet('fsvalue',NULL,'isset');
-            $dvalue=$params->safeGet('fdvalue',NULL,'isset');
-            $sdvalue=$params->safeGet('fsdvalue',NULL,'isset');
-            $fdtype=$params->safeGet('data_type','','is_string');
-            $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-            $groupid=$params->safeGet('groupid',uniqid(),'is_string');
-            if(!$op || !isset($type) || !$cond || !isset($value)) {
-                return $this->filters;
-            }
-            $lfilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam,'groupid'=>$groupid];
-        }//if(count($multif))
-        return $lfilters;
-    }//END protected function ProcessActiveFilters
-}//END class FilterBox
+}//END class FilterBox extends FilterControl

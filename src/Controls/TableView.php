@@ -298,6 +298,7 @@ class TableView {
      *
      * @param array $params Parameters array
      * @return void
+     * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
         $this->chash=AppSession::GetNewUID();
@@ -332,7 +333,7 @@ class TableView {
      * @param bool $encrypted Switch on/off encrypted result
      * @return string Return serialized control instance
      */
-    protected function GetThis($encrypted=TRUE) {
+    protected function GetThis($encrypted=TRUE): string {
         if($encrypted) {
             return GibberishAES::enc(serialize($this),$this->chash);
         }
@@ -398,7 +399,7 @@ class TableView {
      * @return string Returns action javascript command string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE) {
+    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE): ?string {
         $params=is_object($params) ? $params : new Params($params);
         $targetId=NULL;
         $execCallback=TRUE;
