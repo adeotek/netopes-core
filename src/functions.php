@@ -376,3 +376,42 @@ function vprint($var,$html_entities=FALSE,$return=FALSE,$utf8encode=FALSE) {
 function cli_print($var,?string $label=NULL) {
     echo (strlen($label) ? $label.': ' : '').print_r($var,TRUE).PHP_EOL;
 }//END function cli_print
+/**
+ * @param string $key
+ * @param array  $array
+ * @return array
+ */
+function array_group_by(string $key,array $array): array {
+    $grouped=[];
+    foreach($array as $item) {
+        $dKey=get_array_value($item,$key,NULL);
+        if(isset($grouped[$dKey])) {
+            $grouped[$dKey][]=$item;
+        } else {
+            $grouped[$dKey]=[$item];
+        }
+    }
+    return $grouped;
+}//END function array_group_by
+/**
+ * Return the first element in an array passing a given truth test.
+ *
+ * @param array         $array
+ * @param mixed         $default
+ * @param callable|null $callback
+ * @return mixed
+ */
+function array_first(array $array,$default=NULL,callable $callback=NULL) {
+    if(is_null($callback)) {
+        $firstValue=count($array) ? reset($array) : $default;
+    } else {
+        $firstValue=$default;
+        foreach($array as $key=>$value) {
+            if(call_user_func($callback,$value,$key)) {
+                $firstValue=$value;
+                break;
+            }
+        }
+    }
+    return $firstValue;
+}//END function array_first(array $array,$default=null,callable $callback=null)

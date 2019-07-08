@@ -455,6 +455,20 @@ class AppView {
      * @param array|null $args
      * @return void
      */
+    public function AddFilterBox(string $file,?array $extraParams=NULL,?array $args=NULL): void {
+        $tag=get_array_value($extraParams,'tag','','is_string');
+        if(strlen($tag)) {
+            $this->_placeholders[$tag]=NULL;
+        }
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\FilterBox','args'=>$args]);
+    }//END public function AddFilterBox
+
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @param array|null $args
+     * @return void
+     */
     public function AddTableView(string $file,?array $extraParams=NULL,?array $args=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
