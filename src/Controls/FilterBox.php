@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.1.3.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
@@ -52,6 +52,17 @@ class FilterBox extends FilterControl {
     public $apply_filters_conf=[];
 
     /**
+     * FilterControl class constructor method
+     *
+     * @param array|null $params Parameters array
+     * @return void
+     */
+    public function __construct($params=NULL) {
+        parent::__construct($params);
+        $this->tag_id=$this->tag_id ? $this->tag_id : $this->chash;
+    }//END public function __construct
+
+    /**
      * Gets the javascript callback string
      *
      * @param bool $onloadCallback    Include or not on load callback
@@ -87,56 +98,24 @@ class FilterBox extends FilterControl {
      * @return string Returns action javascript command string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE): ?string {
+    protected function GetActionCommand(?string $type=NULL,$params=NULL,bool $processCall=TRUE): ?string {
         $params=is_object($params) ? $params : new Params($params);
-        $targetId=NULL;
-        $execCallback=TRUE;
-        $onloadCallback=TRUE;
-        $targetId=$this->tag_id;
-        switch($type) {
-            case 'apply_filters':
-                // TODO: generate an array with filters.
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'apply' } }";
-                break;
-            case 'update_filter':
-                $execCallback=FALSE;
-                $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
-                break;
-            case 'remove_filter':
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_string')."', 'sessact': 'filters' } }";
-                break;
-            case 'clear_filters':
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction':'clear', 'sessact': 'filters' } }";
-                break;
-            case 'add_filter':
-                $fsValue=$params->safeGet('fsvalue','','is_string');
-                $fdvalue=$params->safeGet('fdvalue','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
-                if(strlen($fdvalue) && strpos($fdvalue,'{nEval|')===FALSE && strpos($fdvalue,'{nGet|')===FALSE) {
-                    $fdvalue='{nGet|'.$fdvalue.'}';
-                }
-                $fsdvalue=$params->safeGet('fsdvalue','','is_string');
-                if(strlen($fsdvalue) && strpos($fsdvalue,'{nEval|')===FALSE && strpos($fsdvalue,'{nGet|')===FALSE) {
-                    $fsdvalue='{nGet|'.$fsdvalue.'}';
-                }
-                $fdtype=$params->safeGet('data_type','','is_string');
-                //~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
-                //~'fcond'|{$this->tag_id}-f-cond-type:value
-                $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{$fdvalue}', 'fsdvalue': '{$fsdvalue}', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}', 'groupid': '{nGet|{$this->tag_id}-f-group:value}' } }";
-                break;
-            default:
-                $command=NULL;
-                break;
-        }//END switch
+        if($type=='filters.get') {
+            // TODO: de implementat
+            $targetId=NULL;
+            $command=NULL;
+        } else {
+            $targetId=NULL;
+            $command=$this->GetFilterActionCommand($type,$params,$targetId);
+        }//if($type=='filters.get')
+
         if(is_null($command)) {
             return NULL;
         }
         if(!$processCall) {
             return $command;
         }
-        $jsCallback=$this->ProcessJsCallbacks($onloadCallback);
-        return NApp::Ajax()->Prepare($command,$targetId,NULL,$this->loader,NULL,TRUE,(!$execCallback || !strlen($jsCallback) ? $jsCallback : NULL),NULL,TRUE,'ControlAjaxRequest');
+        return NApp::Ajax()->Prepare($command,$targetId,NULL,$this->loader,NULL,TRUE,NULL,NULL,TRUE,'ControlAjaxRequest');
     }//END protected function GetActionCommand
 
     /**
@@ -437,7 +416,7 @@ class FilterBox extends FilterControl {
     }//END protected function GetFilterBox
 
     /**
-     * Sets the output buffer value
+     * Generate and return the control HTML
      *
      * @param \NETopes\Core\App\Params $params
      * @return string|null
