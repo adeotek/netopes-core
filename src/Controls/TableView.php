@@ -444,7 +444,12 @@ class TableView extends FilterControl {
                         // NApp::Dlog($fieldPrefix,'$fieldPrefix');
                         $fcFilterFields=[];
                         if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                            $fcFilterFields=get_array_value($this->columns[$a['type']],'filter_target_fields',[],'is_array');
+                            $fcFilterField=get_array_value($this->columns[$a['type']],'filter_target_fields',NULL,'?is_string');
+                            if(strlen($fcFilterField)) {
+                                $fcFilterFields=[$fcFilterField];
+                            } else {
+                                $fcFilterFields=get_array_value($this->columns[$a['type']],'filter_target_fields',[],'is_array');
+                            }
                         }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
                         if(count($fcFilterFields)) {
                             $fField=[];

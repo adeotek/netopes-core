@@ -156,7 +156,7 @@ abstract class FilterControl {
         $action=$params->safeGet('faction',NULL,'is_notempty_string');
         // NApp::Dlog($action,'$action');
         // NApp::Dlog($this->filters,'$this->filters');
-        if(!$action || !in_array($action,['add','remove','clear'])) {
+        if(!$action || !in_array($action,['add','remove','group_remove','clear'])) {
             return $this->filters ?? [];
         }
         if($action=='clear') {
@@ -164,10 +164,19 @@ abstract class FilterControl {
         }
         if($action=='remove') {
             $key=$params->safeGet('fkey',NULL,'is_string');
-            return array_filter($this->filters,function($filter) use ($key) {
-                return $filter['group_uid']!==$key;
-            });
+            if(!is_numeric($key) || !array_key_exists($key,$this->filters)) {
+                return $this->filters;
+            }
+            $lFilters=$this->filters;
+            unset($lFilters[$key]);
+            return $lFilters;
         }//if($action=='remove')
+        if($action=='group_remove') {
+            $groupUid=$params->safeGet('group_uid',NULL,'is_string');
+            return array_filter($this->filters,function($filter) use ($groupUid) {
+                return $filter['group_uid']!==$groupUid;
+            });
+        }//if($action=='group_remove')
         $lFilters=$this->filters ?? [];
         $multiple=$params->safeGet('multi_f',[],'is_array');
         if(count($multiple)) {
@@ -201,7 +210,7 @@ abstract class FilterControl {
             if(!$op || !isset($type) || !$cond || !isset($value)) {
                 return $this->filters ?? [];
             }
-            $lFilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$sValue,'dValue'=>$dValue,'sdvalue'=>$sdValue,'data_type'=>$fdType,'is_ds_param'=>$isDsParam,'group_uid'=>$groupUid];
+            $lFilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$sValue,'dvalue'=>$dValue,'sdvalue'=>$sdValue,'data_type'=>$fdType,'is_ds_param'=>$isDsParam,'group_uid'=>$groupUid];
         }//if(count($multif))
         // NApp::Dlog($lfilters,'$lfilters');
         return $lFilters;
@@ -229,11 +238,15 @@ abstract class FilterControl {
                 $method=$method ?? 'ShowFiltersBox';
                 $targetId=$this->tag_id.'-filter-box';
                 $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'update', 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
+                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'update', 'group_uid': '{nGet|{$this->tag_id}-f-group:value}', 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
                 break;
             case 'filters.remove':
                 $method=$method ?? 'Show';
                 $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_string')."', 'sessact': 'filters' } }";
+                break;
+            case 'filters.group_remove':
+                $method=$method ?? 'Show';
+                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'group_remove', 'group_uid': '".$params->safeGet('group_uid','','is_string')."', 'sessact': 'filters' } }";
                 break;
             case 'filters.clear':
                 $method=$method ?? 'Show';
@@ -262,18 +275,21 @@ abstract class FilterControl {
     }//END protected function GetFilterActionCommand
 
     /**
-     * @param array $filtersGroups
+     * @param string|null $selectedValue
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFilterGroupControl(array $filtersGroups): ?string {
+    protected function GetFilterGroupControl(?string $selectedValue=NULL): ?string {
+        $filtersGroups=array_group_by('group_uid',$this->filters);
         if(!count($filtersGroups)) {
             return NULL;
         }
         $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-group" class="clsComboBox form-control f-ctrl f-group">'."\n";
-        $result.="\t\t\t\t\t".'<option value="'.uniqid().'">'.Translate::GetLabel('group_with_filter').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="'.uniqid().'"'.(strlen($selectedValue) ? '' : ' selected="selected"').'>'.Translate::GetLabel('new_group').'</option>'."\n";
+        $gIndex=1;
         foreach($filtersGroups as $gid=>$group) {
-            $result.="\t\t\t\t\t".'<option value="'.$gid.'">'.($gid + 1).'</option>'."\n";
+            $lSelected=$selectedValue==$gid ? ' selected="selected"' : '';
+            $result.="\t\t\t\t\t".'<option value="'.$gid.'"'.$lSelected.'>['.$gIndex++.']</option>'."\n";
         }//END foreach
         $result.="\t\t\t\t".'</select>'."\n";
         return $result;
@@ -429,7 +445,7 @@ abstract class FilterControl {
                 }
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 if(strlen($aOnClickCheck)) {
                     $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
                 }
@@ -451,7 +467,7 @@ abstract class FilterControl {
                 }
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 if(strlen($aOnClickCheck)) {
                     $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
                 }
@@ -467,7 +483,7 @@ abstract class FilterControl {
                 }
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 if(strlen($aOnClickCheck)) {
                     $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
                 }
@@ -482,7 +498,7 @@ abstract class FilterControl {
                 }
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 if(strlen($aOnClickCheck)) {
                     $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
                 }
@@ -587,9 +603,9 @@ abstract class FilterControl {
                 }//END switch
                 $dValue=$this->tag_id.'-f-value:value';
                 if($fConditionType=='><') {
-                    $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fsdvalue'=>$sdValue,'fvalue'=>$fValue,'fsvalue'=>$fsValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                    $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fsdvalue'=>$sdValue,'fvalue'=>$fValue,'fsvalue'=>$fsValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 } else {
-                    $onclickAction=$this->GetActionCommand('add_filter',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
+                    $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
                 }
                 if(strlen($aOnClickCheck)) {
                     $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
@@ -610,11 +626,10 @@ abstract class FilterControl {
      */
     protected function GetFilterControls(array $items,Params $params): string {
         if(is_array($this->filters) && count($this->filters)) {
-            $filtersGroups=array_group_by('group_uid',$this->filters);
-            $result=$this->GetFilterGroupControl($filtersGroups);
+            $result=$this->GetFilterGroupControl($params->safeGet('group_uid','','is_string'));
             $result.=$this->GetLogicalSeparatorControl($params->safeGet('fop','','is_string'));
         } else {
-            $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group" type="hidden" value="">'."\n";
+            $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group" type="hidden" value="'.uniqid().'">'."\n";
             $result.="\t\t\t\t".'<input id="'.$this->tag_id.'-f-operator" type="hidden" value="'.$params->safeGet('fop','','is_string').'">'."\n";
         }//if(is_array($this->filters) && count($this->filters))
         $conditionType=$selectedItem=NULL;
@@ -661,21 +676,32 @@ abstract class FilterControl {
             return NULL;
         }
         $filters="\t\t\t\t".'<div class="f-active-items">'."\n";
-        $first=TRUE;
+        $filters.="\t\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
+        $filtersGroups=array_group_by('group_uid',$this->filters);
         $fcTypes=DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
-        foreach($this->filters as $k=>$a) {
-            if($first) {
-                $filters.="\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
-                $af_op='';
-                $first=FALSE;
+        $gLogicalOperator=NULL;
+        $gIndex=1;
+        foreach($filtersGroups as $gid=>$group) {
+            if(!is_array($group) || !count($group)) {
+                continue;
+            }
+            $fLogicalOperator=NULL;
+            if(is_null($gLogicalOperator)) {
+                $gLogicalOperator='';
             } else {
-                $af_op=Translate::GetLabel($a['operator']).' ';
-            }//if($first)
+                $gLogicalOperator=Translate::GetLabel(get_array_value($group,[0,'operator'],'','is_string')).' ';
+            }//if(is_null($gLogicalOperator))
+            $filters.="\t\t\t\t\t".'<div class="f-items-group">'.$gLogicalOperator.Translate::GetLabel('group').' ['.$gIndex++.']'."\n";
+            $filters.="\t\t\t\t\t\t".'<div class="g-remove" onclick="'.$this->GetActionCommand('filters.group_remove',['group_uid'=>$gid]).'"><i class="fa fa-times"></i></div>'."\n";
+            foreach($group as $k=>$a) {
+                $fLogicalOperator=is_null($fLogicalOperator) ? '' : Translate::GetLabel($a['operator']).' ';
             if($a['condition_type']=='><') {
-                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
+                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$fLogicalOperator.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
             } else {
-                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
+                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$fLogicalOperator.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
             }//if($a['condition_type']=='><')
+            }//END foreach
+            $filters.="\t\t\t\t\t".'</div>'."\n";
         }//END foreach
         $filters.="\t\t\t".'</div>'."\n";
         return $filters;
