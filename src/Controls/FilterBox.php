@@ -111,9 +111,9 @@ class FilterBox extends FilterControl {
      */
     protected function GetFilterApplyAction(): ?string {
         if($this->compact_mode) {
-            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn compact clsTitleSToolTip').'" onclick="'.$this->GetActionCommand('filters.get').'" title="'.($this->apply_button_label ?? Translate::GetButton('apply_filters')).'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
+            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.get').'" title="'.($this->apply_button_label ?? Translate::GetButton('apply_filters')).'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
         } else {
-            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn').'" onclick="'.$this->GetActionCommand('filters.get').'"><i class="fa fa-filter" aria-hidden="true"></i>'.($this->apply_button_label ?? Translate::GetButton('apply_filters')).'</button>'."\n";
+            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.get').'"><i class="fa fa-filter" aria-hidden="true"></i>'.($this->apply_button_label ?? Translate::GetButton('apply_filters')).'</button>'."\n";
         }//if($this->compact_mode)
         return $result;
     }//END protected function GetFilterApplyAction
@@ -138,7 +138,7 @@ class FilterBox extends FilterControl {
         if($params->safeGet('faction','','is_string')=='update') {
         return $filters;
         }
-        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').'">'."\n";
+        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
         $result.=$filters;
         $result.="\t\t\t".'</div>'."\n";
         return $result;

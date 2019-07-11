@@ -642,6 +642,7 @@ select.input-xs {
 .form-group-sm select.form-control,
 select.input-sm {
 	padding: 5px 2px;
+	line-height: 18px;
 }
 
 .form-sm .form-group .control-label,
@@ -684,12 +685,14 @@ select.input-sm {
 	padding: 2px 8px;
 }
 
-.form-sm .form-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+.form-sm .form-group .select2-container--default .select2-selection--single .select2-selection__rendered,
+.form-group-sm .select2-container--default .select2-selection--single .select2-selection__rendered {
 	color: #333;
 	line-height: 28px;
 }
 
-.form-sm .form-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+.form-sm .form-group .select2-container--default .select2-selection--single .select2-selection__arrow,
+.form-group-sm .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 24px;
 	position: absolute;
 	top: 1px;
@@ -1281,12 +1284,19 @@ div.clsFilterBox div.tw-filters .f-ctrl {
 	display: inline-block;
 	width: auto;
 	margin-right: 4px;
+	font-size: 12px !important;
+	border-radius: 2px;
 	vertical-align: middle;
 }
 
 div.clsFilterBox div.tw-filters > .btn {
 	display: inline-block;
 	margin-left: 10px;
+	border-radius: 2px;
+}
+
+div.clsFilterBox div.tw-filters .f-i-lbl {
+	margin-right: 4px;
 }
 
 div.clsFilterBox div.tw-filters .f-apply-btn {
@@ -1373,6 +1383,7 @@ div.clsFilterBox div.tw-filters div.f-active-items .f-active-item .b-remove {
 div.clsFilterBox div.tw-filters div.f-active-items .f-active-item .b-remove:hover {
 	color: #cf0000;
 }
+
 /*** END Active filters ***/
 /*** END FilterBox ***/
 
@@ -1429,12 +1440,19 @@ div.clsTableView div.clsTableViewActions div.tw-filters .f-ctrl {
 	display: inline-block;
 	width: auto;
 	margin-right: 4px;
+	font-size: 12px !important;
+	border-radius: 2px;
 	vertical-align: middle;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters > .btn {
 	display: inline-block;
 	margin-left: 10px;
+	border-radius: 2px;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters .f-i-lbl {
+	margin-right: 4px;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters .control-set,
@@ -1462,6 +1480,11 @@ div.clsTableView div.clsTableViewActions div.tw-filters .input-group input[type=
 div.clsTableView div.clsTableViewActions div.tw-filters .control-set .input-group-addon {
 	padding: 4px 12px;
 }
+
+div.clsTableView div.clsTableViewActions div.tw-filters .f-ctrl.select2-selection--single {
+	width: 100%;
+}
+
 
 /*div.clsTableView div.clsTableViewActions div.tw-filters .select2-container {*/
 /*	float: left;*/

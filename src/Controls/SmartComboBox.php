@@ -30,6 +30,7 @@ use Translate;
  * @property string|null cbo_placeholder
  * @property string      display_field
  * @property string|null template_result
+ * @property bool|null   allow_clear
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {

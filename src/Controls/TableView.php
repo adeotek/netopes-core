@@ -534,23 +534,23 @@ class TableView extends FilterControl {
         $actions='';
         if($this->exportable && $this->export_all && $this->with_pagination) {
             if($this->compact_mode) {
-                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip').'" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::GetButton('export_all').'"><i class="fa fa-download"></i></button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::GetButton('export_all').'"><i class="fa fa-download"></i></button>'."\n";
             } else {
-                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn').'" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.Translate::GetButton('export_all').'</button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.Translate::GetButton('export_all').'</button>'."\n";
             }//if($this->compact_mode)
         }//if($this->exportable && $this->export_all && $this->with_pagination)
         if($this->export_button) {
             if($this->compact_mode) {
-                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip').'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::GetButton('export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::GetButton('export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
             } else {
-                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn').'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::GetButton('export').'</a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::GetButton('export').'</a>'."\n";
             }//if($this->compact_mode)
         }//if($this->export_button)
         if(strlen($this->ds_class) && strlen($this->ds_method)) {
             if($this->compact_mode) {
-                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn compact clsTitleSToolTip').'" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::GetButton('refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::GetButton('refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
             } else {
-                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn').'" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::GetButton('refresh').'</button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::GetButton('refresh').'</button>'."\n";
             }//if($this->compact_mode)
         }//if(strlen($this->ds_class) && strlen($this->ds_method))
         if(!strlen($actions)) {
@@ -584,7 +584,7 @@ class TableView extends FilterControl {
         if($params->safeGet('faction','','is_string')=='update') {
             return $filters;
         }
-        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').'">'."\n";
+        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
         $result.=$filters;
         $result.="\t\t\t".'</div>'."\n";
         return $result;

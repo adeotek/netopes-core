@@ -45,6 +45,10 @@ abstract class FilterControl {
      */
     protected $base_class=NULL;
     /**
+     * @var    string|null Buttons size CSS class
+     */
+    protected $buttons_size_class=NULL;
+    /**
      * @var    string|null Page hash (window.name)
      */
     public $phash=NULL;
@@ -93,6 +97,7 @@ abstract class FilterControl {
         $this->base_class='cls'.get_class_basename($this);
         $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
         $this->controls_size=NApp::$theme->GetControlsDefaultSize();
+        $this->buttons_size_class=(is_string($this->controls_size) && strlen($this->controls_size) ? ' btn-'.$this->controls_size : '');
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
                 if(property_exists($this,$k)) {
@@ -402,9 +407,9 @@ abstract class FilterControl {
      */
     protected function GetFilterAddAction(string $onClick): string {
         if($this->compact_mode) {
-            $result="\t\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="'.NApp::$theme->GetBtnInfoClass('f-add-btn compact clsTitleSToolTip').'" onclick="'.$onClick.'" title="'.Translate::GetButton('add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
+            $result="\t\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="'.NApp::$theme->GetBtnInfoClass('f-add-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$onClick.'" title="'.Translate::GetButton('add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
         } else {
-            $result="\t\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="'.NApp::$theme->GetBtnInfoClass('f-add-btn').'" onclick="'.$onClick.'"><i class="fa fa-plus"></i>'.Translate::GetButton('add_filter').'</button>'."\n";
+            $result="\t\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="'.NApp::$theme->GetBtnInfoClass('f-add-btn'.$this->buttons_size_class).'" onclick="'.$onClick.'"><i class="fa fa-plus"></i>'.Translate::GetButton('add_filter').'</button>'."\n";
         }//if($this->compact_mode)
         return $result;
     }//END protected function GetFilterAddAction
@@ -437,7 +442,7 @@ abstract class FilterControl {
                 $ctrlParams['allow_clear']=get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
                 $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
                 if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
-                    $ctrlParams['data_source']=get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
+                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
                 }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
                 $filterValueControl=new SmartComboBox($ctrlParams);
                 $dValue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-f-value\',false)}';
@@ -650,17 +655,17 @@ abstract class FilterControl {
      */
     protected function GetFilterGlobalActions(bool $withApply=FALSE): string {
         if($this->compact_mode) {
-            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDefaultClass('f-clear-btn compact clsTitleSToolTip').'" onclick="'.$this->GetActionCommand('filters.clear').'" title="'.Translate::GetButton('clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
+            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDefaultClass('f-clear-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.clear').'" title="'.Translate::GetButton('clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
         } else {
-            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDefaultClass('f-clear-btn').'" onclick="'.$this->GetActionCommand('filters.clear').'"><i class="fa fa-times"></i>'.Translate::GetButton('clear_filters').'</button>'."\n";
+            $result="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDefaultClass('f-clear-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.clear').'"><i class="fa fa-times"></i>'.Translate::GetButton('clear_filters').'</button>'."\n";
         }//if($this->compact_mode)
         if(!$withApply) {
             return $result;
         }
         if($this->compact_mode) {
-            $result.="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn compact clsTitleSToolTip').'" onclick="'.$this->GetActionCommand('filters.apply').'" title="'.Translate::GetButton('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
+            $result.="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.apply').'" title="'.Translate::GetButton('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
         } else {
-            $result.="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn').'" onclick="'.$this->GetActionCommand('filters.apply').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::GetButton('apply_filters').'</button>'."\n";
+            $result.="\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('f-apply-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('filters.apply').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::GetButton('apply_filters').'</button>'."\n";
         }//if($this->compact_mode)
         return $result;
     }//END protected function GetFilterGlobalActions
