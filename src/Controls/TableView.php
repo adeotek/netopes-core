@@ -621,7 +621,7 @@ class TableView extends FilterControl {
     /**
      * Gets the pagination box html
      *
-     * @param array $items The data array
+     * @param DataSet $items The data array
      * @return string Returns the pagination box html
      * @throws \NETopes\Core\AppException
      */
@@ -2188,31 +2188,6 @@ class TableView extends FilterControl {
         }
         $this->columns[$name]=[];
     }//END public function ClearActions
-
-    /**
-     * Gets (shows) the control's filters box content
-     *
-     * @param array $params An array of parameters
-     *                      * phash (string) = new page hash (window.name)
-     *                      * output (bool|numeric) = flag indicating direct (echo)
-     *                      or indirect (return) output (default FALSE - indirect (return) output)
-     *                      * other pass through params
-     * @return string|null Returns the control's filters box content
-     * @throws \NETopes\Core\AppException
-     */
-    public function ShowFiltersBox($params=NULL): ?string {
-        $o_params=is_object($params) ? $params : new Params($params);
-        $phash=$o_params->safeGet('phash',NULL,'is_notempty_string');
-        $output=$o_params->safeGet('output',FALSE,'bool');
-        if($phash) {
-            $this->phash=$phash;
-        }
-        if(!$output) {
-            return $this->GetFilterBox($o_params);
-        }
-        echo $this->GetFilterBox($o_params);
-        return NULL;
-    }//END public function ShowFiltersBox
 
     /**
      * Sets new value for base class property

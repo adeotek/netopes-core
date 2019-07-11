@@ -92,6 +92,7 @@ abstract class FilterControl {
         $this->chash=AppSession::GetNewUID();
         $this->base_class='cls'.get_class_basename($this);
         $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
+        $this->controls_size=NApp::$theme->GetControlsDefaultSize();
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
                 if(property_exists($this,$k)) {
@@ -741,23 +742,22 @@ abstract class FilterControl {
      *                      * output (bool|numeric) = flag indicating direct (echo)
      *                      or indirect (return) output (default FALSE - indirect (return) output)
      *                      * other pass through params
-     * @return string Returns the control's filters box content
+     * @return string|null Returns the control's filters box content
      * @throws \NETopes\Core\AppException
      */
-    public function ShowFilterBox($params=NULL) {
-        // NApp::Dlog($params,'FilterControl>>ShowFilterBox');
-        $oParams=is_object($params) ? $params : new Params($params);
-        $pHash=$oParams->safeGet('phash',NULL,'?is_notempty_string');
-        $output=$oParams->safeGet('output',FALSE,'bool');
-        if($pHash) {
-            $this->phash=$pHash;
+    public function ShowFiltersBox($params=NULL): ?string {
+        $o_params=is_object($params) ? $params : new Params($params);
+        $phash=$o_params->safeGet('phash',NULL,'is_notempty_string');
+        $output=$o_params->safeGet('output',FALSE,'bool');
+        if($phash) {
+            $this->phash=$phash;
         }
         if(!$output) {
-            return $this->GetFilterBox($oParams);
+            return $this->GetFilterBox($o_params);
         }
-        echo $this->GetFilterBox($oParams);
+        echo $this->GetFilterBox($o_params);
         return NULL;
-    }//END public function ShowFilterBox
+    }//END public function ShowFiltersBox
 
     /**
      * Gets the action javascript command string

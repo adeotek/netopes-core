@@ -1264,14 +1264,16 @@ div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown > .gcbo-load
 /*** END Pagination ***/
 /*** FilterBox ***/
 div.clsFilterBox {
-	display: block;
-	width: 100%;
+	padding: 10px;
 }
 
-div.clsFilterBox div.tw-filters {
-	float: left;
-	display: inline-block;
-	max-width: 100%;
+div.clsFilterBox {
+	display: block;
+	padding: 5px;
+	border: 1px solid #DDDDDD;
+	border-radius: 2px;
+	background-color: #F5F5F5;
+	width: 100%;
 	text-align: left;
 }
 
@@ -1287,24 +1289,54 @@ div.clsFilterBox div.tw-filters > .btn {
 	margin-left: 10px;
 }
 
+div.clsFilterBox div.tw-filters .f-apply-btn {
+	float: right;
+}
+
+div.clsFilterBox div.tw-filters .control-set,
+div.clsFilterBox div.tw-filters .input-group {
+	display: inline-table;
+	width: 200px;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+div.clsFilterBox div.tw-filters .control-set input[type="text"] {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+div.clsFilterBox div.tw-filters .input-group input[type="text"] {
+	display: table-cell;
+	position: relative;
+	z-index: 2;
+	width: 100%;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+div.clsFilterBox div.tw-filters .control-set .input-group-addon {
+	padding: 4px 12px;
+}
+
 /*** Active filters ***/
-div.clsFilterBox div.tw-filters div.f-active {
+div.clsFilterBox div.tw-filters div.f-active-items {
 	float: left;
 	display: block;
 	width: 100%;
-	padding-top: 5px;
+	padding: 5px;
 }
 
-div.clsFilterBox div.tw-filters div.f-active .f-active-title {
+div.clsFilterBox div.tw-filters div.f-active-items .f-active-title {
 	display: block;
 	margin-bottom: 5px;
 	border-bottom: 1px solid #DDDDDD;
-	padding-left: 34px;
+	padding: 0 34px;
 	font-size: 13px;
 	color: inherit;
 }
 
-div.clsFilterBox div.tw-filters div.f-active .f-active-item {
+div.clsFilterBox div.tw-filters div.f-active-items .f-active-item {
 	display: block;
 	width: 100%;
 	line-height: 20px;
@@ -1312,23 +1344,38 @@ div.clsFilterBox div.tw-filters div.f-active .f-active-item {
 	padding-left: 10px;
 }
 
-div.clsFilterBox div.tw-filters div.f-active .f-active-item .b-remove {
+div.clsFilterBox div.tw-filters div.f-active-items .g-remove {
 	display: inline-block;
 	width: 20px;
 	height: 20px;
 	line-height: 20px;
-	margin-right: 10px;
+	margin-left: 10px;
 	cursor: pointer;
 	text-align: center;
 	color: #F44336;
 }
 
-div.clsFilterBox div.tw-filters div.f-active .f-active-item .b-remove:hover {
+div.clsFilterBox div.tw-filters div.f-active-items .g-remove:hover {
 	color: #cf0000;
 }
 
+div.clsFilterBox div.tw-filters div.f-active-items .f-active-item .b-remove {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	margin-right: 5px;
+	cursor: pointer;
+	text-align: center;
+	color: #F44336;
+}
+
+div.clsFilterBox div.tw-filters div.f-active-items .f-active-item .b-remove:hover {
+	color: #cf0000;
+}
 /*** END Active filters ***/
 /*** END FilterBox ***/
+
 /*** TableView ***/
 div.clsTableView {
 	padding: 10px;
