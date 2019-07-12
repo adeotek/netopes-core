@@ -1329,6 +1329,10 @@ div.clsFilterBox div.tw-filters .control-set .input-group-addon {
 	padding: 4px 12px;
 }
 
+div.clsFilterBox div.tw-filters .f-ctrl.select2-selection--single {
+	width: 100%;
+}
+
 /*** Active filters ***/
 div.clsFilterBox div.tw-filters div.f-active-items {
 	float: left;
@@ -1484,19 +1488,6 @@ div.clsTableView div.clsTableViewActions div.tw-filters .control-set .input-grou
 div.clsTableView div.clsTableViewActions div.tw-filters .f-ctrl.select2-selection--single {
 	width: 100%;
 }
-
-
-/*div.clsTableView div.clsTableViewActions div.tw-filters .select2-container {*/
-/*	float: left;*/
-/*	margin-right: 5px;*/
-/*}*/
-/*div.clsTableView div.clsTableViewActions div.tw-filters .select2-selection--single {*/
-/*	height: 24px;*/
-/*	padding: 1px 0;*/
-/*	line-height: 20px;*/
-/*	font-size: 12px;*/
-/*	border-radius: 2px;*/
-/*}*/
 
 /*** Active filters ***/
 div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items {
