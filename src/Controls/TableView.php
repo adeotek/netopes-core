@@ -264,7 +264,7 @@ class TableView extends FilterControl {
                 $this->persistent_state=FALSE;
             }
         }//if($this->persistent_state)
-        $this->tag_id=$this->tag_id ? $this->tag_id : $this->chash;
+        $this->tag_id=$this->tag_id ? $this->tag_id : $this->cHash;
         if(Module::GetDRights($this->module,$this->method,'export')) {
             $this->exportable=FALSE;
         }
@@ -350,22 +350,22 @@ class TableView extends FilterControl {
                 $onloadCallback=FALSE;
                 $sdir=$params->safeGet('direction','asc','is_notempty_string');
                 $sdir=$sdir=='asc' ? 'desc' : 'asc';
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
                 break;
             case 'gotopage':
                 $targetId=$this->target;
                 $onloadCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
                 break;
             case 'export_all':
                 $targetId='errors';
                 $execCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
                 break;
             case 'refresh':
             default:
                 $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
                 break;
         }//END switch
         }//if(is_null($command))
@@ -541,9 +541,9 @@ class TableView extends FilterControl {
         }//if($this->exportable && $this->export_all && $this->with_pagination)
         if($this->export_button) {
             if($this->compact_mode) {
-                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::GetButton('export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->cHash.'" target="_blank" title="'.Translate::GetButton('export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
             } else {
-                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::GetButton('export').'</a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->cHash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::GetButton('export').'</a>'."\n";
             }//if($this->compact_mode)
         }//if($this->export_button)
         if(strlen($this->ds_class) && strlen($this->ds_method)) {
@@ -611,8 +611,8 @@ class TableView extends FilterControl {
             $result.="\t\t\t".'<span class="f-title">'.Translate::GetLabel('filters').'</span>'."\n";
         }
         $result.="\t\t".'<div class="tw-actions-container">'."\n";
-        $result.=$this->GetActionsBarControls();
         $result.=$this->GetFilterBox($params);
+        $result.=$this->GetActionsBarControls();
         $result.="\t\t".'</div>'."\n";
         $result.="\t\t".'<div class="clearfix"></div>'."\n";
         return $result;
@@ -1522,7 +1522,7 @@ class TableView extends FilterControl {
                     $t_value.=($rLvl>1 ? str_pad('',strlen($this->tree_ident) * ($rLvl - 1),$this->tree_ident) : '');
                     if($hasChild) {
                         $t_s_val=$rTreeState ? 1 : 0;
-                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
+                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->cHash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
                     } else {
                         $t_value.='<span class="clsTreeGridBtnNoChild"></span>';
                     }//if($hasChild)
@@ -1935,7 +1935,7 @@ class TableView extends FilterControl {
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
                     $ssortby=NApp::GetPageParam($this->sessionHash.'#sortby');
                     $this->sortby=get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby;
-                    $this->filters=$this->ProcessActiveFilters($params);
+                    $this->ProcessActiveFilters($params);
                     break;
                 case 'reset':
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
@@ -1943,7 +1943,7 @@ class TableView extends FilterControl {
                         'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
                         'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
                     ];
-                    $this->filters=$this->ProcessActiveFilters($params);
+                    $this->ProcessActiveFilters($params);
                     break;
                 default:
                     $this->current_page=NApp::GetPageParam($this->sessionHash.'#currentpage');
@@ -1961,7 +1961,7 @@ class TableView extends FilterControl {
                     }//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
                     if(!$this->filters) {
-                        $this->filters=$this->ProcessActiveFilters($params);
+                        $this->ProcessActiveFilters($params);
                     }//if(!$this->filters)
                     break;
             }//END switch
@@ -1974,7 +1974,7 @@ class TableView extends FilterControl {
                 'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
                 'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
             ];
-            $this->filters=$this->ProcessActiveFilters($params);
+            $this->ProcessActiveFilters($params);
         }//if($this->persistent_state)
     }//END protected function LoadState
 
@@ -2021,7 +2021,7 @@ class TableView extends FilterControl {
                     'layouts'=>[$this->export_data],
                     'summarize'=>$this->with_totals,
                 ];
-                $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->chash.'.tmpexp';
+                $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'.tmpexp';
                 //NApp::Dlog($cachefile,'$cachefile');
                 try {
                     if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
@@ -2072,7 +2072,7 @@ class TableView extends FilterControl {
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
                     $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
                 $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2104,7 +2104,7 @@ class TableView extends FilterControl {
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
                     $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
                 $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2224,7 +2224,7 @@ class TableView extends FilterControl {
             'layouts'=>[$this->export_data],
             'summarize'=>$this->with_totals,
         ];
-        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->chash.'_all.tmpexp';
+        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'_all.tmpexp';
         // NApp::Dlog($cachefile,'$cachefile');
         try {
             if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
@@ -2243,7 +2243,7 @@ class TableView extends FilterControl {
         if(!$output) {
             return;
         }
-        $url=NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->chash;
+        $url=NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->cHash;
         NApp::Ajax()->ExecuteJs("OpenUrl('{$url}',true)");
     }//END public function ExportAll
 

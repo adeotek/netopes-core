@@ -27,11 +27,32 @@ abstract class FilterControl {
     /**
      * @var    string|null Control instance hash
      */
-    protected $chash=NULL;
+    protected $cHash=NULL;
     /**
-     * @var    array Filters values
+     * @var    array Active filters array
+     * Item elements:
+     * - 'type'                     >> 'f_type'      : string (mandatory)   - filter type (filter field or unique key)
+     * - 'group_id'                 >> 'g_id'        : string (mandatory)   - group id
+     * - 'logical_operator'         >> 'l_op'        : string (mandatory)   - logical operator
+     * - 'condition_type'           >> 'f_c_type'    : string (mandatory)   - filter condition type
+     * - 'field'                    >> 'f_field'     : string               - filter field
+     * - 'data_type'                >> 'f_d_type'    : string               - filter data type
+     * - 'value'                    >> 'f_value'     : mixed (mandatory)    - filter value
+     * - 'display_value'            >> 'f_d_value'   : mixed                - filter display value
+     * - 'end_value'                >> 'f_e_value'   : mixed                - filter end value
+     * - 'end_display_value'        >> 'f_e_d_value' : string               - filter value field
+     * - 'value_field'              >> 'v_field'     : string               - filter value field
+     * - 'value_data_type'          >> 'v_d_type'    : string               - filter value data type
+     * - 'value_value'              >> 'v_value'     : mixed                - filter value value
+     * - 'value_display_value'      >> 'v_d_value'   : string               - filter value display value
+     * - 'value_end_value'          >> 'v_e_value'   : mixed                - filter value end value
+     * - 'value_end_display_value'  >> 'v_e_d_value' : mixed                - filter value end display value
      */
     protected $filters=[];
+    /**
+     * @var    array Filters groups list
+     */
+    protected $groups=[];
     /**
      * @var    string|null Filter condition type value source
      */
@@ -85,6 +106,10 @@ abstract class FilterControl {
      * @var    string|null Quick search data source parameter name (NULL=off)
      */
     public $qsearch=NULL;
+    /**
+     * @var    bool Switch filter groups on/off
+     */
+    public $with_filter_groups=FALSE;
 
     /**
      * FilterControl class constructor method
@@ -93,7 +118,7 @@ abstract class FilterControl {
      * @return void
      */
     public function __construct($params=NULL) {
-        $this->chash=AppSession::GetNewUID();
+        $this->cHash=AppSession::GetNewUID();
         $this->base_class='cls'.get_class_basename($this);
         $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
         $this->controls_size=NApp::$theme->GetControlsDefaultSize();
@@ -115,7 +140,7 @@ abstract class FilterControl {
      */
     protected function GetThis($encrypted=TRUE): string {
         if($encrypted) {
-            return GibberishAES::enc(serialize($this),$this->chash);
+            return GibberishAES::enc(serialize($this),$this->cHash);
         }
         return serialize($this);
     }//END protected function GetThis
@@ -131,20 +156,17 @@ abstract class FilterControl {
     }//END public function SetBaseClass
 
     /**
-     * Gets the filter box html
+     * Check if filter is active
      *
-     * @param string|int Key (type) of the filter to be checked
+     * @param string|null Key (type) of the filter to be checked
      * @return bool Returns TRUE if filter is used and FALSE otherwise
      */
-    protected function CheckIfFilterIsActive($key): bool {
-        if(!is_numeric($key) && (!is_string($key) || !strlen($key))) {
-            return FALSE;
-        }
-        if(!is_array($this->filters) || !count($this->filters)) {
+    protected function CheckIfFilterIsActive(?string $key): bool {
+        if(!strlen($key) || !is_array($this->filters) || !count($this->filters)) {
             return FALSE;
         }
         foreach($this->filters as $f) {
-            if((string)get_array_value($f,'type','','is_string')==(string)$key) {
+            if(get_array_value($f,'type','','is_string')==$key) {
                 return TRUE;
             }
         }//END foreach
@@ -152,74 +174,122 @@ abstract class FilterControl {
     }//protected function CheckIfFilterIsActive
 
     /**
+     * Generate multi-dimensional array with filter groups from an array of filters
+     *
+     * @param array|null $filters
+     * @return array Returns filter groups array
+     */
+    protected function GenerateFilterGroups(?array $filters): array {
+        if(!is_array($filters) || !count($filters)) {
+            return [];
+        }
+        $groups=array_group_by_hierarchical('group_id',$filters,FALSE,'_');
+        return $groups;
+    }//END protected function GenerateFilterGroups
+
+    /**
+     * Process active filter item
+     *
+     * @param \NETopes\Core\App\Params $item
+     * @param array                    $filters
+     * @return bool Returns TRUE if filter is valid and FALSE otherwise
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessFilterItem(Params $item,array &$filters): bool {
+        // NApp::Dlog($item->toArray(),'ProcessFilterItem>>$item');
+        $op=$item->safeGet('l_op',NULL,'?is_notempty_string');
+        $cType=$item->safeGet('f_c_type',NULL,'?is_notempty_string');
+        $type=$item->safeGet('f_type',NULL,'?is_notempty_string');
+        if(!strlen($op) || !strlen($cType) || !strlen($type)) {
+            return FALSE;
+        }
+        $isDsParam=$item->safeGet('is_ds_param',0,'is_numeric');
+        $groupId=$item->safeGet('g_id',NULL,'?is_string');
+        $groupType=$item->safeGet('g_type',1,'is_integer');
+        // filter
+        $dType=$item->safeGet('f_d_type','','is_string');
+        $field=$item->safeGet('f_field',NULL,'?is_string');
+        if(in_array($dType,['','string'])) {
+            $value=$item->safeGet('f_value',NULL,'?is_string');
+            $eValue=$item->safeGet('f_e_value',NULL,'?is_string');
+        } else {
+            $value=$item->safeGet('f_value',NULL,'?is_notempty_string');
+            $eValue=$item->safeGet('f_e_value',NULL,'?is_notempty_string');
+        }//if(in_array($dType,['','string']))
+        $dValue=$item->safeGet('f_d_value',NULL,'is_string');
+        $edValue=$item->safeGet('f_e_d_value',NULL,'is_string');
+        // filter value field
+        $vField=$item->safeGet('v_field',NULL,'?is_string');
+        $vdType=$item->safeGet('v_d_type',NULL,'?is_string');
+        if(in_array($vdType,['','string'])) {
+            $vValue=$item->safeGet('v_value',NULL,'?is_string');
+            $veValue=$item->safeGet('v_e_value',NULL,'?is_string');
+        } else {
+            $vValue=$item->safeGet('v_value',NULL,'?is_notempty_string');
+            $veValue=$item->safeGet('v_e_value',NULL,'?is_notempty_string');
+        }//if(in_array($dType,['','string']))
+        $vdValue=$item->safeGet('v_d_value',NULL,'isset');
+        $vedValue=$item->safeGet('v_e_d_value',NULL,'isset');
+        if($groupType==0) {
+            $groupId='_'.(count($this->groups) + 1);
+        } elseif($groupType==2) {
+            $currentGroup=get_array_value($this->groups,explode('-',trim($groupId,'_')),[],'is_array');
+            $groupId.='-'.(count($currentGroup) + 1);
+        } elseif(!strlen($groupId)) {
+            $groupId='_1';
+        }
+        $filters[]=['type'=>$type,'group_id'=>$groupId,'operator'=>$op,'is_ds_param'=>$isDsParam,'condition_type'=>$cType,'data_type'=>$dType,'field'=>$field,'value'=>$value,'end_value'=>$eValue,'display_value'=>$dValue,'end_display_value'=>$edValue,'value_field'=>$vField,'value_data_type'=>$vdType,'value_value'=>$vValue,'value_end_value'=>$veValue,'value_display_value'=>$vdValue,'value_end_display_value'=>$vedValue,'guid'=>uniqid()];
+        return TRUE;
+    }//END protected function ProcessFilterItem
+
+    /**
      * Process the active filters (adds/removes filters)
      *
      * @param \NETopes\Core\App\Params $params Parameters for processing
-     * @return array Returns the updated filters array
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessActiveFilters(Params $params): array {
-        $action=$params->safeGet('faction',NULL,'is_notempty_string');
+    protected function ProcessActiveFilters(Params $params): void {
+        // NApp::Dlog($params->toArray(),'ProcessActiveFilters>>$params');
+        $action=$params->safeGet('f_action',NULL,'is_notempty_string');
         // NApp::Dlog($action,'$action');
         // NApp::Dlog($this->filters,'$this->filters');
+        if(!is_array($this->filters)) {
+            $this->filters=[];
+        }
         if(!$action || !in_array($action,['add','remove','group_remove','clear'])) {
-            return $this->filters ?? [];
+            return;
         }
         if($action=='clear') {
-            return [];
+            $this->filters=[];
+            $this->groups=[];
+            return;
         }
         if($action=='remove') {
-            $key=$params->safeGet('fkey',NULL,'is_string');
-            if(!is_numeric($key) || !array_key_exists($key,$this->filters)) {
-                return $this->filters;
+            $key=$params->safeGet('f_guid',NULL,'is_string');
+            if(strlen($key)) {
+                $this->filters=array_filter($this->filters,function($filter) use ($key) {
+                    return $filter['guid']!==$key;
+                });
             }
-            $lFilters=$this->filters;
-            unset($lFilters[$key]);
-            return $lFilters;
-        }//if($action=='remove')
-        if($action=='group_remove') {
-            $groupUid=$params->safeGet('group_uid',NULL,'is_string');
-            return array_filter($this->filters,function($filter) use ($groupUid) {
-                return $filter['group_uid']!==$groupUid;
+        } elseif($action=='group_remove') {
+            $groupId=$params->safeGet('g_id',NULL,'?is_string');
+            if(strlen($groupId)) {
+                $this->filters=array_filter($this->filters,function($filter) use ($groupId) {
+                    return $filter['group_id']!==$groupId;
             });
-        }//if($action=='group_remove')
-        $lFilters=$this->filters ?? [];
-        $multiple=$params->safeGet('multi_f',[],'is_array');
+            }//if(strlen($groupId))
+        } else {
+            $this->ProcessFilterItem($params,$this->filters);
+            $multiple=$params->safeGet('multi_filters',[],'is_array');
         if(count($multiple)) {
             foreach($multiple as $fParams) {
-                $op=get_array_value($fParams,'fop',NULL,'is_notempty_string');
-                $type=get_array_value($fParams,'ftype',NULL,'is_notempty_string');
-                $cond=get_array_value($fParams,'fcond',NULL,'is_notempty_string');
-                $value=get_array_value($fParams,'fvalue',NULL,'isset');
-                $sValue=get_array_value($fParams,'fsvalue',NULL,'isset');
-                $dValue=get_array_value($fParams,'fdvalue',NULL,'isset');
-                $sdValue=get_array_value($fParams,'fsdvalue',NULL,'isset');
-                $fdType=get_array_value($fParams,'data_type','','is_string');
-                $isDsParam=get_array_value($fParams,'is_ds_param',0,'is_numeric');
-                $groupUid=get_array_value($fParams,'group_uid',uniqid(),'is_string');
-                if(!$op || !isset($type) || !$cond || !isset($value)) {
-                    continue;
-                }
-                $lFilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$sValue,'dvalue'=>$dValue,'sdvalue'=>$sdValue,'data_type'=>$fdType,'is_ds_param'=>$isDsParam,'group_uid'=>$groupUid];
+                $this->ProcessFilterItem(new Params($fParams),$this->filters);
             }//END foreach
-        } else {
-            $op=$params->safeGet('fop',NULL,'is_notempty_string');
-            $type=$params->safeGet('ftype',NULL,'is_notempty_string');
-            $cond=$params->safeGet('fcond',NULL,'is_notempty_string');
-            $value=$params->safeGet('fvalue',NULL,'isset');
-            $sValue=$params->safeGet('fsvalue',NULL,'isset');
-            $dValue=$params->safeGet('fdvalue',NULL,'isset');
-            $sdValue=$params->safeGet('fsdvalue',NULL,'isset');
-            $fdType=$params->safeGet('data_type','','is_string');
-            $isDsParam=$params->safeGet('is_ds_param',0,'is_numeric');
-            $groupUid=$params->safeGet('group_uid',uniqid(),'is_string');
-            if(!$op || !isset($type) || !$cond || !isset($value)) {
-                return $this->filters ?? [];
-            }
-            $lFilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$sValue,'dvalue'=>$dValue,'sdvalue'=>$sdValue,'data_type'=>$fdType,'is_ds_param'=>$isDsParam,'group_uid'=>$groupUid];
-        }//if(count($multif))
-        // NApp::Dlog($lfilters,'$lfilters');
-        return $lFilters;
+        }//if(count($multiple))
+        }//if($action=='remove')
+        // NApp::Dlog($this->filters,'$this->filters');
+        $this->groups=$this->GenerateFilterGroups($this->filters);
+        // NApp::Dlog($this->groups,'$this->groups');
     }//END protected function ProcessActiveFilters
 
     /**
@@ -233,45 +303,67 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetFilterActionCommand(string $type,Params $params,?string &$targetId=NULL,?string $method=NULL): ?string {
-        $params=is_object($params) ? $params : new Params($params);
+        $params=($params instanceof $params) ? $params : new Params($params);
         $targetId=$this->target;
         switch($type) {
-            case 'filters.apply':
-                $method=$method ?? 'Show';
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'apply' } }";
-                break;
-            case 'filters.update':
+            case 'filters.render':
                 $method=$method ?? 'ShowFiltersBox';
                 $targetId=$this->tag_id.'-filter-box';
-                $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'update', 'group_uid': '{nGet|{$this->tag_id}-f-group:value}', 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
-                break;
-            case 'filters.remove':
-                $method=$method ?? 'Show';
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_string')."', 'sessact': 'filters' } }";
-                break;
-            case 'filters.group_remove':
-                $method=$method ?? 'Show';
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'group_remove', 'group_uid': '".$params->safeGet('group_uid','','is_string')."', 'sessact': 'filters' } }";
-                break;
-            case 'filters.clear':
-                $method=$method ?? 'Show';
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction':'clear', 'sessact': 'filters' } }";
+                $conditionType=$params->safeGet('f_c_type','','is_string');
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'render', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '".(strlen($conditionType) ? '{nGet|'.$conditionType.'}' : '')."', 'sessact': 'filters' } }";
                 break;
             case 'filters.add':
                 $method=$method ?? 'Show';
-                $fsValue=$params->safeGet('fsvalue','','is_string');
-                $fdvalue=$params->safeGet('fdvalue','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
-                if(strlen($fdvalue) && strpos($fdvalue,'{nEval|')===FALSE && strpos($fdvalue,'{nGet|')===FALSE) {
-                    $fdvalue='{nGet|'.$fdvalue.'}';
+                $dataType=$params->safeGet('f_d_type','','is_string');
+                $field=$params->safeGet('f_field','','is_string');
+                $isDsParam=$params->safeGet('is_ds_param',0,'is_integer');
+                $fdValue=$params->safeGet('f_d_value','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
+                if(strlen($fdValue) && strpos($fdValue,'{nEval|')===FALSE && strpos($fdValue,'{nGet|')===FALSE) {
+                    $fdValue='{nGet|'.$fdValue.'}';
                 }
-                $fsdvalue=$params->safeGet('fsdvalue','','is_string');
-                if(strlen($fsdvalue) && strpos($fsdvalue,'{nEval|')===FALSE && strpos($fsdvalue,'{nGet|')===FALSE) {
-                    $fsdvalue='{nGet|'.$fsdvalue.'}';
-                }
-                $fDataType=$params->safeGet('data_type','','is_string');
-                $isDsParam=$params->safeGet('is_ds_param',0,'is_numeric');
-                $command="{ 'control_hash': '{$this->chash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_value_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{$fdvalue}', 'fsdvalue': '{$fsdvalue}', 'data_type': '{$fDataType}', 'is_ds_param': '{$isDsParam}', 'group_uid': '{nGet|{$this->tag_id}-f-group:value}' } }";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'add', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'f_d_type': '{$dataType}',".(strlen($field) ? " ' f_field': '{$field}'," : '')." 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '{nGet|{$this->filter_cond_value_source}}', 'f_value': '{nGet|".$params->safeGet('f_value',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'f_d_value': '{$fdValue}', ";
+                $feValue=$params->safeGet('f_e_value','','is_string');
+                if(strlen($feValue)) {
+                    $fedValue=$params->safeGet('f_e_d_value','','is_string');
+                    if(strlen($fedValue) && strpos($fedValue,'{nEval|')===FALSE && strpos($fedValue,'{nGet|')===FALSE) {
+                        $fedValue='{nGet|'.$fedValue.'}';
+                    }
+                    $command.="'f_e_value': '{$feValue}', 'f_e_d_value': '{$fedValue}', ";
+                }//if(strlen($feValue))
+                $vField=$params->safeGet('v_field',NULL,'?is_string');
+                if(strlen($vField)) {
+                    $vDataType=$params->safeGet('v_data_type','','is_string');
+                    $vdValue=$params->safeGet('v_d_value','{nGet|'.$this->tag_id.'-f-v-value:value}','is_notempty_string');
+                    if(strlen($vdValue) && strpos($vdValue,'{nEval|')===FALSE && strpos($vdValue,'{nGet|')===FALSE) {
+                        $vdValue='{nGet|'.$vdValue.'}';
+                    }
+                    $command.="'v_field': '{$vField}', 'v_d_type': '{$vDataType}', 'v_value': '{nGet|".$params->safeGet('v_value',$this->tag_id.'-f-v-value:value','is_notempty_string')."}', 'v_d_value': '{$vdValue}', ";
+                    $veValue=$params->safeGet('v_e_value','','is_string');
+                    if(strlen($veValue)) {
+                        $vedValue=$params->safeGet('v_e_d_value','','is_string');
+                        if(strlen($vedValue) && strpos($vedValue,'{nEval|')===FALSE && strpos($vedValue,'{nGet|')===FALSE) {
+                            $vedValue='{nGet|'.$vedValue.'}';
+                        }
+                        $command.="'v_e_value': '{$veValue}', 'v_e_d_value': '{$vedValue}', ";
+                    }//if(strlen($veValue))
+                }//if(strlen($vField))
+                $command.="'is_ds_param': '{$isDsParam}', 'sessact': 'filters' } }";
+                break;
+            case 'filters.remove':
+                $method=$method ?? 'Show';
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'remove', 'f_guid': '".$params->safeGet('f_guid','','is_string')."', 'sessact': 'filters' } }";
+                break;
+            case 'filters.group_remove':
+                $method=$method ?? 'Show';
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'group_remove', 'g_id': '".$params->safeGet('g_id','','is_string')."', 'sessact': 'filters' } }";
+                break;
+            case 'filters.clear':
+                $method=$method ?? 'Show';
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action':'clear', 'sessact': 'filters' } }";
+                break;
+            case 'filters.apply':
+                $method=$method ?? 'Show';
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'apply' } }";
                 break;
             default:
                 $command=NULL;
@@ -281,22 +373,43 @@ abstract class FilterControl {
     }//END protected function GetFilterActionCommand
 
     /**
+     * @param array|null  $groups
+     * @param string|null $selectedValue
+     * @param string|null $parent
+     * @param int         $level
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetFilterGroupsOptions(?array $groups,?string &$selectedValue=NULL,?string $parent=NULL,int $level=0): ?string {
+        $result='';
+        foreach($groups as $gKey=>$group) {
+            $gId=(strlen($parent) ? $parent.'-' : '_').trim($gKey,'_');
+            $gName=(strlen($parent) ? str_replace('-','.',trim($parent,'_')).'.' : '').trim($gKey,'_');
+            $lSelected=$selectedValue==$gId ? ' selected="selected"' : '';
+            $result.="\t\t\t\t\t".'<option value="'.$gId.'"'.$lSelected.'>&nbsp;['.$gName.']</option>'."\n";
+            $result.=$this->GetFilterGroupsOptions($group,$selectedValue,$gId,($level + 1));
+        }//END foreach
+        return $result;
+    }//END protected function GetFilterGroupsOptions
+
+    /**
      * @param string|null $selectedValue
      * @return string
      * @throws \NETopes\Core\AppException
      */
     protected function GetFilterGroupControl(?string $selectedValue=NULL): ?string {
-        $filtersGroups=array_group_by('group_uid',$this->filters);
-        if(!count($filtersGroups)) {
-            return NULL;
-        }
+        if(!$this->with_filter_groups || !is_array($this->filters) || !count($this->filters)) {
+            $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group" type="hidden" value="'.($this->with_filter_groups ? $selectedValue : '_1').'">'."\n";
+            $result.="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group-type" type="hidden" value="1">'."\n";
+            return $result;
+        }//if(!$this->with_filter_groups || !is_array($this->filters) || !count($this->filters))
         $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-group" class="clsComboBox form-control f-ctrl f-group">'."\n";
-        $result.="\t\t\t\t\t".'<option value="'.uniqid().'"'.(strlen($selectedValue) ? '' : ' selected="selected"').'>'.Translate::GetLabel('new_group').'</option>'."\n";
-        $gIndex=1;
-        foreach($filtersGroups as $gid=>$group) {
-            $lSelected=$selectedValue==$gid ? ' selected="selected"' : '';
-            $result.="\t\t\t\t\t".'<option value="'.$gid.'"'.$lSelected.'>['.$gIndex++.']</option>'."\n";
-        }//END foreach
+        $result.=$this->GetFilterGroupsOptions($this->groups,$selectedValue);
+        $result.="\t\t\t\t".'</select>'."\n";
+        $result.="\t\t\t\t".'<select id="'.$this->tag_id.'-f-group-type" class="clsComboBox form-control f-ctrl f-group-type">'."\n";
+        $result.="\t\t\t\t\t".'<option value="1">'.Translate::GetLabel('current_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="2">'.Translate::GetLabel('new_sub_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="0">'.Translate::GetLabel('new_group').'</option>'."\n";
         $result.="\t\t\t\t".'</select>'."\n";
         return $result;
     }//END protected function GetFilterGroupControl
@@ -307,36 +420,39 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetLogicalSeparatorControl(?string $selectedValue=NULL): string {
-        $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-operator" class="clsComboBox form-control f-ctrl f-operator">'."\n";
-        /** @var \NETopes\Core\Data\VirtualEntity $c */
-        foreach(DataProvider::Get('_Custom\Offline','FilterOperators') as $c) {
-            $lSelected=$selectedValue==$c->getProperty('value') ? ' selected="selected"' : '';
-            $result.="\t\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$lSelected.'>'.$c->getProperty('name').'</option>'."\n";
-        }//END foreach
+        if(!is_array($this->filters) || !count($this->filters)) {
+            $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-l-op" type="hidden" value="'.($selectedValue ?? 'and').'">'."\n";
+            return $result;
+        }//if(is_array($this->filters) && count($this->filters))
+        $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-l-op" class="clsComboBox form-control f-ctrl f-l-op">'."\n";
+        $result.="\t\t\t\t\t".'<option value="and"'.($selectedValue=='and' ? ' selected="selected"' : '').'>'.Translate::GetLabel('and').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="or"'.($selectedValue=='or' ? ' selected="selected"' : '').'>'.Translate::GetLabel('or').'</option>'."\n";
         $result.="\t\t\t\t".'</select>'."\n";
         return $result;
     }//END protected function GetLogicalSeparatorControl
 
     /**
-     * @param array                    $items
      * @param \NETopes\Core\App\Params $params
-     * @param string|null              $conditionType
+     * @param array                    $items
+     * @param string|null              $filterType
      * @param array|null               $selectedItem
      * @param bool                     $isQuickSearch
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFiltersSelectorControl(array $items,Params $params,?string &$conditionType=NULL,?array &$selectedItem=NULL,bool &$isQuickSearch=FALSE): string {
-        $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-type" class="clsComboBox form-control f-ctrl f-type" onchange="'.$this->GetActionCommand('filters.update').'">'."\n";
-        $cfType=$params->safeGet('type','','is_string');
+    protected function GetFiltersSelectorControl(Params $params,array $items,?string &$filterType=NULL,?array &$selectedItem=NULL,bool &$isQuickSearch=FALSE): string {
+        $result="\t\t\t\t".'<select id="'.$this->tag_id.'-f-type" class="clsComboBox form-control f-ctrl f-type" onchange="'.$this->GetActionCommand('filters.render').'">'."\n";
+        $lFilterType=$params->safeGet('f_type','','is_string');
         $isQuickSearchActive=$this->CheckIfFilterIsActive(0);
         if($this->qsearch && !$isQuickSearchActive) {
-            if($cfType=='0' || !strlen($cfType)) {
+            if($lFilterType=='0' || !strlen($lFilterType)) {
                 $lSelected=' selected="selected"';
                 $isQuickSearch=TRUE;
+                $filterType='0';
+                $selectedItem=NULL;
             } else {
                 $lSelected='';
-            }//if($cfType=='0' || !strlen($cfType))
+            }//if($lFilterType=='0' || !strlen($lFilterType))
             $result.="\t\t\t\t\t".'<option value="0"'.$lSelected.'>'.Translate::GetLabel('quick_search').'</option>'."\n";
         }//if($this->qsearch && !$isQuickSearchActive)
         foreach($items as $k=>$v) {
@@ -347,12 +463,16 @@ abstract class FilterControl {
             if($isDsParam && $this->CheckIfFilterIsActive($k)) {
                 continue;
             }
-            if($cfType==$k || (!strlen($cfType) && !$isQuickSearch && !$selectedItem)) {
+            if($lFilterType==$k || (!strlen($lFilterType) && !$isQuickSearch && !$selectedItem)) {
                 $lSelected=' selected="selected"';
-                $conditionType=get_array_value($v,'filter_type',NULL,'?is_string');
+                $filterType=get_array_value($v,'filter_type',NULL,'?is_string');
                 $selectedItem=$v;
             } else {
                 $lSelected='';
+                if(is_null($filterType)) {
+                    $filterType=get_array_value($v,'filter_type',NULL,'?is_string');
+                    $selectedItem=$v;
+                }//if(is_null($filterType))
             }//if($cfType==$k || (!strlen($cfType) && !$isQuickSearch && !$selectedItem))
             $result.="\t\t\t\t\t".'<option value="'.$k.'"'.$lSelected.'>'.get_array_value($v,'label',$k,'is_notempty_string').'</option>'."\n";
         }//END foreach
@@ -362,41 +482,248 @@ abstract class FilterControl {
 
     /**
      * @param \NETopes\Core\App\Params $params
-     * @param string|null              $conditionType
+     * @param string|null              $filterType
      * @param array|null               $selectedItem
      * @param bool                     $isQuickSearch
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetConditionTypeControl(Params $params,?string $conditionType,?array $selectedItem,bool $isQuickSearch): string {
+    protected function GetConditionTypeControl(Params $params,?string $filterType,?array $selectedItem,bool $isQuickSearch): string {
         $fDataType=get_array_value($selectedItem,'data_type','','is_string');
-        $fConditionType=$params->safeGet('f-cond-type','','is_string');
-        $this->filter_cond_value_source=$this->tag_id.'-f-cond-type:value';
-        $fConditionDisplayType=get_array_value($selectedItem,'show_filter_cond_type',get_array_value($selectedItem,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
-        if($fConditionDisplayType===TRUE && !$isQuickSearch) {
+        $conditionType=$params->safeGet('f_c_type','','is_string');
+        $this->filter_cond_value_source=$this->tag_id.'-f-c-type:value';
+        $conditionDisplayType=get_array_value($selectedItem,'show_filter_cond_type',get_array_value($selectedItem,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
+        if($conditionDisplayType===TRUE && !$isQuickSearch) {
             $filterOptions='';
             $filterConditionTypeOnChange='';
-            $fConditionsType=strtolower(strlen($conditionType) ? $conditionType : $fDataType);
-            $fConditions=DataProvider::Get('_Custom\Offline','FilterConditionsTypes',['type'=>$fConditionsType]);
+            $conditionsType=strtolower(strlen($filterType) ? $filterType : $fDataType);
+            $filterConditions=DataProvider::Get('_Custom\Offline','FilterConditionsTypes',['type'=>$conditionsType]);
             /** @var \NETopes\Core\Data\VirtualEntity $c */
-            foreach($fConditions as $c) {
-                $lSelected=$fConditionType==$c->getProperty('value') ? ' selected="selected"' : '';
+            foreach($filterConditions as $c) {
+                $lSelected=$conditionType==$c->getProperty('value') ? ' selected="selected"' : '';
                 $filterOptions.="\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$lSelected.'>'.$c->getProperty('name').'</option>'."\n";
                 if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><') {
-                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.update',['fctype'=>$this->tag_id.'-f-cond-type:value']).'"';
+                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.render',['f_c_type'=>$this->tag_id.'-f-c-type:value']).'"';
                 }//if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><')
             }//END foreach
-            $result="\t\t\t".'<select id="'.$this->tag_id.'-f-cond-type" class="clsComboBox form-control f-ctrl f-cond-type"'.$filterConditionTypeOnChange.'>'."\n";
+            $result="\t\t\t".'<select id="'.$this->tag_id.'-f-c-type" class="clsComboBox form-control f-ctrl f-c-type"'.$filterConditionTypeOnChange.'>'."\n";
             $result.=$filterOptions;
             $result.="\t\t\t".'</select>'."\n";
-        } elseif($fConditionDisplayType!=='data') {
-            $result="\t\t\t\t".'<input type="hidden" id="'.$this->tag_id.'-f-cond-type" value="'.($isQuickSearch ? 'like' : '==').'">'."\n";
+        } elseif($conditionDisplayType!=='data') {
+            $result="\t\t\t\t".'<input type="hidden" id="'.$this->tag_id.'-f-c-type" value="'.($isQuickSearch ? 'like' : '==').'">'."\n";
         } else {
             $this->filter_cond_value_source=NULL;
             $result='';
-        }//if($fConditionDisplayType===TRUE && !$isQuickSearch)
+        }//if($conditionDisplayType===TRUE && !$isQuickSearch)
         return $result;
     }//END protected function GetConditionTypeControl
+
+    /**
+     * @param \NETopes\Core\App\Params $params
+     * @param string|null              $filterType
+     * @param array|null               $selectedItem
+     * @param array|null               $onClickActionParams
+     * @param string|null              $filterValueField
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetFilterValueControl(Params $params,?string $filterType,?array $selectedItem,?array &$onClickActionParams=[],?string $filterValueField=NULL): string {
+        $isDsParam=intval(strlen(get_array_value($selectedItem,'ds_param','','is_string'))>0);
+        $conditionType=$params->safeGet('f-c-type','','is_string');
+        if(strlen($filterValueField)) {
+            $isFilterValueField=TRUE;
+            $fvName='f-v-value';
+            $fevName='f-v-e-value';
+            $dataType=get_array_value($selectedItem,'filter_value_data_type','','is_string');
+            $ctrlParams=get_array_value($selectedItem,'filter_value_params',[],'is_array');
+        } else {
+            $isFilterValueField=FALSE;
+            $fvName='f-value';
+            $fevName='f-e-value';
+            $dataType=get_array_value($selectedItem,'data_type','','is_string');
+        $ctrlParams=get_array_value($selectedItem,'filter_params',[],'is_array');
+        }//if(strlen($filterValueField))
+        $ctrlParams['tag_id']=$this->tag_id.'-'.$fvName;
+        $ctrlParams['class']='f-ctrl '.$fvName;
+        $ctrlParams['container']=FALSE;
+        $ctrlParams['no_label']=TRUE;
+        $ctrlParams['postable']=FALSE;
+        $subType=NULL;
+        $fValue=NULL;
+        $dValue=NULL;
+        $eValue=NULL;
+        $edValue=NULL;
+        switch(strtolower($filterType)) {
+            case 'smartcombobox':
+                $ctrlParams['placeholder']=get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
+                $ctrlParams['allow_clear']=get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
+                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+                if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
+                }//if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
+                $filterValueControl=new SmartComboBox($ctrlParams);
+                $dValue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-'.$fvName.'\',false)}';
+                if(!$isFilterValueField && !$this->filter_cond_value_source) {
+                    $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
+                }
+                // $filterValueControl->ClearBaseClass();
+                $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                if($isFilterValueField) {
+                    $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
+                } else {
+                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                }//if($isFilterValueField)
+                break;
+            case 'combobox':
+                if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text'])) {
+                    $ctrlParams['please_select_text']=Translate::GetLabel('please_select');
+                    $ctrlParams['please_select_value']=NULL;
+                }//if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text']))
+                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+                if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
+                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
+                $filterValueControl=new ComboBox($ctrlParams);
+                $dValue=$this->tag_id.'-'.$fvName.':option';
+                if(!$isFilterValueField && !$this->filter_cond_value_source) {
+                    $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
+                }
+                // $filterValueControl->ClearBaseClass();
+                $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                if($isFilterValueField) {
+                    $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
+                } else {
+                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                }//if($isFilterValueField)
+                break;
+            case 'treecombobox':
+                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
+                if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
+                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
+                $filterValueControl=new TreeComboBox($ctrlParams);
+                $dValue=$this->tag_id.'-'.$fvName.'-cbo:value';
+                if(!$isFilterValueField && !$this->filter_cond_value_source) {
+                    $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
+                }
+                // $filterValueControl->ClearBaseClass();
+                $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                if($isFilterValueField) {
+                    $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
+                } else {
+                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                }//if($isFilterValueField)
+                break;
+            case 'checkbox':
+                $ctrlParams['value']=0;
+                $filterValueControl=new CheckBox($ctrlParams);
+                $dValue=$this->tag_id.'-'.$fvName.':value';
+                if(!$isFilterValueField && !$this->filter_cond_value_source) {
+                    $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
+                }
+                // $filterValueControl->ClearBaseClass();
+                $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                if($isFilterValueField) {
+                    $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
+                } else {
+                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                }//if($isFilterValueField)
+                break;
+            case 'datepicker':
+            case 'date':
+            case 'datetime':
+                $subType='DatePicker';
+            case 'numerictextbox':
+            case 'numeric':
+                $subType=$subType ? $subType : 'NumericTextBox';
+            default:
+                if(!$subType) {
+                    switch($dataType) {
+                        case 'date':
+                        case 'date_obj':
+                        case 'datetime':
+                        case 'datetime_obj':
+                            $subType='DatePicker';
+                            break;
+                        case 'numeric':
+                            $subType='NumericTextBox';
+                            break;
+                        default:
+                            $subType='TextBox';
+                            break;
+                    }//END switch
+                }//if(!$subType)
+                $dValue=$this->tag_id.'-'.$fvName.':value';
+                        $ctrlParams['value']='';
+                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
+                switch($subType) {
+                    case 'DatePicker':
+                        if(strtolower($filterType)!='date' && ($dataType=='datetime' || $dataType=='datetime_obj')) {
+                            $ctrlParams['timepicker']=TRUE;
+                        } else {
+                            $ctrlParams['timepicker']=FALSE;
+                        }//if(strtolower($filterType)!='date' && ($dataType=='datetime' || $dataType=='datetime_obj'))
+                        $ctrlParams['align']='center';
+                        $filterValueControl=new DatePicker($ctrlParams);
+                        // $filterValueControl->ClearBaseClass();
+                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                        $fValue=$this->tag_id.'-'.$fvName.':dvalue';
+                        if($conditionType=='><') {
+                            $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
+                            // $ctrlParams['tag_id']=$this->tag_id.'-'.$fevName;
+                            // $filterValueControl=new NumericTextBox($ctrlParams);
+                            // $filterValueControl->ClearBaseClass();
+                            $filterValueControl->tag_id=$this->tag_id.'-'.$fevName;
+                            $result.="\t\t\t\t".$filterValueControl->Show()."\n";
+                            $eValue=$this->tag_id.'-'.$fevName.':dvalue';
+                            $edValue=$this->tag_id.'-'.$fevName.':value';
+                        }//if($fConditionType=='><')
+                        break;
+                    case 'NumericTextBox':
+                        $ctrlParams['class'].=' t-box';
+                        $ctrlParams['number_format']=get_array_value($selectedItem,'filter_format','0|||','is_notempty_string');
+                        $ctrlParams['align']='center';
+                        $filterValueControl=new NumericTextBox($ctrlParams);
+                        // $filterValueControl->ClearBaseClass();
+                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                        $fValue=$this->tag_id.'-'.$fvName.':nvalue';
+                        if($conditionType=='><') {
+                            $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
+                            // $ctrlParams['tag_id']=$this->tag_id.'-'.$fevName;
+                            // $filterValueControl=new NumericTextBox($ctrlParams);
+                            // $filterValueControl->ClearBaseClass();
+                            $filterValueControl->tag_id=$this->tag_id.'-'.$fevName;
+                            $result.="\t\t\t\t".$filterValueControl->Show()."\n";
+                            $eValue=$this->tag_id.'-'.$fevName.':nvalue';
+                            $edValue=$this->tag_id.'-'.$fevName.':value';
+                        }//if($fConditionType=='><')
+                        break;
+                    case 'TextBox':
+                    default:
+                        $ctrlParams['class'].=' t-box';
+                        $filterValueControl=new TextBox($ctrlParams);
+                        // $filterValueControl->ClearBaseClass();
+                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
+                        $fValue=$this->tag_id.'-'.$fvName.':value';
+                        break;
+                }//END switch
+                if($isFilterValueField) {
+                    if($conditionType=='><') {
+                        $onClickActionParams=['v_value'=>$fValue,'v_d_value'=>$dValue,'v_e_value'=>$eValue,'v_e_d_value'=>$edValue,'v_d_type'=>$dataType];
+                } else {
+                        $onClickActionParams=array_merge($onClickActionParams,['v_value'=>$fValue,'v_d_value'=>$dValue,'v_d_type'=>$dataType]);
+                }
+                } else {
+                    if($conditionType=='><') {
+                        $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_e_value'=>$eValue,'f_e_d_value'=>$edValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                    } else {
+                        $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                }
+                }//if($isFilterValueField)
+                break;
+        }//END switch
+        return $result;
+    }//END protected function GetFilterValueControl
 
     /**
      * Get filter box actions HTML string
@@ -415,214 +742,6 @@ abstract class FilterControl {
     }//END protected function GetFilterAddAction
 
     /**
-     * @param \NETopes\Core\App\Params $params
-     * @param string|null              $conditionType
-     * @param array|null               $selectedItem
-     * @return string
-     * @throws \NETopes\Core\AppException
-     */
-    protected function GetFilterValueControl(Params $params,?string $conditionType,?array $selectedItem): string {
-        $fDataType=get_array_value($selectedItem,'data_type','','is_string');
-        $isDsParam=intval(strlen(get_array_value($selectedItem,'ds_param','','is_string'))>0);
-        $fConditionType=$params->safeGet('f-cond-type','','is_string');
-        $ctrlParams=get_array_value($selectedItem,'filter_params',[],'is_array');
-        $ctrlParams['tag_id']=$this->tag_id.'-f-value';
-        $ctrlParams['class']='f-ctrl f-value';
-        $ctrlParams['container']=FALSE;
-        $ctrlParams['no_label']=TRUE;
-        $ctrlParams['postable']=FALSE;
-        $aOnClickCheck=NULL;
-        $fValue=NULL;
-        $fsValue=NULL;
-        $sdValue=NULL;
-        $fSubType=NULL;
-        switch(strtolower($conditionType)) {
-            case 'smartcombobox':
-                $ctrlParams['placeholder']=get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
-                $ctrlParams['allow_clear']=get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
-                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
-                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $filterValueControl=new SmartComboBox($ctrlParams);
-                $dValue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-f-value\',false)}';
-                if(!$this->filter_cond_value_source) {
-                    $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                // $filterValueControl->ClearBaseClass();
-                $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                if(strlen($aOnClickCheck)) {
-                    $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
-                }
-                $result.=$this->GetFilterAddAction($onclickAction);
-                break;
-            case 'combobox':
-                if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text'])) {
-                    $ctrlParams['please_select_text']=Translate::GetLabel('please_select');
-                    $ctrlParams['please_select_value']=NULL;
-                }//if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text']))
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
-                    $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
-                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $filterValueControl=new ComboBox($ctrlParams);
-                $dValue=$this->tag_id.'-f-value:option';
-                if(!$this->filter_cond_value_source) {
-                    $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                // $filterValueControl->ClearBaseClass();
-                $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                if(strlen($aOnClickCheck)) {
-                    $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
-                }
-                $result.=$this->GetFilterAddAction($onclickAction);
-                break;
-            case 'treecombobox':
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
-                $filterValueControl=new TreeComboBox($ctrlParams);
-                $dValue=$this->tag_id.'-f-value-cbo:value';
-                if(!$this->filter_cond_value_source) {
-                    $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                // $filterValueControl->ClearBaseClass();
-                $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                if(strlen($aOnClickCheck)) {
-                    $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
-                }
-                $result.=$this->GetFilterAddAction($onclickAction);
-                break;
-            case 'checkbox':
-                $ctrlParams['value']=0;
-                $filterValueControl=new CheckBox($ctrlParams);
-                $dValue=$this->tag_id.'-f-value:value';
-                if(!$this->filter_cond_value_source) {
-                    $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                // $filterValueControl->ClearBaseClass();
-                $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                if(strlen($aOnClickCheck)) {
-                    $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
-                }
-                $result.=$this->GetFilterAddAction($onclickAction);
-                break;
-            case 'datepicker':
-            case 'date':
-            case 'datetime':
-                $fSubType='DatePicker';
-            case 'numerictextbox':
-            case 'numeric':
-                $fSubType=$fSubType ? $fSubType : 'NumericTextBox';
-            default:
-                if(!$fSubType) {
-                    switch($fDataType) {
-                        case 'date':
-                        case 'date_obj':
-                        case 'datetime':
-                        case 'datetime_obj':
-                            $fSubType='DatePicker';
-                            break;
-                        case 'numeric':
-                            $fSubType='NumericTextBox';
-                            break;
-                        default:
-                            $fSubType='TextBox';
-                            break;
-                    }//END switch
-                }//if(!$fSubType)
-                switch($fSubType) {
-                    case 'DatePicker':
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        if(strtolower($conditionType)!='date' && ($fDataType=='datetime' || $fDataType=='datetime_obj')) {
-                            $ctrlParams['timepicker']=TRUE;
-                        } else {
-                            $ctrlParams['timepicker']=FALSE;
-                        }//if(strtolower($conditionType)!='date' && ($fDataType=='datetime' || $fDataType=='datetime_obj'))
-                        $ctrlParams['align']='center';
-                        $filterValueControl=new DatePicker($ctrlParams);
-                        // $filterValueControl->ClearBaseClass();
-                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                        $fValue=$this->tag_id.'-f-value:dvalue';
-                        if($fConditionType=='><') {
-                            $result.="\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            // $filterValueControl=new DatePicker($ctrlParams);
-                            // $filterValueControl->ClearBaseClass();
-                            $result.="\t\t\t".$filterValueControl->Show()."\n";
-                            $fsValue=$this->tag_id.'-f-svalue:dvalue';
-                            $sdValue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_value_source) {
-                                $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fConditionType=='><')
-                        break;
-                    case 'NumericTextBox':
-                        $ctrlParams['class'].=' t-box';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        $ctrlParams['number_format']=get_array_value($selectedItem,'filter_format','0|||','is_notempty_string');
-                        $ctrlParams['align']='center';
-                        $filterValueControl=new NumericTextBox($ctrlParams);
-                        // $filterValueControl->ClearBaseClass();
-                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                        $fValue=$this->tag_id.'-f-value:nvalue';
-                        if($fConditionType=='><') {
-                            $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            // $filterValueControl=new NumericTextBox($ctrlParams);
-                            // $filterValueControl->ClearBaseClass();
-                            $result.="\t\t\t\t".$filterValueControl->Show()."\n";
-                            $fsValue=$this->tag_id.'-f-svalue:nvalue';
-                            $sdValue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_value_source) {
-                                $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fConditionType=='><')
-                        break;
-                    case 'TextBox':
-                    default:
-                        $ctrlParams['class'].=' t-box';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        $filterValueControl=new TextBox($ctrlParams);
-                        // $filterValueControl->ClearBaseClass();
-                        $result="\t\t\t\t".$filterValueControl->Show()."\n";
-                        $fValue=$this->tag_id.'-f-value:value';
-                        if($fConditionType=='><') {
-                            $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            // $filterValueControl=new TextBox($ctrlParams);
-                            // $filterValueControl->ClearBaseClass();
-                            $result.="\t\t\t\t".$filterValueControl->Show()."\n";
-                            $fsValue=$this->tag_id.'-f-svalue:value';
-                            $sdValue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_value_source) {
-                                $this->filter_cond_value_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fConditionType=='><')
-                        break;
-                }//END switch
-                $dValue=$this->tag_id.'-f-value:value';
-                if($fConditionType=='><') {
-                    $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fsdvalue'=>$sdValue,'fvalue'=>$fValue,'fsvalue'=>$fsValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                } else {
-                    $onclickAction=$this->GetActionCommand('filters.add',['fdvalue'=>$dValue,'fvalue'=>$fValue,'data_type'=>$fDataType,'is_ds_param'=>$isDsParam]);
-                }
-                if(strlen($aOnClickCheck)) {
-                    $onclickAction=$aOnClickCheck.' { '.$onclickAction.' }';
-                }
-                $result.=$this->GetFilterAddAction($onclickAction);
-                break;
-        }//END switch
-        return $result;
-    }//END protected function GetFilterValueControl
-
-    /**
      * Get current filter controls HTML string
      *
      * @param array                    $items
@@ -631,18 +750,24 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetFilterControls(array $items,Params $params): string {
-        if(is_array($this->filters) && count($this->filters)) {
-            $result=$this->GetFilterGroupControl($params->safeGet('group_uid','','is_string'));
-            $result.=$this->GetLogicalSeparatorControl($params->safeGet('fop','','is_string'));
-        } else {
-            $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group" type="hidden" value="'.uniqid().'">'."\n";
-            $result.="\t\t\t\t".'<input id="'.$this->tag_id.'-f-operator" type="hidden" value="'.$params->safeGet('fop','','is_string').'">'."\n";
-        }//if(is_array($this->filters) && count($this->filters))
-        $conditionType=$selectedItem=NULL;
+        $filterType=$selectedItem=NULL;
         $isQuickSearch=FALSE;
-        $result.=$this->GetFiltersSelectorControl($items,$params,$conditionType,$selectedItem,$isQuickSearch);
-        $result.=$this->GetConditionTypeControl($params,$conditionType,$selectedItem,$isQuickSearch);
-        $result.=$this->GetFilterValueControl($params,$conditionType,$selectedItem);
+        $onClickActionParams=[];
+        $result=$this->GetFilterGroupControl($params->safeGet('g_id',NULL,'?is_string'));
+        $result.=$this->GetLogicalSeparatorControl($params->safeGet('l_op',NULL,'?is_string'));
+        $result.=$this->GetFiltersSelectorControl($params,$items,$filterType,$selectedItem,$isQuickSearch);
+        $filterValueField=get_array_value($selectedItem,'filter_value_field',NULL,'?is_string');
+        if(!strlen($filterValueField)) {
+            $result.=$this->GetConditionTypeControl($params,$filterType,$selectedItem,$isQuickSearch);
+            $result.=$this->GetFilterValueControl($params,$filterType,$selectedItem,$onClickActionParams);
+        } else {
+            $filterValueType=get_array_value($selectedItem,'filter_value_type',NULL,'?is_string');
+            $result.=$this->GetFilterValueControl($params,$filterType,$selectedItem,$onClickActionParams);
+            $result.=$this->GetConditionTypeControl($params,$filterValueType,$selectedItem,$isQuickSearch);
+            $result.=$this->GetFilterValueControl($params,$filterValueType,$selectedItem,$onClickActionParams,$filterValueField);
+        }//if(!strlen($filterValueField))
+        $onClickAction=$this->GetActionCommand('filters.add',$onClickActionParams);
+        $result.=$this->GetFilterAddAction($onClickAction);
         return $result;
     }//END protected function GetFilterControls
 
@@ -671,6 +796,59 @@ abstract class FilterControl {
     }//END protected function GetFilterGlobalActions
 
     /**
+     * Get active filter item HTML string
+     *
+     * @param array                           $items
+     * @param array                           $filters
+     * @param \NETopes\Core\Data\DataSet|null $fcTypes
+     * @return string|null Returns active filters HTML string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetActiveFilterItem(array $items,array $filters,$fcTypes): ?string {
+        $result='';
+        $logicalOperator=NULL;
+        foreach($filters as $filter) {
+            $logicalOperator=is_null($logicalOperator) ? '' : Translate::GetLabel($filter['operator']).' ';
+            if($filter['condition_type']=='><') {
+                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalOperator.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'].'</strong>&quot;</div>'."\n";
+            } else {
+                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalOperator.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;</div>'."\n";
+            }//if($item['condition_type']=='><')
+        }//END foreach
+        return $result;
+    }//END protected function GetActiveFilterItem
+
+    /**
+     * Get active filters groups HTML string
+     *
+     * @param array                           $items Filter configuration items
+     * @param array                           $filters
+     * @param \NETopes\Core\Data\DataSet|null $fcTypes
+     * @param string|null                     $parent
+     * @param int                             $level
+     * @return string|null Returns active filters HTML string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetActiveFilterGroups(array $items,array $filters,$fcTypes,?string $parent=NULL,int $level=0): ?string {
+        $result='';
+        $first=TRUE;
+        foreach($filters as $gKey=>$group) {
+            if(strpos($gKey,'_')!==0) {
+                $result.=$this->GetActiveFilterItem($items,[$group],$fcTypes);
+                continue;
+            }
+            $logicalOperator=$first ? '' : Translate::GetLabel($group['operator']).' ';
+            $gId=(strlen($parent) ? $parent.'-' : '_').trim($gKey,'_');
+            $gName=(strlen($parent) ? str_replace('-','.',trim($parent,'_')).'.' : '').trim($gKey,'_');
+            $result.="\t\t\t\t\t".'<div class="f-items-group g-offset-'.$level.'">'.$logicalOperator.Translate::GetLabel('group').' ['.$gName.']'."\n";
+            $result.="\t\t\t\t\t\t".'<div class="g-remove" onclick="'.$this->GetActionCommand('filters.group_remove',['g_id'=>$gId]).'"><i class="fa fa-times"></i></div>'."\n";
+            $result.=$this->GetActiveFilterGroups($items,$group,$fcTypes,$gId,($level + 1));
+            $result.="\t\t\t\t\t".'</div>'."\n";
+        }//END foreach
+        return $result;
+    }//END protected function GetActiveFilterGroups
+
+    /**
      * Get active filters HTML string
      *
      * @param array $items Filter configuration items
@@ -683,35 +861,32 @@ abstract class FilterControl {
         }
         $filters="\t\t\t\t".'<div class="f-active-items">'."\n";
         $filters.="\t\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
-        $filtersGroups=array_group_by('group_uid',$this->filters);
         $fcTypes=DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
-        $gLogicalOperator=NULL;
-        $gIndex=1;
-        foreach($filtersGroups as $gid=>$group) {
-            if(!is_array($group) || !count($group)) {
-                continue;
-            }
-            $fLogicalOperator=NULL;
-            if(is_null($gLogicalOperator)) {
-                $gLogicalOperator='';
+        if($this->with_filter_groups) {
+            $grupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
+            // NApp::Dlog($grupedFilters,'$grupedFilters');
+            $filters.=$this->GetActiveFilterGroups($items,$grupedFilters,$fcTypes);
             } else {
-                $gLogicalOperator=Translate::GetLabel(get_array_value($group,[0,'operator'],'','is_string')).' ';
-            }//if(is_null($gLogicalOperator))
-            $filters.="\t\t\t\t\t".'<div class="f-items-group">'.$gLogicalOperator.Translate::GetLabel('group').' ['.$gIndex++.']'."\n";
-            $filters.="\t\t\t\t\t\t".'<div class="g-remove" onclick="'.$this->GetActionCommand('filters.group_remove',['group_uid'=>$gid]).'"><i class="fa fa-times"></i></div>'."\n";
-            foreach($group as $k=>$a) {
-                $fLogicalOperator=is_null($fLogicalOperator) ? '' : Translate::GetLabel($a['operator']).' ';
-            if($a['condition_type']=='><') {
-                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$fLogicalOperator.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
-            } else {
-                $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$fLogicalOperator.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::GetLabel('qsearch') : get_array_value($items[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
-            }//if($a['condition_type']=='><')
-            }//END foreach
-            $filters.="\t\t\t\t\t".'</div>'."\n";
-        }//END foreach
+            $filters.=$this->GetActiveFilterItem($items,$this->filters,$fcTypes);
+        }//if($this->with_filter_groups)
         $filters.="\t\t\t".'</div>'."\n";
         return $filters;
     }//END protected function GetActiveFilters
+
+    /**
+     * Get active filters array
+     *
+     * @param bool $flat
+     * @return array
+     */
+    public function GetFilters(bool $flat=FALSE): array {
+        if($flat || !$this->with_filter_groups) {
+            return $this->filters;
+        }//if($this->with_filter_groups)
+        $grupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
+        // NApp::Dlog($grupedFilters,'$grupedFilters');
+        return $grupedFilters;
+    }//END public function GetFilters
 
     /**
      * Gets the control's content (html)
@@ -726,7 +901,7 @@ abstract class FilterControl {
      */
     public function Show($params=NULL): ?string {
         // NApp::Dlog($params,'FilterControl>>Show');
-        $oParams=is_object($params) ? $params : new Params($params);
+        $oParams=($params instanceof Params) ? $params : new Params($params);
         $pHash=$oParams->safeGet('phash',NULL,'?is_notempty_string');
         $output=$oParams->safeGet('output',FALSE,'bool');
         if($pHash) {
@@ -751,16 +926,16 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     public function ShowFiltersBox($params=NULL): ?string {
-        $o_params=is_object($params) ? $params : new Params($params);
-        $phash=$o_params->safeGet('phash',NULL,'is_notempty_string');
-        $output=$o_params->safeGet('output',FALSE,'bool');
-        if($phash) {
-            $this->phash=$phash;
+        $oParams=($params instanceof Params) ? $params : new Params($params);
+        $pHash=$oParams->safeGet('phash',NULL,'is_notempty_string');
+        $output=$oParams->safeGet('output',FALSE,'bool');
+        if($pHash) {
+            $this->phash=$pHash;
         }
         if(!$output) {
-            return $this->GetFilterBox($o_params);
+            return $this->GetFilterBox($oParams);
         }
-        echo $this->GetFilterBox($o_params);
+        echo $this->GetFilterBox($oParams);
         return NULL;
     }//END public function ShowFiltersBox
 

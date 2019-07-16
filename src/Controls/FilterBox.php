@@ -66,7 +66,7 @@ class FilterBox extends FilterControl {
         if(is_string($this->filter_box_target) && strlen($this->filter_box_target)) {
             $this->target=$this->filter_box_target;
         }
-        $this->tag_id=$this->tag_id ? $this->tag_id : $this->chash;
+        $this->tag_id=$this->tag_id ? $this->tag_id : $this->cHash;
     }//END public function __construct
 
     /**
@@ -89,7 +89,6 @@ class FilterBox extends FilterControl {
             if($processCall) {
                 return NApp::Ajax()->PrepareAjaxRequest($actionParams,$this->apply_callback_extra_params);
             }
-            $targetId=get_array_value($this->apply_callback_extra_params,'target_id',NULL,'is_string');
             return NApp::Ajax()->GetCommand($actionParams);
         }//if(in_array($type,['filters.get','filters.apply']))
             $targetId=NULL;
@@ -135,7 +134,7 @@ class FilterBox extends FilterControl {
         $filters.=$this->GetFilterGlobalActions(FALSE);
         $filters.=$this->GetFilterApplyAction();
         $filters.=$this->GetActiveFilters($this->items);
-        if($params->safeGet('faction','','is_string')=='update') {
+        if($params->safeGet('f_action','','is_string')=='render') {
         return $filters;
         }
         $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
@@ -152,7 +151,10 @@ class FilterBox extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(Params $params=NULL): ?string {
-        $this->filters=$this->ProcessActiveFilters($params);
+        if(is_null($params)) {
+            $params=new Params();
+        }
+        $this->ProcessActiveFilters($params);
         $lClass=trim($this->base_class.' '.$this->class);
         switch($this->theme_type) {
             case 'bootstrap3':

@@ -254,7 +254,7 @@ class Module {
         if($o_before_call->count() && !$this->_BeforeExec($beforeCall)) {
             return FALSE;
         }
-        $o_params=is_object($params) ? $params : new Params($params);
+        $o_params=($params instanceof Params) ? $params : new Params($params);
         if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) {
             NApp::Ajax()->SetDynamicTarget($dynamicTargetId);
         }

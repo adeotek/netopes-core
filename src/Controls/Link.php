@@ -11,14 +11,24 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\AppSession;
-use NApp;
 use GibberishAES;
+use NApp;
+use NETopes\Core\AppSession;
 
 /**
- * ClassName description
- * long_description
+ * Link control class
  *
+ * @property string      href
+ * @property bool        encrypted
+ * @property string      hash_separator
+ * @property string|null domain
+ * @property string|null tooltip
+ * @property string|null anchor
+ * @property string|null value
+ * @property string|null icon
+ * @property array|null  session_params
+ * @property string|null sufix
+ * @property string|null target
  * @package  NETopes\Controls
  */
 class Link extends Control {
@@ -45,26 +55,27 @@ class Link extends Control {
     /**
      * description
      *
-     * @return void
+     * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $ltooltip='';
-        $ttclass='';
+        $lTooltip='';
+        $ttClass='';
         if(strlen($this->tooltip)) {
-            $ltooltip=' title="'.$this->tooltip.'"';
-            $ttclass='clsTitleSToolTip';
+            $lTooltip=' title="'.$this->tooltip.'"';
+            $ttClass='clsTitleSToolTip';
         }//if(strlen($this->tooltip))
-        $ttclass.=!strlen($this->value) ? (strlen($ttclass) ? ' ' : '').'io' : '';
-        $licon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
-        $lsufix=strlen($this->sufix) ? $this->sufix : '';
-        $ltarget=(strlen($this->target) ? ' target="'.$this->target.'"' : '');
+        $ttClass.=!strlen($this->value) ? (strlen($ttClass) ? ' ' : '').'io' : '';
+        $lIcon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
+        $lSufix=strlen($this->sufix) ? $this->sufix : '';
+        $lTarget=(strlen($this->target) ? ' target="'.$this->target.'"' : '');
         $epass=is_string($this->encrypted) && strlen($this->encrypted) ? $this->encrypted : 'eUrlHash';
-        $url_params='';
+        $urlParams='';
         if(is_array($this->session_params) && count($this->session_params)) {
             $shash=rawurlencode(AppSession::GetNewUID($this->tag_id.serialize($this->session_params),'sha1',TRUE));
             $namespace=get_array_value($this->url_params,'namespace','','is_string');
             NApp::SetParam($shash,$this->session_params,FALSE,$namespace);
-            $url_params='shash='.$shash;
+            $urlParams='shash='.$shash;
         }//if(is_array($this->session_params) && count($this->session_params))
         if(is_array($this->url_params)) {
             foreach($this->url_params as $k=>$v) {
@@ -79,17 +90,17 @@ class Link extends Control {
                 } else {
                     $val=$v;
                 }//if(is_array($v))
-                $url_params.=(strlen($url_params) ? '&' : '').$k.'='.rawurlencode($val);
+                $urlParams.=(strlen($urlParams) ? '&' : '').$k.'='.rawurlencode($val);
             }//END foreach
         }//if(is_array($this->url_params))
-        $lhref=$this->href;
-        if(strlen($url_params)) {
-            $lhref.=(strpos($lhref,'?')===FALSE ? '?' : '&').$url_params;
+        $lHref=$this->href;
+        if(strlen($urlParams)) {
+            $lHref.=(strpos($lHref,'?')===FALSE ? '?' : '&').$urlParams;
         }
         if(strlen($this->anchor)) {
-            $lhref=rtrim($lhref,'#').'#'.$this->anchor;
+            $lHref=rtrim($lHref,'#').'#'.$this->anchor;
         }
-        $result="\t\t".'<a href="'.(strlen($lhref) ? $lhref : '#').'"'.$ltarget.$this->GetTagId().$this->GetTagClass($ttclass).$this->GetTagAttributes().$ltooltip.'>'.$licon.$this->value.'</a>'.$lsufix."\n";
+        $result="\t\t".'<a href="'.(strlen($lHref) ? $lHref : '#').'"'.$lTarget.$this->GetTagId().$this->GetTagClass($ttClass).$this->GetTagAttributes().$lTooltip.'>'.$lIcon.$this->value.'</a>'.$lSufix."\n";
         return $result;
     }//END protected function SetControl
 }//END class Link extends Control

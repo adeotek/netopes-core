@@ -1389,6 +1389,47 @@ div.clsFilterBox div.tw-filters div.f-active-items .f-active-item .b-remove:hove
 }
 
 /*** END Active filters ***/
+
+.g-offset-1 {
+	padding-left: 15px;
+}
+
+.g-offset-2 {
+	padding-left: 30px;
+}
+
+.g-offset-3 {
+	padding-left: 45px;
+}
+
+.g-offset-4 {
+	padding-left: 60px;
+}
+
+.g-offset-5 {
+	padding-left: 75px;
+}
+
+.g-offset-6 {
+	padding-left: 90px;
+}
+
+.g-offset-7 {
+	padding-left: 105px;
+}
+
+.g-offset-8 {
+	padding-left: 120px;
+}
+
+.g-offset-9 {
+	padding-left: 135px;
+}
+
+.g-offset-10 {
+	padding-left: 150px;
+}
+
 /*** END FilterBox ***/
 
 /*** TableView ***/
@@ -1415,7 +1456,6 @@ div.clsTableView div.clsTableViewActions div.tw-actions-container {
 	float: left;
 	display: block;
 	width: 100%;
-	min-height: 36px;
 	padding: 5px;
 	border: 1px solid #DDDDDD;
 	border-radius: 2px;
@@ -1435,8 +1475,8 @@ div.clsTableView div.clsTableViewActions div.tw-actions > .btn {
 
 div.clsTableView div.clsTableViewActions div.tw-filters {
 	float: left;
-	display: inline-block;
-	max-width: 100%;
+	display: block;
+	width: 100%;
 	text-align: left;
 }
 

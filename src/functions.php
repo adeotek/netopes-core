@@ -401,7 +401,7 @@ function array_group_by(string $key,array $array): array {
  * @param callable|null $callback
  * @return mixed
  */
-function array_first(array $array,$default=NULL,callable $callback=NULL) {
+function array_first(array $array,$default=NULL,?callable $callback=NULL) {
     if(is_null($callback)) {
         $firstValue=count($array) ? reset($array) : $default;
     } else {
@@ -414,4 +414,48 @@ function array_first(array $array,$default=NULL,callable $callback=NULL) {
         }
     }
     return $firstValue;
-}//END function array_first(array $array,$default=null,callable $callback=null)
+}//END function array_first
+/**
+ * @param array       $input
+ * @param array       $output
+ * @param string|null $keyPrefix
+ * @param mixed|null  $value
+ * @param string|null $parent
+ * @return array
+ */
+function array_to_hierarchy(array $input,array $output=[],?string $keyPrefix=NULL,$value=NULL,?string $parent=NULL): array {
+    if(!count($input)) {
+        if(isset($value)) {
+            $output[]=$value;
+        }
+        return $output;
+    }
+    $item=array_shift($input);
+    $key=$keyPrefix.$item;
+    if(!isset($output[(string)$key])) {
+        $output[(string)$key]=[];
+    }
+    $output[(string)$key]=array_to_hierarchy($input,$output[(string)$key],$keyPrefix,$value,$parent);
+    return $output;
+}//END function array_to_hierarchy
+/**
+ * @param string      $key
+ * @param array       $array
+ * @param bool        $itemAsValue
+ * @param string|null $keyPrefix
+ * @return array
+ */
+function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL): array {
+    $grouped=[];
+    foreach($array as $item) {
+        $dKey=get_array_value($item,$key,NULL);
+        if(!strlen($dKey)) {
+            if($itemAsValue) {
+                $grouped[]=$item;
+            }
+            continue;
+        }
+        $grouped=array_to_hierarchy(explode('-',trim($dKey,$keyPrefix)),$grouped,$keyPrefix,($itemAsValue ? $item : NULL));
+    }//END foreach
+    return $grouped;
+}//END function array_group_by
