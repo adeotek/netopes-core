@@ -779,7 +779,13 @@ function AddClassOnErrorByParent(parentId,reset,errClass) {
     if(reset) {
         $('#' + parentId + ' .clsRequiredField').removeClass(lClass);
     } else {
-        $('#' + parentId + ' .clsRequiredField').addClass(lClass);
+        $('#' + parentId + ' .clsRequiredField').each(function() {
+            if($(this).val()) {
+                $(this).removeClass(lClass);
+            } else {
+                $(this).addClass(lClass);
+            }
+        });
     }//if(reset)
 }//END function AddClassOnErrorByParent
 
@@ -797,7 +803,13 @@ function AddClassOnErrorByName(formId,elementName,reset,errClass) {
     if(reset) {
         $('#' + formId + ' [name="' + elementName + '"]').removeClass(lClass);
     } else {
-        $('#' + formId + ' [name="' + elementName + '"]').addClass(lClass);
+        $('#' + formId + ' [name="' + elementName + '"]').each(function() {
+            if($(this).val()) {
+                $(this).removeClass(lClass);
+            } else {
+                $(this).addClass(lClass);
+            }
+        });
     }//if(reset)
 }//function AddClassOnErrorByName
 /*** END For Actions ***/

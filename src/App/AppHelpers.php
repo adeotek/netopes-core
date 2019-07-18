@@ -10,9 +10,9 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
-use NApp;
 
 /**
  * Class AppHelpers

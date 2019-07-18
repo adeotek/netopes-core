@@ -439,15 +439,19 @@ function array_to_hierarchy(array $input,array $output=[],?string $keyPrefix=NUL
     return $output;
 }//END function array_to_hierarchy
 /**
- * @param string      $key
- * @param array       $array
- * @param bool        $itemAsValue
- * @param string|null $keyPrefix
+ * @param string        $key
+ * @param array         $array
+ * @param bool          $itemAsValue
+ * @param string|null   $keyPrefix
+ * @param callable|null $filter
  * @return array
  */
-function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL): array {
+function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL,?callable $filter=NULL): array {
     $grouped=[];
     foreach($array as $item) {
+        if(!$filter($item)) {
+            continue;
+        }
         $dKey=get_array_value($item,$key,NULL);
         if(!strlen($dKey)) {
             if($itemAsValue) {

@@ -10,9 +10,9 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NApp;
 use NETopes\Core\Controls\ControlsHelpers;
 
 /**

@@ -10,11 +10,11 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use GibberishAES;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Controls\ControlsHelpers;
-use GibberishAES;
-use NApp;
 use ReflectionClass;
 use ReflectionException;
 use Translate;

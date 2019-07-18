@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
-use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
+use NETopes\Core\Validators\Validator;
 
 /**
  * VirtualEntity class

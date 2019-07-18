@@ -12,9 +12,9 @@
  */
 namespace NETopes\Core\Validators;
 use DateTime;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NApp;
 
 /**
  * Class Validator

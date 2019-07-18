@@ -12,10 +12,10 @@
  */
 namespace NETopes\Core\App;
 use Exception;
+use NApp;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
-use NETopes\Core\AppConfig;
-use NApp;
 use Swift_Attachment;
 use Swift_Encoding;
 use Swift_Mailer;

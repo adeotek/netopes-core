@@ -11,10 +11,10 @@
  * @filesource
  */
 namespace NETopes\Core\App;
-use NETopes\Core\AppConfig;
-use NETopes\Core\Data\DataProvider;
 use NApp;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+use NETopes\Core\Data\DataProvider;
 use NETopes\Core\DataHelpers;
 
 /**

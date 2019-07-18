@@ -12,11 +12,11 @@
  */
 namespace NETopes\Core\Controls;
 use GibberishAES;
+use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
-use NApp;
 
 /**
  * Class ControlsHelpers

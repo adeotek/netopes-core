@@ -41,6 +41,10 @@ class FilterBox extends FilterControl {
      * @var    string|null Control target for TableView configuration (overwrites $target property)
      */
     public $filter_box_target=NULL;
+    /**
+     * @var    bool Filters return mode: TRUE=hierarchy, FALSE=flat
+     */
+    public $get_filters_as_hierarchy=FALSE;
 
     /**
      * FilterControl class constructor method
@@ -85,14 +89,14 @@ class FilterBox extends FilterControl {
             if(!isset($actionParams['params']) || !is_array($actionParams['params'])) {
                 $actionParams['params']=[];
             }
-            $actionParams['params'][$this->callback_params_key ?? 'filters']=$this->filters;
+            $actionParams['params'][$this->callback_params_key ?? 'filters']=$this->GetFilters($this->get_filters_as_hierarchy);
             if($processCall) {
                 return NApp::Ajax()->PrepareAjaxRequest($actionParams,$this->apply_callback_extra_params);
             }
             return NApp::Ajax()->GetCommand($actionParams);
         }//if(in_array($type,['filters.get','filters.apply']))
-            $targetId=NULL;
-            $command=$this->GetFilterActionCommand($type,$params,$targetId);
+        $targetId=NULL;
+        $command=$this->GetFilterActionCommand($type,$params,$targetId);
         if(is_null($command)) {
             return NULL;
         }
@@ -135,7 +139,7 @@ class FilterBox extends FilterControl {
         $filters.=$this->GetFilterApplyAction();
         $filters.=$this->GetActiveFilters($this->items);
         if($params->safeGet('f_action','','is_string')=='render') {
-        return $filters;
+            return $filters;
         }
         $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
         $result.=$filters;
@@ -153,6 +157,9 @@ class FilterBox extends FilterControl {
     protected function SetControl(Params $params=NULL): ?string {
         if(is_null($params)) {
             $params=new Params();
+        }
+        if(is_array($this->initial_filters)) {
+            $this->filters=$this->initial_filters;
         }
         $this->ProcessActiveFilters($params);
         $lClass=trim($this->base_class.' '.$this->class);

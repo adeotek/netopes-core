@@ -13,10 +13,10 @@
 namespace NETopes\Core\Data;
 use DateTime;
 use Exception;
-use NETopes\Core\Validators\Validator;
-use NETopes\Core\AppSession;
-use NETopes\Core\AppException;
 use NApp;
+use NETopes\Core\AppException;
+use NETopes\Core\AppSession;
+use NETopes\Core\Validators\Validator;
 
 /**
  * FirebirdSqlDbAdapter is the adapter for the FirebirdSQL database

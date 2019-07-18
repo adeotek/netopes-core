@@ -11,10 +11,10 @@
  */
 namespace NETopes\Core\App;
 use GibberishAES;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
-use NApp;
 
 /**
  * Class UserSession

@@ -13,6 +13,8 @@
 namespace NETopes\Core\Data;
 use DateTime;
 use ErrorHandler;
+use NApp;
+use NETopes\Core\AppException;
 use NETopes\Core\Validators\TDateTimeHelpers;
 use NETopes\Core\Validators\Validator;
 use PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder;
@@ -24,9 +26,6 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use NETopes\Core\AppConfig;
-use NETopes\Core\AppException;
-use NApp;
 
 /**
  * Excel export class

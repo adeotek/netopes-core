@@ -11,9 +11,9 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
-use NApp;
 
 /**
  * Class DataSource

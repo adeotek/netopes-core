@@ -13,9 +13,9 @@ namespace NETopes\Core\App;
 use DateInterval;
 use DateTime;
 use GibberishAES;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\Data\DataProvider;
-use NApp;
 use Translate;
 
 /**

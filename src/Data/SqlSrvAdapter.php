@@ -12,10 +12,10 @@
  */
 namespace NETopes\Core\Data;
 use Exception;
-use NETopes\Core\AppConfig;
-use NETopes\Core\Validators\Validator;
-use NETopes\Core\AppException;
 use NApp;
+use NETopes\Core\AppConfig;
+use NETopes\Core\AppException;
+use NETopes\Core\Validators\Validator;
 
 /**
  * SqlSrvDatabase is implementing the MS SQL database

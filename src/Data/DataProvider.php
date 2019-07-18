@@ -12,11 +12,11 @@
  */
 namespace NETopes\Core\Data;
 use Exception;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NETopes\Core\Data\Doctrine\DataSource as DoctrineDataSource;
 use NETopes\Core\Data\Doctrine\DataAdapter as DoctrineAdapter;
-use NApp;
+use NETopes\Core\Data\Doctrine\DataSource as DoctrineDataSource;
 
 /**
  * DataProvider prepares and makes the data requests

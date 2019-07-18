@@ -11,12 +11,12 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
 use NETopes\Core\App\Module;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
-use NApp;
 
 /**
  * Class BasicForm

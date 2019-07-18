@@ -110,6 +110,10 @@ abstract class FilterControl {
      * @var    bool Switch filter groups on/off
      */
     public $with_filter_groups=FALSE;
+    /**
+     * @var    array|null Initial filters values (are destroyed after construct)
+     */
+    public $initial_filters=NULL;
 
     /**
      * FilterControl class constructor method
@@ -130,6 +134,7 @@ abstract class FilterControl {
                 }
             }//foreach ($params as $k=>$v)
         }//if(is_array($params) && count($params))
+        $this->ProcessInitialFilters($this->initial_filters);
     }//END public function __construct
 
     /**
@@ -188,6 +193,54 @@ abstract class FilterControl {
     }//END protected function GenerateFilterGroups
 
     /**
+     * Process the active filters (adds/removes filters)
+     *
+     * @param array|null $initialFilters
+     */
+    protected function ProcessInitialFilters(?array &$initialFilters): void {
+        // NApp::Dlog($initialFilters,'ProcessInitialFilters>>$initialFilters');
+        if(!is_array($this->filters)) {
+            $this->filters=[];
+        }
+        if(!is_array($initialFilters) || !count($initialFilters)) {
+            $initialFilters=NULL;
+            return;
+        }
+        foreach($initialFilters as $filter) {
+            $fType=get_array_value($filter,'type',NULL,'?is_string');
+            $cType=get_array_value($filter,'condition_type',NULL,'?is_string');
+            $operator=get_array_value($filter,'operator',NULL,'?is_string');
+            if(!strlen($fType) || !strlen($cType) || !strlen($operator)) {
+                continue;
+            }
+            $this->filters[]=[
+                'type'=>$fType,
+                'group_id'=>get_array_value($filter,'group_id',NULL,'?is_string'),
+                'operator'=>$operator,
+                'is_ds_param'=>get_array_value($filter,'is_ds_param',0,'is_integer'),
+                'condition_type'=>$cType,
+                'data_type'=>get_array_value($filter,'data_type',NULL,'?is_string'),
+                'field'=>get_array_value($filter,'field',NULL,'?is_string'),
+                'value'=>get_array_value($filter,'value'),
+                'end_value'=>get_array_value($filter,'end_value'),
+                'display_value'=>get_array_value($filter,'display_value',NULL,'is_string'),
+                'end_display_value'=>get_array_value($filter,'end_display_value',NULL,'is_string'),
+                'value_field'=>get_array_value($filter,'value_field',NULL,'?is_string'),
+                'value_data_type'=>get_array_value($filter,'value_data_type',NULL,'?is_string'),
+                'value_value'=>get_array_value($filter,'value_value'),
+                'value_end_value'=>get_array_value($filter,'value_end_value'),
+                'value_display_value'=>get_array_value($filter,'value_display_value',NULL,'is_string'),
+                'value_end_display_value'=>get_array_value($filter,'value_end_display_value',NULL,'is_string'),
+                'guid'=>uniqid(),
+            ];
+        }//END foreach
+        // NApp::Dlog($this->filters,'$this->filters');
+        $this->groups=$this->GenerateFilterGroups($this->filters);
+        // NApp::Dlog($this->groups,'$this->groups');
+        $initialFilters=NULL;
+    }//END protected function ProcessInitialFilters
+
+    /**
      * Process active filter item
      *
      * @param \NETopes\Core\App\Params $item
@@ -197,9 +250,9 @@ abstract class FilterControl {
      */
     protected function ProcessFilterItem(Params $item,array &$filters): bool {
         // NApp::Dlog($item->toArray(),'ProcessFilterItem>>$item');
-        $op=$item->safeGet('l_op',NULL,'?is_notempty_string');
-        $cType=$item->safeGet('f_c_type',NULL,'?is_notempty_string');
-        $type=$item->safeGet('f_type',NULL,'?is_notempty_string');
+        $op=$item->safeGet('l_op',NULL,'?is_string');
+        $cType=$item->safeGet('f_c_type',NULL,'?is_string');
+        $type=$item->safeGet('f_type',NULL,'?is_string');
         if(!strlen($op) || !strlen($cType) || !strlen($type)) {
             return FALSE;
         }
@@ -276,16 +329,16 @@ abstract class FilterControl {
             if(strlen($groupId)) {
                 $this->filters=array_filter($this->filters,function($filter) use ($groupId) {
                     return $filter['group_id']!==$groupId;
-            });
+                });
             }//if(strlen($groupId))
         } else {
             $this->ProcessFilterItem($params,$this->filters);
             $multiple=$params->safeGet('multi_filters',[],'is_array');
-        if(count($multiple)) {
-            foreach($multiple as $fParams) {
-                $this->ProcessFilterItem(new Params($fParams),$this->filters);
-            }//END foreach
-        }//if(count($multiple))
+            if(count($multiple)) {
+                foreach($multiple as $fParams) {
+                    $this->ProcessFilterItem(new Params($fParams),$this->filters);
+                }//END foreach
+            }//if(count($multiple))
         }//if($action=='remove')
         // NApp::Dlog($this->filters,'$this->filters');
         $this->groups=$this->GenerateFilterGroups($this->filters);
@@ -541,7 +594,7 @@ abstract class FilterControl {
             $fvName='f-value';
             $fevName='f-e-value';
             $dataType=get_array_value($selectedItem,'data_type','','is_string');
-        $ctrlParams=get_array_value($selectedItem,'filter_params',[],'is_array');
+            $ctrlParams=get_array_value($selectedItem,'filter_params',[],'is_array');
         }//if(strlen($filterValueField))
         $ctrlParams['tag_id']=$this->tag_id.'-'.$fvName;
         $ctrlParams['class']='f-ctrl '.$fvName;
@@ -654,8 +707,8 @@ abstract class FilterControl {
                     }//END switch
                 }//if(!$subType)
                 $dValue=$this->tag_id.'-'.$fvName.':value';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
+                $ctrlParams['value']='';
+                $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
                 switch($subType) {
                     case 'DatePicker':
                         if(strtolower($filterType)!='date' && ($dataType=='datetime' || $dataType=='datetime_obj')) {
@@ -710,15 +763,15 @@ abstract class FilterControl {
                 if($isFilterValueField) {
                     if($conditionType=='><') {
                         $onClickActionParams=['v_value'=>$fValue,'v_d_value'=>$dValue,'v_e_value'=>$eValue,'v_e_d_value'=>$edValue,'v_d_type'=>$dataType];
-                } else {
+                    } else {
                         $onClickActionParams=array_merge($onClickActionParams,['v_value'=>$fValue,'v_d_value'=>$dValue,'v_d_type'=>$dataType]);
-                }
+                    }
                 } else {
                     if($conditionType=='><') {
                         $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_e_value'=>$eValue,'f_e_d_value'=>$edValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
                     } else {
                         $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
-                }
+                    }
                 }//if($isFilterValueField)
                 break;
         }//END switch
@@ -863,10 +916,10 @@ abstract class FilterControl {
         $filters.="\t\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
         $fcTypes=DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
         if($this->with_filter_groups) {
-            $grupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
-            // NApp::Dlog($grupedFilters,'$grupedFilters');
-            $filters.=$this->GetActiveFilterGroups($items,$grupedFilters,$fcTypes);
-            } else {
+            $groupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
+            // NApp::Dlog($groupedFilters,'$groupedFilters');
+            $filters.=$this->GetActiveFilterGroups($items,$groupedFilters,$fcTypes);
+        } else {
             $filters.=$this->GetActiveFilterItem($items,$this->filters,$fcTypes);
         }//if($this->with_filter_groups)
         $filters.="\t\t\t".'</div>'."\n";
@@ -883,9 +936,9 @@ abstract class FilterControl {
         if($flat || !$this->with_filter_groups) {
             return $this->filters;
         }//if($this->with_filter_groups)
-        $grupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
-        // NApp::Dlog($grupedFilters,'$grupedFilters');
-        return $grupedFilters;
+        $groupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');
+        // NApp::Dlog($groupedFilters,'$groupedFilters');
+        return $groupedFilters;
     }//END public function GetFilters
 
     /**
@@ -938,6 +991,20 @@ abstract class FilterControl {
         echo $this->GetFilterBox($oParams);
         return NULL;
     }//END public function ShowFiltersBox
+
+    /**
+     * Convert flat filters array to a hierarchical array
+     *
+     * @param array|null    $items
+     * @param callable|null $filter
+     * @return array
+     */
+    public static function ConvertFiltersToHierarchy(?array $items,?callable $filter=NULL): array {
+        if(!is_array($items) || !count($items)) {
+            return [];
+        }
+        return array_group_by_hierarchical('group_id',$items,TRUE,'_',$filter);
+    }//END public static function ConvertFiltersToHierarchy
 
     /**
      * Gets the action javascript command string

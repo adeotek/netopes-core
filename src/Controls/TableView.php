@@ -242,10 +242,6 @@ class TableView extends FilterControl {
      * @var    bool Flag to indicate if filters are persistent
      */
     public $persistent_state=FALSE;
-    /**
-     * @var    array Initial filters values (are destroyed after the control initialization)
-     */
-    public $initial_filters=NULL;
 
     /**
      * TableView class constructor method
@@ -345,29 +341,29 @@ class TableView extends FilterControl {
         }//if(substr($type,0,8)=='filters.')
         if(is_null($command)) {
             switch($type) {
-            case 'sort':
-                $targetId=$this->target;
-                $onloadCallback=FALSE;
-                $sdir=$params->safeGet('direction','asc','is_notempty_string');
-                $sdir=$sdir=='asc' ? 'desc' : 'asc';
-                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
-                break;
-            case 'gotopage':
-                $targetId=$this->target;
-                $onloadCallback=FALSE;
-                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
-                break;
-            case 'export_all':
-                $targetId='errors';
-                $execCallback=FALSE;
-                $command="{ 'control_hash': '{$this->cHash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
-                break;
-            case 'refresh':
-            default:
-                $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
-                break;
-        }//END switch
+                case 'sort':
+                    $targetId=$this->target;
+                    $onloadCallback=FALSE;
+                    $sdir=$params->safeGet('direction','asc','is_notempty_string');
+                    $sdir=$sdir=='asc' ? 'desc' : 'asc';
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
+                    break;
+                case 'gotopage':
+                    $targetId=$this->target;
+                    $onloadCallback=FALSE;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
+                    break;
+                case 'export_all':
+                    $targetId='errors';
+                    $execCallback=FALSE;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
+                    break;
+                case 'refresh':
+                default:
+                    $targetId=$this->target;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
+                    break;
+            }//END switch
         }//if(is_null($command))
         if(!$processCall) {
             return $command;
@@ -390,108 +386,73 @@ class TableView extends FilterControl {
         if(!isset($extra_params['filters']) || !is_array($extra_params['filters'])) {
             $extra_params['filters']=[];
         }
-        // NApp::Dlog($this->filters,'ProcessDataCallParams>>$this->filters');
-        if(is_array($this->initial_filters) && count($this->initial_filters)) {
-            foreach($this->initial_filters as $ifk=>$ifa) {
-                if($ifk=='qsearch') {
-                    if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) {
-                        continue;
+        foreach($this->filters as $k=>$filter) {
+            $fType=get_array_value($filter,'type','','is_string');
+            if($fType=='0') {
+                if(strlen($this->qsearch) && array_key_exists($this->qsearch,$params)) {
+                    $params[$this->qsearch]=get_array_value($filter,'value','','is_string');
+                }
+            } elseif($dsParam=get_array_value($this->columns,[$fType,'ds_param'],NULL,'is_notempty_string')) {
+                $params[$dsParam]=get_array_value($filter,'value',NULL,'isset');
+            } else {
+                $fField=get_array_value($filter,'field',NULL,'is_notempty_string');
+                // NApp::Dlog($fField,'$fField[0]');
+                if(is_null($fField)) {
+                    $fField=get_array_value($this->columns,[$fType,'entity_property'],NULL,'is_notempty_string');
+                    if(is_null($fField)) {
+                        $fField=get_array_value($this->columns,[$fType,'db_field'],$fType,'is_notempty_string');
                     }
-                    $params[$this->qsearch]=$ifa;
-                } else {
-                    if(array_key_exists($ifk,$params) && !is_array($ifa)) {
-                        $params[$ifk]=$ifa;
-                    } else {
-                        $fkey=get_array_value($this->columns[$ifk],'ds_param');
-                        if(strlen($fkey) && array_key_exists($fkey,$params)) {
-                            $params[$fkey]=is_array($ifa) ? $ifa['value'] : $ifa;
+                    // NApp::Dlog($fField,'$fField[0.1]');
+                    $fcRelations=get_array_value($this->columns,[$fType,'relation'],[],'is_array');
+                    $fieldPrefix='';
+                    if(count($fcRelations)) {
+                        end($fcRelations);
+                        $fieldPrefix=key($fcRelations).'.';
+                    }//if(count($fcRelations))
+                    // NApp::Dlog($fieldPrefix,'$fieldPrefix');
+                    $fcFilterFields=[];
+                    if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
+                        $fcFilterField=get_array_value($this->columns,[$fType,'filter_target_fields'],NULL,'?is_string');
+                        if(strlen($fcFilterField)) {
+                            $fcFilterFields=[$fcFilterField];
                         } else {
-                            $extra_params['filters'][]=[
-                                'field'=>$ifk,
-                                'condition_type'=>get_array_value($ifa,'condition_type','==','is_string'),
-                                'value'=>is_array($ifa) ? $ifa['value'] : $ifa,
-                                'svalue'=>get_array_value($ifa,'svalue','','is_string'),
-                                'logical_separator'=>get_array_value($ifa,'operator','and','is_string'),
-                                'data_type'=>get_array_value($ifa,'data_type','','is_string'),
-                            ];
-                        }//if(strlen($fkey) && array_key_exists($fkey,$params))
-                    }//if(array_key_exists($ifk,$params) && !is_array($ifa))
-                }//if($ifk=='qsearch')
-            }//END foreach
-            $this->initial_filters=NULL;
-        }//if(is_array($this->initial_filters) && count($this->initial_filters))
-        if(is_array($this->filters) && count($this->filters)) {
-            foreach($this->filters as $k=>$a) {
-                if((string)$a['type']=='0') {
-                    //NApp::Dlog($a['type'],'$a[type]');
-                    if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) {
-                        continue;
-                    }
-                    $params[$this->qsearch]=$a['value'];
-                } else {
-                    $fkey=get_array_value($this->columns[$a['type']],'ds_param');
-                    if(strlen($fkey) && array_key_exists($fkey,$params)) {
-                        $params[$fkey]=$a['value'];
+                            $fcFilterFields=get_array_value($this->columns,[$fType,'filter_target_fields'],[],'is_array');
+                        }
+                    }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
+                    if(count($fcFilterFields)) {
+                        $fField=[];
+                        foreach($fcFilterFields as $fItem) {
+                            $fField[]=$fieldPrefix.$fItem;
+                        }
                     } else {
-                        $fField=get_array_value($this->columns[$a['type']],'entity_property',get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string'),'is_notempty_string');
-                        // NApp::Dlog($fField,'field[0]');
-                        $fcRelations=get_array_value($this->columns[$a['type']],'relation',[],'is_array');
-                        $fieldPrefix='';
-                        if(count($fcRelations)) {
-                            end($fcRelations);
-                            $fieldPrefix=key($fcRelations).'.';
-                        }//if(count($fcRelations))
-                        // NApp::Dlog($fieldPrefix,'$fieldPrefix');
-                        $fcFilterFields=[];
-                        if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                            $fcFilterField=get_array_value($this->columns[$a['type']],'filter_target_fields',NULL,'?is_string');
-                            if(strlen($fcFilterField)) {
-                                $fcFilterFields=[$fcFilterField];
-                            } else {
-                                $fcFilterFields=get_array_value($this->columns[$a['type']],'filter_target_fields',[],'is_array');
-                            }
-                        }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
-                        if(count($fcFilterFields)) {
-                            $fField=[];
-                            foreach($fcFilterFields as $fItem) {
-                                $fField[]=$fieldPrefix.$fItem;
-                            }
-                        } else {
-                            $fField=$fieldPrefix.$fField;
-                        }//if(count($fcFilterFields))
-                        // NApp::Dlog($fField,'field[1]');
-                        // NApp::Dlog($a,'$a');
-                        $extra_params['filters'][]=[
-                            'field'=>$fField,
-                            'condition_type'=>$a['condition_type'],
-                            'value'=>$a['value'],
-                            'svalue'=>$a['svalue'],
-                            'logical_separator'=>$a['operator'],
-                            'data_type'=>$a['data_type'],
-                        ];
-                    }//if(strlen($fkey) && array_key_exists($fkey,$params))
-                }//if($a['type']==0)
-            }//END foreach
-        }//if(is_array($this->filters) && count($this->filters))
+                        $fField=$fieldPrefix.$fField;
+                    }//if(count($fcFilterFields))
+                    // NApp::Dlog($fField,'$fField[1]');
+                    // NApp::Dlog($filter,'$filter');
+                }//if(is_null($fField))
+                $filter['field']=$fField;
+                $extra_params['filters'][]=$filter;
+            }//if($fType=='0')
+        }//END foreach
         if($this->with_pagination && !$this->export_only) {
             $extra_params['type']='count-select';
-            $firstrow=$lastrow=NULL;
-            ControlsHelpers::GetPaginationParams($firstrow,$lastrow,$this->current_page);
-            $extra_params['first_row']=$firstrow;
-            $extra_params['last_row']=$lastrow;
+            $firstRow=$lastRow=NULL;
+            ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$this->current_page);
+            $extra_params['first_row']=$firstRow;
+            $extra_params['last_row']=$lastRow;
         }//if($this->with_pagination && !$this->export_only)
-        $sortcolumn=get_array_value($this->sortby,'column',NULL,'is_notempty_string');
+        $sortColumn=get_array_value($this->sortby,'column',NULL,'is_notempty_string');
         $extra_params['sort']=[];
         if($this->tree) {
             $extra_params['sort']['LVL']='ASC';
         }
-        if(strlen($sortcolumn)) {
+        if(strlen($sortColumn)) {
             if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                $extra_params['sort'][$sortcolumn]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+                $extra_params['sort'][$sortColumn]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
             } else {
-                $extra_params['sort'][strtoupper($sortcolumn)]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+                $extra_params['sort'][strtoupper($sortColumn)]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
             }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
-        }//if(strlen($sortcolumn))
+        }//if(strlen($sortColumn))
     }//END protected function ProcessDataCallParams
 
     /**
@@ -599,7 +560,6 @@ class TableView extends FilterControl {
      */
     protected function GetActionsBox(Params $params=NULL): ?string {
         // NApp::Dlog($params,'GetActionsBox>>$params');
-        // NApp::Dlog($this->filters,'GetActionsBox>>$this->filters');
         if(!$this->with_filter && $this->hide_actions_bar) {
             return NULL;
         }

@@ -1,9 +1,9 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
 use DateTime;
-use NETopes\Core\AppConfig;
-use NApp;
 use Doctrine\ORM\QueryBuilder;
+use NApp;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 
 /**
