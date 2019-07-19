@@ -631,7 +631,7 @@ class AppView {
      * @return bool
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId=NULL,?string $containerClass=NULL,?string $tag=NULL,?string $title=NULL,?array $actions=NULL): bool {
+    protected function ProcessSubContainer(?string &$content,string $containerType,?string $targetId=NULL,?string $containerClass=NULL,?string $tag=NULL,?string $title=NULL,?array $actions=NULL): bool {
         $tags=[];
         if(strlen($targetId)) {
             $tags['TARGETID']=$targetId;
