@@ -74,10 +74,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             throw new AppException("FAILED EXECUTE SET GLOBALS QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(ibase_errmsg() || $result===FALSE) {
-            $iberror=ibase_errmsg();
-            $iberrorcode=ibase_errcode();
+            $ibError=ibase_errmsg();
+            $ibErrorCode=ibase_errcode();
             $this->FirebirdSqlRollbackTran($transaction);
-            throw new AppException("FAILED EXECUTE SET GLOBALS QUERY: #ErrorCode:{$iberrorcode}# {$iberror} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$iberrorcode);
+            throw new AppException("FAILED EXECUTE SET GLOBALS QUERY: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(ibase_errmsg() || $result===FALSE)
         $this->FirebirdSqlCommitTran($transaction);
         $this->DbDebug($query,'Query',$time);
@@ -141,6 +141,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      *                            if not exists (defaul value FALSE)
      * @param array  $tran_params Custom transaction arguments
      * @return object Returns the transaction instance
+     * @throws \NETopes\Core\AppException
      */
     public function FirebirdSqlGetTran($name,$log=FALSE,$start=TRUE,$tran_params=NULL) {
         if(!is_string($name) || !strlen($name)) {
@@ -164,6 +165,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      *                            if exists (defaul value FALSE)
      * @param array  $tran_params Custom transaction arguments
      * @return object Returns the transaction instance
+     * @throws \NETopes\Core\AppException
      */
     public function FirebirdSqlBeginTran(&$name,$log=FALSE,$overwrite=TRUE,$tran_params=NULL) {
         if(!is_string($name) || !strlen($name)) {
@@ -177,7 +179,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             array_unshift($tran_params,$this->connection);
         } else {
             $tran_params=[IBASE_WRITE,IBASE_COMMITTED,IBASE_REC_NO_VERSION,IBASE_WAIT];
-        }//if(is_array($custom_tran_params) && count($custom_tran_params))
+        }//if(is_array($customTranParams) && count($customTranParams))
         $this->transactions[$name]=call_user_func_array('ibase_trans',$tran_params);
         // $this->DbDebug($name.' => TRANSACTION STARTED >>'.print_r($tran_params,1),'BeginTran',NULL,$log);
         $this->DbDebug($name.' => TRANSACTION STARTED','BeginTran',NULL,$log);
@@ -190,6 +192,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @param string $name Transaction name
      * @param bool   $log
      * @return bool Returns TRUE on success or FALSE otherwise
+     * @throws \NETopes\Core\AppException
      */
     public function FirebirdSqlRollbackTran($name,$log=FALSE) {
         $result=FALSE;
@@ -213,6 +216,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @param bool   $log
      * @param bool   $preserve
      * @return bool Returns TRUE on success or FALSE otherwise
+     * @throws \NETopes\Core\AppException
      */
     public function FirebirdSqlCommitTran($name,$log=FALSE,$preserve=FALSE) {
         $result=FALSE;
@@ -288,19 +292,19 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
     }//END private function GetOrderBy
 
     /**
-     * @param $firstrow
-     * @param $lastrow
+     * @param $firstRow
+     * @param $lastRow
      * @return string
      */
-    private function GetOffsetAndLimit($firstrow,$lastrow): string {
+    private function GetOffsetAndLimit($firstRow,$lastRow): string {
         $result='';
-        if(is_numeric($firstrow) && $firstrow>0) {
-            if(is_numeric($lastrow) && $lastrow>0) {
-                $result.=' ROWS '.$firstrow.' TO '.$lastrow;
+        if(is_numeric($firstRow) && $firstRow>0) {
+            if(is_numeric($lastRow) && $lastRow>0) {
+                $result.=' ROWS '.$firstRow.' TO '.$lastRow;
             } else {
-                $result.=' ROWS '.$firstrow;
-            }//if(is_numeric($lastrow) && $lastrow>0)
-        }//if(is_numeric($firstrow) && $firstrow>0)
+                $result.=' ROWS '.$firstRow;
+            }//if(is_numeric($lastRow) && $lastRow>0)
+        }//if(is_numeric($firstRow) && $firstRow>0)
         return $result;
     }//END private function GetOffsetAndLimit
 
@@ -372,7 +376,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             case '><':
                 $conditionString='BETWEEN ';
                 $filterValueS=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
-                $filterValueE=$this->EscapeString(get_array_value($condition,'svalue',NULL,'?is_notempty_string'));
+                $filterValueE=$this->EscapeString(get_array_value($condition,'end_value',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $daypart=0;
@@ -404,27 +408,53 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
     }//END private function GetFilterCondition
 
     /**
+     * @param array       $filters
+     * @param string|null $logicalOperator
+     * @return string
+     * @throws \Exception
+     */
+    private function GetFiltersCondition(array $filters,?string &$logicalOperator=NULL): string {
+        $result='';
+        $first=TRUE;
+        foreach($filters as $v) {
+            if(is_array($v)) {
+                $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                $condition=$this->GetFilterCondition($v);
+            } else {
+                $sep='AND';
+                $condition=$v;
+            }//if(is_array($v))
+            $result.=($result ? ' '.strtoupper($sep).' ' : ' ').'('.$condition.')';
+            if($first) {
+                $logicalOperator=$sep;
+                $first=FALSE;
+            }
+        }//END foreach
+        return $result;
+    }//END private function GetFiltersCondition
+
+    /**
      * Prepares the query string for execution
      *
      * @param string $query      The query string (by reference)
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
+     * @param array  $outParams  An array of output params
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
-     * @param null   $raw_query
-     * @param null   $bind_params
+     * @param null   $rawQuery
+     * @param null   $bindParams
      * @param null   $transaction
      * @return void
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    public function FirebirdSqlPrepareQuery(&$query,$params=[],$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
+    public function FirebirdSqlPrepareQuery(&$query,$params=[],$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$p) {
                 if($p instanceof DateTime) {
@@ -432,49 +462,43 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 } else {
                     $p=$this->EscapeString($p);
                     if(strlen($p)>4000) {
-                        $bpid=$this->AddBlobParam($p,$transaction);
-                        if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) {
+                        $bpId=$this->AddBlobParam($p,$transaction);
+                        if(!isset($bpId) || (!is_string($bpId) && !strlen($bpId))) {
                             throw new AppException('Invalid query parameter!',E_USER_ERROR);
                         }
-                        if(!is_array($bind_params)) {
-                            $bind_params=[];
+                        if(!is_array($bindParams)) {
+                            $bindParams=[];
                         }
-                        $bind_params[]=$bpid;
+                        $bindParams[]=$bpId;
                         $query=str_replace('{!'.$k.'!}','?',$query);
                     } else {
                         $query=str_replace('{!'.$k.'!}',$p,$query);
-                    }//if(strlen($v)>4000)
+                    }//if(strlen($p)>4000)
                 }//if($p instanceof \DateTime)
             }//END foreach
         }//if(is_array($params) && count($params))
-        $filter_str='';
+        $filterCondition='';
         if(is_array($filters)) {
+            $logicalOperator=NULL;
+            $filterCondition=$this->GetFiltersCondition($filters,$logicalOperator);
             if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
-                $filter_prefix=' WHERE ';
-                $filter_sufix=' ';
+                $filterPrefix=' WHERE ';
+                $filterSufix=' ';
             } else {
-                $filter_prefix=' AND (';
-                $filter_sufix=') ';
+                $filterPrefix=' '.($logicalOperator ?? 'AND').' (';
+                $filterSufix=') ';
             }//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
-            foreach($filters as $v) {
-                if(is_array($v)) {
-                    $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
-                    $filter_str.=($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
-                } else {
-                    $filter_str.=($filter_str ? ' AND ' : ' ').'('.$v.')';
-                }//if(is_array($v))
-            }//END foreach
-            $filter_str=strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+            $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
         } elseif(is_string($filters) && strlen($filters)) {
-            $filter_str=" {$filters} ";
+            $filterCondition=" {$filters} ";
         }//if(is_array($filters))
-        $query.=$filter_str;
-        $raw_query=$query;
+        $query.=$filterCondition;
+        $rawQuery=$query;
         if($type=='count') {
             return;
         }
         $query.=$this->GetOrderBy($sort);
-        $query.=$this->GetOffsetAndLimit($firstrow,$lastrow);
+        $query.=$this->GetOffsetAndLimit($firstRow,$lastRow);
     }//END public function FirebirdSqlPrepareQuery
 
     /**
@@ -483,85 +507,85 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @param string $query      The query string
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
+     * @param array  $outParams  An array of output params
+     * @param string $tranName   Name of transaction in which the query will run
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param null   $filters
      * @param bool   $log
-     * @param null   $results_keys_case
-     * @param null   $custom_tran_params
+     * @param null   $resultsKeysCase
+     * @param null   $customTranParams
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlExecuteQuery($query,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+    public function FirebirdSqlExecuteQuery($query,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
         $transaction=NULL;
-        if(is_string($tran_name) && strlen($tran_name)) {
+        if(is_string($tranName) && strlen($tranName)) {
             try {
-                $transaction=$this->FirebirdSqlGetTran($tran_name,$log,FALSE,$custom_tran_params);
+                $transaction=$this->FirebirdSqlGetTran($tranName,$log,FALSE,$customTranParams);
                 if(is_null($transaction)) {
-                    throw new AppException('Invalid transaction: '.$tran_name);
+                    throw new AppException('Invalid transaction: '.$tranName);
                 }
             } catch(Exception $e) {
                 throw new AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
             }//END try
         } else {
-            $tran_name=NULL;
-        }//if(is_string($tran_name) && strlen($tran_name))
-        $raw_query=NULL;
-        $bind_params=NULL;
-        $this->FirebirdSqlPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$bind_params,$transaction);
-        if(!is_array($out_params)) {
-            $out_params=[];
+            $tranName=NULL;
+        }//if(is_string($tranName) && strlen($tranName))
+        $rawQuery=NULL;
+        $bindParams=NULL;
+        $this->FirebirdSqlPrepareQuery($query,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
+        if(!is_array($outParams)) {
+            $outParams=[];
         }
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
-        $final_result=NULL;
+        $outParams['rawsqlqry']=$rawQuery;
+        $outParams['sqlqry']=$query;
+        $finalResult=NULL;
         try {
             if(is_resource($transaction)) {
-                $pqry=ibase_prepare($this->connection,$transaction,$query);
+                $pQry=ibase_prepare($this->connection,$transaction,$query);
             } else {
-                $pqry=ibase_prepare($this->connection,$query);
+                $pQry=ibase_prepare($this->connection,$query);
             }//if(is_resource($transaction))
-            if(!is_array($bind_params) || !count($bind_params)) {
-                $result=ibase_execute($pqry);
+            if(!is_array($bindParams) || !count($bindParams)) {
+                $result=ibase_execute($pQry);
             } else {
-                array_unshift($bind_params,$pqry);
-                $result=call_user_func_array('ibase_execute',$bind_params);
-            }//if(!is_array($bind_params) || !count($bind_params))
+                array_unshift($bindParams,$pQry);
+                $result=call_user_func_array('ibase_execute',$bindParams);
+            }//if(!is_array($bindParams) || !count($bindParams))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
+            $this->FirebirdSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(strlen(ibase_errmsg())) { // || $result===FALSE
-            $iberror=ibase_errmsg();
-            $iberrorcode=ibase_errcode();
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
-            throw new AppException("FAILED QUERY: #ErrorCode:{$iberrorcode}# {$iberror} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$iberrorcode);
+            $ibError=ibase_errmsg();
+            $ibErrorCode=ibase_errcode();
+            $this->FirebirdSqlRollbackTran($tranName,$log);
+            throw new AppException("FAILED QUERY: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(strlen(ibase_errmsg()))
         try {
             if(is_resource($result)) {
                 while($data=ibase_fetch_assoc($result,IBASE_TEXT)) {
-                    $final_result[]=$data;
+                    $finalResult[]=$data;
                 }
                 ibase_free_result($result);
             } else {
-                $final_result=$result;
+                $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
+            $this->FirebirdSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
-        if(is_null($tran_name)) {
+        if(is_null($tranName)) {
             $this->FirebirdSqlCommitTran(NULL,FALSE);
         }
         $this->DbDebug($query,'Query',$time,$log);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+        return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function FirebirdSqlExecuteQuery
 
     /**
@@ -570,22 +594,22 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
+     * @param array  $outParams  An array of output params
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
-     * @param null   $raw_query
-     * @param null   $bind_params
+     * @param null   $rawQuery
+     * @param null   $bindParams
      * @param null   $transaction
      * @return string|resource Returns processed command string or the statement resource
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    protected function FirebirdSqlPrepareProcedureStatement($procedure,$params=[],&$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
+    protected function FirebirdSqlPrepareProcedureStatement($procedure,$params=[],&$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
         if(is_array($params)) {
             if(count($params)) {
                 $parameters='';
@@ -599,10 +623,10 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                             if(!isset($bpid) || (!is_string($bpid) && !strlen($bpid))) {
                                 throw new AppException('Invalid query parameter!',E_USER_ERROR);
                             }
-                            if(!is_array($bind_params)) {
-                                $bind_params=[];
+                            if(!is_array($bindParams)) {
+                                $bindParams=[];
                             }
-                            $bind_params[]=$bpid;
+                            $bindParams[]=$bpid;
                             $parameters.=(strlen($parameters) ? ',?' : '(?');
                         } else {
                             $parameters.=(strlen($parameters) ? ',' : '(').(is_null($p) ? 'NULL' : "'{$p}'");
@@ -616,131 +640,124 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         } else {
             $parameters=$params;
         }//if(is_array($params))
-        $filter_str='';
+        $filterCondition='';
         if(strtolower($type)=='execute') {
-            $raw_query=$procedure.$parameters;
+            $rawQuery=$procedure.$parameters;
         } else {
             if(is_array($filters)) {
-                $filter_prefix=' WHERE ';
-                $filter_sufix=' ';
-                foreach($filters as $v) {
-                    if(is_array($v)) {
-                        $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
-                        $filter_str.=($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
-                    } else {
-                        $filter_str.=($filter_str ? ' AND ' : ' ').'('.$v.')';
-                    }//if(is_array($v))
-                }//END foreach
-                $filter_str=strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+                $filterPrefix=' WHERE ';
+                $filterSufix=' ';
+                $filterCondition=$this->GetFiltersCondition($filters);
+                $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
             } elseif(is_string($filters) && strlen($filters)) {
-                $filter_str=strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
+                $filterCondition=strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
             }//if(is_array($filters))
-            $raw_query=$procedure.$parameters.$filter_str;
+            $rawQuery=$procedure.$parameters.$filterCondition;
         }//if(strtolower($type)=='execute')
         switch(strtolower($type)) {
             case 'execute':
                 $query='EXECUTE PROCEDURE '.$procedure.$parameters;
                 break;
             case 'count':
-                $query='SELECT COUNT (1) FROM '.$procedure.$parameters.$filter_str;
+                $query='SELECT COUNT (1) FROM '.$procedure.$parameters.$filterCondition;
                 break;
             case 'select':
             default:
-                $query='SELECT * FROM '.$procedure.$parameters.$filter_str;
+                $query='SELECT * FROM '.$procedure.$parameters.$filterCondition;
                 $query.=$this->GetOrderBy($sort);
-                $query.=$this->GetOffsetAndLimit($firstrow,$lastrow);
+                $query.=$this->GetOffsetAndLimit($firstRow,$lastRow);
                 break;
         }//END switch
         return $query;
     }//END protected function FirebirdSqlPrepareProcedureStatement
 
     /**
-     * Executs a stored procedure against the database
+     * Executes a stored procedure against the database
      *
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
+     * @param array  $outParams  An array of output params
+     * @param string $tranName   Name of transaction in which the query will run
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
      * @param bool   $log
-     * @param null   $results_keys_case
-     * @param null   $custom_tran_params
+     * @param null   $resultsKeysCase
+     * @param null   $customTranParams
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlExecuteProcedure($procedure,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+    public function FirebirdSqlExecuteProcedure($procedure,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
         $transaction=NULL;
-        if(is_string($tran_name) && strlen($tran_name)) {
+        if(is_string($tranName) && strlen($tranName)) {
             try {
-                $transaction=$this->FirebirdSqlGetTran($tran_name,$log,FALSE,$custom_tran_params);
+                $transaction=$this->FirebirdSqlGetTran($tranName,$log,FALSE,$customTranParams);
                 if(is_null($transaction)) {
-                    throw new AppException('Invalid transaction: '.$tran_name);
+                    throw new AppException('Invalid transaction: '.$tranName);
                 }
             } catch(Exception $e) {
                 throw new AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$procedure}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
             }//END try
         } else {
-            $tran_name=NULL;
-        }//if(is_string($tran_name) && strlen($tran_name))
-        if(!is_array($out_params)) {
-            $out_params=[];
+            $tranName=NULL;
+        }//if(is_string($tranName) && strlen($tranName))
+        if(!is_array($outParams)) {
+            $outParams=[];
         }
         $sql_params=NULL;
-        $raw_query=NULL;
-        $bind_params=NULL;
-        $query=$this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$bind_params,$transaction);
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
+        $rawQuery=NULL;
+        $bindParams=NULL;
+        $query=$this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
+        $outParams['rawsqlqry']=$rawQuery;
+        $outParams['sqlqry']=$query;
         //if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
-        $final_result=NULL;
+        $finalResult=NULL;
         try {
             if(is_resource($transaction)) {
-                $pqry=ibase_prepare($this->connection,$transaction,$query);
+                $pQry=ibase_prepare($this->connection,$transaction,$query);
             } else {
-                $pqry=ibase_prepare($this->connection,$query);
+                $pQry=ibase_prepare($this->connection,$query);
             }//if(is_resource($transaction))
-            if(!is_array($bind_params) || !count($bind_params)) {
-                $result=ibase_execute($pqry);
+            if(!is_array($bindParams) || !count($bindParams)) {
+                $result=ibase_execute($pQry);
             } else {
-                array_unshift($bind_params,$pqry);
-                $result=call_user_func_array('ibase_execute',$bind_params);
-            }//if(!is_array($bind_params) || !count($bind_params))
+                array_unshift($bindParams,$pQry);
+                $result=call_user_func_array('ibase_execute',$bindParams);
+            }//if(!is_array($bindParams) || !count($bindParams))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
+            $this->FirebirdSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(strlen(ibase_errmsg())) { //|| $result===FALSE) {
-            $iberror=ibase_errmsg();
-            $iberrorcode=ibase_errcode();
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
-            throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:{$iberrorcode}# {$iberror} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$iberrorcode);
+            $ibError=ibase_errmsg();
+            $ibErrorCode=ibase_errcode();
+            $this->FirebirdSqlRollbackTran($tranName,$log);
+            throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(strlen(ibase_errmsg()))
         try {
             if(is_resource($result)) {
                 while($data=ibase_fetch_assoc($result,IBASE_TEXT)) {
-                    $final_result[]=$data;
+                    $finalResult[]=$data;
                 }
                 ibase_free_result($result);
             } else {
-                $final_result=$result;
+                $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tran_name,$log);
+            $this->FirebirdSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: $query",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
-        if(is_null($tran_name)) {
+        if(is_null($tranName)) {
             $this->FirebirdSqlCommitTran(NULL,FALSE);
         }
         $this->DbDebug($query,'Query',$time,$log);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+        return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function FirebirdSqlExecuteProcedure
 
     /**

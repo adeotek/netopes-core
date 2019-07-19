@@ -36,7 +36,7 @@ abstract class DataAdapter {
      */
     public $debug2file=FALSE;
     /**
-     * @var    object Database connection object
+     * @var    resource Database connection object
      */
     protected $connection=NULL;
     /**
@@ -81,7 +81,7 @@ abstract class DataAdapter {
         $this->debug=AppConfig::GetValue('db_debug');
         $this->debug2file=AppConfig::GetValue('db_debug2file');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
-            throw new AppException('Incorect database connection',E_ERROR,1);
+            throw new AppException('Incorrect database connection',E_ERROR,1);
         }
         $this->dbName=$connection['db_name'];
         $this->dbType=$connection['db_type'];
@@ -125,12 +125,19 @@ abstract class DataAdapter {
     /**
      * Gets the database connection object
      *
-     * @return object Returns the current connection to the database
+     * @return resource Returns the current connection to the database
      */
     public function GetConnection() {
         return $this->connection;
     }//END public function GetConnection
 
+    /**
+     * @param      $query
+     * @param null $label
+     * @param null $time
+     * @param bool $forced
+     * @throws \NETopes\Core\AppException
+     */
     protected function DbDebug($query,$label=NULL,$time=NULL,$forced=FALSE) {
         if(!$this->debug && !$forced) {
             return;

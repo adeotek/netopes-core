@@ -3,7 +3,7 @@
  * BaseEntity class file
  * Base for all entities implementations
  *
- * @package    NETopes\Core\App
+ * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md

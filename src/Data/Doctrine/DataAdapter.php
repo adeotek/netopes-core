@@ -89,6 +89,9 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
             if($persistentCache) {
                 $config->setQueryCacheImpl($cacheDriver);
             }
+            if(AppConfig::GetValue('db_debug')) {
+                $config->setSQLLogger(new Logger());
+            }
             if($dbtype=='FirebirdSql') {
                 $conn_arr=[
                     'host'=>$connection['db_server'],

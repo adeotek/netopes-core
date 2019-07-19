@@ -33,7 +33,7 @@ abstract class FilterControl {
      * Item elements:
      * - 'type'                     >> 'f_type'      : string (mandatory)   - filter type (filter field or unique key)
      * - 'group_id'                 >> 'g_id'        : string (mandatory)   - group id
-     * - 'logical_operator'         >> 'l_op'        : string (mandatory)   - logical operator
+     * - 'logical_separator'         >> 'l_op'        : string (mandatory)   - logical operator
      * - 'condition_type'           >> 'f_c_type'    : string (mandatory)   - filter condition type
      * - 'field'                    >> 'f_field'     : string               - filter field
      * - 'data_type'                >> 'f_d_type'    : string               - filter data type
@@ -209,14 +209,14 @@ abstract class FilterControl {
         foreach($initialFilters as $filter) {
             $fType=get_array_value($filter,'type',NULL,'?is_string');
             $cType=get_array_value($filter,'condition_type',NULL,'?is_string');
-            $operator=get_array_value($filter,'operator',NULL,'?is_string');
+            $operator=get_array_value($filter,'logical_separator',NULL,'?is_string');
             if(!strlen($fType) || !strlen($cType) || !strlen($operator)) {
                 continue;
             }
             $this->filters[]=[
                 'type'=>$fType,
                 'group_id'=>get_array_value($filter,'group_id',NULL,'?is_string'),
-                'operator'=>$operator,
+                'logical_separator'=>$operator,
                 'is_ds_param'=>get_array_value($filter,'is_ds_param',0,'is_integer'),
                 'condition_type'=>$cType,
                 'data_type'=>get_array_value($filter,'data_type',NULL,'?is_string'),
@@ -291,7 +291,7 @@ abstract class FilterControl {
         } elseif(!strlen($groupId)) {
             $groupId='_1';
         }
-        $filters[]=['type'=>$type,'group_id'=>$groupId,'operator'=>$op,'is_ds_param'=>$isDsParam,'condition_type'=>$cType,'data_type'=>$dType,'field'=>$field,'value'=>$value,'end_value'=>$eValue,'display_value'=>$dValue,'end_display_value'=>$edValue,'value_field'=>$vField,'value_data_type'=>$vdType,'value_value'=>$vValue,'value_end_value'=>$veValue,'value_display_value'=>$vdValue,'value_end_display_value'=>$vedValue,'guid'=>uniqid()];
+        $filters[]=['type'=>$type,'group_id'=>$groupId,'logical_separator'=>$op,'is_ds_param'=>$isDsParam,'condition_type'=>$cType,'data_type'=>$dType,'field'=>$field,'value'=>$value,'end_value'=>$eValue,'display_value'=>$dValue,'end_display_value'=>$edValue,'value_field'=>$vField,'value_data_type'=>$vdType,'value_value'=>$vValue,'value_end_value'=>$veValue,'value_display_value'=>$vdValue,'value_end_display_value'=>$vedValue,'guid'=>uniqid()];
         return TRUE;
     }//END protected function ProcessFilterItem
 
@@ -518,12 +518,12 @@ abstract class FilterControl {
             }
             if($lFilterType==$k || (!strlen($lFilterType) && !$isQuickSearch && !$selectedItem)) {
                 $lSelected=' selected="selected"';
-                $filterType=get_array_value($v,'filter_type',NULL,'?is_string');
+                $filterType=get_array_value($v,'filter_type','','is_string');
                 $selectedItem=$v;
             } else {
                 $lSelected='';
                 if(is_null($filterType)) {
-                    $filterType=get_array_value($v,'filter_type',NULL,'?is_string');
+                    $filterType=get_array_value($v,'filter_type','','is_string');
                     $selectedItem=$v;
                 }//if(is_null($filterType))
             }//if($cfType==$k || (!strlen($cfType) && !$isQuickSearch && !$selectedItem))
@@ -861,7 +861,7 @@ abstract class FilterControl {
         $result='';
         $logicalOperator=NULL;
         foreach($filters as $filter) {
-            $logicalOperator=is_null($logicalOperator) ? '' : Translate::GetLabel($filter['operator']).' ';
+            $logicalOperator=is_null($logicalOperator) ? '' : Translate::GetLabel($filter['logical_separator']).' ';
             if($filter['condition_type']=='><') {
                 $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalOperator.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'].'</strong>&quot;</div>'."\n";
             } else {
@@ -890,7 +890,7 @@ abstract class FilterControl {
                 $result.=$this->GetActiveFilterItem($items,[$group],$fcTypes);
                 continue;
             }
-            $logicalOperator=$first ? '' : Translate::GetLabel($group['operator']).' ';
+            $logicalOperator=$first ? '' : Translate::GetLabel($group['logical_separator']).' ';
             $gId=(strlen($parent) ? $parent.'-' : '_').trim($gKey,'_');
             $gName=(strlen($parent) ? str_replace('-','.',trim($parent,'_')).'.' : '').trim($gKey,'_');
             $result.="\t\t\t\t\t".'<div class="f-items-group g-offset-'.$level.'">'.$logicalOperator.Translate::GetLabel('group').' ['.$gName.']'."\n";

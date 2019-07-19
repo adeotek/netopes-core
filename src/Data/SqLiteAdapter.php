@@ -171,7 +171,7 @@ class SqLiteAdapter extends SqlDataAdapter {
     }//public function SqLitePrepareQuery
 
     /**
-     * Executs a query against the database
+     * Executes a query against the database
      *
      * @param string $query      The query string
      * @param array  $params     An array of parameters

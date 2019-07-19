@@ -449,7 +449,7 @@ function array_to_hierarchy(array $input,array $output=[],?string $keyPrefix=NUL
 function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL,?callable $filter=NULL): array {
     $grouped=[];
     foreach($array as $item) {
-        if(!$filter($item)) {
+        if(isset($filter) && !$filter($item)) {
             continue;
         }
         $dKey=get_array_value($item,$key,NULL);

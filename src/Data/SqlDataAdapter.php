@@ -10,6 +10,7 @@
  * @version    3.1.0.0
  * @filesource
  */
+/** @noinspection PhpMissingParentConstructorInspection */
 namespace NETopes\Core\Data;
 use Exception;
 use NApp;
@@ -36,7 +37,7 @@ abstract class SqlDataAdapter extends DataAdapter {
         $this->debug=AppConfig::GetValue('db_debug');
         $this->debug2file=AppConfig::GetValue('db_debug2file');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
-            throw new AppException('Incorect database connection',E_ERROR,1);
+            throw new AppException('Incorrect database connection',E_ERROR,1);
         }
         $this->dbName=$connection['db_name'];
         $this->dbType=$connection['db_type'];
@@ -100,7 +101,7 @@ abstract class SqlDataAdapter extends DataAdapter {
      * Sets the connection to a new pdo connection
      *
      * @param array $connection Database connection array
-     * @return bool Returns TRUE on success or FALSE on failure
+     * @return PDO|null Returns PDO object on success or NULL on failure
      * @throws \NETopes\Core\AppException
      */
     protected function SetPdoConnection($connection) {
@@ -172,7 +173,7 @@ abstract class SqlDataAdapter extends DataAdapter {
     }//END public function CommitTran
 
     /**
-     * Executs a query against the database
+     * Executes a query against the database
      *
      * @param string $query        The query string
      * @param array  $params       An array of parameters
@@ -181,11 +182,11 @@ abstract class SqlDataAdapter extends DataAdapter {
      *                             * 'transaction'= name of transaction in which the query will run
      *                             * 'type' = request type: select, count, execute (default 'select')
      *                             * 'first_row' = integer to limit number of returned rows
-     *                             (if used with 'last_row' reprezents the offset of the returned rows)
+     *                             (if used with 'last_row' represents the offset of the returned rows)
      *                             * 'last_row' = integer to limit number of returned rows
      *                             (to be used only with 'first_row')
      *                             * 'sort' = an array of fields to compose ORDER BY clause
-     *                             * 'filters' = an array of condition to be applyed in WHERE clause
+     *                             * 'filters' = an array of condition to be applied in WHERE clause
      *                             * 'out_params' = an array of output params
      * @return array|bool Returns database request result
      */
@@ -207,7 +208,7 @@ abstract class SqlDataAdapter extends DataAdapter {
     }//END public function ExecuteQuery
 
     /**
-     * Executs a stored procedure against the database
+     * Executes a stored procedure against the database
      *
      * @param string $procedure    The name of the stored procedure
      * @param array  $params       An array of parameters
@@ -216,11 +217,11 @@ abstract class SqlDataAdapter extends DataAdapter {
      *                             * 'transaction'= name of transaction in which the query will run
      *                             * 'type' = request type: select, count, execute (default 'select')
      *                             * 'first_row' = integer to limit number of returned rows
-     *                             (if used with 'last_row' reprezents the offset of the returned rows)
+     *                             (if used with 'last_row' represents the offset of the returned rows)
      *                             * 'last_row' = integer to limit number of returned rows
      *                             (to be used only with 'first_row')
      *                             * 'sort' = an array of fields to compose ORDER BY clause
-     *                             * 'filters' = an array of condition to be applyed in WHERE clause
+     *                             * 'filters' = an array of condition to be applied in WHERE clause
      *                             * 'out_params' = an array of output params
      * @return array|bool Returns database request result
      */
@@ -249,7 +250,7 @@ abstract class SqlDataAdapter extends DataAdapter {
     }//END public function ExecuteProcedure
 
     /**
-     * Executs a method of the database object or a sub-object of it
+     * Executes a method of the database object or a sub-object of it
      *
      * @param string $method       The name of the method to be executed
      * @param string $property     The name of the sub-object containing the method
@@ -268,67 +269,99 @@ abstract class SqlDataAdapter extends DataAdapter {
         return $this::$cmethod($method,$property,$params,$extra_params,$log);
     }//END public function ExecuteQuery
 
+    /**
+     * @param      $name
+     * @param bool $log
+     * @param bool $overwrite
+     * @return resource|null
+     * @throws \NETopes\Core\AppException
+     */
     public function PdoBeginTran($name,$log=TRUE,$overwrite=TRUE) {
-        if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name])) {
+        if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
             if($overwrite===TRUE) {
                 try {
-                    $this->pdo_transactions[$name]=new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
-                    $this->pdo_transactions[$name]->beginTransaction();
-                    return $this->pdo_transactions[$name];
+                    $this->transactions[$name]=new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
+                    $this->transactions[$name]->beginTransaction();
+                    return $this->transactions[$name];
                 } catch(PDOException $e) {
                     throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
                 }//try
             }//if($overwrite===TRUE)
             return NULL;
-        }//if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name]))
+        }//if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name]))
         try {
-            $this->pdo_transactions[$name]=new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
-            $this->pdo_transactions[$name]->beginTransaction();
-            return $this->pdo_transactions[$name];
+            $this->transactions[$name]=new PDO($this->pdo_connection_string,$this->pdo_connection_user,$this->pdo_connection_password);
+            $this->transactions[$name]->beginTransaction();
+            return $this->transactions[$name];
         } catch(PDOException $e) {
             throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
         }//try
     }//END public function PdoBeginTran
 
+    /**
+     * @param      $name
+     * @param bool $log
+     * @return bool
+     * @throws \NETopes\Core\AppException
+     */
     public function PdoRollbackTran($name,$log=FALSE) {
-        if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name])) {
+        if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
             try {
-                $this->pdo_transactions[$name]->rollBack();
-                unset($this->pdo_transactions[$name]);
+                $this->transactions[$name]->rollBack();
+                unset($this->transactions[$name]);
                 return TRUE;
             } catch(PDOException $e) {
                 throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
             }//try
-        }//if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name]))
+        }//if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name]))
         return FALSE;
     }//END public function PdoRollbackTran
 
+    /**
+     * @param      $name
+     * @param bool $log
+     * @return bool
+     * @throws \NETopes\Core\AppException
+     */
     public function PdoCommitTran($name,$log=FALSE) {
-        if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name])) {
+        if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name])) {
             try {
-                $this->pdo_transactions[$name]->commit();
-                unset($this->pdo_transactions[$name]);
+                $this->transactions[$name]->commit();
+                unset($this->transactions[$name]);
                 return TRUE;
             } catch(PDOException $e) {
                 throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
             }//try
-        }//if(array_key_exists($name,$this->pdo_transactions) && isset($this->pdo_transactions[$name]))
+        }//if(array_key_exists($name,$this->transactions) && isset($this->transactions[$name]))
         return FALSE;
     }//END public function PdoCommitTran
 
+    /**
+     * @param        $query
+     * @param array  $params
+     * @param array  $out_params
+     * @param null   $tran_name
+     * @param string $type
+     * @param null   $firstrow
+     * @param null   $lastrow
+     * @param null   $sort
+     * @param bool   $log
+     * @return array
+     * @throws \NETopes\Core\AppException
+     */
     public function PdoExecuteQuery($query,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$log=FALSE) {
         $time=microtime(TRUE);
         $trans=FALSE;
         $method=$this->dbType.'PrepareQuery';
         self::$method($query,$params,$out_params,$type,$firstrow,$lastrow,$sort);
-        $conn=$this->pdo_connection;
+        $conn=$this->connection;
         if(strlen($tran_name)>0) {
             $trans=TRUE;
-            if(array_key_exists($tran_name,$this->pdo_transactions) && isset($this->pdo_transactions[$tran_name])) {
-                $conn=$this->pdo_transactions[$tran_name];
+            if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
+                $conn=$this->transactions[$tran_name];
             } else {
                 throw new AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_ERROR,1,NULL,NULL,'pdo',0);
-            }//if(array_key_exists($tran_name,$this->pdo_transactions))
+            }//if(array_key_exists($tran_name,$this->transactions))
         }//if(strlen($tran_name)>0)
         $final_result=NULL;
         try {
@@ -342,25 +375,40 @@ abstract class SqlDataAdapter extends DataAdapter {
             if($trans) {
                 $this->PdoRollbackTran($tran_name);
             }
-            throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
+            throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode());
         }//try
         //if($this->debug==1) {echo " #Duration: ".number_format((microtime(TRUE)-$time),3,'.','')." sec#<br/>";}
         return change_array_keys_case($final_result,TRUE);
     }//END public function PdoExecuteQuery
 
+    /**
+     * @param        $procedure
+     * @param array  $params
+     * @param array  $out_params
+     * @param null   $tran_name
+     * @param string $type
+     * @param null   $firstrow
+     * @param null   $lastrow
+     * @param null   $sort
+     * @param null   $filters
+     * @param bool   $log
+     * @return array
+     * @throws \NETopes\Core\AppException
+     */
     public function PdoExecuteProcedure($procedure,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE) {
         $time=microtime(TRUE);
         $trans=FALSE;
+        $transaction=NULL;
         $method=$this->dbType.'PrepareProcedureStatement';
         $query=self::$method($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
         $conn=$this->connection;
         if(strlen($tran_name)>0) {
             $trans=TRUE;
-            if(array_key_exists($tran_name,$this->pdo_transactions)) {
+            if(array_key_exists($tran_name,$this->transactions)) {
                 $transaction=$tran_name;
             } else {
                 throw new AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_ERROR,1,NULL,NULL,'pdo',0);
-            }//if(array_key_exists($tran_name,$this->pdo_transactions))
+            }//if(array_key_exists($tran_name,$this->transactions))
         }//if(strlen($tran_name)>0)
         $final_result=NULL;
         try {

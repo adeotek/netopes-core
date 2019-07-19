@@ -37,7 +37,6 @@ class BaseRepository extends EntityRepository {
             }//END foreach
         }//if(is_array($sort) && count($sort))
         $qb->setMaxResults($rowNum);
-        $this->DbDebug($qb->getQuery(),'getSearchResults');
         return $qb->getQuery()->getResult();
     }//END public function getSearchResults
 }//END class BaseRepository extends EntityRepository
