@@ -94,22 +94,22 @@ abstract class DataAdapter {
      *
      * @param string $type       Database type (Firebird/MySql/SqLite/SqlSrv/MongoDb/Oracle)
      * @param array  $connection Database connection array
-     * @param bool   $existing_only
+     * @param bool   $existingOnly
      * @return object Returns the singleton database instance
      */
-    public static function GetInstance($type,$connection,$existing_only=FALSE) {
+    public static function GetInstance($type,$connection,$existingOnly=FALSE) {
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_name',$connection) || !$connection['db_name'] || !$type) {
             return NULL;
         }
-        $dbclass=get_called_class();
-        $dbiname=AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
-        if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection)) {
-            if($existing_only) {
+        $dbClass=get_called_class();
+        $dbiName=AppSession::GetNewUID($type.'|'.serialize($connection),'sha1',TRUE);
+        if(!array_key_exists($dbiName,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiName]) || !is_resource(self::$_dbAdapterInstances[$dbiName]->connection)) {
+            if($existingOnly) {
                 return NULL;
             }
-            self::$_dbAdapterInstances[$dbiname]=new $dbclass($connection);
-        }//if(!array_key_exists($dbiname,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiname]) || !is_resource(self::$_dbAdapterInstances[$dbiname]->connection))
-        return self::$_dbAdapterInstances[$dbiname];
+            self::$_dbAdapterInstances[$dbiName]=new $dbClass($connection);
+        }//if(!array_key_exists($dbiName,self::$_dbAdapterInstances) || is_null(self::$_dbAdapterInstances[$dbiName]) || !is_resource(self::$_dbAdapterInstances[$dbiName]->connection))
+        return self::$_dbAdapterInstances[$dbiName];
     }//END public static function GetInstance
 
     /**
@@ -142,11 +142,11 @@ abstract class DataAdapter {
         if(!$this->debug && !$forced) {
             return;
         }
-        $llabel=strlen($label) ? $label : 'DbDebug';
-        $lquery=$query.($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
-        NApp::Dlog($lquery,$llabel);
+        $lLabel=strlen($label) ? $label : 'DbDebug';
+        $lQuery=$query.($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
+        NApp::Dlog($lQuery,$lLabel);
         if($this->debug2file) {
-            NApp::Write2LogFile($llabel.': '.$lquery,'debug');
+            NApp::Write2LogFile($lLabel.': '.$lQuery,'debug');
         }
     }//END protected function DbDebug
 }//END abstract class BaseAdapter

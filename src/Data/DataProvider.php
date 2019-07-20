@@ -63,18 +63,18 @@ class DataProvider {
     /**
      * description
      *
-     * @param string            $ds_name
+     * @param string            $dsName
      * @param array|string|null $connection
      * @param string|null       $mode
      * @param bool              $existing_only
      * @return object Adapter instance
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDataSource(string $ds_name,$connection=NULL,?string $mode=NULL,bool $existing_only=FALSE) {
+    public static function GetDataSource(string $dsName,$connection=NULL,?string $mode=NULL,bool $existing_only=FALSE) {
         $ns_prefix=AppConfig::GetValue('app_root_namespace').'\\'.AppConfig::GetValue('app_data_sources_namespace_prefix');
-        $ds_arr=explode('\\',trim($ds_name,'\\'));
+        $ds_arr=explode('\\',trim($dsName,'\\'));
         $ds_type=array_shift($ds_arr);
-        $ds_class=trim($ds_name,'\\');
+        $ds_class=trim($dsName,'\\');
         if($ds_type=='_Custom') {
             $dbmode='_Custom';
             $conn=NULL;
@@ -138,35 +138,36 @@ class DataProvider {
     /**
      * Get data from data source method
      *
-     * @param string $ds_name      Data source name
-     * @param string $ds_method    Data source method
-     * @param array  $params       An array of parameters to be passed to the method
-     * @param array  $extra_params An array of extra parameters to be passed to the method
-     * @param bool   $debug        Flag debug activation/deactivation on this method
-     * @param array  $out_params   An array passed by reference for the output parameters
+     * @param string $dsName      Data source name
+     * @param string $dsMethod    Data source method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
      * @return array|bool Returns the data source method response
      * @throws \NETopes\Core\AppException
      */
-    public static function GetArray(string $ds_name,string $ds_method,$params=[],$extra_params=[],bool $debug=FALSE,&$out_params=[]) {
+    public static function GetArray(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
         $connection=NULL;
-        if(is_array($extra_params) && array_key_exists('connection',$extra_params)) {
-            if((is_array($extra_params['connection']) && count($extra_params['connection'])) || (is_string($extra_params['connection']) && strlen($extra_params['connection']))) {
-                $connection=$extra_params['connection'];
+        if(is_array($extraParams) && array_key_exists('connection',$extraParams)) {
+            if((is_array($extraParams['connection']) && count($extraParams['connection'])) || (is_string($extraParams['connection']) && strlen($extraParams['connection']))) {
+                $connection=$extraParams['connection'];
             }
-            unset($extra_params['connection']);
-        }//if(is_array($extra_params) && array_key_exists('connection',$extra_params))
-        $mode=get_array_value($extra_params,'mode','','is_string');
+            unset($extraParams['connection']);
+        }//if(is_array($extraParams) && array_key_exists('connection',$extraParams))
+        $orgDebug=FALSE;
+        $mode=get_array_value($extraParams,'mode','','is_string');
         try {
-            $dataSource=self::GetDataSource($ds_name,$connection,$mode);
+            $dataSource=self::GetDataSource($dsName,$connection,$mode);
             if($debug===TRUE) {
-                $org_debug=$dataSource->adapter->debug;
+                $orgDebug=$dataSource->adapter->debug;
                 $dataSource->adapter->debug=TRUE;
             }//if($debug===TRUE)
-            $result=$dataSource->$ds_method($params,$extra_params);
+            $result=$dataSource->$dsMethod($params,$extraParams);
             if($debug===TRUE) {
-                $dataSource->adapter->debug=$org_debug;
+                $dataSource->adapter->debug=$orgDebug;
             }
-            $out_params=get_array_value($extra_params,'out_params',[],'is_array');
+            $outParams=get_array_value($extraParams,'out_params',[],'is_array');
             return $result;
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
@@ -177,38 +178,38 @@ class DataProvider {
      * Call a data source method and return a key-value array
      * (one column values as keys for the rows array)
      *
-     * @param string $ds_name      Data source name
-     * @param string $ds_method    Data source method
-     * @param array  $params       An array of parameters to be passed to the method
-     * @param array  $extra_params An array of extra parameters to be passed to the method
-     * @param bool   $debug        Flag debug activation/deactivation on this method
-     * @param array  $out_params   An array passed by reference for the output parameters
+     * @param string $dsName      Data source name
+     * @param string $dsMethod    Data source method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
      * @return array|bool Returns the data source method response
      * @throws \NETopes\Core\AppException
      */
-    public static function GetKeyValueArray(string $ds_name,string $ds_method,$params=[],$extra_params=[],bool $debug=FALSE,&$out_params=[]) {
-        $keyfield=get_array_value($extra_params,'keyfield','id','is_notempty_string');
-        unset($extra_params['keyfield']);
-        $result=self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
+    public static function GetKeyValueArray(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
+        $keyfield=get_array_value($extraParams,'keyfield','id','is_notempty_string');
+        unset($extraParams['keyfield']);
+        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
         return DataSourceHelpers::ConvertResultsToKeyValue($result,$keyfield);
     }//END public static function GetKeyValueArray
 
     /**
      * Get data from data source method
      *
-     * @param string $ds_name      Data adapter name
-     * @param string $ds_method    Data adapter method
-     * @param array  $params       An array of parameters to be passed to the method
-     * @param array  $extra_params An array of extra parameters to be passed to the method
-     * @param bool   $debug        Flag debug activation/deactivation on this method
-     * @param array  $out_params   An array passed by reference for the output parameters
+     * @param string $dsName      Data adapter name
+     * @param string $dsMethod    Data adapter method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
      * @return mixed Returns the data adapter method response
      * @throws \NETopes\Core\AppException
      */
-    public static function Get(string $ds_name,string $ds_method,$params=[],$extra_params=[],bool $debug=FALSE,&$out_params=[]) {
-        $entity=get_array_value($extra_params,'entity_class',VirtualEntity::class,'is_notempty_string');
-        unset($extra_params['entity_class']);
-        $result=self::GetArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
+    public static function Get(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
+        $entity=get_array_value($extraParams,'entity_class',VirtualEntity::class,'is_notempty_string');
+        unset($extraParams['entity_class']);
+        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
         return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
     }//END public static function Get
 
@@ -216,19 +217,19 @@ class DataProvider {
      * Call a data source method and return a key-value DataSet
      * (one column values as keys for the collection items)
      *
-     * @param string $ds_name      Data source name
-     * @param string $ds_method    Data source method
-     * @param array  $params       An array of parameters to be passed to the method
-     * @param array  $extra_params An array of extra parameters to be passed to the method
-     * @param bool   $debug        Flag debug activation/deactivation on this method
-     * @param array  $out_params   An array passed by reference for the output parameters
+     * @param string $dsName      Data source name
+     * @param string $dsMethod    Data source method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
      * @return DataSet|bool Returns the data source method response as DataSet
      * @throws \NETopes\Core\AppException
      */
-    public static function GetKeyValue($ds_name,$ds_method,$params=[],$extra_params=[],$debug=FALSE,&$out_params=[]) {
-        $entity=get_array_value($extra_params,'entity_class',VirtualEntity::class,'is_notempty_string');
-        unset($extra_params['entity_class']);
-        $result=self::GetKeyValueArray($ds_name,$ds_method,$params,$extra_params,$debug,$out_params);
+    public static function GetKeyValue($dsName,$dsMethod,$params=[],$extraParams=[],$debug=FALSE,&$outParams=[]) {
+        $entity=get_array_value($extraParams,'entity_class',VirtualEntity::class,'is_notempty_string');
+        unset($extraParams['entity_class']);
+        $result=self::GetKeyValueArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
         return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
     }//END public static function GetKeyValue
 

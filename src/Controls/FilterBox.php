@@ -89,7 +89,7 @@ class FilterBox extends FilterControl {
             if(!isset($actionParams['params']) || !is_array($actionParams['params'])) {
                 $actionParams['params']=[];
             }
-            $actionParams['params'][$this->callback_params_key ?? 'filters']=$this->GetFilters($this->get_filters_as_hierarchy);
+            $actionParams['params'][$this->callback_params_key ?? 'filters']=$this->GetFilters(!$this->get_filters_as_hierarchy);
             if($processCall) {
                 return NApp::Ajax()->PrepareAjaxRequest($actionParams,$this->apply_callback_extra_params);
             }

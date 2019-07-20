@@ -139,12 +139,12 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @param bool   $log
      * @param bool   $overwrite Flag for overwriting the transaction
      *                          if exists (defaul value FALSE)
-     * @param null   $custom_tran_params
+     * @param null   $customTranParams
      * @return void
      */
-    public function BeginTran(&$name=NULL,$log=FALSE,$overwrite=TRUE,$custom_tran_params=NULL) {
+    public function BeginTran(&$name=NULL,$log=FALSE,$overwrite=TRUE,$customTranParams=NULL) {
         $method=($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
-        return $this::$method($name,$log,$overwrite,$custom_tran_params);
+        return $this::$method($name,$log,$overwrite,$customTranParams);
     }//END public function BeginTran
 
     /**
@@ -177,7 +177,7 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @param string $query        The query string
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             * 'transaction'= name of transaction in which the query will run
      *                             * 'type' = request type: select, count, execute (default 'select')
      *                             * 'first_row' = integer to limit number of returned rows
@@ -189,21 +189,21 @@ abstract class SqlDataAdapter extends DataAdapter {
      *                             * 'out_params' = an array of output params
      * @return array|bool Returns database request result
      */
-    public function ExecuteQuery($query,$params=[],&$extra_params=[]) {
-        $this->debug=get_array_value($extra_params,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
-        $tran_name=get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
-        $type=strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
-        $firstrow=get_array_value($extra_params,'first_row',NULL,'is_not0_numeric');
-        $lastrow=get_array_value($extra_params,'last_row',NULL,'is_not0_numeric');
-        $sort=get_array_value($extra_params,'sort',NULL,'is_notempty_array');
-        $filters=get_array_value($extra_params,'filters',NULL,'is_notempty_array');
-        $out_params=get_array_value($extra_params,'out_params',[],'is_array');
-        $log=get_array_value($extra_params,'log',FALSE,'bool');
+    public function ExecuteQuery($query,$params=[],&$extraParams=[]) {
+        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
+        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
+        $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
+        $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
+        $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
+        $lastRow=get_array_value($extraParams,'last_row',NULL,'is_not0_numeric');
+        $sort=get_array_value($extraParams,'sort',NULL,'is_notempty_array');
+        $filters=get_array_value($extraParams,'filters',NULL,'is_notempty_array');
+        $outParams=get_array_value($extraParams,'out_params',[],'is_array');
+        $log=get_array_value($extraParams,'log',FALSE,'bool');
         $method=($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
-        $results_keys_case=get_array_value($extra_params,'results_keys_case',NULL,'is_integer');
-        $custom_tran_params=get_array_value($extra_params,'custom_tran_params',NULL,'isset');
-        return $this::$method($query,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
+        $resultsKeysCase=get_array_value($extraParams,'results_keys_case',NULL,'is_integer');
+        $customTranParams=get_array_value($extraParams,'custom_tran_params',NULL,'isset');
+        return $this::$method($query,$params,$outParams,$tranName,$type,$firstRow,$lastRow,$sort,$filters,$log,$resultsKeysCase,$customTranParams);
     }//END public function ExecuteQuery
 
     /**
@@ -212,7 +212,7 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @param string $procedure    The name of the stored procedure
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             * 'transaction'= name of transaction in which the query will run
      *                             * 'type' = request type: select, count, execute (default 'select')
      *                             * 'first_row' = integer to limit number of returned rows
@@ -224,27 +224,27 @@ abstract class SqlDataAdapter extends DataAdapter {
      *                             * 'out_params' = an array of output params
      * @return array|bool Returns database request result
      */
-    public function ExecuteProcedure($procedure,$params=[],&$extra_params=[]) {
-        $this->debug=get_array_value($extra_params,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
-        $tran_name=get_array_value($extra_params,'transaction',NULL,'is_notempty_string');
-        $type=strtolower(get_array_value($extra_params,'type','','is_notempty_string'));
-        $firstrow=get_array_value($extra_params,'first_row',NULL,'is_not0_numeric');
-        $lastrow=get_array_value($extra_params,'last_row',NULL,'is_not0_numeric');
-        $sort=get_array_value($extra_params,'sort',NULL,'is_notempty_array');
-        $filters=get_array_value($extra_params,'filters',NULL,'is_notempty_array');
-        $out_params=get_array_value($extra_params,'out_params',[],'is_array');
-        $log=get_array_value($extra_params,'log',FALSE,'bool');
+    public function ExecuteProcedure($procedure,$params=[],&$extraParams=[]) {
+        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
+        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
+        $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
+        $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
+        $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
+        $lastRow=get_array_value($extraParams,'last_row',NULL,'is_not0_numeric');
+        $sort=get_array_value($extraParams,'sort',NULL,'is_notempty_array');
+        $filters=get_array_value($extraParams,'filters',NULL,'is_notempty_array');
+        $outParams=get_array_value($extraParams,'out_params',[],'is_array');
+        $log=get_array_value($extraParams,'log',FALSE,'bool');
         $method=($this->usePdo ? 'Pdo' : $this->dbType).str_replace(__CLASS__.'::','',__METHOD__);
-        $results_keys_case=get_array_value($extra_params,'results_keys_case',NULL,'is_numeric');
-        $custom_tran_params=get_array_value($extra_params,'custom_tran_params',NULL,'isset');
-        $result=$this::$method($procedure,$params,$out_params,$tran_name,$type,$firstrow,$lastrow,$sort,$filters,$log,$results_keys_case,$custom_tran_params);
-        if($out_params) {
-            if(!is_array($extra_params)) {
-                $extra_params=[];
+        $resultsKeysCase=get_array_value($extraParams,'results_keys_case',NULL,'is_numeric');
+        $customTranParams=get_array_value($extraParams,'custom_tran_params',NULL,'isset');
+        $result=$this::$method($procedure,$params,$outParams,$tranName,$type,$firstRow,$lastRow,$sort,$filters,$log,$resultsKeysCase,$customTranParams);
+        if($outParams) {
+            if(!is_array($extraParams)) {
+                $extraParams=[];
             }
-            $extra_params['out_params']=$out_params;
-        }//if($out_params)
+            $extraParams['out_params']=$outParams;
+        }//if($outParams)
         return $result;
     }//END public function ExecuteProcedure
 
@@ -256,16 +256,16 @@ abstract class SqlDataAdapter extends DataAdapter {
      *                             to be executed
      * @param array  $params       An array of parameters
      *                             to be passed to the method
-     * @param array  $extra_params An array of extra parameters
+     * @param array  $extraParams  An array of extra parameters
      *                             to be passed to the invoking method
      * @return mixed Returns database method result
      */
-    public function ExecuteMethod($method,$property=NULL,$params=[],$extra_params=[]) {
-        $this->debug=get_array_value($extra_params,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extra_params,'debug2file',$this->debug2file,'bool');
-        $log=get_array_value($extra_params,'log',FALSE,'bool');
+    public function ExecuteMethod($method,$property=NULL,$params=[],$extraParams=[]) {
+        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
+        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
+        $log=get_array_value($extraParams,'log',FALSE,'bool');
         $cmethod=$this->dbType.str_replace(__CLASS__.'::','',__METHOD__);
-        return $this::$cmethod($method,$property,$params,$extra_params,$log);
+        return $this::$cmethod($method,$property,$params,$extraParams,$log);
     }//END public function ExecuteQuery
 
     /**
@@ -338,30 +338,30 @@ abstract class SqlDataAdapter extends DataAdapter {
     /**
      * @param        $query
      * @param array  $params
-     * @param array  $out_params
-     * @param null   $tran_name
+     * @param array  $outParams
+     * @param null   $tranName
      * @param string $type
-     * @param null   $firstrow
-     * @param null   $lastrow
+     * @param null   $firstRow
+     * @param null   $lastRow
      * @param null   $sort
      * @param bool   $log
      * @return array
      * @throws \NETopes\Core\AppException
      */
-    public function PdoExecuteQuery($query,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$log=FALSE) {
-        $time=microtime(TRUE);
+    public function PdoExecuteQuery($query,$params=[],$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$log=FALSE) {
+        // $time=microtime(TRUE);
         $trans=FALSE;
         $method=$this->dbType.'PrepareQuery';
-        self::$method($query,$params,$out_params,$type,$firstrow,$lastrow,$sort);
+        self::$method($query,$params,$outParams,$type,$firstRow,$lastRow,$sort);
         $conn=$this->connection;
-        if(strlen($tran_name)>0) {
+        if(strlen($tranName)>0) {
             $trans=TRUE;
-            if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
-                $conn=$this->transactions[$tran_name];
+            if(array_key_exists($tranName,$this->transactions) && isset($this->transactions[$tranName])) {
+                $conn=$this->transactions[$tranName];
             } else {
                 throw new AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_ERROR,1,NULL,NULL,'pdo',0);
-            }//if(array_key_exists($tran_name,$this->transactions))
-        }//if(strlen($tran_name)>0)
+            }//if(array_key_exists($tranName,$this->transactions))
+        }//if(strlen($tranName)>0)
         $final_result=NULL;
         try {
             $result=$conn->query($query);
@@ -372,7 +372,7 @@ abstract class SqlDataAdapter extends DataAdapter {
             }//if(is_object($result))
         } catch(Exception $e) {
             if($trans) {
-                $this->PdoRollbackTran($tran_name);
+                $this->PdoRollbackTran($tranName);
             }
             throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode());
         }//try
@@ -383,32 +383,32 @@ abstract class SqlDataAdapter extends DataAdapter {
     /**
      * @param        $procedure
      * @param array  $params
-     * @param array  $out_params
-     * @param null   $tran_name
+     * @param array  $outParams
+     * @param null   $tranName
      * @param string $type
-     * @param null   $firstrow
-     * @param null   $lastrow
+     * @param null   $firstRow
+     * @param null   $lastRow
      * @param null   $sort
      * @param null   $filters
      * @param bool   $log
      * @return array
      * @throws \NETopes\Core\AppException
      */
-    public function PdoExecuteProcedure($procedure,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE) {
-        $time=microtime(TRUE);
+    public function PdoExecuteProcedure($procedure,$params=[],$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE) {
+        // $time=microtime(TRUE);
         $trans=FALSE;
         $transaction=NULL;
         $method=$this->dbType.'PrepareProcedureStatement';
-        $query=self::$method($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
+        $query=self::$method($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters);
         $conn=$this->connection;
-        if(strlen($tran_name)>0) {
+        if(strlen($tranName)>0) {
             $trans=TRUE;
-            if(array_key_exists($tran_name,$this->transactions)) {
-                $transaction=$tran_name;
+            if(array_key_exists($tranName,$this->transactions)) {
+                $transaction=$tranName;
             } else {
                 throw new AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_ERROR,1,NULL,NULL,'pdo',0);
-            }//if(array_key_exists($tran_name,$this->transactions))
-        }//if(strlen($tran_name)>0)
+            }//if(array_key_exists($tranName,$this->transactions))
+        }//if(strlen($tranName)>0)
         $final_result=NULL;
         try {
             $result=$conn->query($query);
