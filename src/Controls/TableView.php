@@ -361,7 +361,7 @@ class TableView extends FilterControl {
                 case 'refresh':
                 default:
                     $targetId=$this->target;
-                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'refresh' } }";
                     break;
             }//END switch
         }//if(is_null($command))
@@ -542,7 +542,7 @@ class TableView extends FilterControl {
         $filters=$this->GetFilterControls($this->columns,$params);
         $filters.=$this->GetFilterGlobalActions(!$this->auto_load_data_on_filter_change);
         $filters.=$this->GetActiveFilters($this->columns);
-        if($params->safeGet('faction','','is_string')=='update') {
+        if($params->safeGet('f_action','','is_string')=='update') {
             return $filters;
         }
         $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
@@ -1920,9 +1920,7 @@ class TableView extends FilterControl {
                         $this->sortby=$ssortby;
                     }//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
-                    if(!$this->filters) {
-                        $this->ProcessActiveFilters($params);
-                    }//if(!$this->filters)
+                    $this->ProcessActiveFilters($params);
                     break;
             }//END switch
             NApp::SetPageParam($this->sessionHash.'#currentpage',$this->current_page);
@@ -1949,8 +1947,9 @@ class TableView extends FilterControl {
         // NApp::Dlog($params,'SetControl>>$params');
         $this->LoadState($params);
         // NApp::Dlog($this->filters,'SetControl>>$this->filters');
+        // NApp::Dlog($this->groups,'SetControl>>$this->groups');
         // NApp::Dlog($this->auto_load_data_on_filter_change,'SetControl>>auto_load_data_on_filter_change');
-        $fActionsParam=$params->safeGet('faction',NULL,'?is_string');
+        $fActionsParam=$params->safeGet('f_action',NULL,'?is_string');
         // NApp::Dlog($fActionsParam,'SetControl>>$fActionsParam');
         if(isset($fActionsParam)) {
             if($this->auto_load_data_on_filter_change || in_array($fActionsParam,['apply','refresh'])) {

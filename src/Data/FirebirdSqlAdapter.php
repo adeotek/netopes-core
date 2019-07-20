@@ -26,13 +26,17 @@ use NETopes\Core\Validators\Validator;
  */
 class FirebirdSqlAdapter extends SqlDataAdapter {
     /**
-     * Objects names enclosing start symbol
+     * @const string Objects names enclosing start symbol
      */
     const ENCLOSING_START_SYMBOL='"';
     /**
-     * Objects names enclosing end symbol
+     * @const string Objects names enclosing end symbol
      */
     const ENCLOSING_END_SYMBOL='"';
+    /**
+     * @const string Key of filters grouping field
+     */
+    const FILTERS_GROUP_KEY='group_id';
 
     /**
      * Get startup query string
@@ -416,15 +420,20 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
     private function GetFiltersCondition(array $filters,?string &$logicalOperator=NULL): string {
         $result='';
         $first=TRUE;
-        foreach($filters as $v) {
-            if(is_array($v)) {
+        foreach($filters as $k=>$v) {
+            if(substr($k,0,1)=='_') {
+                if(!is_array($v)) {
+                    continue;
+                }
+                $condition=$this->GetFiltersCondition($v,$sep);
+            } elseif(is_array($v)) {
                 $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
                 $condition=$this->GetFilterCondition($v);
             } else {
                 $sep='AND';
                 $condition=$v;
             }//if(is_array($v))
-            $result.=($result ? ' '.strtoupper($sep).' ' : ' ').'('.$condition.')';
+            $result.=($result ? ' '.strtoupper($sep).' ' : ' ').'('.trim($condition).')';
             if($first) {
                 $logicalOperator=$sep;
                 $first=FALSE;
@@ -480,7 +489,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $filterCondition='';
         if(is_array($filters)) {
             $logicalOperator=NULL;
-            $filterCondition=$this->GetFiltersCondition($filters,$logicalOperator);
+            $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_');
+            $filterCondition=$this->GetFiltersCondition($groupedFilters,$logicalOperator);
             if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
                 $filterPrefix=' WHERE ';
                 $filterSufix=' ';
@@ -647,7 +657,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             if(is_array($filters)) {
                 $filterPrefix=' WHERE ';
                 $filterSufix=' ';
-                $filterCondition=$this->GetFiltersCondition($filters);
+                $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_');
+                $filterCondition=$this->GetFiltersCondition($groupedFilters);
                 $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
             } elseif(is_string($filters) && strlen($filters)) {
                 $filterCondition=strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";

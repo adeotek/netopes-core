@@ -1,7 +1,5 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityRepository;
 
 class BaseRepository extends EntityRepository {

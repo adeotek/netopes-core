@@ -286,7 +286,8 @@ abstract class FilterControl {
         if($groupType==0) {
             $groupId='_'.(count($this->groups) + 1);
         } elseif($groupType==2) {
-            $currentGroup=get_array_value($this->groups,explode('-',trim($groupId,'_')),[],'is_array');
+            $mKey=array_map(function($i) { return '_'.$i; },explode('-',trim($groupId,'_')));
+            $currentGroup=get_array_value($this->groups,$mKey,[],'is_array');
             $groupId.='-'.(count($currentGroup) + 1);
         } elseif(!strlen($groupId)) {
             $groupId='_1';
@@ -310,6 +311,7 @@ abstract class FilterControl {
             $this->filters=[];
         }
         if(!$action || !in_array($action,['add','remove','group_remove','clear'])) {
+            $this->groups=$this->GenerateFilterGroups($this->filters);
             return;
         }
         if($action=='clear') {
@@ -447,10 +449,11 @@ abstract class FilterControl {
 
     /**
      * @param string|null $selectedValue
+     * @param string|null $selectedType
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFilterGroupControl(?string $selectedValue=NULL): ?string {
+    protected function GetFilterGroupControl(?string $selectedValue=NULL,?string $selectedType=NULL): ?string {
         if(!$this->with_filter_groups || !is_array($this->filters) || !count($this->filters)) {
             $result="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group" type="hidden" value="'.($this->with_filter_groups ? $selectedValue : '_1').'">'."\n";
             $result.="\t\t\t\t".'<input id="'.$this->tag_id.'-f-group-type" type="hidden" value="1">'."\n";
@@ -460,9 +463,9 @@ abstract class FilterControl {
         $result.=$this->GetFilterGroupsOptions($this->groups,$selectedValue);
         $result.="\t\t\t\t".'</select>'."\n";
         $result.="\t\t\t\t".'<select id="'.$this->tag_id.'-f-group-type" class="clsComboBox form-control f-ctrl f-group-type">'."\n";
-        $result.="\t\t\t\t\t".'<option value="1">'.Translate::GetLabel('current_group').'</option>'."\n";
-        $result.="\t\t\t\t\t".'<option value="2">'.Translate::GetLabel('new_sub_group').'</option>'."\n";
-        $result.="\t\t\t\t\t".'<option value="0">'.Translate::GetLabel('new_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="1"'.($selectedType=='1' ? ' selected="selected"' : '').'>'.Translate::GetLabel('current_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="2"'.($selectedType=='2' ? ' selected="selected"' : '').'>'.Translate::GetLabel('new_sub_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="0"'.($selectedType=='3' ? ' selected="selected"' : '').'>'.Translate::GetLabel('new_group').'</option>'."\n";
         $result.="\t\t\t\t".'</select>'."\n";
         return $result;
     }//END protected function GetFilterGroupControl
@@ -806,7 +809,7 @@ abstract class FilterControl {
         $filterType=$selectedItem=NULL;
         $isQuickSearch=FALSE;
         $onClickActionParams=[];
-        $result=$this->GetFilterGroupControl($params->safeGet('g_id',NULL,'?is_string'));
+        $result=$this->GetFilterGroupControl($params->safeGet('g_id',NULL,'?is_string'),$params->safeGet('g_type',NULL,'?is_string'));
         $result.=$this->GetLogicalSeparatorControl($params->safeGet('l_op',NULL,'?is_string'));
         $result.=$this->GetFiltersSelectorControl($params,$items,$filterType,$selectedItem,$isQuickSearch);
         $filterValueField=get_array_value($selectedItem,'filter_value_field',NULL,'?is_string');
