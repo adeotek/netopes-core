@@ -1341,6 +1341,18 @@ div.clsFilterBox div.tw-filters div.f-active-items {
 	padding: 5px;
 }
 
+div.clsFilterBox div.tw-filters div.f-active-items .f-items-group .f-g-title {
+	font-weight: bold;
+	font-style: italic;
+}
+
+div.clsFilterBox div.tw-filters div.f-active-items .f-g-l-op,
+div.clsFilterBox div.tw-filters div.f-active-items .f-i-l-op {
+	/*font-weight: bold;*/
+	/*font-style: italic;*/
+	margin-right: 8px;
+}
+
 div.clsFilterBox div.tw-filters div.f-active-items .f-active-title {
 	display: block;
 	margin-bottom: 5px;
@@ -1535,6 +1547,18 @@ div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items {
 	display: block;
 	width: 100%;
 	padding: 5px;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-items-group .f-g-title {
+	font-weight: bold;
+	font-style: italic;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-g-l-op,
+div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-i-l-op {
+	/*font-weight: bold;*/
+	/*font-style: italic;*/
+	margin-right: 8px;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-active-title {

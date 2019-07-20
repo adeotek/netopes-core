@@ -48,7 +48,7 @@ trait RepositoryStandardTrait {
                 }//END foreach
             }//if(count($relations))
             if(count($filters)) {
-                $groupedFilters=array_group_by_hierarchical('group_id',$filters,TRUE,'_');
+                $groupedFilters=array_group_by_hierarchical('group_id',$filters,TRUE,'_','_99');
                 // NApp::Dlog($groupedFilters,'$groupedFilters');
                 $parameters=[];
                 $expressions=$this->processQueryFilters($qb,$groupedFilters,$parameters);

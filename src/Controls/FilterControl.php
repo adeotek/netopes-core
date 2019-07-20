@@ -1010,14 +1010,15 @@ abstract class FilterControl {
      * Convert flat filters array to a hierarchical array
      *
      * @param array|null    $items
+     * @param string|null   $defaultGroup
      * @param callable|null $filter
      * @return array
      */
-    public static function ConvertFiltersToHierarchy(?array $items,?callable $filter=NULL): array {
+    public static function ConvertFiltersToHierarchy(?array $items,?string $defaultGroup=NULL,?callable $filter=NULL): array {
         if(!is_array($items) || !count($items)) {
             return [];
         }
-        return array_group_by_hierarchical('group_id',$items,TRUE,'_',$filter);
+        return array_group_by_hierarchical('group_id',$items,TRUE,'_',$defaultGroup,$filter);
     }//END public static function ConvertFiltersToHierarchy
 
     /**

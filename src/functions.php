@@ -443,16 +443,17 @@ function array_to_hierarchy(array $input,array $output=[],?string $keyPrefix=NUL
  * @param array         $array
  * @param bool          $itemAsValue
  * @param string|null   $keyPrefix
+ * @param string|null   $defaultGroup
  * @param callable|null $filter
  * @return array
  */
-function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL,?callable $filter=NULL): array {
+function array_group_by_hierarchical(string $key,array $array,bool $itemAsValue=FALSE,?string $keyPrefix=NULL,?string $defaultGroup=NULL,?callable $filter=NULL): array {
     $grouped=[];
     foreach($array as $item) {
         if(isset($filter) && !$filter($item)) {
             continue;
         }
-        $dKey=get_array_value($item,$key,NULL);
+        $dKey=get_array_value($item,$key,$defaultGroup);
         if(!strlen($dKey)) {
             if($itemAsValue) {
                 $grouped[]=$item;

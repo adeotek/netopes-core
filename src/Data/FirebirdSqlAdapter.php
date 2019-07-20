@@ -489,7 +489,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $filterCondition='';
         if(is_array($filters)) {
             $logicalOperator=NULL;
-            $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_');
+            $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_','_99');
             $filterCondition=$this->GetFiltersCondition($groupedFilters,$logicalOperator);
             if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
                 $filterPrefix=' WHERE ';
@@ -657,7 +657,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             if(is_array($filters)) {
                 $filterPrefix=' WHERE ';
                 $filterSufix=' ';
-                $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_');
+                $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_','_99');
                 $filterCondition=$this->GetFiltersCondition($groupedFilters);
                 $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
             } elseif(is_string($filters) && strlen($filters)) {
