@@ -57,11 +57,11 @@ trait RepositoryBaseTrait {
      * @param array|null                 $filter
      * @param string                     $key
      * @param array                      $parameters
-     * @param string|null                $logicalOperator
+     * @param string|null                $logicalSeparator
      * @return \Doctrine\ORM\Query\Expr|null
      * @throws \NETopes\Core\AppException
      */
-    protected function getFilterExpression(QueryBuilder $qb,?array $filter,string $key,array &$parameters,?string &$logicalOperator=NULL) {
+    protected function getFilterExpression(QueryBuilder $qb,?array $filter,string $key,array &$parameters,?string &$logicalSeparator=NULL) {
         $field=get_array_value($filter,'field',NULL,'isset');
         $value=get_array_value($filter,'value',NULL,'isset');
         if(is_null($field) || is_null($value)) {
@@ -72,7 +72,7 @@ trait RepositoryBaseTrait {
         if(!strlen($operator)) {
             return NULL;
         }
-        $logicalOperator=get_array_value($filter,'logical_separator','and','is_notempty_string');
+        $logicalSeparator=get_array_value($filter,'logical_separator','AND','is_notempty_string');
         $expression=NULL;
         if(is_array($field) && count($field)) {
             $expression=$qb->expr()->orX();
@@ -84,6 +84,9 @@ trait RepositoryBaseTrait {
                 $fieldParams[]=$paramName;
             }//END foreach
             foreach($fieldParams as $paramName) {
+                if(array_key_exists($paramName,$parameters)) {
+                    continue;
+                }
                 switch($operator) {
                     case 'like':
                     case 'notlike':
@@ -104,21 +107,23 @@ trait RepositoryBaseTrait {
             $field=$this->getFieldName($field,'e');
             $paramName='in'.$key.'_'.str_replace('.','_',$field);
             $expression=$qb->expr()->$operator($field,':'.$paramName);
-            switch($operator) {
-                case 'like':
-                case 'notlike':
-                    $parameters[$paramName]='%'.$value.'%';
-                    break;
-                case 'startsWith':
-                    $parameters[$paramName]=$value.'%';
-                    break;
-                case 'endWith':
-                    $parameters[$paramName]='%'.$value;
-                    break;
-                default:
-                    $parameters[$paramName]=$value;
-                    break;
-            }//END switch
+            if(!array_key_exists($paramName,$parameters)) {
+                switch($operator) {
+                    case 'like':
+                    case 'notlike':
+                        $parameters[$paramName]='%'.$value.'%';
+                        break;
+                    case 'startsWith':
+                        $parameters[$paramName]=$value.'%';
+                        break;
+                    case 'endWith':
+                        $parameters[$paramName]='%'.$value;
+                        break;
+                    default:
+                        $parameters[$paramName]=$value;
+                        break;
+                }//END switch
+            }//if(!array_key_exists($paramName,$parameters))
         }//if(is_array($field) && count($field))
         return $expression;
     }//END protected function getFilterExpression
@@ -126,53 +131,38 @@ trait RepositoryBaseTrait {
     /**
      * @param \Doctrine\ORM\QueryBuilder $qb
      * @param array                      $filters
+     * @param array                      $parameters
+     * @param string|null                $logicalSeparator
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public function processQueryFilters(QueryBuilder &$qb,array $filters) {
+    public function processQueryFilters(QueryBuilder &$qb,array $filters,array &$parameters,?string &$logicalSeparator=NULL) {
         if(!count($filters)) {
             return NULL;
         }
-        $result=NULL;
-        $parameters=[];
-        $andExpr=[];
-        $orExpr=[];
+        $result='';
         foreach($filters as $k=>$f) {
-            $logicalOperator=NULL;
+            $lSeparator=NULL;
             if(substr($k,0,1)=='_') {
                 if(!is_array($f)) {
                     continue;
                 }
-                NApp::Dlog($f,'$f[r]');
-                $expr=$this->processQueryFilters($qb,$f);
-                if(!is_object($expr)) {
-                    continue;
+                $expr=$this->processQueryFilters($qb,$f,$parameters,$lSeparator);
+                if(strlen($result) && strlen($lSeparator)) {
+                    $result.=' '.strtoupper($lSeparator).' ';
                 }
+                $result.='('.(string)$expr.')';
             } else {
-                NApp::Dlog($f,'$f[f]');
-                $expr=$this->getFilterExpression($qb,$f,$k,$parameters,$logicalOperator);
+                $expr=$this->getFilterExpression($qb,$f,$k,$parameters,$lSeparator);
                 if(!is_object($expr)) {
                     continue;
                 }
+                $result.=(strlen($result) && strlen($lSeparator) ? ' '.strtoupper($lSeparator).' ' : '').(string)$expr;
+            }//if(substr($k,0,1)=='_')
+            if(is_null($logicalSeparator)) {
+                $logicalSeparator=strtoupper($lSeparator);
             }
-            if(strtolower($logicalOperator)=='or') {
-                $orExpr[]=$expr;
-            } else {
-                $andExpr[]=$expr;
-            }//if($first)
         }//END foreach
-        if(count($orExpr)) {
-            $andExpr[]=$qb->expr()->orX()->addMultiple($orExpr);
-        }
-        NApp::Dlog($andExpr,'$andExpr');
-        if(count($andExpr)) {
-            $result=$qb->expr()->andX()->addMultiple($andExpr);
-        }
-        if($result && count($parameters)) {
-            NApp::Dlog($parameters,'$parameters');
-            $qb->setParameters(array_merge($qb->getParameters()->toArray(),$parameters));
-        }
-        NApp::Dlog($result,'$result');
         return $result;
     }//END public function processQueryFilters
 

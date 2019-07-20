@@ -7,7 +7,6 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use NApp;
 use NETopes\Core\AppException;
-use NETopes\Core\Controls\FilterControl;
 
 /**
  * Trait RepositoryStandardTrait
@@ -49,13 +48,18 @@ trait RepositoryStandardTrait {
                 }//END foreach
             }//if(count($relations))
             if(count($filters)) {
-                $groupedFilters=FilterControl::ConvertFiltersToHierarchy($filters);
-                NApp::Dlog($groupedFilters,'$groupedFilters');
-                $expression=$this->processQueryFilters($qb,$groupedFilters);
-                NApp::Dlog($expression,'$expression');
-                if($expression) {
-                    $qb->andWhere($expression);
-                    NApp::Dlog($qb->getQuery()->getSql(),'BP:QUERY');
+                $groupedFilters=array_group_by_hierarchical('group_id',$filters,TRUE,'_');
+                // NApp::Dlog($groupedFilters,'$groupedFilters');
+                $parameters=[];
+                $expressions=$this->processQueryFilters($qb,$groupedFilters,$parameters);
+                // NApp::Dlog($expressions,'$expressions');
+                if($expressions) {
+                    $qb->where($expressions);
+                    if(count($parameters)) {
+                        $qb->setParameters($parameters);
+                    }
+                    // NApp::Dlog($qb->getQuery()->getSql(),'findFiltered>>SQL');
+                    // NApp::Dlog($qb->getParameters()->toArray(),'findFiltered>>parameters');
                 }
             }//if(count($filters))
             if($firstRow>0 && $lastRow>0) {

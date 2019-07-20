@@ -465,7 +465,7 @@ abstract class FilterControl {
         $result.="\t\t\t\t".'<select id="'.$this->tag_id.'-f-group-type" class="clsComboBox form-control f-ctrl f-group-type">'."\n";
         $result.="\t\t\t\t\t".'<option value="1"'.($selectedType=='1' ? ' selected="selected"' : '').'>'.Translate::GetLabel('current_group').'</option>'."\n";
         $result.="\t\t\t\t\t".'<option value="2"'.($selectedType=='2' ? ' selected="selected"' : '').'>'.Translate::GetLabel('new_sub_group').'</option>'."\n";
-        $result.="\t\t\t\t\t".'<option value="0"'.($selectedType=='3' ? ' selected="selected"' : '').'>'.Translate::GetLabel('new_group').'</option>'."\n";
+        $result.="\t\t\t\t\t".'<option value="0"'.($selectedType=='0' ? ' selected="selected"' : '').'>'.Translate::GetLabel('new_group').'</option>'."\n";
         $result.="\t\t\t\t".'</select>'."\n";
         return $result;
     }//END protected function GetFilterGroupControl
@@ -857,18 +857,23 @@ abstract class FilterControl {
      * @param array                           $items
      * @param array                           $filters
      * @param \NETopes\Core\Data\DataSet|null $fcTypes
+     * @param bool                            $first
      * @return string|null Returns active filters HTML string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActiveFilterItem(array $items,array $filters,$fcTypes): ?string {
+    protected function GetActiveFilterItem(array $items,array $filters,$fcTypes,bool $first=TRUE): ?string {
         $result='';
-        $logicalOperator=NULL;
         foreach($filters as $filter) {
-            $logicalOperator=is_null($logicalOperator) ? '' : Translate::GetLabel($filter['logical_separator']).' ';
-            if($filter['condition_type']=='><') {
-                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalOperator.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'].'</strong>&quot;</div>'."\n";
+            if($first) {
+                $first=FALSE;
+                $logicalPrefix='';
             } else {
-                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalOperator.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;</div>'."\n";
+                $logicalPrefix='<span class="f-i-l-op">'.Translate::GetLabel(get_array_value($filter,'logical_separator','and','is_string')).'</span>';
+            }//if($first)
+            if($filter['condition_type']=='><') {
+                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalPrefix.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'].'</strong>&quot;</div>'."\n";
+            } else {
+                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalPrefix.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;</div>'."\n";
             }//if($item['condition_type']=='><')
         }//END foreach
         return $result;
@@ -889,14 +894,20 @@ abstract class FilterControl {
         $result='';
         $first=TRUE;
         foreach($filters as $gKey=>$group) {
-            if(strpos($gKey,'_')!==0) {
-                $result.=$this->GetActiveFilterItem($items,[$group],$fcTypes);
+            if(substr($gKey,0,1)!='_') {
+                $result.=$this->GetActiveFilterItem($items,array_key_exists(0,$group) ? $group : [$group],$fcTypes,$first);
+                $first=FALSE;
                 continue;
-            }
-            $logicalOperator=$first ? '' : Translate::GetLabel($group['logical_separator']).' ';
+            }//if(substr($gKey,0,1)!='_')
+            if($first) {
+                $first=FALSE;
+                $logicalPrefix='';
+            } else {
+                $logicalPrefix='<span class="f-g-l-op">'.Translate::GetLabel(get_array_value($group,[0,'logical_separator'],'and','is_string')).'</span>';
+            }//if($first)
             $gId=(strlen($parent) ? $parent.'-' : '_').trim($gKey,'_');
             $gName=(strlen($parent) ? str_replace('-','.',trim($parent,'_')).'.' : '').trim($gKey,'_');
-            $result.="\t\t\t\t\t".'<div class="f-items-group g-offset-'.$level.'">'.$logicalOperator.Translate::GetLabel('group').' ['.$gName.']'."\n";
+            $result.="\t\t\t\t\t".'<div class="f-items-group g-offset-'.$level.'">'.$logicalPrefix.'<span class="f-g-title">'.Translate::GetLabel('group').' ['.$gName.']</span>'."\n";
             $result.="\t\t\t\t\t\t".'<div class="g-remove" onclick="'.$this->GetActionCommand('filters.group_remove',['g_id'=>$gId]).'"><i class="fa fa-times"></i></div>'."\n";
             $result.=$this->GetActiveFilterGroups($items,$group,$fcTypes,$gId,($level + 1));
             $result.="\t\t\t\t\t".'</div>'."\n";
