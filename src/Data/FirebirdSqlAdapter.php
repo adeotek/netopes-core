@@ -322,7 +322,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if($cond) {
             return $cond;
         }
-        $field=get_array_value($condition,'field',NULL,'is_notempty_string');
+        $field=get_array_value($condition,'field',get_array_value($condition,'type',NULL,'is_notempty_string'),'is_notempty_string');
         if(!$field) {
             return '';
         }
@@ -433,6 +433,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 $sep='AND';
                 $condition=$v;
             }//if(is_array($v))
+            if(!strlen(trim($condition))) {
+                continue;
+            }
             $result.=($result ? ' '.strtoupper($sep).' ' : ' ').'('.trim($condition).')';
             if($first) {
                 $logicalOperator=$sep;
