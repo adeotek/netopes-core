@@ -16,6 +16,7 @@ use NApp;
 use NETopes\Core\App\Params;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
 /**
@@ -302,7 +303,7 @@ abstract class FilterControl {
      * @param \NETopes\Core\App\Params $params Parameters for processing
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessActiveFilters(Params $params): void {
+    protected function ProcessActiveFilters(Params &$params): void {
         // NApp::Dlog($params->toArray(),'ProcessActiveFilters>>$params');
         $action=$params->safeGet('f_action',NULL,'is_notempty_string');
         // NApp::Dlog($action,'$action');
@@ -315,6 +316,7 @@ abstract class FilterControl {
             return;
         }
         if($action=='clear') {
+            $params->clear();
             $this->filters=[];
             $this->groups=[];
             return;
@@ -344,6 +346,7 @@ abstract class FilterControl {
         }//if($action=='remove')
         // NApp::Dlog($this->filters,'$this->filters');
         $this->groups=$this->GenerateFilterGroups($this->filters);
+        $params->clear();
         // NApp::Dlog($this->groups,'$this->groups');
     }//END protected function ProcessActiveFilters
 
@@ -404,6 +407,9 @@ abstract class FilterControl {
                     $command.="'v_field': '{$vField}', 'v_d_type': '{$vDataType}', 'v_value': '{nGet|".$params->safeGet('v_value',$this->tag_id.'-f-v-value:value','is_notempty_string')."}', 'v_d_value': '{$vdValue}', ";
                     $veValue=$params->safeGet('v_e_value','','is_string');
                     if(strlen($veValue)) {
+                        if(strpos($veValue,'{nEval|')===FALSE && strpos($veValue,'{nGet|')===FALSE) {
+                            $veValue='{nGet|'.$veValue.'}';
+                        }
                         $vedValue=$params->safeGet('v_e_d_value','','is_string');
                         if(strlen($vedValue) && strpos($vedValue,'{nEval|')===FALSE && strpos($vedValue,'{nGet|')===FALSE) {
                             $vedValue='{nGet|'.$vedValue.'}';
@@ -569,7 +575,7 @@ abstract class FilterControl {
                 $lSelected=$conditionType==$c->getProperty('value') ? ' selected="selected"' : '';
                 $filterOptions.="\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$lSelected.'>'.$c->getProperty('name').'</option>'."\n";
                 if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><') {
-                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.render',['f_c_type'=>$this->tag_id.'-f-c-type:value','f_v_f_mode'=>$withFilterValueField]).'"';
+                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.render',['f_c_type'=>$this->tag_id.'-f-c-type:value','f_v_f_mode'=>$withFilterValueField,'f_d_value'=>get_array_param($selectedItem,'f_d_value_source',NULL,'?is_string')]).'"';
                 }//if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><')
             }//END foreach
             $result="\t\t\t".'<select id="'.$this->tag_id.'-f-c-type" class="clsComboBox form-control f-ctrl f-c-type"'.$filterConditionTypeOnChange.'>'."\n";
@@ -593,7 +599,7 @@ abstract class FilterControl {
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFilterValueControl(Params $params,?string $filterType,?array $selectedItem,?array &$onClickActionParams=[],?string $filterValueField=NULL): string {
+    protected function GetFilterValueControl(Params $params,?string $filterType,?array &$selectedItem,?array &$onClickActionParams=[],?string $filterValueField=NULL): string {
         $isDsParam=intval(strlen(get_array_value($selectedItem,'ds_param','','is_string'))>0);
         $conditionType=$params->safeGet('f_c_type','','is_string');
         if(strlen($filterValueField)) {
@@ -603,6 +609,7 @@ abstract class FilterControl {
             $dataType=get_array_value($selectedItem,'filter_value_data_type','','is_string');
             $ctrlParams=get_array_value($selectedItem,'filter_value_params',[],'is_array');
             $selectedValue=NULL;
+            $onClickActionParams['v_field']=get_array_value($selectedItem,'filter_value_field','','is_string');
         } else {
             $isFilterValueField=FALSE;
             $fvName='f-value';
@@ -629,13 +636,14 @@ abstract class FilterControl {
                 if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
                     $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
                 }//if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $filterValueControl=new SmartComboBox($ctrlParams);
                 $dValue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-'.$fvName.'\',false)}';
+                $selectedItem['f_d_value_source']=$dValue;
                 $ctrlParams['selected_value']=$selectedValue;
                 $ctrlParams['selected_text']=$params->safeGet('f_d_value',$selectedValue,'is_string');
                 if(!$isFilterValueField && !$this->filter_cond_value_source) {
                     $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
                 }
+                $filterValueControl=new SmartComboBox($ctrlParams);
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
                 if($isFilterValueField) {
@@ -653,12 +661,12 @@ abstract class FilterControl {
                 if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
                     $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
                 }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $filterValueControl=new ComboBox($ctrlParams);
                 $dValue=$this->tag_id.'-'.$fvName.':option';
                 $ctrlParams['selected_value']=$selectedValue;
                 if(!$isFilterValueField && !$this->filter_cond_value_source) {
                     $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
                 }
+                $filterValueControl=new ComboBox($ctrlParams);
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
                 if($isFilterValueField) {
@@ -672,12 +680,13 @@ abstract class FilterControl {
                 if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
                     $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
                 }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $filterValueControl=new TreeComboBox($ctrlParams);
                 $dValue=$this->tag_id.'-'.$fvName.'-cbo:value';
                 $ctrlParams['selected_value']=$selectedValue;
+                $ctrlParams['selected_text']=$params->safeGet('f_d_value',$selectedValue,'is_string');
                 if(!$isFilterValueField && !$this->filter_cond_value_source) {
                     $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
                 }
+                $filterValueControl=new TreeComboBox($ctrlParams);
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
                 if($isFilterValueField) {
@@ -687,13 +696,12 @@ abstract class FilterControl {
                 }//if($isFilterValueField)
                 break;
             case 'checkbox':
-                $ctrlParams['value']=0;
-                $filterValueControl=new CheckBox($ctrlParams);
                 $dValue=$this->tag_id.'-'.$fvName.':value';
                 $ctrlParams['value']=$selectedValue;
                 if(!$isFilterValueField && !$this->filter_cond_value_source) {
                     $this->filter_cond_value_source=$this->tag_id.'-'.$fvName.':option:data-ctype';
                 }
+                $filterValueControl=new CheckBox($ctrlParams);
                 // $filterValueControl->ClearBaseClass();
                 $result="\t\t\t\t".$filterValueControl->Show()."\n";
                 if($isFilterValueField) {
@@ -741,6 +749,9 @@ abstract class FilterControl {
                         // $filterValueControl->ClearBaseClass();
                         $result="\t\t\t\t".$filterValueControl->Show()."\n";
                         $fValue=$this->tag_id.'-'.$fvName.':dvalue';
+                        if(!strlen($dataType)) {
+                            $dataType='datetime';
+                        }
                         if($conditionType=='><') {
                             $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
                             // $ctrlParams['tag_id']=$this->tag_id.'-'.$fevName;
@@ -760,6 +771,9 @@ abstract class FilterControl {
                         // $filterValueControl->ClearBaseClass();
                         $result="\t\t\t\t".$filterValueControl->Show()."\n";
                         $fValue=$this->tag_id.'-'.$fvName.':nvalue';
+                        if(!strlen($dataType)) {
+                            $dataType='numeric';
+                        }
                         if($conditionType=='><') {
                             $result.="\t\t\t\t".'<span class="f-i-lbl">'.Translate::GetLabel('and').'</span>'."\n";
                             // $ctrlParams['tag_id']=$this->tag_id.'-'.$fevName;
@@ -782,7 +796,7 @@ abstract class FilterControl {
                 }//END switch
                 if($isFilterValueField) {
                     if($conditionType=='><') {
-                        $onClickActionParams=['v_value'=>$fValue,'v_d_value'=>$dValue,'v_e_value'=>$eValue,'v_e_d_value'=>$edValue,'v_d_type'=>$dataType];
+                        $onClickActionParams=array_merge($onClickActionParams,['v_value'=>$fValue,'v_d_value'=>$dValue,'v_e_value'=>$eValue,'v_e_d_value'=>$edValue,'v_d_type'=>$dataType]);
                     } else {
                         $onClickActionParams=array_merge($onClickActionParams,['v_value'=>$fValue,'v_d_value'=>$dValue,'v_d_type'=>$dataType]);
                     }
@@ -887,11 +901,21 @@ abstract class FilterControl {
             } else {
                 $logicalPrefix='<span class="f-i-l-op">'.Translate::GetLabel(get_array_value($filter,'logical_separator','and','is_string')).'</span>';
             }//if($first)
-            if($filter['condition_type']=='><') {
-                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalPrefix.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'].'</strong>&quot;</div>'."\n";
+            $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalPrefix.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>';
+            if(strlen(get_array_value($filter,'value_field',NULL,'?is_string'))) {
+                $result.=':&nbsp;<strong>'.$filter['display_value'].'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.get_array_value($filter,'value_display_value','N/A','is_string');
+                if($filter['condition_type']=='><') {
+                    $result.='</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.get_array_value($filter,'value_end_display_value','N/A','is_string');
+                }//if($item['condition_type']=='><')
+                $result.='</strong>';
             } else {
-                $result.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('filters.remove',['f_guid'=>$filter['guid']]).'"><i class="fa fa-times"></i></div>'.$logicalPrefix.'<strong>'.((string)$filter['type']=='0' ? Translate::GetLabel('quick_search') : get_array_value($items[$filter['type']],'label',$filter['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'].'</strong>&quot;</div>'."\n";
-            }//if($item['condition_type']=='><')
+                $result.='&nbsp;'.$fcTypes->safeGet($filter['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$filter['display_value'];
+                if($filter['condition_type']=='><') {
+                    $result.='</strong>&quot;&nbsp;'.Translate::GetLabel('and').'&nbsp;&quot;<strong>'.$filter['end_display_value'];
+                }//if($item['condition_type']=='><')
+                $result.='</strong>';
+            }//if(strlen(get_array_value($filter,'v_field',null,'?is_string')))
+            $result.='&quot;</div>'."\n";
         }//END foreach
         return $result;
     }//END protected function GetActiveFilterItem
@@ -940,6 +964,7 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetActiveFilters(array $items): ?string {
+        // NApp::Dlog($this->filters,'GetActiveFilters>>$this->filters');
         if(!is_array($this->filters) || !count($this->filters)) {
             return NULL;
         }
@@ -1010,6 +1035,7 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     public function ShowFiltersBox($params=NULL): ?string {
+        // NApp::Dlog($params,'ShowFiltersBox>>Show');
         $oParams=($params instanceof Params) ? $params : new Params($params);
         $pHash=$oParams->safeGet('phash',NULL,'is_notempty_string');
         $output=$oParams->safeGet('output',FALSE,'bool');

@@ -83,6 +83,7 @@ class FilterBox extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetActionCommand(?string $type=NULL,$params=NULL,bool $processCall=TRUE): ?string {
+        // NApp::Dlog($params,'GetActionCommand>>$params');
         $params=is_object($params) ? $params : new Params($params);
         if(in_array($type,['filters.get','filters.apply'])) {
             $actionParams=$this->apply_callback_params;
