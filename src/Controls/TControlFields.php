@@ -10,8 +10,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Data\VirtualEntity;
 use NApp;
+use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
 /**

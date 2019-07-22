@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NApp;
 use GibberishAES;
+use NApp;
 use NETopes\Core\AppSession;
 
 /**
@@ -62,6 +62,7 @@ class FileUploader extends Control {
                 break;
             case 'excel':
                 $utype=4;
+                break;
             case 'stdimp':
                 $utype=40;
                 break;

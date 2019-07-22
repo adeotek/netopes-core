@@ -10,9 +10,9 @@
  * @filesource
  */
 namespace NETopes\Core\App;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NApp;
 use NETopes\Core\Controls\ControlsHelpers;
 
 /**
@@ -455,6 +455,20 @@ class AppView {
      * @param array|null $args
      * @return void
      */
+    public function AddFilterBox(string $file,?array $extraParams=NULL,?array $args=NULL): void {
+        $tag=get_array_value($extraParams,'tag','','is_string');
+        if(strlen($tag)) {
+            $this->_placeholders[$tag]=NULL;
+        }
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\FilterBox','args'=>$args]);
+    }//END public function AddFilterBox
+
+    /**
+     * @param string     $file
+     * @param array|null $extraParams
+     * @param array|null $args
+     * @return void
+     */
     public function AddTableView(string $file,?array $extraParams=NULL,?array $args=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
@@ -617,7 +631,7 @@ class AppView {
      * @return bool
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessSubContainer(string &$content,string $containerType,?string $targetId=NULL,?string $containerClass=NULL,?string $tag=NULL,?string $title=NULL,?array $actions=NULL): bool {
+    protected function ProcessSubContainer(?string &$content,string $containerType,?string $targetId=NULL,?string $containerClass=NULL,?string $tag=NULL,?string $title=NULL,?array $actions=NULL): bool {
         $tags=[];
         if(strlen($targetId)) {
             $tags['TARGETID']=$targetId;

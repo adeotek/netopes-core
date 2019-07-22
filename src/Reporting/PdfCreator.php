@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
-use TCPDF;
 use NApp;
+use TCPDF;
 
 /*
  * TCPDF config initialization

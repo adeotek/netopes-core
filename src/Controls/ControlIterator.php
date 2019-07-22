@@ -11,9 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 

@@ -12,10 +12,10 @@
  */
 namespace NETopes\Core\Controls;
 use Exception;
+use NApp;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
-use NApp;
 use Translate;
 
 /**

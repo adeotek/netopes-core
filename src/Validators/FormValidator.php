@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Validators;
-use NETopes\Core\App\Params;
 use NApp;
+use NETopes\Core\App\Params;
 
 /**
  * Class FormValidator

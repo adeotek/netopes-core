@@ -6,26 +6,25 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.1.3.0
  * @filesource
  */
 namespace NETopes\Core\Controls;
 use Exception;
+use GibberishAES;
+use NApp;
 use NETopes\Core\App\AppHelpers;
 use NETopes\Core\App\Module;
 use NETopes\Core\App\Params;
 use NETopes\Core\AppConfig;
-use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataSourceHelpers;
-use NETopes\Core\Validators\Validator;
-use NETopes\Core\Data\DataProvider;
-use NETopes\Core\Data\DataSource;
-use NETopes\Core\Data\DataSet;
-use NETopes\Core\Data\ExcelExport;
-use GibberishAES;
-use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\AppException;
-use NApp;
+use NETopes\Core\AppSession;
+use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\DataSet;
+use NETopes\Core\Data\DataSourceHelpers;
+use NETopes\Core\Data\ExcelExport;
+use NETopes\Core\Data\VirtualEntity;
+use NETopes\Core\Validators\Validator;
 use Translate;
 
 /**
@@ -33,19 +32,11 @@ use Translate;
  *
  * @package NETopes\Core\Controls
  */
-class TableView {
-    /**
-     * @var    string Control instance hash
-     */
-    protected $chash=NULL;
+class TableView extends FilterControl {
     /**
      * @var    string Control instance session hash
      */
     protected $sessionHash=NULL;
-    /**
-     * @var    string Control base class
-     */
-    protected $base_class='';
     /**
      * @var    int Current page (for pagination)
      */
@@ -59,17 +50,9 @@ class TableView {
      */
     protected $export_button=FALSE;
     /**
-     * @var    string Filter condition type value source
-     */
-    protected $filter_cond_val_source=NULL;
-    /**
      * @var    array Data to be exported
      */
     protected $export_data=NULL;
-    /**
-     * @var    array Filters values
-     */
-    protected $filters=[];
     /**
      * @var    array Totals values
      */
@@ -91,14 +74,6 @@ class TableView {
      */
     public $method=NULL;
     /**
-     * @var    string Main container id
-     */
-    public $tag_id=NULL;
-    /**
-     * @var    string Theme type
-     */
-    public $theme_type=NULL;
-    /**
      * @var    bool Is individual panel or integrated in other view
      */
     public $is_panel=TRUE;
@@ -114,10 +89,6 @@ class TableView {
      * @var    integer Tree top level
      */
     protected $tree_top_lvl=1;
-    /**
-     * @var    string Control elements class
-     */
-    public $class=NULL;
     /**
      * @var    string Control elements class
      */
@@ -155,10 +126,6 @@ class TableView {
      */
     public $row_class_field=NULL;
     /**
-     * @var    bool Switch compact mode on/off
-     */
-    public $compact_mode=FALSE;
-    /**
      * @var    string Table rows fixed height
      */
     public $row_height=NULL;
@@ -174,10 +141,6 @@ class TableView {
      * @var    array Sort state (column, direction)
      */
     public $sortby=[];
-    /**
-     * @var    bool Switch quick search on/off
-     */
-    public $qsearch=NULL;
     /**
      * @var    bool Switch filter box on/off
      */
@@ -223,15 +186,6 @@ class TableView {
      * @var    int Table header rows number (default: 1)
      */
     public $th_rows_no=1;
-    /**
-     * @var    string TableView target
-     */
-    public $target='';
-    /**
-     * @var    mixed Ajax calls loader: 1=default loader; 0=no loader;
-     * [string]=html element id or javascript function
-     */
-    public $loader=1;
     /**
      * @var    string Data call data adapter name
      */
@@ -288,36 +242,25 @@ class TableView {
      * @var    bool Flag to indicate if filters are persistent
      */
     public $persistent_state=FALSE;
-    /**
-     * @var    array Initial filters values (are destroyed after the control initialization)
-     */
-    public $initial_filters=NULL;
 
     /**
      * TableView class constructor method
      *
-     * @param array $params Parameters array
+     * @param array|null $params Parameters array
      * @return void
+     * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
-        $this->chash=AppSession::GetNewUID();
-        $this->base_class='cls'.get_class_basename($this);
         $this->current_page=1;
-        $this->theme_type=is_object(NApp::$theme) ? NApp::$theme->GetThemeType() : 'bootstrap3';
-        if(is_array($params) && count($params)) {
-            foreach($params as $k=>$v) {
-                if(property_exists($this,$k)) {
-                    $this->$k=$v;
-                }
-            }//foreach ($params as $k=>$v)
-        }//if(is_array($params) && count($params))
+        parent::__construct($params);
+        $this->items_default_filterable_value=FALSE;
         if($this->persistent_state) {
             $this->sessionHash=$this->tag_id ? $this->tag_id : trim($this->module.'::'.$this->method,': ');
             if(!strlen($this->sessionHash)) {
                 $this->persistent_state=FALSE;
             }
         }//if($this->persistent_state)
-        $this->tag_id=$this->tag_id ? $this->tag_id : $this->chash;
+        $this->tag_id=$this->tag_id ? $this->tag_id : $this->cHash;
         if(Module::GetDRights($this->module,$this->method,'export')) {
             $this->exportable=FALSE;
         }
@@ -325,19 +268,6 @@ class TableView {
             $this->sortby=['column'=>'','direction'=>''];
         }
     }//END public function __construct
-
-    /**
-     * Gets this instance as a serialized string
-     *
-     * @param bool $encrypted Switch on/off encrypted result
-     * @return string Return serialized control instance
-     */
-    protected function GetThis($encrypted=TRUE) {
-        if($encrypted) {
-            return GibberishAES::enc(serialize($this),$this->chash);
-        }
-        return serialize($this);
-    }//END protected function GetThis
 
     /**
      * Apply format to a cell value
@@ -367,12 +297,11 @@ class TableView {
      *
      * @param bool $onloadCallback    Include or not on load callback
      * @param bool $onchange_callback Include or not on change callback
-     * @return string Returns javascript callback string
+     * @return string|null Returns javascript callback string
      */
-    protected function ProcessJsCallbacks($onloadCallback=TRUE,$onchange_callback=TRUE) {
+    protected function ProcessJsCallbacks($onloadCallback=TRUE,$onchange_callback=TRUE): ?string {
         if($onloadCallback && $onchange_callback) {
             if(is_null($this->js_callbacks)) {
-                $this->js_callbacks='';
                 if(strlen($this->onload_js_callback)) {
                     $this->js_callbacks=$this->onload_js_callback;
                 }
@@ -386,7 +315,7 @@ class TableView {
         } elseif($onchange_callback && strlen($this->onchange_js_callback)) {
             return $this->onchange_js_callback;
         }//if($onloadCallback && $onchange_callback)
-        return '';
+        return NULL;
     }//END protected function ProcessJsCallbacks
 
     /**
@@ -398,75 +327,49 @@ class TableView {
      * @return string Returns action javascript command string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionCommand(string $type='',$params=NULL,bool $processCall=TRUE) {
+    protected function GetActionCommand(?string $type=NULL,$params=NULL,bool $processCall=TRUE): ?string {
         $params=is_object($params) ? $params : new Params($params);
         $targetId=NULL;
         $execCallback=TRUE;
         $onloadCallback=TRUE;
-        switch($type) {
-            case 'apply_filters':
-                $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'apply' } }";
-                break;
-            case 'update_filter':
-                $targetId=$this->tag_id.'-filters';
+        $command=NULL;
+        if(substr($type,0,8)=='filters.') {
+            if($type=='filters.update') {
                 $execCallback=FALSE;
-                $fcType=$params->safeGet('fctype','','is_string');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ShowFiltersBox', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'fop': '{nGet|{$this->tag_id}-f-operator:value}', 'type': '{nGet|{$this->tag_id}-f-type:value}', 'f-cond-type': '".(strlen($fcType) ? '{nGet|'.$fcType.'}' : '')."' } }";
-                break;
-            case 'remove_filter':
-                $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'remove', 'fkey': '".$params->safeGet('fkey','','is_numeric')."', 'sessact': 'filters' } }";
-                break;
-            case 'clear_filters':
-                $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction':'clear', 'sessact': 'filters' } }";
-                break;
-            case 'add_filter':
-                $targetId=$this->target;
-                $fsValue=$params->safeGet('fsvalue','','is_string');
-                $fdvalue=$params->safeGet('fdvalue','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
-                if(strlen($fdvalue) && strpos($fdvalue,'{nEval|')===FALSE && strpos($fdvalue,'{nGet|')===FALSE) {
-                    $fdvalue='{nGet|'.$fdvalue.'}';
-                }
-                $fsdvalue=$params->safeGet('fsdvalue','','is_string');
-                if(strlen($fsdvalue) && strpos($fsdvalue,'{nEval|')===FALSE && strpos($fsdvalue,'{nGet|')===FALSE) {
-                    $fsdvalue='{nGet|'.$fsdvalue.'}';
-                }
-                $fdtype=$params->safeGet('data_type','','is_string');
-                //~'fkey'|'".$params->safeGet('fkey','','is_notempty_string')."'
-                //~'fcond'|{$this->tag_id}-f-cond-type:value
-                $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'add', 'sessact': 'filters', 'fop': '".((is_array($this->filters) && count($this->filters)) ? "{nGet|".$this->tag_id."-f-operator:value}" : 'and')."', 'ftype': '{nGet|{$this->tag_id}-f-type:value}', 'fcond': '{nGet|{$this->filter_cond_val_source}}', 'fvalue': '{nGet|".$params->safeGet('fvalue',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'fsvalue': '".(strlen($fsValue) ? '{nGet|'.$fsValue.'}' : '')."', 'fdvalue': '{$fdvalue}', 'fsdvalue': '{$fsdvalue}', 'data_type': '{$fdtype}', 'is_ds_param': '{$isDSParam}' } }";
-                break;
-            case 'sort':
-                $targetId=$this->target;
-                $onloadCallback=FALSE;
-                $sdir=$params->safeGet('direction','asc','is_notempty_string');
-                $sdir=$sdir=='asc' ? 'desc' : 'asc';
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
-                break;
-            case 'gotopage':
-                $targetId=$this->target;
-                $onloadCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
-                break;
-            case 'export_all':
-                $targetId='errors';
-                $execCallback=FALSE;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
-                break;
-            case 'refresh':
-            default:
-                $targetId=$this->target;
-                $command="{ 'control_hash': '{$this->chash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'faction': 'refresh' } }";
-                break;
-        }//END switch
+            }
+            $command=$this->GetFilterActionCommand($type,$params,$targetId);
+        }//if(substr($type,0,8)=='filters.')
+        if(is_null($command)) {
+            switch($type) {
+                case 'sort':
+                    $targetId=$this->target;
+                    $onloadCallback=FALSE;
+                    $sdir=$params->safeGet('direction','asc','is_notempty_string');
+                    $sdir=$sdir=='asc' ? 'desc' : 'asc';
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'sort_by': '".$params->safeGet('column','','is_string')."', 'sort_dir': '{$sdir}', 'sessact': 'sort' } }";
+                    break;
+                case 'gotopage':
+                    $targetId=$this->target;
+                    $onloadCallback=FALSE;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'page': {!page!}, 'sessact': 'page' } }";
+                    break;
+                case 'export_all':
+                    $targetId='errors';
+                    $execCallback=FALSE;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'ExportAll', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': {} }";
+                    break;
+                case 'refresh':
+                default:
+                    $targetId=$this->target;
+                    $command="{ 'control_hash': '{$this->cHash}', 'method': 'Show', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'refresh' } }";
+                    break;
+            }//END switch
+        }//if(is_null($command))
         if(!$processCall) {
             return $command;
         }
         $jsCallback=$this->ProcessJsCallbacks($onloadCallback);
-        return NApp::Ajax()->Prepare($command,$targetId,NULL,$this->loader,NULL,TRUE,(!$execCallback || !strlen($jsCallback) ? $jsCallback : NULL),NULL,TRUE,'ControlAjaxRequest');
+        return NApp::Ajax()->Prepare($command,$targetId,NULL,$this->loader,NULL,TRUE,($execCallback && strlen($jsCallback) ? $jsCallback : NULL),NULL,TRUE,'ControlAjaxRequest');
     }//END protected function GetActionCommand
 
     /**
@@ -483,103 +386,73 @@ class TableView {
         if(!isset($extra_params['filters']) || !is_array($extra_params['filters'])) {
             $extra_params['filters']=[];
         }
-        // NApp::Dlog($this->filters,'ProcessDataCallParams>>$this->filters');
-        if(is_array($this->initial_filters) && count($this->initial_filters)) {
-            foreach($this->initial_filters as $ifk=>$ifa) {
-                if($ifk=='qsearch') {
-                    if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) {
-                        continue;
+        foreach($this->filters as $k=>$filter) {
+            $fType=get_array_value($filter,'type','','is_string');
+            if($fType=='0') {
+                if(strlen($this->qsearch) && array_key_exists($this->qsearch,$params)) {
+                    $params[$this->qsearch]=get_array_value($filter,'value','','is_string');
+                }
+            } elseif($dsParam=get_array_value($this->columns,[$fType,'ds_param'],NULL,'is_notempty_string')) {
+                $params[$dsParam]=get_array_value($filter,'value',NULL,'isset');
+            } else {
+                $fField=get_array_value($filter,'field',NULL,'is_notempty_string');
+                // NApp::Dlog($fField,'$fField[0]');
+                if(is_null($fField)) {
+                    $fField=get_array_value($this->columns,[$fType,'entity_property'],NULL,'is_notempty_string');
+                    if(is_null($fField)) {
+                        $fField=get_array_value($this->columns,[$fType,'db_field'],$fType,'is_notempty_string');
                     }
-                    $params[$this->qsearch]=$ifa;
-                } else {
-                    if(array_key_exists($ifk,$params) && !is_array($ifa)) {
-                        $params[$ifk]=$ifa;
-                    } else {
-                        $fkey=get_array_value($this->columns[$ifk],'ds_param');
-                        if(strlen($fkey) && array_key_exists($fkey,$params)) {
-                            $params[$fkey]=is_array($ifa) ? $ifa['value'] : $ifa;
+                    // NApp::Dlog($fField,'$fField[0.1]');
+                    $fcRelations=get_array_value($this->columns,[$fType,'relation'],[],'is_array');
+                    $fieldPrefix='';
+                    if(count($fcRelations)) {
+                        end($fcRelations);
+                        $fieldPrefix=key($fcRelations).'.';
+                    }//if(count($fcRelations))
+                    // NApp::Dlog($fieldPrefix,'$fieldPrefix');
+                    $fcFilterFields=[];
+                    if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
+                        $fcFilterField=get_array_value($this->columns,[$fType,'filter_target_fields'],NULL,'?is_string');
+                        if(strlen($fcFilterField)) {
+                            $fcFilterFields=[$fcFilterField];
                         } else {
-                            $extra_params['filters'][]=[
-                                'field'=>$ifk,
-                                'condition_type'=>get_array_value($ifa,'condition_type','==','is_string'),
-                                'value'=>is_array($ifa) ? $ifa['value'] : $ifa,
-                                'svalue'=>get_array_value($ifa,'svalue','','is_string'),
-                                'logical_separator'=>get_array_value($ifa,'operator','and','is_string'),
-                                'data_type'=>get_array_value($ifa,'data_type','','is_string'),
-                            ];
-                        }//if(strlen($fkey) && array_key_exists($fkey,$params))
-                    }//if(array_key_exists($ifk,$params) && !is_array($ifa))
-                }//if($ifk=='qsearch')
-            }//END foreach
-            $this->initial_filters=NULL;
-        }//if(is_array($this->initial_filters) && count($this->initial_filters))
-        if(is_array($this->filters) && count($this->filters)) {
-            foreach($this->filters as $k=>$a) {
-                if((string)$a['type']=='0') {
-                    //NApp::Dlog($a['type'],'$a[type]');
-                    if(!strlen($this->qsearch) || !array_key_exists($this->qsearch,$params)) {
-                        continue;
-                    }
-                    $params[$this->qsearch]=$a['value'];
-                } else {
-                    $fkey=get_array_value($this->columns[$a['type']],'ds_param');
-                    if(strlen($fkey) && array_key_exists($fkey,$params)) {
-                        $params[$fkey]=$a['value'];
+                            $fcFilterFields=get_array_value($this->columns,[$fType,'filter_target_fields'],[],'is_array');
+                        }
+                    }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
+                    if(count($fcFilterFields)) {
+                        $fField=[];
+                        foreach($fcFilterFields as $fItem) {
+                            $fField[]=$fieldPrefix.$fItem;
+                        }
                     } else {
-                        $fField=get_array_value($this->columns[$a['type']],'entity_property',get_array_value($this->columns[$a['type']],'db_field',$a['type'],'is_notempty_string'),'is_notempty_string');
-                        // NApp::Dlog($fField,'field[0]');
-                        $fcRelations=get_array_value($this->columns[$a['type']],'relation',[],'is_array');
-                        $fieldPrefix='';
-                        if(count($fcRelations)) {
-                            end($fcRelations);
-                            $fieldPrefix=key($fcRelations).'.';
-                        }//if(count($fcRelations))
-                        // NApp::Dlog($fieldPrefix,'$fieldPrefix');
-                        $fcFilterFields=[];
-                        if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                            $fcFilterFields=get_array_value($this->columns[$a['type']],'filter_target_fields',[],'is_array');
-                        }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
-                        if(count($fcFilterFields)) {
-                            $fField=[];
-                            foreach($fcFilterFields as $fItem) {
-                                $fField[]=$fieldPrefix.$fItem;
-                            }
-                        } else {
-                            $fField=$fieldPrefix.$fField;
-                        }//if(count($fcFilterFields))
-                        // NApp::Dlog($fField,'field[1]');
-                        // NApp::Dlog($a,'$a');
-                        $extra_params['filters'][]=[
-                            'field'=>$fField,
-                            'condition_type'=>$a['condition_type'],
-                            'value'=>$a['value'],
-                            'svalue'=>$a['svalue'],
-                            'logical_separator'=>$a['operator'],
-                            'data_type'=>$a['data_type'],
-                        ];
-                    }//if(strlen($fkey) && array_key_exists($fkey,$params))
-                }//if($a['type']==0)
-            }//END foreach
-        }//if(is_array($this->filters) && count($this->filters))
+                        $fField=$fieldPrefix.$fField;
+                    }//if(count($fcFilterFields))
+                    // NApp::Dlog($fField,'$fField[1]');
+                    // NApp::Dlog($filter,'$filter');
+                }//if(is_null($fField))
+                $filter['field']=$fField;
+                $extra_params['filters'][]=$filter;
+            }//if($fType=='0')
+        }//END foreach
         if($this->with_pagination && !$this->export_only) {
             $extra_params['type']='count-select';
-            $firstrow=$lastrow=NULL;
-            ControlsHelpers::GetPaginationParams($firstrow,$lastrow,$this->current_page);
-            $extra_params['first_row']=$firstrow;
-            $extra_params['last_row']=$lastrow;
+            $firstRow=$lastRow=NULL;
+            ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$this->current_page);
+            $extra_params['first_row']=$firstRow;
+            $extra_params['last_row']=$lastRow;
         }//if($this->with_pagination && !$this->export_only)
-        $sortcolumn=get_array_value($this->sortby,'column',NULL,'is_notempty_string');
+        $sortColumn=get_array_value($this->sortby,'column',NULL,'is_notempty_string');
         $extra_params['sort']=[];
         if($this->tree) {
             $extra_params['sort']['LVL']='ASC';
         }
-        if(strlen($sortcolumn)) {
+        if(strlen($sortColumn)) {
             if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                $extra_params['sort'][$sortcolumn]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+                $extra_params['sort'][$sortColumn]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
             } else {
-                $extra_params['sort'][strtoupper($sortcolumn)]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+                $extra_params['sort'][strtoupper($sortColumn)]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
             }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
-        }//if(strlen($sortcolumn))
+        }//if(strlen($sortColumn))
     }//END protected function ProcessDataCallParams
 
     /**
@@ -612,136 +485,46 @@ class TableView {
     }//END private function GetData
 
     /**
-     * Process the active filters (adds/removes filters)
-     *
-     * @param \NETopes\Core\App\Params $params Parameters for processing
-     * @return array Returns the updated filters array
-     * @throws \NETopes\Core\AppException
-     */
-    protected function ProcessActiveFilters(Params $params) {
-        $action=$params->safeGet('faction',NULL,'is_notempty_string');
-        // NApp::Dlog($action,'$action');
-        if(!$action || ($action!='add' && $action!='remove' && $action!='clear')) {
-            return $this->filters;
-        }
-        if($action=='clear') {
-            return [];
-        }
-        if($action=='remove') {
-            $key=$params->safeGet('fkey',NULL,'is_numeric');
-            if(!is_numeric($key) || !array_key_exists($key,$this->filters)) {
-                return $this->filters;
-            }
-            $lfilters=$this->filters;
-            unset($lfilters[$key]);
-            return $lfilters;
-        }//if($action=='remove')
-        $lfilters=$this->filters;
-        $multif=$params->safeGet('multif',[],'is_array');
-        if(count($multif)) {
-            foreach($multif as $fparams) {
-                $op=get_array_value($fparams,'fop',NULL,'is_notempty_string');
-                $type=get_array_value($fparams,'ftype',NULL,'is_notempty_string');
-                $cond=get_array_value($fparams,'fcond',NULL,'is_notempty_string');
-                $value=get_array_value($fparams,'fvalue',NULL,'isset');
-                $svalue=get_array_value($fparams,'fsvalue',NULL,'isset');
-                $dvalue=get_array_value($fparams,'fdvalue',NULL,'isset');
-                $sdvalue=get_array_value($fparams,'fsdvalue',NULL,'isset');
-                $fdtype=get_array_value($fparams,'data_type','','is_string');
-                $isDSParam=get_array_value($fparams,'is_ds_param',0,'is_numeric');
-                if(!$op || !isset($type) || !$cond || !isset($value)) {
-                    continue;
-                }
-                $lfilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam];
-            }//END foreach
-        } else {
-            $op=$params->safeGet('fop',NULL,'is_notempty_string');
-            $type=$params->safeGet('ftype',NULL,'is_notempty_string');
-            $cond=$params->safeGet('fcond',NULL,'is_notempty_string');
-            $value=$params->safeGet('fvalue',NULL,'isset');
-            $svalue=$params->safeGet('fsvalue',NULL,'isset');
-            $dvalue=$params->safeGet('fdvalue',NULL,'isset');
-            $sdvalue=$params->safeGet('fsdvalue',NULL,'isset');
-            $fdtype=$params->safeGet('data_type','','is_string');
-            $isDSParam=$params->safeGet('is_ds_param',0,'is_numeric');
-            if(!$op || !isset($type) || !$cond || !isset($value)) {
-                return $this->filters;
-            }
-            $lfilters[]=['operator'=>$op,'type'=>$type,'condition_type'=>$cond,'value'=>$value,'svalue'=>$svalue,'dvalue'=>$dvalue,'sdvalue'=>$sdvalue,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam];
-        }//if(count($multif))
-        // NApp::Dlog($lfilters,'$lfilters');
-        return $lfilters;
-    }//END protected function ProcessActiveFilters
-
-    /**
      * Gets the actions bar controls html (except controls for filters)
      *
-     * @param bool $with_filters
      * @return string Returns the actions bar controls html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionsBarControls($with_filters=FALSE) {
-        //NApp::Dlog($params,'GetFilterBox>>$params');
-        $result='';
+    protected function GetActionsBarControls() {
+        //NApp::Dlog($params,'GetActionsBarControls>>$params');
+        $actions='';
         if($this->exportable && $this->export_all && $this->with_pagination) {
             if($this->compact_mode) {
-                $result.="\t\t\t".'<button class="dg-export-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::Get('button_export_all').'"><i class="fa fa-download"></i></button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::GetButton('export_all').'"><i class="fa fa-download"></i></button>'."\n";
             } else {
-                $result.="\t\t\t".'<button class="dg-export-btn" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.Translate::Get('button_export_all').'</button>'."\n";
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('export_all').'" ><i class="fa fa-download"></i>'.Translate::GetButton('export_all').'</button>'."\n";
             }//if($this->compact_mode)
         }//if($this->exportable && $this->export_all && $this->with_pagination)
         if($this->export_button) {
             if($this->compact_mode) {
-                $result.="\t\t\t".'<a class="dg-export-btn compact clsTitleSToolTip" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank" title="'.Translate::Get('button_export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->cHash.'" target="_blank" title="'.Translate::GetButton('export').'"><i class="fa fa-file-excel-o"></i></a>'."\n";
             } else {
-                $result.="\t\t\t".'<a class="dg-export-btn" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->chash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::Get('button_export').'</a>'."\n";
+                $actions.="\t\t\t".'<a class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn'.$this->buttons_size_class).'" href="'.NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&chash='.$this->cHash.'" target="_blank"><i class="fa fa-file-excel-o"></i>'.Translate::GetButton('export').'</a>'."\n";
             }//if($this->compact_mode)
         }//if($this->export_button)
         if(strlen($this->ds_class) && strlen($this->ds_method)) {
             if($this->compact_mode) {
-                $result.="\t\t\t".'<button class="dg-refresh-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::Get('button_refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
-                if($with_filters) {
-                    $result.="\t\t\t".'<button class="f-clear-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('clear_filters').'" title="'.Translate::Get('button_clear_filters').'"><i class="fa fa-times"></i></button>'."\n";
-                    if(!$this->auto_load_data_on_filter_change) {
-                        $result.="\t\t\t".'<button class="f-apply-btn compact clsTitleSToolTip" onclick="'.$this->GetActionCommand('apply_filters').'" title="'.Translate::Get('button_apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i></button>'."\n";
-                    }//if(!$this->auto_load_data_on_filter_change)
-                }//if($with_filters)
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('refresh').'" title="'.Translate::GetButton('refresh').'"><i class="fa fa-refresh"></i></button>'."\n";
             } else {
-                $result.="\t\t\t".'<button class="dg-refresh-btn" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::Get('button_refresh').'</button>'."\n";
-                if($with_filters) {
-                    $result.="\t\t\t".'<button class="f-clear-btn" onclick="'.$this->GetActionCommand('clear_filters').'"><i class="fa fa-times"></i>'.Translate::Get('button_clear_filters').'</button>'."\n";
-                    if(!$this->auto_load_data_on_filter_change) {
-                        $result.="\t\t\t".'<button class="f-apply-btn" onclick="'.$this->GetActionCommand('apply_filters').'"><i class="fa fa-filter" aria-hidden="true"></i>'.Translate::Get('button_apply_filters').'</button>'."\n";
-                    }//if(!$this->auto_load_data_on_filter_change)
-                }//if($with_filters)
+                $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnSuccessClass('tw-refresh-btn'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('refresh').'"><i class="fa fa-refresh"></i>'.Translate::GetButton('refresh').'</button>'."\n";
             }//if($this->compact_mode)
         }//if(strlen($this->ds_class) && strlen($this->ds_method))
+        if(!strlen($actions)) {
+            return NULL;
+        }
+        $result="\t\t\t".'<div class="tw-actions'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').'">'."\n";
+        $result.=$actions;
+        $result.="\t\t\t".'</div>'."\n";
         return $result;
     }//END protected function GetActionsBarControls
 
     /**
-     * Gets the filter box html
-     *
-     * @param string|int Key (type) of the filter to be checked
-     * @return bool Returns TRUE if filter is used and FALSE otherwise
-     */
-    protected function CheckIfFilterIsActive($key) {
-        if(!is_numeric($key) && (!is_string($key) || !strlen($key))) {
-            return FALSE;
-        }
-        if(!is_array($this->filters) || !count($this->filters)) {
-            return FALSE;
-        }
-        foreach($this->filters as $f) {
-            if(get_array_value($f,'type','','is_string').''==$key.'') {
-                return TRUE;
-            }
-        }
-        return FALSE;
-    }//protected function CheckIfFilterIsActive
-
-    /**
-     * Gets the filter box html
+     * Gets the filter box HTML
      *
      * @param \NETopes\Core\App\Params $params
      * @return string|null Returns the filter box html
@@ -750,317 +533,55 @@ class TableView {
     protected function GetFilterBox(Params $params=NULL): ?string {
         // NApp::Dlog($params,'GetFilterBox>>$params');
         // NApp::Dlog($this->filters,'GetFilterBox>>$this->filters');
+        if(!$this->with_filter) {
+            return NULL;
+        }
+        if(is_null($params)) {
+            $params=new Params();
+        }
+        $filters=$this->GetFilterControls($this->columns,$params);
+        $filters.=$this->GetFilterGlobalActions(!$this->auto_load_data_on_filter_change);
+        $filters.=$this->GetActiveFilters($this->columns);
+        if($params->safeGet('f_action','','is_string')=='update') {
+            return $filters;
+        }
+        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
+        $result.=$filters;
+        $result.="\t\t\t".'</div>'."\n";
+        return $result;
+    }//END protected function GetFilterBox
+
+    /**
+     * Gets the filter box html
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return string|null Returns the filter box html
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetActionsBox(Params $params=NULL): ?string {
+        // NApp::Dlog($params,'GetActionsBox>>$params');
         if(!$this->with_filter && $this->hide_actions_bar) {
             return NULL;
         }
-        if(!$this->with_filter) {
-            $filters='';
-            $filters.="\t\t".'<div class="f-container">'."\n";
-            $filters.=$this->GetActionsBarControls();
-            $filters.="\t\t".'</div>'."\n";
-            return $filters;
-        }//if(!$this->with_filter && !$this->hide_actions_bar)
-        $cftype=$params->safeGet('type','','is_string');
-        if($this->compact_mode) {
-            $filters='';
-        } else {
-            $filters="\t\t".'<span class="f-title">'.Translate::Get('label_filters').'</span>'."\n";
-        }//if($this->compact_mode)
-        $filters.="\t\t".'<div class="f-container">'."\n";
-        if(is_array($this->filters) && count($this->filters)) {
-            $filters.="\t\t\t".'<select id="'.$this->tag_id.'-f-operator" class="f-operator">'."\n";
-            foreach(DataProvider::GetArray('_Custom\Offline','FilterOperators') as $c) {
-                $fo_selected=$params->safeGet('fop','','is_string')==$c['value'] ? ' selected="selected"' : '';
-                $filters.="\t\t\t\t".'<option value="'.$c['value'].'"'.$fo_selected.'>'.$c['name'].'</option>'."\n";
-            }//END foreach
-            $filters.="\t\t\t".'</select>'."\n";
-        } else {
-            $filters.="\t\t\t".'<input id="'.$this->tag_id.'-f-operator" type="hidden" value="'.$params->safeGet('fop','','is_string').'">'."\n";
-        }//if(is_array($this->filters) && count($this->filters))
-        $filters.="\t\t\t".'<select id="'.$this->tag_id.'-f-type" class="f-type" onchange="'.$this->GetActionCommand('update_filter').'">'."\n";
-        $is_qsearch=FALSE;
-        $is_qsearch_active=$this->CheckIfFilterIsActive(0);
-        if($this->qsearch && !$is_qsearch_active) {
-            if($cftype.''=='0' || !strlen($cftype)) {
-                $lselected=' selected="selected"';
-                $cfctype='qsearch';
-                $is_qsearch=TRUE;
-            } else {
-                $lselected='';
-                $cfctype='';
-            }//if($cftype.''=='0' || !strlen($cftype))
-            $filters.="\t\t\t\t".'<option value="0"'.$lselected.'>'.Translate::Get('label_qsearch').'</option>'."\n";
-        }//if($this->qsearch && !$is_qsearch_active)
-        $selectedv=NULL;
-        $cfctype='';
-        $isDSParam=0;
-        foreach($this->columns as $k=>$v) {
-            if(!get_array_value($v,'filterable',FALSE,'bool')) {
-                continue;
-            }
-            $isDSParam=intval(strlen(get_array_value($v,'ds_param','','is_string'))>0);
-            if($isDSParam && $this->CheckIfFilterIsActive($k)) {
-                continue;
-            }
-            if($cftype==$k || (!strlen($cftype) && !$is_qsearch && !$selectedv)) {
-                $lselected=' selected="selected"';
-                $cfctype=get_array_value($v,'filter_type','','is_string');
-                $selectedv=$v;
-            } else {
-                $lselected='';
-            }//if($cftype==$k || (!strlen($cftype) && !$is_qsearch && !$selectedv))
-            $filters.="\t\t\t\t".'<option value="'.$k.'"'.$lselected.'>'.get_array_value($v,'label',$k,'is_notempty_string').'</option>'."\n";
-        }//END foreach
-        $filters.="\t\t\t".'</select>'."\n";
-        $fdtype=get_array_value($selectedv,'data_type','','is_string');
-        $fc_type=$params->safeGet('f-cond-type','','is_string');
-        $this->filter_cond_val_source=$this->tag_id.'-f-cond-type:value';
-        $fc_cond_type=get_array_value($selectedv,'show_filter_cond_type',get_array_value($selectedv,'show_filter_cond_type',TRUE,'bool'),'is_notempty_string');
-        if($fc_cond_type===TRUE && !$is_qsearch) {
-            $filter_cts='';
-            $filter_ct_onchange='';
-            $p_fctype=strtolower(strlen($cfctype) ? $cfctype : $fdtype);
-            $fConditions=DataProvider::Get('_Custom\Offline','FilterConditionsTypes',['type'=>$p_fctype]);
-            foreach($fConditions as $c) {
-                $fct_selected=$fc_type==$c->getProperty('value') ? ' selected="selected"' : '';
-                $filter_cts.="\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$fct_selected.'>'.$c->getProperty('name').'</option>'."\n";
-                if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><') {
-                    $filter_ct_onchange=' onchange="'.$this->GetActionCommand('update_filter',['fctype'=>$this->tag_id.'-f-cond-type:value']).'"';
-                }//if(!strlen($filter_ct_onchange) && $c->getProperty('value')=='><')
-            }//END foreach
-            $filters.="\t\t\t".'<select id="'.$this->tag_id.'-f-cond-type" class="f-cond-type"'.$filter_ct_onchange.'>'."\n";
-            $filters.=$filter_cts;
-            $filters.="\t\t\t".'</select>'."\n";
-        } elseif($fc_cond_type!=='data') {
-            $filters.="\t\t\t".'<input type="hidden" id="'.$this->tag_id.'-f-cond-type" value="'.($is_qsearch ? 'like' : '==').'"/>'."\n";
-        } else {
-            $this->filter_cond_val_source=NULL;
-        }//if($fc_cond_type===TRUE && !$is_qsearch)
-        $ctrlParams=get_array_value($selectedv,'filter_params',[],'is_array');
-        $ctrlParams['tag_id']=$this->tag_id.'-f-value';
-        $ctrlParams['class']='f-value';
-        $ctrlParams['clear_base_class']=TRUE;
-        $ctrlParams['container']=FALSE;
-        $ctrlParams['no_label']=TRUE;
-        $ctrlParams['postable']=FALSE;
-        $aoc_check=NULL;
-        $fval=NULL;
-        $fsval=NULL;
-        $f_subtype=NULL;
-        switch(strtolower($cfctype)) {
-            case 'smartcombobox':
-                $ctrlParams['placeholder']=get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
-                $ctrlParams['allow_clear']=get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
-                    $ctrlParams['data_source']=get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
-                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $ctrl_filter_value=new SmartComboBox($ctrlParams);
-                $dvalue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-f-value\',false)}';
-                if(!$this->filter_cond_val_source) {
-                    $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                $ctrl_filter_value->ClearBaseClass();
-                $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                if($this->compact_mode) {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
-                } else {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
-                }//if($this->compact_mode)
-                break;
-            case 'combobox':
-                if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text'])) {
-                    $ctrlParams['please_select_text']=Translate::GetLabel('please_select');
-                    $ctrlParams['please_select_value']=NULL;
-                }//if(!isset($ctrlParams['please_select_text']) || !strlen($ctrlParams['please_select_text']))
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
-                    $ctrlParams['data_source']=get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
-                }//if(!isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
-                $ctrl_filter_value=new ComboBox($ctrlParams);
-                $dvalue=$this->tag_id.'-f-value:option';
-                if(!$this->filter_cond_val_source) {
-                    $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                $ctrl_filter_value->ClearBaseClass();
-                $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                if($this->compact_mode) {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
-                } else {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
-                }//if($this->compact_mode)
-                break;
-            case 'treecombobox':
-                $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                $ctrlParams['data_source']=get_array_value($selectedv,'filter_data_source',NULL,'is_notempty_array');
-                $ctrl_filter_value=new TreeComboBox($ctrlParams);
-                $dvalue=$this->tag_id.'-f-value-cbo:value';
-                if(!$this->filter_cond_val_source) {
-                    $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                // $ctrl_filter_value->ClearBaseClass();
-                $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                if($this->compact_mode) {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype]).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
-                } else {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype]).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
-                }//if($this->compact_mode)
-                break;
-            case 'checkbox':
-                $ctrlParams['value']=0;
-                $ctrl_filter_value=new CheckBox($ctrlParams);
-                $dvalue=$this->tag_id.'-f-value:value';
-                if(!$this->filter_cond_val_source) {
-                    $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                }
-                $ctrl_filter_value->ClearBaseClass();
-                $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                if($this->compact_mode) {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
-                } else {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam]).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
-                }//if($this->compact_mode)
-                break;
-            case 'datepicker':
-            case 'date':
-            case 'datetime':
-                $f_subtype='DatePicker';
-            case 'numerictextbox':
-            case 'numeric':
-                $f_subtype=$f_subtype ? $f_subtype : 'NumericTextBox';
-            default:
-                if(!$f_subtype) {
-                    switch($fdtype) {
-                        case 'date':
-                        case 'date_obj':
-                        case 'datetime':
-                        case 'datetime_obj':
-                            $f_subtype='DatePicker';
-                            break;
-                        case 'numeric':
-                            $f_subtype='NumericTextBox';
-                            break;
-                        default:
-                            $f_subtype='TextBox';
-                            break;
-                    }//END switch
-                }//if(!$f_subtype)
-                switch($f_subtype) {
-                    case 'DatePicker':
-                        $ctrlParams['size']='xxs';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj')) {
-                            $ctrlParams['timepicker']=TRUE;
-                            // $ctrlParams['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy HH'.NApp::GetParam('time_separator').'mm'.NApp::GetParam('time_separator').'ss"';
-                        } else {
-                            $ctrlParams['timepicker']=FALSE;
-                            // $ctrlParams['extratagparam'] = ' data-out-format="dd'.NApp::GetParam('date_separator').'MM'.NApp::GetParam('date_separator').'yyyy"';
-                        }//if(strtolower($cfctype)!='date' && ($fdtype=='datetime' || $fdtype=='datetime_obj'))
-                        $ctrlParams['align']='center';
-                        $ctrl_filter_value=new DatePicker($ctrlParams);
-                        $ctrl_filter_value->ClearBaseClass();
-                        $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                        $fval=$this->tag_id.'-f-value:dvalue';
-                        if($fc_type=='><') {
-                            $filters.="\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            $ctrl_filter_value=new DatePicker($ctrlParams);
-                            $ctrl_filter_value->ClearBaseClass();
-                            $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                            $fsval=$this->tag_id.'-f-svalue:dvalue';
-                            $sdvalue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_val_source) {
-                                $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fc_type=='><')
-                        break;
-                    case 'NumericTextBox':
-                        $ctrlParams['class'].=' t-box';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        $ctrlParams['number_format']=get_array_value($selectedv,'filter_format','0|||','is_notempty_string');
-                        $ctrlParams['align']='center';
-                        $ctrl_filter_value=new NumericTextBox($ctrlParams);
-                        $ctrl_filter_value->ClearBaseClass();
-                        $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                        $fval=$this->tag_id.'-f-value:nvalue';
-                        if($fc_type=='><') {
-                            $filters.="\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            $ctrl_filter_value=new NumericTextBox($ctrlParams);
-                            $ctrl_filter_value->ClearBaseClass();
-                            $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                            $fsval=$this->tag_id.'-f-svalue:nvalue';
-                            $sdvalue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_val_source) {
-                                $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fc_type=='><')
-                        //$aoc_check = "if(\$('#".$this->tag_id."-f-value').val()!=0){ ";
-                        break;
-                    case 'TextBox':
-                    default:
-                        $ctrlParams['class'].=' t-box';
-                        $ctrlParams['value']='';
-                        $ctrlParams['onenter_button']=$this->tag_id.'-f-add-btn';
-                        $ctrl_filter_value=new TextBox($ctrlParams);
-                        $ctrl_filter_value->ClearBaseClass();
-                        $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                        $fval=$this->tag_id.'-f-value:value';
-                        if($fc_type=='><') {
-                            $filters.="\t\t\t".'<span class="f-i-lbl">'.Translate::Get('label_and').'</span>'."\n";
-                            $ctrlParams['tag_id']=$this->tag_id.'-f-svalue';
-                            $ctrl_filter_value=new TextBox($ctrlParams);
-                            $ctrl_filter_value->ClearBaseClass();
-                            $filters.="\t\t\t".$ctrl_filter_value->Show()."\n";
-                            $fsval=$this->tag_id.'-f-svalue:value';
-                            $sdvalue=$this->tag_id.'-f-svalue:value';
-                            if(!$this->filter_cond_val_source) {
-                                $this->filter_cond_val_source=$this->tag_id.'-f-value:option:data-ctype';
-                            }
-                        }//if($fc_type=='><')
-                        break;
-                }//END switch
-                $dvalue=$this->tag_id.'-f-value:value';
-                $f_b_params=$fc_type=='><' ? ['fdvalue'=>$dvalue,'fsdvalue'=>$sdvalue,'fvalue'=>$fval,'fsvalue'=>$fsval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam] : ['fdvalue'=>$dvalue,'fvalue'=>$fval,'data_type'=>$fdtype,'is_ds_param'=>$isDSParam];
-                if($this->compact_mode) {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn compact clsTitleSToolTip" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'" title="'.Translate::Get('button_add_filter').'"><i class="fa fa-plus"></i></button>'."\n";
-                } else {
-                    $filters.="\t\t\t".'<button id="'.$this->tag_id.'-f-add-btn" class="f-add-btn" onclick="'.$aoc_check.$this->GetActionCommand('add_filter',$f_b_params).($aoc_check ? ' }' : '').'"><i class="fa fa-plus"></i>'.Translate::Get('button_add_filter').'</button>'."\n";
-                }//if($this->compact_mode)
-                break;
-        }//END switch
-        $filters.=$this->GetActionsBarControls(TRUE);
-        if(is_array($this->filters) && count($this->filters)) {
-            $filters.="\t\t\t".'<div class="f-active">'."\n";
-            $first=TRUE;
-            $fcTypes=DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
-            foreach($this->filters as $k=>$a) {
-                if($first) {
-                    $filters.="\t\t\t\t".'<span class="f-active-title">'.Translate::Get('label_active_filters').':</span>'."\n";
-                    $af_op='';
-                    $first=FALSE;
-                } else {
-                    $af_op=Translate::Get('label_'.$a['operator']).' ';
-                }//if($first)
-                if($a['condition_type']=='><') {
-                    $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;&nbsp;'.Translate::Get('label_and').'&nbsp;&quot;<strong>'.$a['sdvalue'].'</strong>&quot;</div>'."\n";
-                } else {
-                    $filters.="\t\t\t\t".'<div class="f-active-item"><div class="b-remove" onclick="'.$this->GetActionCommand('remove_filter',['fkey'=>$k]).'"><i class="fa fa-times"></i></div>'.$af_op.'<strong>'.((is_numeric($a['type']) && $a['type']==0) ? Translate::Get('label_qsearch') : get_array_value($this->columns[$a['type']],'label',$a['type'],'is_notempty_string')).'</strong>&nbsp;'.$fcTypes->safeGet($a['condition_type'])->getProperty('name').'&nbsp;&quot;<strong>'.$a['dvalue'].'</strong>&quot;</div>'."\n";
-                }//if($a['condition_type']=='><')
-            }//END foreach
-            $filters.="\t\t\t".'</div>'."\n";
-        }//if(is_array($this->filters) && count($this->filters))
-        $filters.="\t\t\t".'<div class="clearfix"></div>'."\n";
-        $filters.="\t\t".'</div>'."\n";
-        return $filters;
-    }//END protected function GetFilterBox
+        if(is_null($params)) {
+            $params=new Params();
+        }
+        $result='';
+        if(!$this->compact_mode) {
+            $result.="\t\t\t".'<span class="f-title">'.Translate::GetLabel('filters').'</span>'."\n";
+        }
+        $result.="\t\t".'<div class="tw-actions-container">'."\n";
+        $result.=$this->GetFilterBox($params);
+        $result.=$this->GetActionsBarControls();
+        $result.="\t\t".'</div>'."\n";
+        $result.="\t\t".'<div class="clearfix"></div>'."\n";
+        return $result;
+    }//END protected function GetActionsBox
 
     /**
      * Gets the pagination box html
      *
-     * @param array $items The data array
+     * @param DataSet $items The data array
      * @return string Returns the pagination box html
      * @throws \NETopes\Core\AppException
      */
@@ -1076,7 +597,7 @@ class TableView {
             }
             //$lstyle = strlen($this->width)>0 ? ($this->width!='100%' ? ' style="width: '.$this->width.'; margin: 0 auto;"' : ' style="width: '.$this->width.';"') : '';
             $result="\t".'<div class="'.$this->base_class.'Footer'.(strlen($this->class)>0 ? ' '.$this->class : '').'">'."\n";
-            $result.="\t\t".'<div class="pagination-container"><span class="rec-label">'.Translate::Get('label_records').'</span><span class="rec-no">'.number_format($records_no,0).'</span><div class="clearfix"></div></div>';
+            $result.="\t\t".'<div class="pagination-container"><span class="rec-label">'.Translate::GetLabel('records').'</span><span class="rec-no">'.number_format($records_no,0).'</span><div class="clearfix"></div></div>';
             $result.="\t".'</div>'."\n";
             return $result;
         }//if(!$this->with_pagination)
@@ -1961,7 +1482,7 @@ class TableView {
                     $t_value.=($rLvl>1 ? str_pad('',strlen($this->tree_ident) * ($rLvl - 1),$this->tree_ident) : '');
                     if($hasChild) {
                         $t_s_val=$rTreeState ? 1 : 0;
-                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->chash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
+                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->cHash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
                     } else {
                         $t_value.='<span class="clsTreeGridBtnNoChild"></span>';
                     }//if($hasChild)
@@ -2374,7 +1895,7 @@ class TableView {
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
                     $ssortby=NApp::GetPageParam($this->sessionHash.'#sortby');
                     $this->sortby=get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby;
-                    $this->filters=$this->ProcessActiveFilters($params);
+                    $this->ProcessActiveFilters($params);
                     break;
                 case 'reset':
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
@@ -2382,7 +1903,7 @@ class TableView {
                         'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
                         'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
                     ];
-                    $this->filters=$this->ProcessActiveFilters($params);
+                    $this->ProcessActiveFilters($params);
                     break;
                 default:
                     $this->current_page=NApp::GetPageParam($this->sessionHash.'#currentpage');
@@ -2399,9 +1920,7 @@ class TableView {
                         $this->sortby=$ssortby;
                     }//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
-                    if(!$this->filters) {
-                        $this->filters=$this->ProcessActiveFilters($params);
-                    }//if(!$this->filters)
+                    $this->ProcessActiveFilters($params);
                     break;
             }//END switch
             NApp::SetPageParam($this->sessionHash.'#currentpage',$this->current_page);
@@ -2413,12 +1932,12 @@ class TableView {
                 'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
                 'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
             ];
-            $this->filters=$this->ProcessActiveFilters($params);
+            $this->ProcessActiveFilters($params);
         }//if($this->persistent_state)
     }//END protected function LoadState
 
     /**
-     * Sets the output buffer value
+     * Generate and return the control HTML
      *
      * @param \NETopes\Core\App\Params $params
      * @return string|null
@@ -2428,8 +1947,9 @@ class TableView {
         // NApp::Dlog($params,'SetControl>>$params');
         $this->LoadState($params);
         // NApp::Dlog($this->filters,'SetControl>>$this->filters');
+        // NApp::Dlog($this->groups,'SetControl>>$this->groups');
         // NApp::Dlog($this->auto_load_data_on_filter_change,'SetControl>>auto_load_data_on_filter_change');
-        $fActionsParam=$params->safeGet('faction',NULL,'?is_string');
+        $fActionsParam=$params->safeGet('f_action',NULL,'?is_string');
         // NApp::Dlog($fActionsParam,'SetControl>>$fActionsParam');
         if(isset($fActionsParam)) {
             if($this->auto_load_data_on_filter_change || in_array($fActionsParam,['apply','refresh'])) {
@@ -2460,7 +1980,7 @@ class TableView {
                     'layouts'=>[$this->export_data],
                     'summarize'=>$this->with_totals,
                 ];
-                $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->chash.'.tmpexp';
+                $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'.tmpexp';
                 //NApp::Dlog($cachefile,'$cachefile');
                 try {
                     if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
@@ -2491,8 +2011,8 @@ class TableView {
                     $closing_tags="\t".'</div>'."\n";
                 }//if($this->is_panel===TRUE)
                 if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
-                    $result.="\t\t\t".'<div id="'.$this->tag_id.'-filters" class="'.($this->base_class.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
-                    $result.=$this->GetFilterBox(new Params());
+                    $result.="\t\t\t".'<div id="'.$this->tag_id.'-actions" class="'.($this->base_class.'Actions'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
+                    $result.=$this->GetActionsBox(new Params());
                     $result.="\t\t\t".'</div>'."\n";
                 }//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
                 $result.="\t".'<div class="clsTContainer'.(strlen($this->container_class) ? ' '.$this->container_class : '').'">'."\n";
@@ -2511,7 +2031,7 @@ class TableView {
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
                     $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
                 $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2524,7 +2044,7 @@ class TableView {
                 $result='<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
                 if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
                     $result.="\t".'<div id="'.$this->tag_id.'-filters" class="'.($this->base_class.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
-                    $result.=$this->GetFilterBox(new Params());
+                    $result.=$this->GetActionsBox(new Params());
                     $result.="\t".'</div>'."\n";
                 }//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
                 $result.="\t".'<div class="clsTContainer">'."\n";
@@ -2543,7 +2063,7 @@ class TableView {
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
                     $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->chash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
                 $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
@@ -2629,66 +2149,6 @@ class TableView {
     }//END public function ClearActions
 
     /**
-     * Gets the control's content (html)
-     *
-     * @param Params|array|null $params An array of parameters
-     *                                  * phash (string) = new page hash (window.name)
-     *                                  * output (bool|numeric) = flag indicating direct (echo)
-     *                                  or indirect (return) output (default FALSE - indirect (return) output)
-     *                                  * other pass through params
-     * @return string Returns the control's content (html)
-     * @throws \NETopes\Core\AppException
-     */
-    public function Show($params=NULL): ?string {
-        // NApp::Dlog($params,'TableView>>Show');
-        $o_params=is_object($params) ? $params : new Params($params);
-        $phash=$o_params->safeGet('phash',NULL,'?is_notempty_string');
-        $output=$o_params->safeGet('output',FALSE,'bool');
-        if($phash) {
-            $this->phash=$phash;
-        }
-        if(!$output) {
-            return $this->SetControl($o_params);
-        }
-        echo $this->SetControl($o_params);
-        return NULL;
-    }//END public function Show
-
-    /**
-     * Gets (shows) the control's filters box content
-     *
-     * @param array $params An array of parameters
-     *                      * phash (string) = new page hash (window.name)
-     *                      * output (bool|numeric) = flag indicating direct (echo)
-     *                      or indirect (return) output (default FALSE - indirect (return) output)
-     *                      * other pass through params
-     * @return string Returns the control's filters box content
-     * @throws \NETopes\Core\AppException
-     */
-    public function ShowFiltersBox($params=NULL) {
-        $o_params=is_object($params) ? $params : new Params($params);
-        $phash=$o_params->safeGet('phash',NULL,'is_notempty_string');
-        $output=$o_params->safeGet('output',FALSE,'bool');
-        if($phash) {
-            $this->phash=$phash;
-        }
-        if(!$output) {
-            return $this->GetFilterBox($o_params);
-        }
-        echo $this->GetFilterBox($o_params);
-    }//END public function ShowFiltersBox
-
-    /**
-     * Sets new value for base class property
-     *
-     * @param string $value The new value to be set as base class
-     * @return void
-     */
-    public function SetBaseClass($value) {
-        $this->base_class=strlen($value) ? $value : $this->base_class;
-    }//END public function SetBaseClass
-
-    /**
      * Sets new value for base class property
      *
      * @param \NETopes\Core\App\Params $params
@@ -2723,7 +2183,7 @@ class TableView {
             'layouts'=>[$this->export_data],
             'summarize'=>$this->with_totals,
         ];
-        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->chash.'_all.tmpexp';
+        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'_all.tmpexp';
         // NApp::Dlog($cachefile,'$cachefile');
         try {
             if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
@@ -2742,7 +2202,7 @@ class TableView {
         if(!$output) {
             return;
         }
-        $url=NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->chash;
+        $url=NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->cHash;
         NApp::Ajax()->ExecuteJs("OpenUrl('{$url}',true)");
     }//END public function ExportAll
 
@@ -2750,7 +2210,7 @@ class TableView {
      * Get export data
      *
      * @param array $params An array of parameters
-     * @return string|bool Returns file content or FALSE on error
+     * @return void
      * @throws \NETopes\Core\AppException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
@@ -2781,4 +2241,4 @@ class TableView {
             throw $e;
         }//END try
     }//END public static function ExportData
-}//END class TableView
+}//END class TableView extends FilterControl

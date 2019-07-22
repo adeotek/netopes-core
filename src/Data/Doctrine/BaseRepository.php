@@ -1,8 +1,6 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 
 class BaseRepository extends EntityRepository {
     use RepositoryStandardTrait;
@@ -37,7 +35,6 @@ class BaseRepository extends EntityRepository {
             }//END foreach
         }//if(is_array($sort) && count($sort))
         $qb->setMaxResults($rowNum);
-        $this->DbDebug($qb->getQuery(),'getSearchResults');
         return $qb->getQuery()->getResult();
     }//END public function getSearchResults
 }//END class BaseRepository extends EntityRepository

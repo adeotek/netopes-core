@@ -1,11 +1,11 @@
 <?php
 namespace NETopes\Core\Data;
-use Closure;
-use Traversable;
-use Countable;
-use JsonSerializable;
-use IteratorAggregate;
 use ArrayAccess;
+use Closure;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
+use Traversable;
 
 /**
  * Interface Collection

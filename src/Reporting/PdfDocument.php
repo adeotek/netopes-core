@@ -12,10 +12,10 @@
  */
 namespace NETopes\Core\Reporting;
 use Exception;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
-use NApp;
 use Translate;
 
 /**

@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\AppSession;
 use NApp;
+use NETopes\Core\AppSession;
 
 /**
  * Class TreeView

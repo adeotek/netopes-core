@@ -162,6 +162,7 @@ class OfflineBase extends DataSource {
      *
      * @param array $params Parameters array
      * @return array|bool
+     * @throws \NETopes\Core\AppException
      */
     public function FilterOperators($params=[],$extra_params=[]) {
         $langcode=get_array_value($params,'lang_code','','is_notempty_string');
@@ -176,12 +177,15 @@ class OfflineBase extends DataSource {
      * description
      *
      * @param array $params Parameters array
+     * @param array $extra_params
      * @return array|bool
+     * @throws \NETopes\Core\AppException
      */
     public function FilterConditionsTypes($params=[],$extra_params=[]) {
         $langcode=get_array_value($params,'lang_code','','is_notempty_string');
         switch(get_array_value($params,'type','','is_string')) {
             case 'combobox':
+            case 'smartcombobox':
             case 'checkbox':
                 $result=[
                     ['value'=>'==','name'=>Translate::GetLabel('equal',$langcode)],

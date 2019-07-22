@@ -11,9 +11,9 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
-use NApp;
 
 /**
  * Class DataSource
@@ -87,7 +87,7 @@ class DataSource {
      * @param string $procedure    The name of the stored procedure
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             - 'transaction'= name of transaction in which the query will run
      *                             - 'type' = request type: select, count, execute (default 'select')
      *                             - 'first_row' = integer to limit number of returned rows
@@ -99,19 +99,20 @@ class DataSource {
      *                             - 'out_params' = an array of output params
      * @param bool   $cache        Flag indicating if the cache should be used or not
      * @param string $tag          Cache key tag
-     * @param bool   $sp_count     Flag indicating if the count is done inside the stored procedure
+     * @param bool   $spCount      Flag indicating if the count is done inside the stored procedure
      *                             or in the procedure call (default value is FALSE)
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetCountAndData($procedure,$params=[],&$extra_params=[],$cache=FALSE,$tag=NULL,$sp_count=FALSE) {
+    public function GetCountAndData($procedure,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL,$spCount=FALSE) {
+        $key=$lTag=NULL;
         if($cache && NApp::CacheDbCall()) {
-            $params_salt=$procedure;
-            $params_salt.=serialize(!is_array($params) ? [] : $params);
-            $params_salt.=serialize(!is_array($extra_params) ? [] : $extra_params);
-            $key=AppSession::GetNewUID($params_salt,'sha1',TRUE);
-            $ltag=is_string($tag) && strlen($tag) ? $tag : $procedure;
-            $result=RedisCacheHelpers::GetCacheData($key,$ltag);
+            $paramsSalt=$procedure;
+            $paramsSalt.=serialize(!is_array($params) ? [] : $params);
+            $paramsSalt.=serialize(!is_array($extraParams) ? [] : $extraParams);
+            $key=AppSession::GetNewUID($paramsSalt,'sha1',TRUE);
+            $lTag=is_string($tag) && strlen($tag) ? $tag : $procedure;
+            $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
                 if(AppConfig::GetValue('db_debug')) {
                     NApp::Dlog('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
@@ -119,48 +120,48 @@ class DataSource {
                 return $result;
             }//if($result!==FALSE)
         }//if($cache && NApp::CacheDbCall())
-        $out_params=get_array_value($extra_params,'out_params',[],'is_array');
-        $count_select=strtolower(get_array_value($extra_params,'type','','is_string'))=='count-select';
-        if($count_select) {
-            switch(intval($sp_count)) {
+        $outParams=get_array_value($extraParams,'out_params',[],'is_array');
+        $countSelect=strtolower(get_array_value($extraParams,'type','','is_string'))=='count-select';
+        if($countSelect) {
+            switch(intval($spCount)) {
                 case 1:
-                    $extra_params['type']='select';
-                    $lextra_params=$extra_params;
-                    $lextra_params['first_row']=NULL;
-                    $lextra_params['last_row']=NULL;
+                    $extraParams['type']='select';
+                    $lExtraParams=$extraParams;
+                    $lExtraParams['first_row']=NULL;
+                    $lExtraParams['last_row']=NULL;
                     $params['with_count']=1;
-                    $result=$this->adapter->ExecuteProcedure($procedure,$params,$lextra_params);
+                    $result=$this->adapter->ExecuteProcedure($procedure,$params,$lExtraParams);
                     $result=['count'=>$result[0]['rcount']];
                     $params['with_count']=0;
-                    unset($extra_params['out_params']);
-                    $extra_params['out_params']=$out_params;
-                    $result['data']=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
+                    unset($extraParams['out_params']);
+                    $extraParams['out_params']=$outParams;
+                    $result['data']=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
                     break;
                 case 2:
-                    $extra_params['type']='select';
+                    $extraParams['type']='select';
                     $params['with_count']=1;
-                    $lresult=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
-                    if(is_array($lresult) && count($lresult)) {
-                        $result=['count'=>$lresult[0]['rcount'],'data'=>$lresult];
+                    $lResult=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
+                    if(is_array($lResult) && count($lResult)) {
+                        $result=['count'=>$lResult[0]['rcount'],'data'=>$lResult];
                     } else {
                         $result=['count'=>0,'data'=>[]];
-                    }//if(is_array($lresult) && count($lresult))
+                    }//if(is_array($lResult) && count($lResult))
                     break;
                 default:
-                    $extra_params['type']='count';
-                    $result=change_array_keys_case($this->adapter->ExecuteProcedure($procedure,$params,$extra_params),TRUE,CASE_LOWER);
+                    $extraParams['type']='count';
+                    $result=change_array_keys_case($this->adapter->ExecuteProcedure($procedure,$params,$extraParams),TRUE,CASE_LOWER);
                     $result=['count'=>$result[0]['count']];
-                    $extra_params['type']='select';
-                    unset($extra_params['out_params']);
-                    $extra_params['out_params']=$out_params;
-                    $result['data']=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
+                    $extraParams['type']='select';
+                    unset($extraParams['out_params']);
+                    $extraParams['out_params']=$outParams;
+                    $result['data']=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
                     break;
             }//END switch
         } else {
-            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
-        }//if($count_select)
+            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
+        }//if($countSelect)
         if($cache && NApp::CacheDbCall()) {
-            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$ltag,$count_select);
+            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$lTag,$countSelect);
         }//if($cache && NApp::CacheDbCall())
         return $result;
     }//END public function GetCountAndData
@@ -174,7 +175,7 @@ class DataSource {
      * @param string $query        The query string
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             - 'transaction'= name of transaction in which the query will run
      *                             - 'type' = request type: select, count, execute (default 'select')
      *                             - 'first_row' = integer to limit number of returned rows
@@ -189,14 +190,15 @@ class DataSource {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetQueryCountAndData($query,$params=[],&$extra_params=[],$cache=FALSE,$tag=NULL) {
+    public function GetQueryCountAndData($query,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL) {
+        $key=$lTag=NULL;
         if($cache && NApp::CacheDbCall()) {
-            $params_salt=AppSession::GetNewUID($query,'md5',TRUE);
-            $params_salt.=serialize(!is_array($params) ? [] : $params);
-            $params_salt.=serialize(!is_array($extra_params) ? [] : $extra_params);
-            $key=AppSession::GetNewUID($params_salt,'sha1',TRUE);
-            $ltag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
-            $result=RedisCacheHelpers::GetCacheData($key,$ltag);
+            $paramsSalt=AppSession::GetNewUID($query,'md5',TRUE);
+            $paramsSalt.=serialize(!is_array($params) ? [] : $params);
+            $paramsSalt.=serialize(!is_array($extraParams) ? [] : $extraParams);
+            $key=AppSession::GetNewUID($paramsSalt,'sha1',TRUE);
+            $lTag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
+            $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
                 if(AppConfig::GetValue('db_debug')) {
                     NApp::Dlog('Cache loaded data for query: '.$query,'GetCountAndData');
@@ -204,29 +206,29 @@ class DataSource {
                 return $result;
             }//if($result!==FALSE)
         }//if($cache && NApp::CacheDbCall())
-        $out_params=get_array_value($extra_params,'out_params',[],'is_array');
-        $select_stmt=get_array_value($extra_params,'select_statement','SELECT * ','is_notempty_string');
-        $count_select=strtolower(get_array_value($extra_params,'type','','is_string'))=='count-select';
-        if($count_select) {
-            $extra_params['type']='count';
-            $result=change_array_keys_case($this->adapter->ExecuteQuery('SELECT COUNT(1) AS RCOUNT '.$query,$params,$extra_params),TRUE,CASE_LOWER);
+        $outParams=get_array_value($extraParams,'out_params',[],'is_array');
+        $select_stmt=get_array_value($extraParams,'select_statement','SELECT * ','is_notempty_string');
+        $countSelect=strtolower(get_array_value($extraParams,'type','','is_string'))=='count-select';
+        if($countSelect) {
+            $extraParams['type']='count';
+            $result=change_array_keys_case($this->adapter->ExecuteQuery('SELECT COUNT(1) AS RCOUNT '.$query,$params,$extraParams),TRUE,CASE_LOWER);
             $result=['count'=>$result[0]['rcount']];
-            $extra_params['type']='select';
-            unset($extra_params['out_params']);
-            $extra_params['out_params']=$out_params;
-            $result['data']=$this->adapter->ExecuteQuery($select_stmt.$query,$params,$extra_params);
+            $extraParams['type']='select';
+            unset($extraParams['out_params']);
+            $extraParams['out_params']=$outParams;
+            $result['data']=$this->adapter->ExecuteQuery($select_stmt.$query,$params,$extraParams);
         } else {
             if(strtolower(substr(trim($query),0,6))=='select') {
                 $qry=$query;
-            } elseif(strtolower(get_array_value($extra_params,'type','','is_string'))=='count') {
+            } elseif(strtolower(get_array_value($extraParams,'type','','is_string'))=='count') {
                 $qry='SELECT COUNT(1) AS RCOUNT '.$query;
             } else {
                 $qry=$select_stmt.$query;
             }//if(strtolower(substr(trim($query),0,6))=='select')
-            $result=$this->adapter->ExecuteQuery($qry,$params,$extra_params);
-        }//if($count_select)
+            $result=$this->adapter->ExecuteQuery($qry,$params,$extraParams);
+        }//if($countSelect)
         if($cache && NApp::CacheDbCall()) {
-            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$ltag,$count_select);
+            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$lTag,$countSelect);
         }//if($cache && NApp::CacheDbCall())
         return $result;
     }//END public function GetQueryCountAndData
@@ -237,7 +239,7 @@ class DataSource {
      * @param string $procedure    The name of the stored procedure
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             - 'transaction'= name of transaction in which the query will run
      *                             - 'type' = request type: select, count, execute (default 'select')
      *                             - 'first_row' = integer to limit number of returned rows
@@ -252,14 +254,14 @@ class DataSource {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetProcedureData($procedure,$params=[],&$extra_params=[],$cache=FALSE,$tag=NULL) {
+    public function GetProcedureData($procedure,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL) {
         if($cache && NApp::CacheDbCall()) {
-            $params_salt=$procedure;
-            $params_salt.=serialize(!is_array($params) ? [] : $params);
-            $params_salt.=serialize(!is_array($extra_params) ? [] : $extra_params);
-            $key=AppSession::GetNewUID($params_salt,'sha1',TRUE);
-            $ltag=is_string($tag) && strlen($tag) ? $tag : $procedure;
-            $result=RedisCacheHelpers::GetCacheData($key,$ltag);
+            $paramsSalt=$procedure;
+            $paramsSalt.=serialize(!is_array($params) ? [] : $params);
+            $paramsSalt.=serialize(!is_array($extraParams) ? [] : $extraParams);
+            $key=AppSession::GetNewUID($paramsSalt,'sha1',TRUE);
+            $lTag=is_string($tag) && strlen($tag) ? $tag : $procedure;
+            $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             // NApp::Dlog($result,$procedure.':'.$key);
             if($result!==FALSE) {
                 if(AppConfig::GetValue('db_debug')) {
@@ -267,11 +269,11 @@ class DataSource {
                 }//if(AppConfig::GetValue('db_debug'))
                 return $result;
             }//if($result!==FALSE)
-            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
+            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
             // NApp::Dlog($result,$procedure);
-            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$ltag);
+            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$lTag);
         } else {
-            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extra_params);
+            $result=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
         }//if($cache && NApp::CacheDbCall())
         return $result;
     }//END public function GetProcedureData
@@ -282,7 +284,7 @@ class DataSource {
      * @param string $query        The query string
      * @param array  $params       An array of parameters
      *                             to be passed to the query/stored procedure
-     * @param array  $extra_params An array of parameters that may contain:
+     * @param array  $extraParams  An array of parameters that may contain:
      *                             - 'transaction'= name of transaction in which the query will run
      *                             - 'type' = request type: select, count, execute (default 'select')
      *                             - 'first_row' = integer to limit number of returned rows
@@ -297,24 +299,24 @@ class DataSource {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetQueryData($query,$params=[],&$extra_params=[],$cache=FALSE,$tag=NULL) {
+    public function GetQueryData($query,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL) {
         if($cache && NApp::CacheDbCall()) {
-            $params_salt=AppSession::GetNewUID($query,'md5',TRUE);
-            $params_salt.=serialize(!is_array($params) ? [] : $params);
-            $params_salt.=serialize(!is_array($extra_params) ? [] : $extra_params);
-            $key=AppSession::GetNewUID($params_salt,'sha1',TRUE);
-            $ltag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
-            $result=RedisCacheHelpers::GetCacheData($key,$ltag);
+            $paramsSalt=AppSession::GetNewUID($query,'md5',TRUE);
+            $paramsSalt.=serialize(!is_array($params) ? [] : $params);
+            $paramsSalt.=serialize(!is_array($extraParams) ? [] : $extraParams);
+            $key=AppSession::GetNewUID($paramsSalt,'sha1',TRUE);
+            $lTag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
+            $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
                 if(AppConfig::GetValue('db_debug')) {
                     NApp::Dlog('Cache loaded data for query: '.$query,'GetQueryData');
                 }//if(AppConfig::GetValue('db_debug'))
                 return $result;
             }//if($result!==FALSE)
-            $result=$this->adapter->ExecuteQuery($query,$params,$extra_params);
-            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$ltag);
+            $result=$this->adapter->ExecuteQuery($query,$params,$extraParams);
+            RedisCacheHelpers::SetCacheData($key,(is_null($result) ? [] : $result),$lTag);
         } else {
-            $result=$this->adapter->ExecuteQuery($query,$params,$extra_params);
+            $result=$this->adapter->ExecuteQuery($query,$params,$extraParams);
         }//if($cache && NApp::CacheDbCall())
         return $result;
     }//END public function GetQueryData

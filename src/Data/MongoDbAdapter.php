@@ -121,7 +121,7 @@ class MongoDbDbAdapter extends DataAdapter {
     }//public function MongoDbPrepareQuery
 
     /**
-     * Executs a query against the database
+     * Executes a query against the database
      *
      * @param string $query      The query string
      * @param array  $params     An array of parameters
@@ -218,7 +218,7 @@ class MongoDbDbAdapter extends DataAdapter {
     }//END protected function MongoDbPrepareProcedureStatement
 
     /**
-     * Executs a stored procedure against the database
+     * Executes a stored procedure against the database
      *
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters

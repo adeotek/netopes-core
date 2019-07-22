@@ -11,8 +11,8 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NETopes\Core\Validators\Validator;
 use NApp;
+use NETopes\Core\Validators\Validator;
 
 /**
  * NumericTextBox

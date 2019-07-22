@@ -11,18 +11,18 @@
  * @filesource
  */
 namespace NETopes\Core\Data\Doctrine;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Tools\Setup;
 use Exception;
+use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NApp;
 use NETopes\Core\Data\RedisCacheHelpers;
 
 /**
@@ -88,6 +88,9 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
             $config->setAutoGenerateProxyClasses(AppConfig::GetValue('doctrine_develop_mode'));
             if($persistentCache) {
                 $config->setQueryCacheImpl($cacheDriver);
+            }
+            if(AppConfig::GetValue('db_debug')) {
+                $config->setSQLLogger(new Logger());
             }
             if($dbtype=='FirebirdSql') {
                 $conn_arr=[

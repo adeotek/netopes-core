@@ -12,10 +12,10 @@
  */
 namespace NETopes\Core\Data;
 use Exception;
+use NApp;
 use NETopes\Core\App\AppHelpers;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
-use NApp;
 use Redis;
 use RedisException;
 

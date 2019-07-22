@@ -475,7 +475,7 @@ class OracleSqlAdapter extends SqlDataAdapter {
     }//END protected function OraclePrepareProcedureStatement
 
     /**
-     * Executs a stored procedure against the database
+     * Executes a stored procedure against the database
      *
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters

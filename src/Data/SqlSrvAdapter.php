@@ -13,9 +13,8 @@
 namespace NETopes\Core\Data;
 use Exception;
 use NETopes\Core\AppConfig;
-use NETopes\Core\Validators\Validator;
 use NETopes\Core\AppException;
-use NApp;
+use NETopes\Core\Validators\Validator;
 
 /**
  * SqlSrvDatabase is implementing the MS SQL database
@@ -25,13 +24,17 @@ use NApp;
  */
 class SqlSrvAdapter extends SqlDataAdapter {
     /**
-     * Objects names enclosing start symbol
+     * @const string Objects names enclosing start symbol
      */
     const ENCLOSING_START_SYMBOL='[';
     /**
-     * Objects names enclosing end symbol
+     * @const string Objects names enclosing end symbol
      */
     const ENCLOSING_END_SYMBOL=']';
+    /**
+     * @const string Key of filters grouping field
+     */
+    const FILTERS_GROUP_KEY='group_id';
     /**
      * @var    int Time to wait befor rising deadlock error (in seconds)
      */
@@ -99,10 +102,10 @@ class SqlSrvAdapter extends SqlDataAdapter {
             if(is_resource($result)) {
                 $spid = [];
                 if(sqlsrv_rows_affected($result)>0) {
-                    while(!is_null($next_result = sqlsrv_next_result($result))) {
-                        if($next_result && sqlsrv_rows_affected($result)) {
+                    while(!is_null($nextResult = sqlsrv_next_result($result))) {
+                        if($nextResult && sqlsrv_rows_affected($result)) {
                             while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
-                        }//if($next_result && sqlsrv_rows_affected($result))
+                        }//if($nextResult && sqlsrv_rows_affected($result))
                     }//END while
                 } else {
                     while($data = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) { $spid[] = $data; }
@@ -176,11 +179,11 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param string $name      Unused!!!
      * @param bool   $log       Flag for logging or not the operation
      * @param bool   $overwrite Unused!!!
-     * @param null   $custom_tran_params
+     * @param null   $customTranParams
      * @return object Returns the transaction instance
      * @throws \NETopes\Core\AppException
      */
-    public function SqlSrvBeginTran(&$name=NULL,$log=TRUE,$overwrite=TRUE,$custom_tran_params=NULL) {
+    public function SqlSrvBeginTran(&$name=NULL,$log=TRUE,$overwrite=TRUE,$customTranParams=NULL) {
         $name=$this->default_tran;
         if(array_key_exists($name,$this->transactions) && $this->transactions[$name] && !$overwrite) {
             return NULL;
@@ -201,14 +204,14 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      */
     public function SqlSrvRollbackTran($name=NULL,$log=TRUE) {
-        $lname=$this->default_tran;
-        if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
+        $lName=$this->default_tran;
+        if(array_key_exists($lName,$this->transactions) && $this->transactions[$lName]) {
             $this->transactions=[];
             if(sqlsrv_rollback($this->connection)===FALSE) {
                 throw new  AppException("FAILED TO ROLLBACK TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
             }
             return TRUE;
-        }//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
+        }//if(array_key_exists($lName,$this->transactions) && $this->transactions[$lName])
         return FALSE;
     }//END public function SqlSrvRollbackTran
 
@@ -222,17 +225,17 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      */
     public function SqlSrvCommitTran($name=NULL,$log=TRUE,$preserve=FALSE) {
-        $lname=$this->default_tran;
-        if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname]) {
+        $lName=$this->default_tran;
+        if(array_key_exists($lName,$this->transactions) && $this->transactions[$lName]) {
             $this->transactions=[];
             if(sqlsrv_commit($this->connection)===FALSE) {
                 throw new  AppException("FAILED TO COMMIT TRANSACTION: ".print_r(sqlsrv_errors(),TRUE),E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
             }
             if($preserve) {
-                return $this->SqlSrvBeginTran($name,$log);
+                return $this->SqlSrvBeginTran($name,$log)!==NULL;
             }
             return TRUE;
-        }//if(array_key_exists($lname,$this->transactions) && $this->transactions[$lname])
+        }//if(array_key_exists($lName,$this->transactions) && $this->transactions[$lName])
         return FALSE;
     }//END public function SqlSrvCommitTran
 
@@ -254,19 +257,19 @@ class SqlSrvAdapter extends SqlDataAdapter {
     }//END private function GetOrderBy
 
     /**
-     * @param $firstrow
-     * @param $lastrow
+     * @param $firstRow
+     * @param $lastRow
      * @return string
      */
-    private function GetOffsetAndLimit($firstrow,$lastrow): string {
+    private function GetOffsetAndLimit($firstRow,$lastRow): string {
         $result='';
-        if(is_numeric($firstrow) && $firstrow>0) {
-            if(is_numeric($lastrow) && $lastrow>0) {
-                $result.=' OFFSET '.($firstrow - 1).' ROWS FETCH NEXT '.($lastrow - $firstrow + 1).' ROWS ONLY';
+        if(is_numeric($firstRow) && $firstRow>0) {
+            if(is_numeric($lastRow) && $lastRow>0) {
+                $result.=' OFFSET '.($firstRow - 1).' ROWS FETCH NEXT '.($lastRow - $firstRow + 1).' ROWS ONLY';
             } else {
-                $result.=' OFFSET 0 ROWS FETCH NEXT '.$firstrow.' ROWS ONLY';
-            }//if(is_numeric($lastrow) && $lastrow>0)
-        }//if(is_numeric($firstrow) && $firstrow>0)
+                $result.=' OFFSET 0 ROWS FETCH NEXT '.$firstRow.' ROWS ONLY';
+            }//if(is_numeric($lastRow) && $lastRow>0)
+        }//if(is_numeric($firstRow) && $firstRow>0)
         return $result;
     }//END private function GetOffsetAndLimit
 
@@ -338,7 +341,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             case '><':
                 $conditionString='BETWEEN ';
                 $filterValueS=$this->EscapeString(get_array_value($condition,'value',NULL,'?is_notempty_string'));
-                $filterValueE=$this->EscapeString(get_array_value($condition,'svalue',NULL,'?is_notempty_string'));
+                $filterValueE=$this->EscapeString(get_array_value($condition,'end_value',NULL,'?is_notempty_string'));
                 if(in_array(strtolower($dataType),['date','date_obj','datetime','datetime_obj'])) {
                     if(in_array(strtolower($dataType),['date','date_obj'])) {
                         $daypart=0;
@@ -370,59 +373,85 @@ class SqlSrvAdapter extends SqlDataAdapter {
     }//END private function GetFilterCondition
 
     /**
+     * @param array       $filters
+     * @param string|null $logicalOperator
+     * @return string
+     * @throws \Exception
+     */
+    private function GetFiltersCondition(array $filters,?string &$logicalOperator=NULL): string {
+        $result='';
+        $first=TRUE;
+        foreach($filters as $k=>$v) {
+            if(substr($k,0,1)=='_') {
+                if(!is_array($v)) {
+                    continue;
+                }
+                $condition=$this->GetFiltersCondition($v,$sep);
+            } elseif(is_array($v)) {
+                $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
+                $condition=$this->GetFilterCondition($v);
+            } else {
+                $sep='AND';
+                $condition=$v;
+            }//if(is_array($v))
+            $result.=($result ? ' '.strtoupper($sep).' ' : ' ').'('.trim($condition).')';
+            if($first) {
+                $logicalOperator=$sep;
+                $first=FALSE;
+            }
+        }//END foreach
+        return $result;
+    }//END private function GetFiltersCondition
+
+    /**
      * Prepares the query string for execution
      *
      * @param string $query      The query string (by reference)
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
+     * @param array  $outParams  An array of output params
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
-     * @param null   $raw_query
-     * @param null   $bind_params
+     * @param null   $rawQuery
+     * @param null   $bindParams
      * @param null   $transaction
      * @return void
      * @throws \Exception
      */
-    public function SqlSrvPrepareQuery(&$query,$params=[],$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
+    public function SqlSrvPrepareQuery(&$query,$params=[],$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
                 $query=str_replace('{!'.$k.'!}',$this->EscapeString($v),$query);
             }
         }//if(is_array($params) && count($params))
-        $filter_str='';
+        $filterCondition='';
         if(is_array($filters)) {
+            $logicalOperator=NULL;
+            $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_','_99');
+            $filterCondition=$this->GetFiltersCondition($groupedFilters,$logicalOperator);
             if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE) {
-                $filter_prefix=' WHERE ';
-                $filter_sufix=' ';
+                $filterPrefix=' WHERE ';
+                $filterSufix=' ';
             } else {
-                $filter_prefix=' AND (';
-                $filter_sufix=') ';
+                $filterPrefix=' '.($logicalOperator ?? 'AND').' (';
+                $filterSufix=') ';
             }//if(get_array_value($filters,'where',FALSE,'bool') || strpos(strtoupper($query),' WHERE ')===FALSE)
-            foreach($filters as $v) {
-                if(is_array($v)) {
-                    $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
-                    $filter_str.=($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
-                } else {
-                    $filter_str.=($filter_str ? ' AND ' : ' ').'('.$v.')';
-                }//if(is_array($v))
-            }//END foreach
-            $filter_str=strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+            $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
         } elseif(is_string($filters) && strlen($filters)) {
-            $filter_str=" {$filters} ";
+            $filterCondition=" {$filters} ";
         }//if(is_array($filters))
-        $query.=$filter_str;
-        $raw_query=$query;
+        $query.=$filterCondition;
+        $rawQuery=$query;
         if($type=='count') {
             return;
         }
         $query.=$this->GetOrderBy($sort);
-        $query.=$this->GetOffsetAndLimit($firstrow,$lastrow);
+        $query.=$this->GetOffsetAndLimit($firstRow,$lastRow);
     }//public function SqlSrvPrepareQuery
 
     /**
@@ -431,37 +460,37 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param string $query      The query string
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
+     * @param array  $outParams  An array of output params
+     * @param string $tranName   Name of transaction in which the query will run
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param null   $filters
      * @param bool   $log
-     * @param null   $results_keys_case
-     * @param null   $custom_tran_params
+     * @param null   $resultsKeysCase
+     * @param null   $customTranParams
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    public function SqlSrvExecuteQuery($query,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=TRUE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+    public function SqlSrvExecuteQuery($query,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=TRUE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
-        $raw_query=NULL;
-        $this->SqlSrvPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query);
-        if(!is_array($out_params)) {
-            $out_params=[];
+        $rawQuery=NULL;
+        $this->SqlSrvPrepareQuery($query,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery);
+        if(!is_array($outParams)) {
+            $outParams=[];
         }
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
-        if(strlen($tran_name)) {
-            if(!array_key_exists($tran_name,$this->transactions) || !$this->transactions[$tran_name]) {
+        $outParams['rawsqlqry']=$rawQuery;
+        $outParams['sqlqry']=$query;
+        if(strlen($tranName)) {
+            if(!array_key_exists($tranName,$this->transactions) || !$this->transactions[$tranName]) {
                 throw new  AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
             }
-        }//if(strlen($tran_name))
-        $final_result=NULL;
+        }//if(strlen($tranName))
+        $finalResult=NULL;
         try {
             if($type=='insert') {
                 $result=sqlsrv_query($this->connection,$query.'; SELECT SCOPE_IDENTITY() AS ID');
@@ -469,52 +498,52 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 $result=sqlsrv_query($this->connection,$query);
             }//if($type=='insert')
         } catch(Exception$e) {
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
             throw new  AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//END try
         if($result===FALSE) {
-            $dberror=print_r(sqlsrv_errors(),TRUE);
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            $dbError=print_r(sqlsrv_errors(),TRUE);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
-            throw new  AppException("FAILED QUERY: {$dberror} in statement: {$query}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+            throw new  AppException("FAILED QUERY: {$dbError} in statement: {$query}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//if($result===FALSE)
         try {
             if(is_resource($result)) {
                 if($type=='insert') {
                     sqlsrv_next_result($result);
                     sqlsrv_fetch($result);
-                    $final_result=sqlsrv_get_field($result,0);
+                    $finalResult=sqlsrv_get_field($result,0);
                 } else {
-                    $final_result=[];
+                    $finalResult=[];
                     if(sqlsrv_rows_affected($result)>0) {
-                        while(!is_null($next_result=sqlsrv_next_result($result))) {
-                            if($next_result && sqlsrv_rows_affected($result)) {
+                        while(!is_null($nextResult=sqlsrv_next_result($result))) {
+                            if($nextResult && sqlsrv_rows_affected($result)) {
                                 while($data=sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
-                                    $final_result[]=$data;
+                                    $finalResult[]=$data;
                                 }
-                            }//if($next_result && sqlsrv_rows_affected($result))
+                            }//if($nextResult && sqlsrv_rows_affected($result))
                         }//END while
                     } else {
                         while($data=sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
-                            $final_result[]=$data;
+                            $finalResult[]=$data;
                         }
                     }//if(sqlsrv_rows_affected($result)>0)
                 }//if($type=='insert')
                 sqlsrv_free_stmt($result);
             } else {
-                $final_result=$result;
+                $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception$e) {
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
             throw new  AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//END try
         $this->DbDebug($query,'Query',$time);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+        return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function SqlSrvExecuteQuery
 
     /**
@@ -523,43 +552,43 @@ class SqlSrvAdapter extends SqlDataAdapter {
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
+     * @param array  $outParams  An array of output params
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
-     * @param null   $raw_query
-     * @param null   $sql_params
+     * @param null   $rawQuery
+     * @param null   $sqlParams
      * @param null   $transaction
      * @return string|resource Returns processed command string or the statement resource
      * @throws \Exception
      */
-    protected function SqlSrvPrepareProcedureStatement($procedure,$params=[],&$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$sql_params=NULL,$transaction=NULL) {
+    protected function SqlSrvPrepareProcedureStatement($procedure,$params=[],&$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$sqlParams=NULL,$transaction=NULL) {
         $parameters='';
         // With output parameters
-        if(is_array($out_params) && count($out_params)) {
-            if(!is_array($sql_params)) {
-                $sql_params=[];
+        if(is_array($outParams) && count($outParams)) {
+            if(!is_array($sqlParams)) {
+                $sqlParams=[];
             }
             if(is_array($params) && count($params)) {
                 foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
                     $parameters.='?,';
-                    $sql_params[]=[$p,SQLSRV_PARAM_IN];
+                    $sqlParams[]=[$p,SQLSRV_PARAM_IN];
                 }//END foreach
             }//if(is_array($params) && count($params))
-            if(is_array($out_params) && count($out_params)) {
-                foreach(self::SqlSrvEscapeString($out_params) as $n=>$p) {
+            if(is_array($outParams) && count($outParams)) {
+                foreach(self::SqlSrvEscapeString($outParams) as $n=>$p) {
                     $parameters.='?,';
-                    $sql_params[]=[&$out_params[$n],SQLSRV_PARAM_OUT];
+                    $sqlParams[]=[&$outParams[$n],SQLSRV_PARAM_OUT];
                 }//END foreach
-            }//if(is_array($out_params) && count($out_params))
+            }//if(is_array($outParams) && count($outParams))
             $parameters=trim($parameters,',');
             $query="{ call {$procedure}({$parameters}) }";
             return $query;
-        }//if(is_array($out_params) && count($out_params))
+        }//if(is_array($outParams) && count($outParams))
         // Without output parameters
         if(is_array($params) && count($params)) {
             foreach(self::SqlSrvEscapeString($params) as $n=>$p) {
@@ -573,132 +602,126 @@ class SqlSrvAdapter extends SqlDataAdapter {
                 $parameters.=(strlen($parameters)>0 ? ', ' : ' ').(strtolower($type)=='execute' ? '@'.strtoupper($n).' = ' : '').$pVal;
             }//END foreach
         }//if(is_array($params) && count($params))
-        $filter_str='';
+        $filterCondition='';
         if(strtolower($type)=='execute') {
-            $raw_query=$procedure.$parameters;
+            $rawQuery=$procedure.$parameters;
         } else {
             if(is_array($filters)) {
-                $filter_prefix=' WHERE ';
-                $filter_sufix=' ';
-                foreach($filters as $v) {
-                    if(is_array($v)) {
-                        $sep=strtoupper(get_array_value($v,'logical_separator','AND','is_notempty_string'));
-                        $filter_str.=($filter_str ? ' '.strtoupper($sep).' ' : ' ').'('.$this->GetFilterCondition($v).')';
-                    } else {
-                        $filter_str.=($filter_str ? ' AND ' : ' ').'('.$v.')';
-                    }//if(is_array($v))
-                }//END foreach
-                $filter_str=strlen(trim($filter_str)) ? $filter_prefix.$filter_str.$filter_sufix : '';
+                $filterPrefix=' WHERE ';
+                $filterSufix=' ';
+                $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_','_99');
+                $filterCondition=$this->GetFiltersCondition($groupedFilters);
+                $filterCondition=strlen(trim($filterCondition)) ? $filterPrefix.$filterCondition.$filterSufix : '';
             } elseif(is_string($filters) && strlen($filters)) {
-                $filter_str=strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
+                $filterCondition=strtoupper(substr(trim($filters),0,5))=='WHERE' ? " {$filters} " : " WHERE {$filters} ";
             }//if(is_array($filters))
-            $raw_query=$procedure.'('.$parameters.')'.$filter_str;
+            $rawQuery=$procedure.'('.$parameters.')'.$filterCondition;
         }//if(strtolower($type)=='execute')
         switch(strtolower($type)) {
             case 'execute':
                 $query='EXEC '.$procedure.$parameters;
                 break;
             case 'count':
-                $query='SELECT COUNT(1) AS [COUNT] FROM '.$procedure.'('.$parameters.')'.$filter_str;
+                $query='SELECT COUNT(1) AS [COUNT] FROM '.$procedure.'('.$parameters.')'.$filterCondition;
                 break;
             case 'select':
             default:
-                $query='SELECT * FROM '.$procedure.'('.$parameters.')'.$filter_str;
+                $query='SELECT * FROM '.$procedure.'('.$parameters.')'.$filterCondition;
                 $query.=$this->GetOrderBy($sort);
-                $query.=$this->GetOffsetAndLimit($firstrow,$lastrow);
+                $query.=$this->GetOffsetAndLimit($firstRow,$lastRow);
                 break;
         }//END switch
         return $query;
     }//END protected function SqlSrvPrepareProcedureStatement
 
     /**
-     * Executs a stored procedure against the database
+     * Executes a stored procedure against the database
      *
      * @param string $procedure  The name of the stored procedure
      * @param array  $params     An array of parameters
      *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
+     * @param array  $outParams  An array of output params
+     * @param string $tranName   Name of transaction in which the query will run
      * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
+     * @param int    $firstRow   Integer to limit number of returned rows
      *                           (if used with 'last_row' represents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
+     * @param int    $lastRow    Integer to limit number of returned rows
      *                           (to be used only with 'first_row')
      * @param array  $sort       An array of fields to compose ORDER BY clause
      * @param array  $filters    An array of condition to be applied in WHERE clause
      * @param bool   $log
-     * @param null   $results_keys_case
-     * @param null   $custom_tran_params
+     * @param null   $resultsKeysCase
+     * @param null   $customTranParams
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    public function SqlSrvExecuteProcedure($procedure,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+    public function SqlSrvExecuteProcedure($procedure,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
-        if(!is_array($out_params)) {
-            $out_params=[];
+        if(!is_array($outParams)) {
+            $outParams=[];
         }
-        $sql_params=NULL;
-        $raw_query=NULL;
-        $query=$this->SqlSrvPrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters,$raw_query,$sql_params);
-        $sql_params4dbg=$sql_params ? '>>Param: '.print_r($sql_params,TRUE) : '';
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
-        if(strlen($tran_name)) {
-            if(!array_key_exists($tran_name,$this->transactions) || !$this->transactions[$tran_name]) {
-                throw new  AppException("FAILED EXECUTE PROCEDURE: NULL database transaction in statement: {$query}{$sql_params4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+        $sqlParams=NULL;
+        $rawQuery=NULL;
+        $query=$this->SqlSrvPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$sqlParams);
+        $sqlParams4dbg=$sqlParams ? '>>Param: '.print_r($sqlParams,TRUE) : '';
+        $outParams['rawsqlqry']=$rawQuery;
+        $outParams['sqlqry']=$query;
+        if(strlen($tranName)) {
+            if(!array_key_exists($tranName,$this->transactions) || !$this->transactions[$tranName]) {
+                throw new  AppException("FAILED EXECUTE PROCEDURE: NULL database transaction in statement: {$query}{$sqlParams4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
             }
-        }//if(strlen($tran_name))
-        $final_result=NULL;
+        }//if(strlen($tranName))
+        $finalResult=NULL;
         try {
-            if($sql_params) {
-                $result=sqlsrv_query($this->connection,$query,$sql_params);
+            if($sqlParams) {
+                $result=sqlsrv_query($this->connection,$query,$sqlParams);
             } else {
                 $result=sqlsrv_query($this->connection,$query);
-            }//if($sql_params)
+            }//if($sqlParams)
         } catch(Exception $e) {
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
-            throw new  AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}{$sql_params4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+            throw new  AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}{$sqlParams4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//END try
         if($result===FALSE) {
-            $dberror=print_r(sqlsrv_errors(),TRUE);
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            $dbError=print_r(sqlsrv_errors(),TRUE);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
-            throw new  AppException("FAILED EXECUTE PROCEDURE: $dberror in statement: {$query}{$sql_params4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+            throw new  AppException("FAILED EXECUTE PROCEDURE: $dbError in statement: {$query}{$sqlParams4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//if($result===FALSE)
         try {
             if(is_resource($result)) {
-                $final_result=[];
-                $next_result=TRUE;
-                while($next_result===FALSE || !is_null($next_result)) {
-                    if($next_result && sqlsrv_rows_affected($result)) {
+                $finalResult=[];
+                $nextResult=TRUE;
+                while($nextResult===FALSE || !is_null($nextResult)) {
+                    if($nextResult && sqlsrv_rows_affected($result)) {
                         $tmp_result=[];
                         while($data=sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                             $tmp_result[]=$data;
                         }
-                        $final_result[]=$tmp_result;
-                    }//if($next_result && sqlsrv_rows_affected($result))
-                    $next_result=sqlsrv_next_result($result);
+                        $finalResult[]=$tmp_result;
+                    }//if($nextResult && sqlsrv_rows_affected($result))
+                    $nextResult=sqlsrv_next_result($result);
                 }//END while
-                if(count($final_result)==1) {
-                    $final_result=$final_result[0];
+                if(count($finalResult)==1) {
+                    $finalResult=$finalResult[0];
                 }
                 sqlsrv_free_stmt($result);
             } else {
-                $final_result=$result;
+                $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception$e) {
-            if(strlen($tran_name)) {
-                $this->SqlSrvRollbackTran($tran_name);
+            if(strlen($tranName)) {
+                $this->SqlSrvRollbackTran($tranName);
             }
-            throw new  AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}{$sql_params4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
+            throw new  AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}{$sqlParams4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
         }//END try
-        //if(strlen($tran_name)==0) { $this->SqlSrvCommitTran(); }
-        $this->DbDebug($query.$sql_params4dbg,'Query',$time);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+        //if(strlen($tranName)==0) { $this->SqlSrvCommitTran(); }
+        $this->DbDebug($query.$sqlParams4dbg,'Query',$time);
+        return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function SqlSrvExecuteProcedure
 
     /**

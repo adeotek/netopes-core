@@ -19,7 +19,6 @@ use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
-use Translate;
 
 /**
  * ComboBox control
@@ -30,6 +29,11 @@ use Translate;
  * @property string|null cbo_placeholder
  * @property string      display_field
  * @property string|null template_result
+ * @property bool|null   allow_clear
+ * @property mixed       selected_value
+ * @property array       option_data
+ * @property string      value_field
+ * @property string|null theme
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {

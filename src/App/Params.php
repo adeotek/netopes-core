@@ -16,10 +16,10 @@ use ArrayIterator;
 use Closure;
 use Exception;
 use NApp;
+use NETopes\Core\AppException;
 use NETopes\Core\Data\Collection;
 use NETopes\Core\DataHelpers;
 use NETopes\Core\Validators\Validator;
-use NETopes\Core\AppException;
 
 /**
  * Params class

@@ -11,9 +11,9 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
 use NETopes\Core\App\ModulesProvider;
 use NETopes\Core\Data\DataProvider;
-use NApp;
 
 /**
  * ClassName description

@@ -3,7 +3,9 @@ namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\QueryBuilder;
 use Exception;
+use NApp;
 use NETopes\Core\AppException;
 
 /**
@@ -21,16 +23,17 @@ trait RepositoryStandardTrait {
      */
     public function findFiltered(?array $params=[]): ?array {
         try {
-            $s_query=get_array_value($params,'query',NULL,'is_object');
-            if($s_query instanceof Query) {
-                return $s_query->getResult();
+            $sQuery=get_array_value($params,'query',NULL,'is_object');
+            if($sQuery instanceof Query) {
+                return $sQuery->getResult();
             }
-            $firstrow=get_array_value($params,'first_row',0,'is_integer');
-            $lastrow=get_array_value($params,'last_row',0,'is_integer');
+            $firstRow=get_array_value($params,'first_row',0,'is_integer');
+            $lastRow=get_array_value($params,'last_row',0,'is_integer');
             $sort=get_array_value($params,'sort',[],'is_array');
             $relations=get_array_value($params,'relations',[],'is_array');
             $filters=get_array_value($params,'filters',[],'is_array');
-            $tcount=0;
+            $tCount=0;
+            /** @var QueryBuilder $qb */
             $qb=$this->createQueryBuilder('e');
             if(count($relations)) {
                 foreach($relations as $k=>$r) {
@@ -45,84 +48,24 @@ trait RepositoryStandardTrait {
                 }//END foreach
             }//if(count($relations))
             if(count($filters)) {
-                foreach($filters as $k=>$f) {
-                    $field=get_array_value($f,'field',NULL,'isset');
-                    $value=get_array_value($f,'value',NULL,'isset');
-                    if(is_null($field) || is_null($value)) {
-                        continue;
+                $groupedFilters=array_group_by_hierarchical('group_id',$filters,TRUE,'_','_99');
+                // NApp::Dlog($groupedFilters,'$groupedFilters');
+                $parameters=[];
+                $expressions=$this->processQueryFilters($qb,$groupedFilters,$parameters);
+                // NApp::Dlog($expressions,'$expressions');
+                if($expressions) {
+                    $qb->where($expressions);
+                    if(count($parameters)) {
+                        $qb->setParameters($parameters);
                     }
-                    $operators=$this->getOperators();
-                    $operator=get_array_value($operators,strtolower(get_array_value($f,'condition_type','==','is_string')),'','is_string');
-                    if(!strlen($operator)) {
-                        continue;
-                    }
-                    $logical_operator=get_array_value($f,'logical_separator','and','is_notempty_string');
-                    if(is_array($field) && count($field)) {
-                        $expression=$qb->expr()->orX();
-                        $fieldParams=[];
-                        foreach($field as $mfi) {
-                            $mfi=$this->getFieldName($mfi,'e');
-                            $paramName='in'.$k.'_'.str_replace('.','_',$mfi);
-                            $expression->add($qb->expr()->$operator($mfi,':'.$paramName));
-                            $fieldParams[]=$paramName;
-                        }//END foreach
-                        if(strtolower($logical_operator)=='or') {
-                            $qb->orWhere($expression);
-                        } else {
-                            $qb->andWhere($expression);
-                        }//if($first)
-                        foreach($fieldParams as $paramName) {
-                            switch($operator) {
-                                case 'like':
-                                case 'notlike':
-                                    $qb->setParameter($paramName,'%'.$value.'%');
-                                    break;
-                                case 'startsWith':
-                                    $qb->setParameter($paramName,$value.'%');
-                                    break;
-                                case 'endWith':
-                                    $qb->setParameter($paramName,'%'.$value);
-                                    break;
-                                default:
-                                    $qb->setParameter($paramName,$value);
-                                    break;
-                            }//END switch
-                        }//END foreach
-                    } elseif(is_string($field) && strlen($field)) {
-                        $field=$this->getFieldName($field,'e');
-                        $paramName='in'.$k.'_'.str_replace('.','_',$field);
-                        $expression=$qb->expr()->$operator($field,':'.$paramName);
-                        if(strtolower($logical_operator)=='or') {
-                            $qb->orWhere($expression);
-                        } else {
-                            $qb->andWhere($expression);
-                        }//if($first)
-                        switch($operator) {
-                            case 'like':
-                            case 'notlike':
-                                $qb->setParameter($paramName,'%'.$value.'%');
-                                break;
-                            case 'startsWith':
-                                $qb->setParameter($paramName,$value.'%');
-                                break;
-                            case 'endWith':
-                                $qb->setParameter($paramName,'%'.$value);
-                                break;
-                            default:
-                                $qb->setParameter($paramName,$value);
-                                break;
-                        }//END switch
-                    } else {
-                        continue;
-                    }//if(is_array($field) && count($field))
-                }//END foreach
+                    // NApp::Dlog($qb->getQuery()->getSql(),'findFiltered>>SQL');
+                    // NApp::Dlog($qb->getParameters()->toArray(),'findFiltered>>parameters');
+                }
             }//if(count($filters))
-            if($firstrow>0 && $lastrow>0) {
+            if($firstRow>0 && $lastRow>0) {
                 $qb->select('count(e)');
-                $stime=microtime(TRUE);
-                $tcount=$qb->getQuery()->getSingleScalarResult();
-                $this->DbDebug($qb->getQuery(),'findFiltered[count]',$stime);
-            }//if($firstrow>0 && $lastrow>0)
+                $tCount=$qb->getQuery()->getSingleScalarResult();
+            }//if($firstRow>0 && $lastRow>0)
             if(count($sort)) {
                 $first=TRUE;
                 foreach($sort as $c=>$d) {
@@ -135,12 +78,12 @@ trait RepositoryStandardTrait {
                     }//if($first)
                 }//END foreach
             }//if(count($sort))
-            if($firstrow>0) {
-                if($lastrow>0) {
-                    $qb->setFirstResult($firstrow - 1);
-                    $qb->setMaxResults(($lastrow - $firstrow + 1));
+            if($firstRow>0) {
+                if($lastRow>0) {
+                    $qb->setFirstResult($firstRow - 1);
+                    $qb->setMaxResults(($lastRow - $firstRow + 1));
                 } else {
-                    $qb->setMaxResults($firstrow);
+                    $qb->setMaxResults($firstRow);
                 }//if($lastrow>0)
             }//if($firstrow>0)
             $qb->select('e');
@@ -152,13 +95,11 @@ trait RepositoryStandardTrait {
                     $qb->addSelect($k);
                 }//END foreach
             }//if(count($relations))
-            $stime=microtime(TRUE);
             $data=$qb->getQuery()->getResult();
-            $this->DbDebug($qb->getQuery(),'findFiltered',$stime);
             if(get_array_value($params,'collection',FALSE,'bool')) {
                 return $data;
             }
-            return ['data'=>$data,'count'=>$tcount];
+            return ['data'=>$data,'count'=>$tCount];
         } catch(QueryException $qe) {
             // \NApp::Dlog($qe->getTrace());
             throw new AppException('#'.get_class($qe).'# '.$qe->getMessage(),$qe->getCode(),1);
