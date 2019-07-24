@@ -349,6 +349,10 @@
 	margin: 10px 10px 9px 10px;
 }
 
+.clsEditBox {
+	resize: none;
+}
+
 .form-control.w-act {
 	display: inline-block;
 }
@@ -2406,6 +2410,14 @@ table.clsBasicForm > tbody > tr > td {
 
 .ipos-right > i {
 	margin-left: 7px;
+}
+
+.v-resizable {
+	resize: vertical !important;
+}
+
+.h-resizable {
+	resize: horizontal !important;
 }
 
 .no-margin {
