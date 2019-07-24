@@ -285,37 +285,31 @@ function GetCalculatedValue(element_value,decimal_separator) {
 /*** END For NumericTextBox ***/
 
 /*** For CheckBox control ***/
-function CheckBoxClickBaseEvent(obj,elementid) {
-    if(typeof (obj)!='object') {
-        if(!elementid || elementid.length==0) { return false; }
-        obj=$('#' + elementid);
-    }//if(typeof(obj)!='object')
-    let cvalue=$(obj).val();
-    if(cvalue==1) {
-        $(obj).val(0);
-    } else {
-        $(obj).val(1);
-    }//if(cvalue==1)
-    $(obj).trigger('change');
-}//END function CheckBoxClickBaseEvent
-
-function UnselectGroupCheckBoxes(grouptag,obj,valuetag) {
-    let notselected=true;
-    $('#' + grouptag + ' input[type=image]').each(function() {
-        if($(this).attr('id')==obj.id && obj.value!=0) {
-            if($('#' + valuetag).length>0) {
-                let cvalue=$('#' + $(this).attr('id') + '_value').val();
-                $('#' + valuetag).val(cvalue);
-                notselected=false;
-            }//if($('#'+valuetag).length>0)
-        } else {
+(function($) {
+    $.fn.imageCheckBoxCheck=function() {
+        $(this).val(1);
+        $(this).trigger('change');
+        return this;
+    };
+    $.fn.imageCheckBoxUncheck=function() {
+        $(this).val(0);
+        $(this).trigger('change');
+        return this;
+    };
+    $.fn.imageCheckBoxToggle=function() {
+        if($(this).val()==='1') {
             $(this).val(0);
-        }//if($(this).attr('name')==obj.name)
-    });
-    if(notselected===true) {
-        $('#' + valuetag).val('');
-    }//if(notselected===true)
-}//function UnselectGroupCheckBoxes
+        } else {
+            $(this).val(1);
+        }//if($(this).val()==='1')
+        $(this).trigger('change');
+        return this;
+    };
+}(jQuery));
+
+$(document).on('click','input[type="image"].clsCheckBox',function(e) {
+    $(this).imageCheckBoxToggle();
+});
 /*** END For CheckBox control ***/
 /*** For GroupCheckBox control ***/
 function GroupCheckBoxBaseEvent(obj) {
@@ -352,6 +346,24 @@ $(document).on('click','.clsGCKBItem.active',function(e) {
 $(document).on('keypress','.clsGCKBItem.active',function(e) {
     if(event.keyCode==13) { GroupCheckBoxBaseEvent(this); }
 });//$(document).on('keypress','.clsGCKBItem',function(e)
+
+function UnselectGroupCheckBoxes(grouptag,obj,valuetag) {
+    let notselected=true;
+    $('#' + grouptag + ' input[type=image]').each(function() {
+        if($(this).attr('id')==obj.id && obj.value!=0) {
+            if($('#' + valuetag).length>0) {
+                let cvalue=$('#' + $(this).attr('id') + '_value').val();
+                $('#' + valuetag).val(cvalue);
+                notselected=false;
+            }//if($('#'+valuetag).length>0)
+        } else {
+            $(this).val(0);
+        }//if($(this).attr('name')==obj.name)
+    });
+    if(notselected===true) {
+        $('#' + valuetag).val('');
+    }//if(notselected===true)
+}//function UnselectGroupCheckBoxes
 /*** END For GroupCheckBox control ***/
 /*** For ComboBox ***/
 function AppendComboBoxItem(elementid,val,text,selected) {
@@ -651,14 +663,21 @@ function SmartCBOInitialize() {
     // console.log('SmartCBOInitialize>>');
     $('select.SmartCBO').each(function(i,obj) {
         if(!$(obj).hasClass('select2-hidden-accessible')) {
-            let tagid=$(obj).attr('id');
+            let tagId=$(obj).attr('id');
             let params_str=$(obj).attr('data-smartcbo');
-            if(tagid && params_str) {
-                let oparams=eval(GibberishAES.dec(decodeURIComponent(params_str),tagid));
-                // console.log('oparams:');
-                // console.log(oparams);
-                $(obj).select2(oparams);
-            }//if(tagid && params_str)
+            if(tagId && params_str) {
+                let oParams={};
+                let oParamsString=GibberishAES.dec(decodeURIComponent(params_str),tagId);
+                try {
+                    oParams=eval(oParamsString);
+                } catch(e) {
+                    console.log(e);
+                    console.log(oParamsString);
+                }
+                // console.log('oParams:');
+                // console.log(oParams);
+                $(obj).select2(oParams);
+            }//if(tagId && params_str)
         }//if(!$(obj).hasClass("select2-hidden-accessible"))
     });//$('select.SmartCBO').each(function(i,obj)
 }//END function SmartCBOInitialize

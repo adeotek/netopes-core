@@ -34,6 +34,16 @@ use NETopes\Core\Data\VirtualEntity;
  * @property array       option_data
  * @property string      value_field
  * @property string|null theme
+ * @property int|null    minimum_input_length
+ * @property string|null dropdown_class
+ * @property int|null    minimum_results_for_search
+ * @property string|null selected_text
+ * @property string|null state_field
+ * @property string|null ajax_error_callback
+ * @property string|null default_value_field
+ * @property string|null group_field
+ * @property bool|null   multiple
+ * @property mixed       value
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {
@@ -55,6 +65,10 @@ class SmartComboBox extends Control {
      * @var null
      */
     public $template_selection=NULL;
+    /**
+     * @var bool
+     */
+    public $ajax_auto_load=FALSE;
 
     /**
      * SmartComboBox constructor.
@@ -103,40 +117,38 @@ class SmartComboBox extends Control {
      */
     protected function SetControl(): ?string {
         $this->ProcessActions();
-        $js_script_prefix='';
-        $js_script="\t\t({\n";
+        $jsScriptPrefix='';
+        $jsScripts=[];
         $raw_class=$this->GetTagClass(NULL,TRUE);
         if(is_string($this->theme) && strlen($this->theme)) {
-            $js_script.="\t\t\ttheme: '{$this->theme}',\n";
+            $jsScripts[]="\t\t\ttheme: '{$this->theme}'";
         }
         if(strlen($raw_class)) {
-            $js_script.="\t\t\tcontainerCssClass: '{$raw_class}',\n";
+            $jsScripts[]="\t\t\tcontainerCssClass: '{$raw_class}'";
         }
         if(is_string($this->dropdown_class) && strlen($this->dropdown_class)) {
-            $js_script.="\t\t\tdropdownCssClass: '{$this->dropdown_class}',\n";
+            $jsScripts[]="\t\t\tdropdownCssClass: '{$this->dropdown_class}'";
         } elseif(is_string($this->size) && strlen($this->size)) {
-            $js_script.="\t\t\tdropdownCssClass: 'size-{$this->size}',\n";
+            $jsScripts[]="\t\t\tdropdownCssClass: 'size-{$this->size}'";
         }//if(is_string($this->dropdown_class) && strlen($this->dropdown_class))
         if(strlen($this->cbo_placeholder)) {
-            $js_script.="\t\t\tplaceholder: '{$this->cbo_placeholder}',\n";
+            $jsScripts[]="\t\t\tplaceholder: '{$this->cbo_placeholder}'";
         }
         if(strlen($this->fixed_width)) {
-            $js_script.="\t\t\twidth: '{$this->fixed_width}',\n";
+            $jsScripts[]="\t\t\twidth: '{$this->fixed_width}'";
         }
         if($this->load_type=='ajax' || $this->allow_clear) {
-            $js_script.="\t\t\tallowClear: true,\n";
+            $jsScripts[]="\t\t\tallowClear: true";
         }
-        if($this->load_type!='ajax' && strlen($this->minimum_results_for_search) && $this->minimum_results_for_search==0) {
-            $js_script.="\t\t\tminimumResultsForSearch: Infinity,\n";
-        } elseif(is_numeric($this->minimum_results_for_search) && $this->minimum_results_for_search>0) {
-            $js_script.="\t\t\tminimumResultsForSearch: {$this->minimum_results_for_search},\n";
-        }//if($this->load_type!='ajax' && strlen($this->minimum_results_for_search) && $this->minimum_results_for_search==0)
-        if($this->load_type=='ajax') {
-            $js_script.="\t\t\tminimumInputLength: ".($this->minimum_input_length>0 ? $this->minimum_input_length : '3').",\n";
-        } elseif(is_numeric($this->minimum_input_length) && $this->minimum_input_length>0) {
-            $js_script.="\t\t\tminimumInputLength: {$this->minimum_input_length},\n";
-        }//if($this->load_type=='ajax')
-        $litems=DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
+        $minResultsForSearch=is_numeric($this->minimum_results_for_search) && $this->minimum_results_for_search>0 ? $this->minimum_results_for_search : ($this->minimum_results_for_search==0 ? 'Infinity' : NULL);
+        if($minResultsForSearch) {
+            $jsScripts[]="\t\t\tminimumResultsForSearch: {$minResultsForSearch}";
+        }//if($minResultsForSearch)
+        $minInputLength=(is_integer($this->minimum_input_length) && $this->minimum_input_length>=0 ? $this->minimum_input_length : ($this->load_type=='ajax' ? 3 : NULL));
+        if($minInputLength) {
+            $jsScripts[]="\t\t\tminimumInputLength: {$minInputLength}";
+        }//if($minInputLength)
+        $lItems=DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
                 $s_values=$this->selected_value;
@@ -158,7 +170,7 @@ class SmartComboBox extends Control {
         }//if(is_object($this->selected_value))
         switch($this->load_type) {
             case 'ajax':
-                $litems->add(new VirtualEntity(),TRUE);
+                $lItems->add(new VirtualEntity(),TRUE);
                 $initData=[];
                 if($s_values->count()) {
                     foreach($s_values as $sv) {
@@ -176,42 +188,40 @@ class SmartComboBox extends Control {
                         $initData[]=$s_item;
                     }//END foreach
                 }//if($s_values->count())
-                $tagauid=AppSession::GetNewUID($this->tag_id,'md5');
-                AppSession::SetSessionAcceptedRequest($tagauid,NApp::$currentNamespace);
+                $tagSessionUid=AppSession::GetNewUID($this->tag_id,'md5');
+                AppSession::SetSessionAcceptedRequest($tagSessionUid,NApp::$currentNamespace);
                 $cns=NApp::$currentNamespace;
-                $ac_module=get_array_value($this->data_source,'ds_class','','is_string');
-                $ac_method=get_array_value($this->data_source,'ds_method','','is_string');
-                if(strlen($ac_module) && strlen($ac_method)) {
-                    $ac_module=convert_from_camel_case($ac_module);
-                    $ac_method=convert_from_camel_case($ac_method);
-                    $ac_params='';
-                    $ac_params_arr=get_array_value($this->data_source,'ds_params',[],'is_array');
-                    if(is_array($ac_params_arr) && count($ac_params_arr)) {
-                        foreach($ac_params_arr as $acpk=>$acpv) {
-                            $ac_params.='&'.$acpk.'='.rawurlencode($acpv);
+                $acModule=get_array_value($this->data_source,'ds_class','','is_string');
+                $acMethod=get_array_value($this->data_source,'ds_method','','is_string');
+                if(strlen($acModule) && strlen($acMethod)) {
+                    $acModule=convert_from_camel_case($acModule);
+                    $acMethod=convert_from_camel_case($acMethod);
+                    $acParams='';
+                    $acParamsArray=get_array_value($this->data_source,'ds_params',[],'is_array');
+                    if(is_array($acParamsArray) && count($acParamsArray)) {
+                        foreach($acParamsArray as $acpk=>$acpv) {
+                            $acParams.='&'.$acpk.'='.rawurlencode($acpv);
                         }
-                    }//if(is_array($ac_params_arr) && count($ac_params_arr))
+                    }//if(is_array($acParamsArray) && count($acParamsArray))
                     $rpp=get_array_value($this->data_source,'rows_limit',10,'is_not0_numeric');
-                    $ac_js_params=get_array_value($this->data_source,'ds_js_params',[],'is_array');
-                    if(is_array($ac_js_params) && count($ac_js_params)) {
-                        $ac_data_func="function (params) { return { q: params.term, page_limit: {$rpp}";
-                        foreach($ac_js_params as $acpk=>$acpv) {
-                            $ac_data_func.=', '.$acpk.': '.$acpv;
-                        }
-                        $ac_data_func.=" }; }";
-                    } else {
-                        $ac_data_func="function (params) { return { q: params.term, page_limit: {$rpp} }; }";
-                    }//if(is_array($ac_js_params) && count($ac_js_params))
+                    $acJsParams=get_array_value($this->data_source,'ds_js_params',[],'is_array');
+                    $acDataFunc="function (params) { return { q: params.term, page_limit: {$rpp}";
+                    if(is_array($acJsParams) && count($acJsParams)) {
+                        foreach($acJsParams as $acpk=>$acpv) {
+                            $acDataFunc.=', '.$acpk.': '.$acpv;
+                        }//END foreach
+                    }//if(is_array($acJsParams) && count($acJsParams))
+                    $acDataFunc.=" }; }";
                     $errCallback=is_string($this->ajax_error_callback) ? trim($this->ajax_error_callback) : '';
                     if(!strlen($errCallback)) {
-                        $js_script_prefix.="$('#{$this->tag_id}').data('hasError','0');\n";
+                        $jsScriptPrefix.="$('#{$this->tag_id}').data('hasError','0');\n";
                     }
-                    $js_script.="\t\t\tajax: {
-						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$ac_module}&method={$ac_method}&type=json{$ac_params}&uid={$tagauid}&phash='+window.name,
+                    $jsScripts[]="\t\t\tajax: {
+						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$acModule}&method={$acMethod}&type=json{$acParams}&uid={$tagSessionUid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
-						data: {$ac_data_func},
+						data: {$acDataFunc},
 						error: ".(strlen($errCallback) ? $errCallback : "function(response) {
                             if($('#{$this->tag_id}').data('hasError')==='0' && response.responseText==='Unauthorized access!') {
                                 $('#{$this->tag_id}').data('hasError','1');
@@ -219,67 +229,70 @@ class SmartComboBox extends Control {
                             }
                         }").",
 				        processResults: function(data,params) { return { results: data }; }
-					},
-            ".(count($initData) ? 'data: '.json_encode($initData).',' : '')."
-			escapeMarkup: function(markup) { return markup; },\n";
+					}";
+                    if(count($initData)) {
+                        $jsScripts[]="\t\t\tdata: ".json_encode($initData);
+                    }
+                    $jsScripts[]="\t\t\tescapeMarkup: function(markup) { return markup; }";
                     if(is_string($this->template_result) && strlen($this->template_result)) {
-                        $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                        $jsScripts[]="\t\t\ttemplateResult: {$this->template_result}";
                     } else {
-                        $js_script.="\t\t\ttemplateResult: function(item) { return item.name; },\n";
+                        $jsScripts[]="\t\t\ttemplateResult: function(item) { return item.name; }";
                     }//if(is_string($this->template_result) && strlen($this->template_result))
                     if(is_string($this->template_selection) && strlen($this->template_selection)) {
-                        $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
+                        $jsScripts[]="\t\t\ttemplateSelection: {$this->template_selection}";
                     } else {
-                        $js_script.="\t\t\ttemplateSelection: function(item) { return item.name || item.text; },\n";
+                        $jsScripts[]="\t\t\ttemplateSelection: function(item) { return item.name || item.text; }";
                     }//if(is_string($this->template_selection) && strlen($this->template_selection))
-                }//if(strlen($ac_module) && strlen($ac_method))
+                }//if(strlen($acModule) && strlen($acMethod))
                 break;
             case 'database':
                 if($this->allow_clear && strlen($this->cbo_placeholder)) {
-                    $litems->add(new VirtualEntity(),TRUE);
+                    $lItems->add(new VirtualEntity(),TRUE);
                 }
                 $data=$this->LoadData($this->data_source);
                 if(is_object($data) && $data->count()) {
-                    $litems->merge($data->toArray());
+                    $lItems->merge($data->toArray());
                 }
                 if(is_string($this->template_result) && strlen($this->template_result)) {
-                    $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                    $jsScripts[]="\t\t\ttemplateResult: {$this->template_result}";
                 }//if(is_string($this->template_result) && strlen($this->template_result))
                 if(is_string($this->template_selection) && strlen($this->template_selection)) {
-                    $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
+                    $jsScripts[]="\t\t\ttemplateSelection: {$this->template_selection}";
                 }//if(is_string($this->template_selection) && strlen($this->template_selection))
                 break;
             case 'value':
                 if($this->allow_clear && strlen($this->cbo_placeholder)) {
-                    $litems->add(new VirtualEntity(),TRUE);
+                    $lItems->add(new VirtualEntity(),TRUE);
                 }
                 if(is_object($this->value) && $this->value->count()) {
-                    $litems->merge($this->value->toArray());
+                    $lItems->merge($this->value->toArray());
                 } elseif(is_array($this->value) && count($this->value)) {
                     $lValue=DataSourceHelpers::ConvertArrayToDataSet($this->value,VirtualEntity::class);
-                    $litems->merge($lValue->toArray());
+                    $lItems->merge($lValue->toArray());
                 }//if(is_object($this->value) && $this->value->count())
                 if(is_string($this->template_result) && strlen($this->template_result)) {
-                    $js_script.="\t\t\ttemplateResult: {$this->template_result},\n";
+                    $jsScripts[]="\t\t\ttemplateResult: {$this->template_result}";
                 }//if(is_string($this->template_result) && strlen($this->template_result))
                 if(is_string($this->template_selection) && strlen($this->template_selection)) {
-                    $js_script.="\t\t\ttemplateSelection: {$this->template_selection},\n";
+                    $jsScripts[]="\t\t\ttemplateSelection: {$this->template_selection}";
                 }//if(is_string($this->template_selection) && strlen($this->template_selection))
                 break;
             default:
                 throw new AppException('Invalid SmartComboBox load type!');
         }//END switch
-        $js_script.="\t\t})";
+        $jsScript="\t\t({\n".implode(",\n",$jsScripts)."\t\t})";
         // NApp::Dlog($this->tag_id,'$this->tag_id');
-        // NApp::Dlog($js_script,'$js_script');
-        // NApp::Dlog($litems,'$litems');
+        // NApp::Dlog($jsScript,'$jsScript');
+        // NApp::Dlog($lItems,'$lItems');
         $rOptions=[''=>[]];
         $def_record=FALSE;
         $s_multiple='';
         if((bool)$this->multiple) {
             $s_multiple=' multiple="multiple"';
         }
-        foreach($litems as $item) {
+        /** @var VirtualEntity $item */
+        foreach($lItems as $item) {
             if($this->load_type=='ajax') {
                 continue;
             }
@@ -287,20 +300,20 @@ class SmartComboBox extends Control {
                 $rOptions[''][]="\t\t\t<option></option>\n";
                 continue;
             }//if(!is_object($item) || !$item->hasProperty($this->value_field))
-            $lval=$item->getProperty($this->value_field,NULL,'isset');
-            $ltext=$this->GetDisplayFieldValue($item);
-            $lselected='';
+            $lValue=$item->getProperty($this->value_field,NULL,'isset');
+            $lText=$this->GetDisplayFieldValue($item);
+            $lSelected='';
             foreach($s_values as $sv) {
-                $lsval=$sv->getProperty($this->value_field,NULL,'isset');
-                if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL))) {
-                    $lselected=' selected="selected"';
+                $lsVal=$sv->getProperty($this->value_field,NULL,'isset');
+                if($lValue==$lsVal && !(($lsVal===NULL && $lValue!==NULL) || ($lsVal!==NULL && $lValue===NULL))) {
+                    $lSelected=' selected="selected"';
                     break;
-                }//if($lval==$lsval && !(($lsval===NULL && $lval!==NULL) || ($lsval!==NULL && $lval===NULL)))
+                }//if($lValue==$lsVal && !(($lsVal===NULL && $lValue!==NULL) || ($lsVal!==NULL && $lValue===NULL)))
             }//END foreach
-            if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
+            if(!$s_values->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
                 $def_record=TRUE;
-                $lselected=' selected="selected"';
-            }//if(!$s_values->count() && !$def_record && !strlen($lselected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+                $lSelected=' selected="selected"';
+            }//if(!$s_values->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
             $o_data=(is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
             foreach($this->option_data as $od) {
                 $o_data.=' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
@@ -310,9 +323,9 @@ class SmartComboBox extends Control {
                 if(!array_key_exists($groupName,$rOptions)) {
                     $rOptions[$groupName]=[];
                 }
-                $rOptions[$groupName][]="\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
+                $rOptions[$groupName][]="\t\t\t<option value=\"{$lValue}\"{$lSelected}{$o_data}>{$lText}</option>\n";
             } else {
-                $rOptions[''][]="\t\t\t<option value=\"{$lval}\"{$lselected}{$o_data}>{$ltext}</option>\n";
+                $rOptions[''][]="\t\t\t<option value=\"{$lValue}\"{$lSelected}{$o_data}>{$lText}</option>\n";
             }//if(is_string($this->group_field) && strlen($this->group_field))
         }//END foreach
         // NApp::Dlog($rOptions,'$rOptions');
@@ -328,7 +341,7 @@ class SmartComboBox extends Control {
         }//END foreach
         // NApp::Dlog($rOptionsStr,'$rOptionsStr');
         // final result processing
-        $result="\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($js_script) ? rawurlencode(GibberishAES::enc($js_script_prefix.$js_script,$this->tag_id)) : '').'">'."\n";
+        $result="\t\t".'<select'.$this->GetTagId(TRUE).$this->GetTagClass('SmartCBO').$this->GetTagAttributes().$this->GetTagActions().$s_multiple.' data-smartcbo="'.(strlen($jsScript) ? rawurlencode(GibberishAES::enc($jsScriptPrefix.$jsScript,$this->tag_id)) : '').'">'."\n";
         $result.=$rOptionsStr;
         $result.="\t\t".'</select>'."\n";
         $result.=$this->GetActions();
