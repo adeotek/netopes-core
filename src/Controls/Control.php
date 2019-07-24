@@ -21,31 +21,31 @@ use Translate;
  * Class Control
  *
  * @package NETopes\Core\Controls
- * @property mixed    custom_actions
- * @property int|null tabindex
- * @property mixed    label_width
- * @property int      label_cols
- * @property mixed    width
- * @property int      cols
- * @property mixed    height
- * @property mixed    label
- * @property mixed    required
- * @property mixed    disabled
- * @property mixed    readonly
- * @property mixed    actions
- * @property mixed    clear_base_class
- * @property mixed    class
- * @property string   label_position
- * @property mixed    size
- * @property mixed    dynamic_target
- * @property mixed    tag_name
- * @property mixed    onenter
- * @property mixed    onenter_button
- * @property mixed    fixed_width
- * @property mixed    width_offset
- * @property mixed    style
- * @property mixed    align
- * @property mixed    placeholder
+ * @property mixed        custom_actions
+ * @property int|null     tabindex
+ * @property mixed        label_width
+ * @property int          label_cols
+ * @property mixed        width
+ * @property int          cols
+ * @property mixed        height
+ * @property mixed        label
+ * @property mixed        required
+ * @property mixed        disabled
+ * @property mixed        readonly
+ * @property mixed        actions
+ * @property mixed        clear_base_class
+ * @property mixed        class
+ * @property string       label_position
+ * @property mixed        size
+ * @property mixed        dynamic_target
+ * @property mixed        tag_name
+ * @property mixed        onenter
+ * @property mixed        onenter_button
+ * @property mixed        fixed_width
+ * @property mixed        width_offset
+ * @property mixed        style
+ * @property mixed        align
+ * @property mixed        placeholder
  * @property mixed        paf_property
  * @property mixed        extra_tag_params
  * @property mixed        loader
