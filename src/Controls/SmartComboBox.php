@@ -140,14 +140,14 @@ class SmartComboBox extends Control {
         if($this->load_type=='ajax' || $this->allow_clear) {
             $jsScripts[]="\t\t\tallowClear: true";
         }
-        $minResultsForSearch=is_numeric($this->minimum_results_for_search) && $this->minimum_results_for_search>0 ? $this->minimum_results_for_search : ($this->minimum_results_for_search==0 ? 'Infinity' : NULL);
-        if($minResultsForSearch) {
+        $minResultsForSearch=is_integer($this->minimum_results_for_search) ? ($this->minimum_results_for_search>0 ? $this->minimum_results_for_search : ($this->minimum_results_for_search===0 ? 'Infinity' : NULL)) : NULL;
+        if(isset($minResultsForSearch)) {
             $jsScripts[]="\t\t\tminimumResultsForSearch: {$minResultsForSearch}";
-        }//if($minResultsForSearch)
+        }//if(isset($minResultsForSearch))
         $minInputLength=(is_integer($this->minimum_input_length) && $this->minimum_input_length>=0 ? $this->minimum_input_length : ($this->load_type=='ajax' ? 3 : NULL));
-        if($minInputLength) {
+        if(isset($minInputLength)) {
             $jsScripts[]="\t\t\tminimumInputLength: {$minInputLength}";
-        }//if($minInputLength)
+        }//if(isset($minInputLength))
         $lItems=DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
