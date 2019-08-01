@@ -71,7 +71,7 @@ class CheckBox extends Control {
         } else {
             $lvalue=$lvalue ? 1 : 0;
         }//if($this->invert_value)
-        $baseActions=NULL;
+        $baseActions=['onclick'=>'$(this).imageCheckBoxToggle();'];
         $result="\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).$this->GetTagActions($baseActions).' src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$lvalue.'">'."\n";
         return $result;
     }//END protected function SetControl

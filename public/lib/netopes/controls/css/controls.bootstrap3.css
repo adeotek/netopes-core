@@ -771,6 +771,10 @@ select.input-sm {
 	margin-right: 7px;
 }
 
+.btn.compact > i {
+	margin-right: 0;
+}
+
 .btn.io {
 	text-align: center;
 }
