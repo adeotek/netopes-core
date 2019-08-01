@@ -306,10 +306,6 @@ function GetCalculatedValue(element_value,decimal_separator) {
         return this;
     };
 }(jQuery));
-
-$(document).on('click','input[type="image"].clsCheckBox',function(e) {
-    $(this).imageCheckBoxToggle();
-});
 /*** END For CheckBox control ***/
 /*** For GroupCheckBox control ***/
 function GroupCheckBoxBaseEvent(obj) {
