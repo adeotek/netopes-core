@@ -11,39 +11,16 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.1.4.7
  * @filesource
  */
 define('_VALID_NAPP_REQ',TRUE);
-if(!defined('_NAPP_ROOT_PATH')) {
-    require_once(realpath(dirname(__FILE__).'/../pathinit.php'));
-}
-if(defined('_NAPP_OFFLINE') && _NAPP_OFFLINE) {
-    die('OFFLINE!');
-}
-/* Let browser know that response is utf-8 encoded */
-header('Content-Type: text/html; charset=UTF-8');
-header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
-header('Pragma: no-cache'); // HTTP 1.0.
-header('Expires: 0'); // Proxies.
-header('X-Frame-Options: GOFORIT');
-if(in_array('globals',array_keys(array_change_key_case($_REQUEST,CASE_LOWER)))) {
-    exit();
-}
-if(in_array('_post',array_keys(array_change_key_case($_REQUEST,CASE_LOWER)))) {
-    exit();
-}
 ini_set('max_execution_time',1800);
 ini_set('max_input_time',-1);
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH._NAPP_CONFIG_PATH.'/Domains.inc');
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH._NAPP_CONFIG_PATH.'/Connections.inc');
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH._NAPP_CONFIG_PATH.'/Configuration.php');
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/vendor/autoload.php');
-require_once(NETopes\Core\AppPath::GetBootFile());
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/Classes/NApp.php');
-require_once(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/Classes/Translate.php');
+require_once(realpath(dirname(__FILE__).'/../bootstrap.php'));
+$debug=(array_key_exists('dbg',$_GET) && $_GET['dbg']==1) ? TRUE : FALSE;
 $cNamespace=array_key_exists('namespace',$_POST) ? $_POST['namespace'] : NULL;
-NApp::Start(FALSE,['namespace'=>$cNamespace,'startup_path'=>realpath(dirname(__FILE__))]);
+NApp::Start(FALSE,['namespace'=>$cNamespace,'startup_path'=>realpath(dirname(__FILE__)),'debug'=>$debug]);
 if(!NApp::GetAppState()) {
     die('Invalid request (1)!');
 }
