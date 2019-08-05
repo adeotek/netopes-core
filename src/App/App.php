@@ -141,23 +141,22 @@ abstract class App implements IApp {
      * @throws \NETopes\Core\AppException
      */
     protected static function LoadDomainConfig(bool $isCli=FALSE): void {
-        global $_DOMAINS_CONFIG;
-        if(!isset($_DOMAINS_CONFIG['domains']) || !is_array($_DOMAINS_CONFIG['domains'])) {
+        if(!defined('_NAPP_DOMAINS_CONFIG') || !is_array(_NAPP_DOMAINS_CONFIG['domains'])) {
             die('Invalid domain registry settings!');
         }
-        $keyDomain=$isCli ? '_default' : (array_key_exists(static::$_url->GetAppDomain(),$_DOMAINS_CONFIG['domains']) ? static::$_url->GetAppDomain() : (array_key_exists('_default',$_DOMAINS_CONFIG['domains']) ? '_default' : ''));
-        if(!$keyDomain || !isset($_DOMAINS_CONFIG['domains'][$keyDomain]) || !$_DOMAINS_CONFIG['domains'][$keyDomain]) {
+        $keyDomain=$isCli ? '_default' : (array_key_exists(static::$_url->GetAppDomain(),_NAPP_DOMAINS_CONFIG['domains']) ? static::$_url->GetAppDomain() : (array_key_exists('_default',_NAPP_DOMAINS_CONFIG['domains']) ? '_default' : ''));
+        if(!$keyDomain || !isset(_NAPP_DOMAINS_CONFIG['domains'][$keyDomain]) || !_NAPP_DOMAINS_CONFIG['domains'][$keyDomain]) {
             die('Wrong domain registry settings!');
         }
         if(!static::$currentNamespace) {
-            static::$currentNamespace=array_key_exists('namespace',$_GET) && strlen($_GET['namespace']) ? $_GET['namespace'] : $_DOMAINS_CONFIG['domains'][$keyDomain];
+            static::$currentNamespace=array_key_exists('namespace',$_GET) && strlen($_GET['namespace']) ? $_GET['namespace'] : _NAPP_DOMAINS_CONFIG['domains'][$keyDomain];
         }
-        if(!isset($_DOMAINS_CONFIG['namespaces'][static::$currentNamespace])) {
+        if(!isset(_NAPP_DOMAINS_CONFIG['namespaces'][static::$currentNamespace])) {
             die('Invalid namespace!');
         }
-        $domainConfig=$_DOMAINS_CONFIG['namespaces'][static::$currentNamespace];
+        $domainConfig=_NAPP_DOMAINS_CONFIG['namespaces'][static::$currentNamespace];
         static::$defaultDbConnection=$domainConfig['db_connection'];
-        static::$_url->url_virtual_path=isset($domainConfig['link_alias']) ? $domainConfig['link_alias'] : '';
+        static::$_url->urlVirtualPath=isset($domainConfig['link_alias']) ? $domainConfig['link_alias'] : '';
         $defaultViewsDir=get_array_value($domainConfig,'default_views_dir','','is_string');
         if(strlen($defaultViewsDir)) {
             AppConfig::SetValue('app_default_views_dir',$defaultViewsDir);
@@ -732,8 +731,8 @@ HTML;
     public static function GetAppBaseUrl(?string $uri=NULL,?string $namespace=NULL,bool $base=FALSE,$langCode=NULL): string {
         $namespace=$namespace ? $namespace : static::$currentNamespace;
         if($namespace!=static::$currentNamespace) {
-            global $_DOMAINS_CONFIG;
-            $domainReg=get_array_value($_DOMAINS_CONFIG,['namespaces',$namespace],[],'is_array');
+            $domainsConfig=defined('_NAPP_DOMAINS_CONFIG') ? _NAPP_DOMAINS_CONFIG : NULL;
+            $domainReg=get_array_value($domainsConfig,['namespaces',$namespace],[],'is_array');
             if(!count($domainReg)) {
                 throw new AppException('Invalid domain registry!');
             }
