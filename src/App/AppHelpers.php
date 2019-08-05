@@ -352,7 +352,7 @@ class AppHelpers {
         if(!AppSession::WithSession() || !AppConfig::GetValue('use_kc_finder')) {
             return;
         }
-        $type=get_array_value($params,'type','','is_string');
+        $type=get_array_value($params,'type',AppConfig::GetValue('kc_finder_default_type'),'is_string');
         switch(strtolower($type)) {
             case 'public':
                 AppSession::SetGlobalParam('disabled',FALSE,'__KCFINDER',NULL,FALSE);

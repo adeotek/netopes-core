@@ -21,6 +21,8 @@ $_NAPP_CONFIG_STRUCTURE=[
     'use_cdn'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Use KCFinder plugin
     'use_kc_finder'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
+    // KCFinder default type
+    'kc_finder_default_type'=>['access'=>'readonly','default'=>'','validation'=>'is_string'],
     // PHP password_hash function algorithm
     'password_hash_algo'=>['access'=>'readonly','default'=>CRYPT_BLOWFISH,'validation'=>'is_integer'],
     // Website name
