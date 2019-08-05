@@ -1043,6 +1043,14 @@ function GetCkEditorData(e) {
     if(editor) { return editor.getData(); }
     return '';
 }//function GetCkEditorData
+
+function SetCkEditorData(e,data) {
+    if(typeof (e)==='object') { e=e.getAttribute('id'); }
+    let editor=CKEDITOR.instances[e];
+    if(editor) {
+        editor.setData(data);
+    }
+}//function SetCkEditorData
 /*** END For CKEditor ***/
 /*** For FileUploader ***/
 function CreateFileUploader(elementid,multi) {
