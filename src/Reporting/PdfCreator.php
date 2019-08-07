@@ -94,7 +94,7 @@ class PdfCreator extends TCPDF {
      *
      * @param array  $format
      * @param string $mode
-     * @return void
+     * @return string
      */
     public function GetAlign($format=[],$mode='h') {
         $align='';
