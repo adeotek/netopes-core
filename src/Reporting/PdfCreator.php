@@ -29,19 +29,31 @@ class PdfCreator extends TCPDF {
     /**
      * @var    bool Flag for custom header method
      */
-    public $custom_header=FALSE;
+    public $customHeader=FALSE;
     /**
      * @var    array Custom header params
      */
-    public $custom_header_params=FALSE;
+    public $customHeaderParams=FALSE;
     /**
      * @var    bool Flag for custom footer method
      */
-    public $custom_footer=FALSE;
+    public $customFooter=FALSE;
     /**
      * @var    array Custom footer params
      */
-    public $custom_footer_params=FALSE;
+    public $customFooterParams=FALSE;
+    /**
+     * @var    array Dynamic parameters placeholders separators
+     */
+    public $placeholderSeparators=['[[',']]'];
+    /**
+     * @var    string Regular expression for finding placeholders for dynamic parameters
+     */
+    public $placeholdersRegExp='/\[{2}[^\]]*\]{2}/iU';
+    /**
+     * @var    string Chars to trim for removing placeholders for dynamic parameters
+     */
+    public $placeholdersTrimChars='[]';
 
     /**
      * description
@@ -94,7 +106,7 @@ class PdfCreator extends TCPDF {
      *
      * @param array  $format
      * @param string $mode
-     * @return void
+     * @return string
      */
     public function GetAlign($format=[],$mode='h') {
         $align='';
@@ -144,7 +156,7 @@ class PdfCreator extends TCPDF {
      * description
      *
      * @param array $format
-     * @return void
+     * @return string
      */
     public function GetHtmlFormatString($format=[]) {
         $style='';
@@ -192,11 +204,11 @@ class PdfCreator extends TCPDF {
      * @return void
      */
     public function Header() {
-        if($this->custom_header) {
-            $this->setCustomHeader($this->custom_header_params);
+        if($this->customHeader) {
+            $this->setCustomHeader($this->customHeaderParams);
         } else {
             parent::Header();
-        }//if($this->custom_header)
+        }//if($this->customHeader)
     }//END public function Header
 
     /**
@@ -206,21 +218,22 @@ class PdfCreator extends TCPDF {
      * @return void
      */
     public function Footer() {
-        if($this->custom_footer) {
-            $this->setCustomFooter($this->custom_footer_params);
+        if($this->customFooter) {
+            $this->setCustomFooter($this->customFooterParams);
         } else {
             parent::Footer();
-        }//if($this->custom_footer)
+        }//if($this->customFooter)
     }//END public function Footer
 
     /**
      * description
      *
+     * @param mixed|null $params
      * @return void
      */
     public function SetCustomHeader($params=NULL) {
         if($params===TRUE) {
-            $params=$this->custom_header_params;
+            $params=$this->customHeaderParams;
         }
         if(!is_array($params) || !count($params)) {
             return;
@@ -397,4 +410,48 @@ class PdfCreator extends TCPDF {
             $this->MultiCell($width - 4,0,$text,0,$align,$fill,0,$x + 2,$y);
         }//if(is_array($text))
     }//END public function RoundCornerBox
+
+    /**
+     * @param string $content
+     * @param array  $parameters
+     * @return string
+     */
+    protected function ReplacePlaceholders(string $content,array $parameters): string {
+        $placeholders=[];
+        if(preg_match_all($this->placeholdersRegExp,$content,$placeholders)) {
+            foreach($placeholders[0] as $placeholder) {
+                $content=str_replace($placeholder,$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters),$content);
+            }//END foreach
+        }//if(preg_match_all($this->placeholdersRegExp,$content,$placeholders))
+        return $content;
+    }//END protected function ReplacePlaceholders
+
+    /**
+     * @param string $placeholder
+     * @param array  $parameters
+     * @return string
+     */
+    protected function GetPlaceholderValue(string $placeholder,array $parameters): string {
+        $paramValue=get_array_value($parameters,$placeholder,NULL,'isset');
+        if(is_array($paramValue)) {
+            $value=get_array_param($paramValue,'value',NULL,'?is_string');
+            if(!strlen($value)) {
+                return '';
+            }
+            $tagType=strtolower(get_array_param($paramValue,'type','','is_notempty_string'));
+            $label=get_array_param($paramValue,'label',NULL,'?is_string');
+            switch($tagType) {
+                case 'tr':
+                    return '<tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').'</td><td>'.$value.'</td></tr>';
+                case 'div':
+                case 'span':
+                    return '<'.$tagType.'>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</'.$tagType.'>';
+                case 'no_tag':
+                    return (strlen($label) ? $label.':&nbsp;' : '').$value;
+                default:
+                    return $value;
+            }//END switch
+        }//if(is_array($paramValue))
+        return (is_scalar($paramValue) ? $paramValue : NULL) ?? '';
+    }//END protected function GetPlaceholderValue
 }//END class PdfCreator extends TCPDF

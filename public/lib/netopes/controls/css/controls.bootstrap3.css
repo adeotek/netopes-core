@@ -206,6 +206,10 @@
 	background: none;
 }
 
+.ui-accordion-header.ui-accordion-header-active.ui-state-active {
+	background: #ffffff;
+}
+
 /* END jQuery UI Tabs */
 /* Bootstrap overwrites */
 .form-horizontal .control-label {
