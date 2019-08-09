@@ -391,6 +391,9 @@ abstract class FilterControl {
                 $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'add', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'f_d_type': '{$dataType}',".(strlen($field) ? " ' f_field': '{$field}'," : '')." 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '{nGet|{$this->filter_cond_value_source}}', 'f_value': '{nGet|".$params->safeGet('f_value',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'f_d_value': '{$fdValue}', ";
                 $feValue=$params->safeGet('f_e_value','','is_string');
                 if(strlen($feValue)) {
+                    if(strpos($feValue,'{nEval|')===FALSE && strpos($feValue,'{nGet|')===FALSE) {
+                        $feValue='{nGet|'.$feValue.'}';
+                    }
                     $fedValue=$params->safeGet('f_e_d_value','','is_string');
                     if(strlen($fedValue) && strpos($fedValue,'{nEval|')===FALSE && strpos($fedValue,'{nGet|')===FALSE) {
                         $fedValue='{nGet|'.$fedValue.'}';
