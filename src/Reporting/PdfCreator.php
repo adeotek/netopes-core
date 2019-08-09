@@ -445,6 +445,8 @@ class PdfCreator extends TCPDF {
                 case 'table':
                     return '<table'.(strlen($style) ? ' style="'.$style.'"' : '').'><tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').'</td><td>'.$value.'</td></tr></table>';
                 case 'tr':
+                    return '<tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</td></tr>';
+                case 'tr_x2':
                     return '<tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').'</td><td>'.$value.'</td></tr>';
                 case 'div':
                 case 'span':
