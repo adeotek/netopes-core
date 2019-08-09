@@ -1945,12 +1945,12 @@ class TableView extends FilterControl {
      */
     protected function SetControl(Params $params=NULL): ?string {
         // NApp::Dlog($params,'SetControl>>$params');
-        $this->LoadState($params);
-        // NApp::Dlog($this->filters,'SetControl>>$this->filters');
-        // NApp::Dlog($this->groups,'SetControl>>$this->groups');
         // NApp::Dlog($this->auto_load_data_on_filter_change,'SetControl>>auto_load_data_on_filter_change');
         $fActionsParam=$params->safeGet('f_action',NULL,'?is_string');
         // NApp::Dlog($fActionsParam,'SetControl>>$fActionsParam');
+        $this->LoadState($params);
+        // NApp::Dlog($this->filters,'SetControl>>$this->filters');
+        // NApp::Dlog($this->groups,'SetControl>>$this->groups');
         if(isset($fActionsParam)) {
             if($this->auto_load_data_on_filter_change || in_array($fActionsParam,['apply','refresh'])) {
                 $items=$this->GetData();
