@@ -789,43 +789,61 @@ $(document).on('keydown','.clsOnEnterActionButton',function(e) {
     }//if(e.keyCode==13)
 });//$(document).on('keydown','.clsOnEnterActionButton',function(e)
 
-function AddClassOnErrorByParent(parentId,reset,errClass) {
+/**
+ * @return {boolean}
+ */
+function SetFieldErrorClass(obj,reset,errClass) {
+    if(!obj) {
+        return false;
+    }
     let lClass=errClass ? errClass : 'clsFieldError';
+    let $obj=$(obj);
+    let validValue=false;
     if(reset) {
-        $('#' + parentId + ' .clsRequiredField').removeClass(lClass);
+        validValue=true;
     } else {
-        $('#' + parentId + ' .clsRequiredField').each(function() {
-            if($(this).val()) {
-                $(this).removeClass(lClass);
-            } else {
-                $(this).addClass(lClass);
-            }
-        });
-    }//if(reset)
+        if($obj.hasClass('clsNumericTextBox')) {
+            validValue=GetNumericTextBoxValue($obj)!==0;
+        } else if($obj.hasClass('clsSmartComboBox')) {
+            validValue= !!GetSmartCBOValue($obj.attr('id'));
+        } else {
+            validValue=$obj.val() && $obj.val().length>0;
+        }
+    }
+    if(validValue) {
+        $obj.removeClass(lClass);
+        if($obj.hasClass('clsSmartComboBox')) {
+            $obj.data('select2').$selection.removeClass(lClass);
+        }
+    } else {
+        $obj.addClass(lClass);
+        if($obj.hasClass('clsSmartComboBox')) {
+            $obj.data('select2').$selection.addClass(lClass);
+        }
+    }
+    return true;
+}//END function SetFieldErrorClass
+
+function AddClassOnErrorByParent(parentId,reset,errClass) {
+    $('#' + parentId + ' .clsRequiredField').each(function() {
+        if($(this).hasClass('select2-selection')) {
+            return;
+        }
+        SetFieldErrorClass(this,reset,errClass);
+    });
 }//END function AddClassOnErrorByParent
 
 function AddClassOnError(elementId,reset,errClass) {
-    let lClass=errClass ? errClass : 'clsFieldError';
-    if(reset) {
-        $('#' + elementId).removeClass(lClass);
-    } else {
-        $('#' + elementId).addClass(lClass);
-    }//if(reset)
+    SetFieldErrorClass($('#' + elementId),reset,errClass);
 }//function AddClassOnError
 
 function AddClassOnErrorByName(formId,elementName,reset,errClass) {
-    let lClass=errClass ? errClass : 'clsFieldError';
-    if(reset) {
-        $('#' + formId + ' [name="' + elementName + '"]').removeClass(lClass);
-    } else {
-        $('#' + formId + ' [name="' + elementName + '"]').each(function() {
-            if($(this).val()) {
-                $(this).removeClass(lClass);
-            } else {
-                $(this).addClass(lClass);
-            }
-        });
-    }//if(reset)
+    $('#' + formId + ' [name="' + elementName + '"]').each(function() {
+        if($(this).hasClass('select2-selection')) {
+            return;
+        }
+        SetFieldErrorClass(this,reset,errClass);
+    });
 }//function AddClassOnErrorByName
 /*** END For Actions ***/
 
