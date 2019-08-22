@@ -836,6 +836,53 @@ class TableView extends FilterControl {
     }//END protected function SetCellSubTotal
 
     /**
+     * Gets the table cell raw value
+     *
+     * @param object $row
+     * @param array  $v
+     * @return mixed Returns the table cell raw value
+     */
+    protected function GetCellData(&$row,&$v) {
+        $cellValue=NULL;
+        $valueSource=get_array_value($v,'value_source',NULL,'?is_string');
+        switch(strtolower($valueSource)) {
+            case 'relation':
+                if(is_object($row)) {
+                    $rObj=NULL;
+                    $rFirst=TRUE;
+                    $cRelations=get_array_value($v,'relation',[],'is_array');
+                    foreach($cRelations as $rAlias=>$cRelation) {
+                        if($rFirst) {
+                            $rFirst=FALSE;
+                        } elseif($rObj===NULL) {
+                            break;
+                        }//if($rFirst)
+                        if(!strlen($cRelation)) {
+                            continue;
+                        }
+                        $rGetter='get'.ucfirst($cRelation);
+                        $rObj=$rObj===NULL ? $row->$rGetter() : $rObj->$rGetter();
+                    }//END foreach
+                    if($rObj) {
+                        $pGetter='get'.ucfirst($v['db_field']);
+                        $cellValue=$rObj->$pGetter();
+                    }//if($rObj)
+                }//if(is_object($row))
+                break;
+            default:
+                if(isset($v['db_field'])) {
+                    $cellValue=$row->getProperty($v['db_field']);
+                    if(!is_scalar($cellValue)) {
+                        $cellValue=is_object($cellValue) ? $cellValue : NULL;
+                    } else {
+                        $cellValue=strlen($cellValue) ? $cellValue : NULL;
+                    }//if(!is_scalar($cellValue))
+                }//if(isset($v['db_field']))
+                break;
+        }//END switch
+        return $cellValue;
+    }//END protected function GetCellData
+    /**
      * Gets the table cell value (un-formatted)
      *
      * @param object $row
@@ -915,23 +962,14 @@ class TableView extends FilterControl {
                     }//if($type=='conditional_control')
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    $c_data_type=get_array_value($v,'data_type','','is_string');
-                    if(is_null($v['db_field'])) {
-                        $c_value=NULL;
-                    } else {
-                        $c_value=$row->getProperty($v['db_field']);
-                        if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value))) {
-                            $c_value=is_object($c_value) ? $c_value : NULL;
-                        } else {
-                            $c_value=strlen($c_value) ? $c_value : NULL;
-                        }//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
-                    }//if(is_null($v['db_field']))
-                    if($c_data_type=='numeric') {
+                    $cellDataType=get_array_value($v,'data_type','','is_string');
+                    $cellValue=$this->GetCellData($row,$v);
+                    if($cellDataType=='numeric') {
                         $c_summarize_type=get_array_value($v,'summarize_type','sum','is_notempty_string');
                     } else {
                         $c_summarize_type='count';
-                    }//if($c_data_type=='numeric')
-                    $this->SetCellSubTotal($name,$c_value,$c_summarize_type);
+                    }//if($cellDataType=='numeric')
+                    $this->SetCellSubTotal($name,$cellValue,$c_summarize_type);
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
                 $cValue=$row->getProperty($v['db_field'],NULL,'isset');
                 $defaultDisplayValue=get_array_value($v,'default_display_value',NULL,'is_string');
@@ -1004,34 +1042,25 @@ class TableView extends FilterControl {
                     $result=NULL;
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $c_data_type=get_array_value($v,'data_type','','is_string');
-                if(is_null($v['db_field'])) {
-                    $c_value=NULL;
-                } else {
-                    $c_value=$row->getProperty($v['db_field']);
-                    if(!is_scalar($c_value)) {
-                        $c_value=is_object($c_value) ? $c_value : NULL;
-                    } else {
-                        $c_value=strlen($c_value) ? $c_value : NULL;
-                    }//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
-                }//if(is_null($v['db_field']))
+                $cellDataType=get_array_value($v,'data_type','','is_string');
+                $cellValue=$this->GetCellData($row,$v);
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    if($c_data_type=='numeric') {
+                    if($cellDataType=='numeric') {
                         $c_summarize_type=get_array_value($v,'summarize_type','sum','is_notempty_string');
                     } else {
                         $c_summarize_type='count';
-                    }//if($c_data_type=='numeric')
-                    $this->SetCellSubTotal($name,$c_value,$c_summarize_type);
+                    }//if($cellDataType=='numeric')
+                    $this->SetCellSubTotal($name,$cellValue,$c_summarize_type);
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $result=$c_value;
+                $result=$cellValue;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
-                    if(strlen($c_format) && $c_data_type=='numeric') {
+                    if(strlen($c_format) && $cellDataType=='numeric') {
                         if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') {
-                            $c_value=$c_value / 100;
+                            $cellValue=$cellValue / 100;
                         }
-                    }//if(strlen($c_format) && $c_data_type=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
+                    }//if(strlen($c_format) && $cellDataType=='numeric')
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'sum':
@@ -1041,46 +1070,46 @@ class TableView extends FilterControl {
                     $result=NULL;
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $c_data_type=get_array_value($v,'data_type','','is_string');
-                if(!in_array($c_data_type,['numeric','integer','string'])) {
+                $cellDataType=get_array_value($v,'data_type','','is_string');
+                if(!in_array($cellDataType,['numeric','integer','string'])) {
                     $result=NULL;
                     break;
-                }//if(!in_array($c_data_type,array('numeric','integer','string'))
-                if($c_data_type=='string') {
-                    $c_value='';
+                }//if(!in_array($cellDataType,array('numeric','integer','string'))
+                if($cellDataType=='string') {
+                    $cellValue='';
                     $c_s_sep=get_array_value($v,'sum_separator',' ','is_string');
                 } else {
-                    $c_value=0;
+                    $cellValue=0;
                     $c_s_sep=NULL;
-                }//if($c_data_type=='string')
+                }//if($cellDataType=='string')
                 foreach(get_array_value($v,'db_field',[],'is_array') as $s_db_field) {
                     if(!is_string($s_db_field) || !strlen($s_db_field) || !$row->hasProperty($s_db_field,TRUE)) {
                         continue;
                     }
-                    if($c_data_type=='string') {
-                        $c_value.=(strlen($c_value) ? $c_s_sep : '');
-                        $c_value.=$row->getProperty($s_db_field,'','is_string');
+                    if($cellDataType=='string') {
+                        $cellValue.=(strlen($cellValue) ? $c_s_sep : '');
+                        $cellValue.=$row->getProperty($s_db_field,'','is_string');
                     } else {
-                        $c_value+=$row->getProperty($s_db_field,0,'is_numeric');
-                    }//if($c_data_type=='string')
+                        $cellValue+=$row->getProperty($s_db_field,0,'is_numeric');
+                    }//if($cellDataType=='string')
                 }//END foreach
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    if($c_data_type=='numeric') {
+                    if($cellDataType=='numeric') {
                         $c_summarize_type=get_array_value($v,'summarize_type','sum','is_notempty_string');
                     } else {
                         $c_summarize_type='count';
-                    }//if($c_data_type=='numeric')
-                    $this->SetCellSubTotal($name,$c_value,$c_summarize_type);
+                    }//if($cellDataType=='numeric')
+                    $this->SetCellSubTotal($name,$cellValue,$c_summarize_type);
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $result=$c_value;
+                $result=$cellValue;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
-                    if(strlen($c_format) && $c_data_type=='numeric') {
+                    if(strlen($c_format) && $cellDataType=='numeric') {
                         if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') {
-                            $c_value=$c_value / 100;
+                            $cellValue=$cellValue / 100;
                         }
-                    }//if(strlen($c_format) && $c_data_type=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
+                    }//if(strlen($c_format) && $cellDataType=='numeric')
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case '__rowno':
@@ -1090,10 +1119,10 @@ class TableView extends FilterControl {
                     $result=NULL;
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $c_value=$result=isset($row->__rowno) ? $row->__rowno : NULL;
+                $cellValue=$result=isset($row->__rowno) ? $row->__rowno : NULL;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'multi-value':
@@ -1138,7 +1167,7 @@ class TableView extends FilterControl {
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
                 $ci_def_index=get_array_value($v,'default_index',NULL,'is_string');
-                $ci_value=$row->getProperty($v['db_field']);
+                $ci_value=$this->GetCellData($row,$v);
                 if($ci_def_index && is_null($ci_value)) {
                     $ci_value=$ci_def_index;
                 } else {
@@ -1156,92 +1185,40 @@ class TableView extends FilterControl {
                 if(isset($cClass) && strlen($c_collection_class) && $ci_values->safeGet($ci_value)) {
                     $cClass=trim($cClass.' '.$ci_values->safeGet($ci_value)->getProperty($c_collection_class,'','is_string'));
                 }//if(strlen($c_collection_class) && $ci_values->safeGet($ci_value))
-                $c_value=$ci_values->safeGet($ci_value) ? $ci_values->safeGet($ci_value)->getProperty($i_field,$ci_def_value,'is_string') : $ci_def_value;
+                $cellValue=$ci_values->safeGet($ci_value) ? $ci_values->safeGet($ci_value)->getProperty($i_field,$ci_def_value,'is_string') : $ci_def_value;
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    $this->SetCellSubTotal($name,$c_value,'count');
+                    $this->SetCellSubTotal($name,$cellValue,'count');
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $result=($c_value ? $c_value : NULL);
+                $result=($cellValue ? $cellValue : NULL);
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $this->export_data['data'][$row->__rowid][$name]=$result;
-                }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
-                break;
-            case 'relation':
-                // Check conditions for displaing action
-                $conditions=get_array_value($v,'conditions',NULL,'is_array');
-                if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
-                    $result=NULL;
-                    break;
-                }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $c_data_type=get_array_value($v,'data_type','','is_string');
-                if(is_object($row)) {
-                    $rObj=NULL;
-                    $rFirst=TRUE;
-                    $cRelations=get_array_value($v,'relation',[],'is_array');
-                    foreach($cRelations as $rAlias=>$cRelation) {
-                        if($rFirst) {
-                            $rFirst=FALSE;
-                        } elseif($rObj===NULL) {
-                            break;
-                        }//if($rFirst)
-                        if(!strlen($cRelation)) {
-                            continue;
-                        }
-                        $rGetter='get'.ucfirst($cRelation);
-                        $rObj=$rObj===NULL ? $row->$rGetter() : $rObj->$rGetter();
-                    }//END foreach
-                    if($rObj) {
-                        $pGetter='get'.ucfirst($v['db_field']);
-                        $c_value=$rObj->$pGetter();
-                    } else {
-                        $c_value=NULL;
-                    }//if($rObj)
-                } else {
-                    $c_value=NULL;
-                }//if(is_object($row))
-                if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    if($c_data_type=='numeric') {
-                        $c_summarize_type=get_array_value($v,'summarize_type','sum','is_notempty_string');
-                    } else {
-                        $c_summarize_type='count';
-                    }//if($c_data_type=='numeric')
-                    $this->SetCellSubTotal($name,$c_value,$c_summarize_type);
-                }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $result=$c_value;
-                if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
-                    if(strlen($c_format) && $c_data_type=='numeric') {
-                        if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') {
-                            $c_value=$c_value / 100;
-                        }
-                    }//if(strlen($c_format) && $c_data_type=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'custom_function':
                 $c_function=get_array_value($v,'function_name','','is_string');
                 if(strlen($c_function) && method_exists($this,$c_function)) {
-                    $c_value=$this->$c_function($row,$v);
+                    $cellValue=$this->$c_function($row,$v);
                 } else {
-                    $c_value=get_array_value($v,'default_value','','is_string');
+                    $cellValue=get_array_value($v,'default_value','','is_string');
                 }//if(strlen($c_function) && method_exists($this,$c_function))
-                $c_data_type=get_array_value($v,'data_type','','is_string');
+                $cellDataType=get_array_value($v,'data_type','','is_string');
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    if($c_data_type=='numeric') {
+                    if($cellDataType=='numeric') {
                         $c_summarize_type=get_array_value($v,'summarize_type','sum','is_notempty_string');
                     } else {
                         $c_summarize_type='count';
-                    }//if($c_data_type=='numeric')
-                    $this->SetCellSubTotal($name,$c_value,$c_summarize_type);
+                    }//if($cellDataType=='numeric')
+                    $this->SetCellSubTotal($name,$cellValue,$c_summarize_type);
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $result=$c_value;
+                $result=$cellValue;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=get_array_value($v,'format','','is_string');
-                    if(strlen($c_format) && $c_data_type=='numeric') {
+                    if(strlen($c_format) && $cellDataType=='numeric') {
                         if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') {
-                            $c_value=$c_value / 100;
+                            $cellValue=$cellValue / 100;
                         }
-                    }//if(strlen($c_format) && $c_data_type=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
+                    }//if(strlen($c_format) && $cellDataType=='numeric')
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'translate':
@@ -1251,15 +1228,15 @@ class TableView extends FilterControl {
                     $result=NULL;
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $c_value=$row->getProperty($v['db_field']);
-                if(!isset($c_value) || !strlen($c_value)) {
-                    $c_value=get_array_value($v,'default_value','','is_string');
+                $cellValue=$this->GetCellData($row,$v);
+                if(!isset($cellValue) || !strlen($cellValue)) {
+                    $cellValue=get_array_value($v,'default_value','','is_string');
                 }
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
-                    $this->SetCellSubTotal($name,$c_value,'count');
+                    $this->SetCellSubTotal($name,$cellValue,'count');
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $c_value=Translate::Get(get_array_value($v,'prefix','','is_string').$c_value.get_array_value($v,'sufix','','is_string'));
-                $result=$c_value;
+                $cellValue=Translate::Get(get_array_value($v,'prefix','','is_string').$cellValue.get_array_value($v,'sufix','','is_string'));
+                $result=$cellValue;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $this->export_data['data'][$row->__rowid][$name]=$result;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
@@ -1275,7 +1252,7 @@ class TableView extends FilterControl {
                     $this->SetCellSubTotal($name,$row->getProperty($v['db_field']),'count');
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
                 $cb_classes=get_array_value($v,'checkbox_classes',NULL,'is_array');
-                $cb_val=$row->getProperty($v['db_field']);
+                $cb_val=$this->GetCellData($row,$v);
                 if(is_array($cb_classes) && count($cb_classes)) {
                     if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool')) {
                         $bool_evl=is_numeric($cb_val) ? ($cb_val<0 ? -1 : ($cb_val>0 ? 1 : 0)) : ($cb_val ? 1 : 0);
@@ -1298,18 +1275,9 @@ class TableView extends FilterControl {
             case 'filter-only':
                 $result=NULL;
                 if($this->exportable && get_array_value($v,'export',FALSE,'bool')) {
-                    $c_data_type=get_array_value($v,'data_type','','is_string');
-                    if(is_null($v['db_field'])) {
-                        $c_value=NULL;
-                    } else {
-                        $c_value=$row->getProperty($v['db_field']);
-                        if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value))) {
-                            $c_value=is_object($c_value) ? $c_value : NULL;
-                        } else {
-                            $c_value=strlen($c_value) ? $c_value : NULL;
-                        }//if($c_data_type=='datetime_obj' || (!is_string($c_value) && !is_numeric($c_value)))
-                    }//if(is_null($v['db_field']))
-                    $this->export_data['data'][$row->__rowid][$name]=$c_value;
+                    $cellDataType=get_array_value($v,'data_type','','is_string');
+                    $cellValue=$this->GetCellData($row,$v);
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             default:
@@ -1468,8 +1436,8 @@ class TableView extends FilterControl {
                 break;
             case 'control':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
             case 'relation':
             case 'value':
@@ -1487,7 +1455,7 @@ class TableView extends FilterControl {
                         $t_value.='<span class="clsTreeGridBtnNoChild"></span>';
                     }//if($hasChild)
                 }//if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string'))
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1498,8 +1466,8 @@ class TableView extends FilterControl {
                         $c_format=get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
                     }//if(strlen($c_cf_field))
                 }//if($c_cond_format)
-                $c_value=$this->FormatValue($c_value,$c_format,$c_def_value);
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
+                $cellValue=$this->FormatValue($cellValue,$c_format,$c_def_value);
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$cellValue.'</td>'."\n";
                 break;
             case 'sum':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
@@ -1507,7 +1475,7 @@ class TableView extends FilterControl {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
                 $t_value='';
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1518,15 +1486,15 @@ class TableView extends FilterControl {
                         $c_format=get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
                     }//if(strlen($c_cf_field))
                 }//if($c_cond_format)
-                $c_value=$this->FormatValue($c_value,$c_format,$c_def_value);
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$c_value.'</td>'."\n";
+                $cellValue=$this->FormatValue($cellValue,$c_format,$c_def_value);
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$t_value.$cellValue.'</td>'."\n";
                 break;
             case '__rowno':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1537,17 +1505,17 @@ class TableView extends FilterControl {
                         $c_format=get_array_value($c_cf_values,$row->getProperty($c_cf_field),$c_format,'isset');
                     }//if(strlen($c_cf_field))
                 }//if($c_cond_format)
-                $c_value=$this->FormatValue($c_value,$c_format,$c_def_value);
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$c_value.'</td>'."\n";
+                $cellValue=$this->FormatValue($cellValue,$c_format,$c_def_value);
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.$cellValue.'</td>'."\n";
                 break;
             case 'multi-value':
             case 'indexof':
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator,$c_class);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator,$c_class);
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
             case 'translate':
             case 'checkbox':
@@ -1556,8 +1524,8 @@ class TableView extends FilterControl {
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $c_value=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
-                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($c_value) ? '&nbsp;' : $c_value).'</td>'."\n";
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
         }//END switch
         return $result;
@@ -1745,31 +1713,31 @@ class TableView extends FilterControl {
             if(array_key_exists($k,$this->totals)) {
                 $c_sumtype=$this->totals[$k]['type'];
                 if($c_sumtype=='average') {
-                    $c_value=$this->totals[$k]['value'] / ($this->totals[$k]['count']>0 ? $this->totals[$k]['value'] : 1);
+                    $cellValue=$this->totals[$k]['value'] / ($this->totals[$k]['count']>0 ? $this->totals[$k]['value'] : 1);
                 } else {
-                    $c_value=$this->totals[$k]['value'];
+                    $cellValue=$this->totals[$k]['value'];
                 }//if($c_sumtype=='average')
                 if($c_sumtype=='count') {
                     $c_format='decimal0';
-                    $c_value=Validator::FormatValue($c_value,$c_format);
+                    $cellValue=Validator::FormatValue($cellValue,$c_format);
                 } elseif(get_array_value($v,'data_type','','is_string')!='numeric') {
                     $c_format='decimal2';
-                    $c_value=Validator::FormatValue($c_value,$c_format);
+                    $cellValue=Validator::FormatValue($cellValue,$c_format);
                 } else {
                     $c_format=get_array_value($v,'format',NULL,'is_notempty_string');
                     if($c_format) {
-                        $c_value=Validator::FormatValue($c_value,$c_format);
+                        $cellValue=Validator::FormatValue($cellValue,$c_format);
                     } else {
                         $c_format=get_array_value($v,'format',NULL,'is_notempty_array');
                         if($c_format) {
-                            $c_value=Validator::FormatValue($c_value,get_array_value($c_format,'mode',NULL,'?is_array'),get_array_value($c_format,'regionals',NULL,'?is_string'),get_array_value($c_format,'prefix',NULL,'?is_string'),get_array_value($c_format,'sufix',NULL,'?is_string'),get_array_value($c_format,'def_value',NULL,'?is_string'),get_array_value($c_format,'validation',NULL,'?is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'));
+                            $cellValue=Validator::FormatValue($cellValue,get_array_value($c_format,'mode',NULL,'?is_array'),get_array_value($c_format,'regionals',NULL,'?is_string'),get_array_value($c_format,'prefix',NULL,'?is_string'),get_array_value($c_format,'sufix',NULL,'?is_string'),get_array_value($c_format,'def_value',NULL,'?is_string'),get_array_value($c_format,'validation',NULL,'?is_string'),get_array_value($c_format,'html_entities',FALSE,'bool'));
                         }//if($c_format)
                     }//if($c_format)
                 }//if($c_sumtype=='count')
-                $result.="\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
+                $result.="\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$cellValue.'</td>'."\n";
             } else {
-                $c_value=get_array_value($v,'summarize_label','&nbsp;','is_notempty_string');
-                $result.="\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$c_value.'</td>'."\n";
+                $cellValue=get_array_value($v,'summarize_label','&nbsp;','is_notempty_string');
+                $result.="\t\t\t\t".'<td'.$tdTagId.$c_class.$c_style.'>'.$cellValue.'</td>'."\n";
             }//if(array_key_exists($k,$this->totals))
         }//END foreach
         $result.="\t\t\t".'</tr>'."\n";
