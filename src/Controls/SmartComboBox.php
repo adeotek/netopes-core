@@ -151,29 +151,29 @@ class SmartComboBox extends Control {
         $lItems=DataSourceHelpers::ConvertArrayToDataSet(is_array($this->extra_items) ? $this->extra_items : [],VirtualEntity::class);
         if(is_object($this->selected_value)) {
             if(is_iterable($this->selected_value)) {
-                $s_values=$this->selected_value;
+                $selectedValues=$this->selected_value;
             } else {
-                $s_values=new DataSet([$this->selected_value]);
+                $selectedValues=new DataSet([$this->selected_value]);
             }//if(is_iterable($this->selected_value))
         } elseif(is_array($this->selected_value)) {
-            $s_values=DataSourceHelpers::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
+            $selectedValues=DataSourceHelpers::ConvertArrayToDataSet($this->selected_value,VirtualEntity::class);
         } else {
             if(is_scalar($this->selected_value)) {
-                $s_values=[[
+                $selectedValues=[[
                     $this->value_field=>$this->selected_value,
                     (is_string($this->display_field) ? $this->display_field : '_text_')=>$this->selected_text,
                 ]];
             } else {
-                $s_values=[];
+                $selectedValues=[];
             }//if(is_scalar($this->selected_value))
-            $s_values=DataSourceHelpers::ConvertArrayToDataSet($s_values,VirtualEntity::class);
+            $selectedValues=DataSourceHelpers::ConvertArrayToDataSet($selectedValues,VirtualEntity::class);
         }//if(is_object($this->selected_value))
         switch($this->load_type) {
             case 'ajax':
                 $lItems->add(new VirtualEntity(),TRUE);
                 $initData=[];
-                if($s_values->count()) {
-                    foreach($s_values as $sv) {
+                if($selectedValues->count()) {
+                    foreach($selectedValues as $sv) {
                         $s_item=[
                             'id'=>$sv->getProperty($this->value_field),
                             'name'=>$this->GetDisplayFieldValue($sv),
@@ -187,7 +187,7 @@ class SmartComboBox extends Control {
                         }
                         $initData[]=$s_item;
                     }//END foreach
-                }//if($s_values->count())
+                }//if($selectedValues->count())
                 $tagSessionUid=AppSession::GetNewUID($this->tag_id,'md5');
                 AppSession::SetSessionAcceptedRequest($tagSessionUid,NApp::$currentNamespace);
                 $cns=NApp::$currentNamespace;
@@ -303,17 +303,18 @@ class SmartComboBox extends Control {
             $lValue=$item->getProperty($this->value_field,NULL,'isset');
             $lText=$this->GetDisplayFieldValue($item);
             $lSelected='';
-            foreach($s_values as $sv) {
-                $lsVal=$sv->getProperty($this->value_field,NULL,'isset');
+            /** @var VirtualEntity $sv */
+            foreach($selectedValues as $sv) {
+                $lsVal=$sv->getProperty($this->value_field);
                 if($lValue==$lsVal && !(($lsVal===NULL && $lValue!==NULL) || ($lsVal!==NULL && $lValue===NULL))) {
                     $lSelected=' selected="selected"';
                     break;
                 }//if($lValue==$lsVal && !(($lsVal===NULL && $lValue!==NULL) || ($lsVal!==NULL && $lValue===NULL)))
             }//END foreach
-            if(!$s_values->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
+            if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
                 $def_record=TRUE;
                 $lSelected=' selected="selected"';
-            }//if(!$s_values->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+            }//if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
             $o_data=(is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
             foreach($this->option_data as $od) {
                 $o_data.=' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
