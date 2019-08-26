@@ -437,6 +437,29 @@ class DataHelpers {
     }//END public static function csvFileToArray
 
     /**
+     * @param array|null $data
+     * @return string|null
+     * @throws \Exception
+     */
+    public static function array2csv(?array $data): ?string {
+        if(!is_array($data) || !count($data)) {
+            return NULL;
+        }
+        $f=fopen('php://memory','r+');
+        foreach($data as $row) {
+            if(!is_array($row) || !count($row)) {
+                throw new Exception('Invalid row data (empty or not an array)');
+            }
+            if(fputcsv($f,$row)===FALSE) {
+                throw new Exception('Unable to convert row to CSV: '.print_r($row,1));
+            }
+        }//END foreach
+        rewind($f);
+        $result=stream_get_contents($f);
+        return rtrim($result);
+    }//END public static function array2csv
+
+    /**
      * description
      *
      * @param array|null $input
