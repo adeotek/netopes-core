@@ -194,7 +194,7 @@ class Helpers {
     }//END public static function getFileExtensionByMimeType
 
     /**
-     * description
+     * Windows to Unix path conversion
      *
      * @param $path
      * @return string
@@ -204,8 +204,22 @@ class Helpers {
     }//END public static function win2unixPath
 
     /**
-     * description
+     * Get remote client IP address
      *
+     * @return string|null
+     */
+    public static function getClientIpAddr(): ?string {
+        if(isset($_SERVER['HTTP_CLIENT_IP']) && strlen($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        } elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strlen($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif(isset($_SERVER['REMOTE_ADDR']) && strlen($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+        return NULL;
+    }//END public static function getClientIpAddr
+
+    /**
      * @param      $file
      * @param null $ext
      * @return bool|int
@@ -256,7 +270,7 @@ class Helpers {
         } else {
             $req_user_agent='PHP_CURL_CALL';
         }//if(isset($params['user_agent']) && strlen($params['user_agent']))
-        $c_url=curl_init();
+        $cUrl=curl_init();
         @$options=[
             CURLOPT_URL=>$params['url'],
             CURLOPT_SSL_VERIFYPEER=>FALSE,
@@ -271,19 +285,22 @@ class Helpers {
             // This is what solved the issue (Accepting gzip encoding)
             CURLOPT_ENCODING=>'gzip, deflate',
         ];
-        @curl_setopt_array($c_url,$options);
+        @curl_setopt_array($cUrl,$options);
+        if(isset($params['headers']) && is_array($params['headers']) && count($params['headers'])) {
+            curl_setopt($cUrl,CURLOPT_HTTPHEADER,$params['headers']);
+        }
         if(isset($params['post_params']) && $params['post_params']) {
-            curl_setopt($c_url,CURLOPT_POST,TRUE);
-            curl_setopt($c_url,CURLOPT_POSTFIELDS,$params['post_params']);
+            curl_setopt($cUrl,CURLOPT_POST,TRUE);
+            curl_setopt($cUrl,CURLOPT_POSTFIELDS,$params['post_params']);
         }//if(isset($params['post_params']) && $params['post_params'])
         if(isset($params['auth_username']) && $params['auth_username']) {
-            curl_setopt($c_url,CURLOPT_USERPWD,$params['auth_username'].':'.(isset($params['auth_password']) ? $params['auth_password'] : ''));
-            curl_setopt($c_url,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
+            curl_setopt($cUrl,CURLOPT_USERPWD,$params['auth_username'].':'.(isset($params['auth_password']) ? $params['auth_password'] : ''));
+            curl_setopt($cUrl,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
         }//if(isset($params['auth_username']) && $params['auth_username'])
-        $result=curl_exec($c_url);
-        $error=curl_error($c_url);
-        $info=curl_getinfo($c_url);
-        curl_close($c_url);
+        $result=curl_exec($cUrl);
+        $error=curl_error($cUrl);
+        $info=curl_getinfo($cUrl);
+        curl_close($cUrl);
         if($error) {
             throw new Exception($error);
         }
@@ -309,7 +326,6 @@ class Helpers {
             CURLOPT_URL=>$url,
             CURLOPT_FAILONERROR=>TRUE,
             CURLOPT_FRESH_CONNECT=>TRUE,
-            CURLOPT_HEADER=>FALSE,
             CURLOPT_RETURNTRANSFER=>TRUE,
             CURLOPT_NOSIGNAL=>1, //to timeout immediately if the value is < 1000 ms
             CURLOPT_TIMEOUT_MS=>50, //The maximum number of mseconds to allow cURL functions to execute
@@ -318,16 +334,21 @@ class Helpers {
             CURLOPT_USERAGENT=>$req_user_agent,
             CURLOPT_VERBOSE=>1,
             CURLOPT_HEADER=>1,
+            // This is what solved the issue (Accepting gzip encoding)
+            CURLOPT_ENCODING=>'gzip, deflate',
         ];
-        $c_url=curl_init();
-        curl_setopt_array($c_url,$options);
+        $cUrl=curl_init();
+        curl_setopt_array($cUrl,$options);
+        if(isset($params['headers']) && is_array($params['headers']) && count($params['headers'])) {
+            curl_setopt($cUrl,CURLOPT_HTTPHEADER,$params['headers']);
+        }
         if(isset($params['post_params']) && $params['post_params']) {
-            curl_setopt($c_url,CURLOPT_POST,TRUE);
-            curl_setopt($c_url,CURLOPT_POSTFIELDS,$params['post_params']);
+            curl_setopt($cUrl,CURLOPT_POST,TRUE);
+            curl_setopt($cUrl,CURLOPT_POSTFIELDS,$params['post_params']);
         }//if(isset($params['post_params']) && $params['post_params'])
-        $result=curl_exec($c_url);
-        $error=curl_error($c_url);
-        curl_close($c_url);
+        $result=curl_exec($cUrl);
+        $error=curl_error($cUrl);
+        curl_close($cUrl);
         if($error) {
             return $error;
         }
