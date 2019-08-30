@@ -25,6 +25,7 @@ use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\ExcelExport;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
+use DateTime;
 use Translate;
 
 /**
@@ -57,6 +58,10 @@ class TableView extends FilterControl {
      * @var    array Totals values
      */
     protected $totals=[];
+    /**
+     * @var    array Running totals values
+     */
+    protected $running_totals=[];
     /**
      * @var    array Embedded row forms (initialized for each row)
      */
@@ -462,6 +467,7 @@ class TableView extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetData() {
+        $this->running_totals=[];
         $this->totals=[];
         if(!strlen($this->ds_class) || !strlen($this->ds_method)) {
             if(is_object($this->data)) {
@@ -830,6 +836,9 @@ class TableView extends FilterControl {
                 $this->totals[$name]['value']+=is_numeric($value) ? $value : 0;
                 $this->totals[$name]['count']+=is_numeric($value) ? 1 : 0;
                 break;
+            case 'running_total':
+                $this->totals[$name]['value']=is_numeric($value) ? $value : 0;
+                break;
             default:
                 break;
         }//END switch
@@ -838,12 +847,14 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell raw value
      *
-     * @param object $row
-     * @param array  $v
+     * @param object      $row
+     * @param array       $v
+     * @param string|null $fieldName
      * @return mixed Returns the table cell raw value
      */
-    protected function GetCellData(&$row,&$v) {
+    protected function GetCellData(&$row,&$v,?string $fieldName=NULL) {
         $cellValue=NULL;
+        $fieldName=$fieldName ?? $v['db_field'];
         $valueSource=get_array_value($v,'value_source',NULL,'?is_string');
         switch(strtolower($valueSource)) {
             case 'relation':
@@ -864,24 +875,44 @@ class TableView extends FilterControl {
                         $rObj=$rObj===NULL ? $row->$rGetter() : $rObj->$rGetter();
                     }//END foreach
                     if($rObj) {
-                        $pGetter='get'.ucfirst($v['db_field']);
+                        $pGetter='get'.ucfirst($fieldName);
                         $cellValue=$rObj->$pGetter();
                     }//if($rObj)
                 }//if(is_object($row))
                 break;
             default:
-                if(isset($v['db_field'])) {
-                    $cellValue=$row->getProperty($v['db_field']);
+                if(isset($fieldName)) {
+                    $cellValue=$row->getProperty($fieldName);
                     if(!is_scalar($cellValue)) {
                         $cellValue=is_object($cellValue) ? $cellValue : NULL;
                     } else {
                         $cellValue=strlen($cellValue) ? $cellValue : NULL;
                     }//if(!is_scalar($cellValue))
-                }//if(isset($v['db_field']))
+                }//if(isset($fieldName))
                 break;
         }//END switch
         return $cellValue;
     }//END protected function GetCellData
+
+    /**
+     * @param object $row
+     * @param array  $v
+     * @param string $name
+     * @return string
+     */
+    protected function GetRunningTotalHash(&$row,array &$v,string $name): string {
+        $runningTotalOver=get_array_param($v,'running_total_over',[],'is_array');
+        if(!count($runningTotalOver)) {
+            return AppSession::GetNewUID($name,'sha1',TRUE);
+        }
+        $salt='';
+        foreach($runningTotalOver as $rtField) {
+            $value=$this->GetCellData($row,$v,$rtField);
+            $salt.=$value instanceof DateTime ? $value->format('Y-m-d H:i:s') : $value ?? '';
+        }//END foreach
+        return AppSession::GetNewUID($salt,'sha1',TRUE);
+    }//END protected function GetRunningTotalHash
+
     /**
      * Gets the table cell value (un-formatted)
      *
@@ -894,7 +925,7 @@ class TableView extends FilterControl {
      * @return mixed Returns the table cell value
      * @throws \NETopes\Core\AppException
      */
-    protected function GetCellValue(&$row,&$v,$name,$type,bool $is_iterator=FALSE,?string &$cClass=NULL) {
+    protected function GetCellValue(&$row,array &$v,string $name,string $type,bool $is_iterator=FALSE,?string &$cClass=NULL) {
         $result=NULL;
         switch($type) {
             case 'actions':
@@ -1122,6 +1153,42 @@ class TableView extends FilterControl {
                 $cellValue=$result=isset($row->__rowno) ? $row->__rowno : NULL;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
+                break;
+            case 'running_total':
+                // Check conditions for displaing action
+                $conditions=get_array_value($v,'conditions',NULL,'is_array');
+                if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
+                    $result=NULL;
+                    break;
+                }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
+                $cellDataType=get_array_value($v,'data_type','','is_string');
+                $runningTotalHash=$this->GetRunningTotalHash($row,$v,$name);
+                $cellPreviousValue=get_array_value($this->running_totals,[$name,$runningTotalHash],0,'is_numeric');
+                $cellValue=get_array_value($v,'running_total_value',$cellPreviousValue,'?is_numeric');
+                $runningTotalField=get_array_value($v,'data_type','','is_string');
+                if(strlen($runningTotalField)) {
+                    $cellValue=get_array_value($row,$runningTotalField,$cellValue,'?is_numeric');
+                }//if(strlen($runningTotalField))
+                $cellCurrentValue=$this->GetCellData($row,$v);
+                if($cellDataType=='numeric') {
+                    $cellValue+=is_numeric($cellCurrentValue) ? $cellCurrentValue : 0;
+                } else {
+                    $cellValue+=strlen($cellCurrentValue) ? 1 : 0;
+                }//if($cellDataType=='numeric')
+                $this->running_totals[$name][$runningTotalHash]=$cellValue;
+                if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
+                    $this->SetCellSubTotal($name,$cellValue,'running_total');
+                }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
+                $result=$cellValue;
+                if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
+                    $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
+                    if(strlen($c_format) && $cellDataType=='numeric') {
+                        if(substr($c_format,0,7)=='percent' && substr($c_format,-4)!='x100') {
+                            $cellValue=$cellValue / 100;
+                        }
+                    }//if(strlen($c_format) && $cellDataType=='numeric')
                     $this->export_data['data'][$row->__rowid][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
@@ -1439,7 +1506,7 @@ class TableView extends FilterControl {
                 $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
                 $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
-            case 'relation':
+            case 'running_total':
             case 'value':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
