@@ -126,7 +126,7 @@ class SmartComboBox extends Control {
         }
         if(is_string($this->no_items_found_message) && strlen($this->no_items_found_message)) {
             $jsScripts[]="\t\t\tlanguage: {
-                noResults: function(params) { return '".rawurlencode($this->no_items_found_message)."'; }
+                noResults: function(params) { return '{$this->no_items_found_message}'; }
             }";
         }
         if(strlen($raw_class)) {
