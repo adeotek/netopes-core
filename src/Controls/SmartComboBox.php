@@ -44,6 +44,7 @@ use NETopes\Core\Data\VirtualEntity;
  * @property string|null group_field
  * @property bool|null   multiple
  * @property mixed       value
+ * @property string|null no_items_found_message
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {
@@ -122,6 +123,11 @@ class SmartComboBox extends Control {
         $raw_class=$this->GetTagClass(NULL,TRUE);
         if(is_string($this->theme) && strlen($this->theme)) {
             $jsScripts[]="\t\t\ttheme: '{$this->theme}'";
+        }
+        if(is_string($this->no_items_found_message) && strlen($this->no_items_found_message)) {
+            $jsScripts[]="\t\t\tlanguage: {
+                noResults: function(params) { return '".rawurlencode($this->no_items_found_message)."'; }
+            }";
         }
         if(strlen($raw_class)) {
             $jsScripts[]="\t\t\tcontainerCssClass: '{$raw_class}'";
