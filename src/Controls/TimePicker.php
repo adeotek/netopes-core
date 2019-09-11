@@ -18,6 +18,16 @@ use NApp;
  * TimePicker control class
  * TimePicker control (jQuery UI/Bootstrap)
  *
+ * @property bool        button
+ * @property string      plugin
+ * @property string      plugin_type
+ * @property string      locale
+ * @property string      format
+ * @property int         minutes_stepping
+ * @property bool        now_button
+ * @property string|null value
+ * @property mixed       js_params
+ * @property mixed       use_current
  * @package  NETopes\Controls
  */
 class TimePicker extends Control {
