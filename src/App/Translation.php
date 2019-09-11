@@ -29,225 +29,223 @@ class Translation {
     protected static $_LANGUAGES_STRINGS=[];
 
     /**
-     * description
-     *
-     * @param string $langcode
+     * @param string $langCode
      * @param bool   $loop
-     * @return array|null
+     * @return array
+     * @throws \NETopes\Core\AppException
      */
-    protected static function GetTranslationCacheFile($langcode,$loop=TRUE) {
-        if(!$langcode) {
+    protected static function GetTranslationCacheFile(?string $langCode,bool $loop=TRUE): array {
+        if(!strlen($langCode)) {
             return NULL;
         }
         if(NApp::$currentNamespace=='web') {
-            $id_section=NApp::GetParam('id_section') ? NApp::GetParam('id_section') : 0;
-            $id_zone=NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : 0;
-            $cnamespace='site_strings';
-            $lfile='lang_'.$langcode.'_'.$id_section.'_'.$id_zone.'.cache';
+            $idSection=NApp::GetParam('id_section') ? NApp::GetParam('id_section') : 0;
+            $idZone=NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : 0;
+            $cNamespace='site_strings';
+            $cacheFileName='lang_'.$langCode.'_'.NApp::$currentNamespace.'_'.$idSection.'_'.$idZone.'.cache';
         } else {
-            $id_section=NULL;
-            $id_zone=NULL;
-            $cnamespace=NApp::$currentNamespace.'_strings';
-            $lfile='lang_'.$langcode.'.cache';
+            $idSection=NULL;
+            $idZone=NULL;
+            $cNamespace=NApp::$currentNamespace.'_strings';
+            $cacheFileName='lang_'.$langCode.'_'.NApp::$currentNamespace.'.cache';
         }//if(NApp::current_namespace=='web')
-        $lpath=NApp::$appPublicPath.'/templates/'.NApp::$currentNamespace.NApp::$currentSectionFolder.'/resources/';
-        if(NApp::GetParam('translation_cache_is_dirty')==1 && file_exists($lpath.$lfile)) {
-            unlink($lpath.$lfile);
+        if(NApp::GetParam('translation_cache_is_dirty')==1 && file_exists(AppHelpers::GetCachePath().$cacheFileName)) {
+            unlink(AppHelpers::GetCachePath().$cacheFileName);
         }
-        if(!file_exists($lpath.$lfile)) {
-            $tarray=NULL;
+        if(!file_exists(AppHelpers::GetCachePath().$cacheFileName)) {
+            $tArray=NULL;
             try {
                 $items=DataProvider::GetArray('System\Translations','GetTranslationsResources',[
-                    'section_id'=>$id_section,
-                    'zone_id'=>$id_zone,
-                    'for_label'=>$cnamespace,
-                    'lang_code'=>$langcode,
+                    'section_id'=>$idSection,
+                    'zone_id'=>$idZone,
+                    'for_label'=>$cNamespace,
+                    'lang_code'=>$langCode,
                     'reset_dirty'=>NApp::GetParam('translation_cache_is_dirty'),
                 ]);
-                $tarray=DataHelpers::convertDbArrayToTree($items,['module','method','name','value'],FALSE);
+                $tArray=DataHelpers::convertDbArrayToTree($items,['module','method','name','value'],FALSE);
             } catch(AppException $e) {
-                $tarray=NULL;
+                $tArray=NULL;
             }//END try
-            if(!is_array($tarray) || count($tarray)==0) {
+            if(!is_array($tArray) || count($tArray)==0) {
                 return NULL;
             }
-            $fcontent='<?php function GET_'.strtoupper($langcode).'_STRINGS() {'."\n";
-            $fcontent.='return '.var_export($tarray,TRUE);
-            $fcontent.='; } ?>';
-            if(file_put_contents($lpath.$lfile,$fcontent)===FALSE) {
+            $fContent='<?php function GET_'.strtoupper($langCode).'_STRINGS() {'."\n";
+            $fContent.='return '.var_export($tArray,TRUE);
+            $fContent.='; } ?>';
+            if(file_put_contents(AppHelpers::GetCachePath().$cacheFileName,$fContent)===FALSE) {
                 return NULL;
             }
-        }//if(!file_exists($lpath.$lfile))
-        require_once($lpath.$lfile);
-        if(!function_exists('GET_'.strtoupper($langcode).'_STRINGS')) {
+        }//if(!file_exists(AppHelpers::GetCachePath().$cacheFileName))
+        require_once(AppHelpers::GetCachePath().$cacheFileName);
+        if(!function_exists('GET_'.strtoupper($langCode).'_STRINGS')) {
             if(!$loop) {
                 return NULL;
             }
-            unlink($lpath.$lfile);
-            return static::GetTranslationCacheFile($langcode,FALSE);
-        }//if(!function_exists('GET_TRANSLATIONS_'.strtoupper($langcode)))
+            unlink(AppHelpers::GetCachePath().$cacheFileName);
+            return static::GetTranslationCacheFile($langCode,FALSE);
+        }//if(!function_exists('GET_TRANSLATIONS_'.strtoupper($langCode)))
         if(!is_array(static::$_LANGUAGES_STRINGS)) {
             static::$_LANGUAGES_STRINGS=[];
         }
-        static::$_LANGUAGES_STRINGS[$langcode]=call_user_func('GET_'.strtoupper($langcode).'_STRINGS');
-        return static::$_LANGUAGES_STRINGS[$langcode];
+        static::$_LANGUAGES_STRINGS[$langCode]=call_user_func('GET_'.strtoupper($langCode).'_STRINGS');
+        return static::$_LANGUAGES_STRINGS[$langCode] ?? [];
     }//END protected static function GetTranslationCacheFile
 
     /**
      * Get resource translation value
      *
      * @param string|array $key
-     * @param null         $langcode
+     * @param string|null  $langCode
      * @param bool         $echo
      * @return string Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function Get($key,$langcode=NULL,$echo=FALSE) {
+    public static function Get($key,?string $langCode=NULL,bool $echo=FALSE): string {
         if(is_array($key)) {
             if(!array_key_exists('key',$key) || strlen($key['key'])==0) {
                 return NULL;
             }
-            $lkey=$key['key'];
-            $lmodule=(array_key_exists('module',$key) && strlen($key['module'])>0) ? $key['module'] : '';
-            $lmethod=(array_key_exists('method',$key) && strlen($key['method'])>0) ? $key['method'] : '';
+            $lKey=$key['key'];
+            $lModule=(array_key_exists('module',$key) && strlen($key['module'])>0) ? $key['module'] : '';
+            $lMethod=(array_key_exists('method',$key) && strlen($key['method'])>0) ? $key['method'] : '';
         } else {
-            $lkey=strtolower($key);
-            $lmodule='';
-            $lmethod='';
+            $lKey=strtolower($key);
+            $lModule='';
+            $lMethod='';
         }//if(is_array($key))
-        $llang_code=(is_string($langcode) && strlen($langcode)) ? $langcode : NApp::GetLanguageCode();
+        $llang_code=(is_string($langCode) && strlen($langCode)) ? $langCode : NApp::GetLanguageCode();
         if(!is_array(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code])) {
             static::GetTranslationCacheFile($llang_code);
         }
-        if(!is_array(static::$_LANGUAGES_STRINGS) || !count(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code]) || !count(static::$_LANGUAGES_STRINGS[$llang_code]) || !array_key_exists($lmodule,static::$_LANGUAGES_STRINGS[$llang_code]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !array_key_exists($lmethod,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod]) || !array_key_exists($lkey,static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod])) {
+        if(!is_array(static::$_LANGUAGES_STRINGS) || !count(static::$_LANGUAGES_STRINGS) || !array_key_exists($llang_code,static::$_LANGUAGES_STRINGS) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code]) || !count(static::$_LANGUAGES_STRINGS[$llang_code]) || !array_key_exists($lModule,static::$_LANGUAGES_STRINGS[$llang_code]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lModule]) || !array_key_exists($lMethod,static::$_LANGUAGES_STRINGS[$llang_code][$lModule]) || !is_array(static::$_LANGUAGES_STRINGS[$llang_code][$lModule][$lMethod]) || !array_key_exists($lKey,static::$_LANGUAGES_STRINGS[$llang_code][$lModule][$lMethod])) {
             if(AppConfig::GetValue('auto_insert_missing_translations')) {
                 try {
                     if(NApp::$currentNamespace=='web') {
-                        $id_section=NApp::GetParam('id_section') ? NApp::GetParam('id_section') : NULL;
-                        $id_zone=NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : NULL;
-                        $cnamespace='site_strings';
+                        $idSection=NApp::GetParam('id_section') ? NApp::GetParam('id_section') : NULL;
+                        $idZone=NApp::GetParam('id_zone') ? NApp::GetParam('id_zone') : NULL;
+                        $cNamespace='site_strings';
                     } else {
-                        $id_section=NULL;
-                        $id_zone=NULL;
-                        $cnamespace=NApp::$currentNamespace.'_strings';
+                        $idSection=NULL;
+                        $idZone=NULL;
+                        $cNamespace=NApp::$currentNamespace.'_strings';
                     }//if(NApp::$currentNamespace=='web')
                     DataProvider::GetArray('System\Translations','SetBlankTranslationsResource',[
-                        'in_name'=>$lkey,
-                        'in_config_label'=>$cnamespace,
+                        'in_name'=>$lKey,
+                        'in_config_label'=>$cNamespace,
                         'language_code'=>$llang_code,
-                        'section_id'=>$id_section,
-                        'zone_id'=>$id_zone,
-                        'in_module'=>strlen($lmodule) ? $lmodule : NULL,
-                        'in_method'=>strlen($lmethod) ? $lmethod : NULL,
+                        'section_id'=>$idSection,
+                        'zone_id'=>$idZone,
+                        'in_module'=>strlen($lModule) ? $lModule : NULL,
+                        'in_method'=>strlen($lMethod) ? $lMethod : NULL,
                     ]);
                 } catch(AppException $e) {
                     NApp::Elog($e);
                     NApp::Write2LogFile($e->getFullMessage(),'error');
                 }//END try
             } else {
-                NApp::Write2LogFile("|Module[{$lmodule}]|Method[{$lmethod}]|Key[{$lkey}]",'debug',NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
+                NApp::Write2LogFile("|Module[{$lModule}]|Method[{$lMethod}]|Key[{$lKey}]",'debug',NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
             }//if(AppConfig::GetValue('auto_insert_missing_translations'))
-            return "[{$lkey}]";
+            return "[{$lKey}]";
         }//if(...
         if($echo) {
-            echo static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey];
+            echo static::$_LANGUAGES_STRINGS[$llang_code][$lModule][$lMethod][$lKey];
         }
-        return static::$_LANGUAGES_STRINGS[$llang_code][$lmodule][$lmethod][$lkey];
+        return static::$_LANGUAGES_STRINGS[$llang_code][$lModule][$lMethod][$lKey];
     }//END public static function Get
 
     /**
      * Get label translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetLabel(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetLabel(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('label_'.$key,$langcode,$echo);
+        return static::Get('label_'.$key,$langCode,$echo);
     }//END public static function GetLabel
 
     /**
      * Get button translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetButton(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetButton(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('button_'.$key,$langcode,$echo);
+        return static::Get('button_'.$key,$langCode,$echo);
     }//END public static function GetButton
 
     /**
      * Get title translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetTitle(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetTitle(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('title_'.$key,$langcode,$echo);
+        return static::Get('title_'.$key,$langCode,$echo);
     }//END public static function GetTitle
 
     /**
      * Get message translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetMessage(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetMessage(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('msg_'.$key,$langcode,$echo);
+        return static::Get('msg_'.$key,$langCode,$echo);
     }//END public static function GetMessage
 
     /**
      * Get error translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetError(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetError(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('error_'.$key,$langcode,$echo);
+        return static::Get('error_'.$key,$langCode,$echo);
     }//END public static function GetError
 
     /**
      * Get URLID translation
      *
-     * @param string $key
-     * @param null   $langcode
-     * @param bool   $echo
+     * @param string      $key
+     * @param string|null $langCode
+     * @param bool        $echo
      * @return string|null Translated value
      * @throws \NETopes\Core\AppException
      */
-    public static function GetUrlId(string $key,$langcode=NULL,$echo=FALSE) {
+    public static function GetUrlId(string $key,?string $langCode=NULL,bool $echo=FALSE): ?string {
         if(!strlen($key)) {
             return NULL;
         }
-        return static::Get('urlid_'.$key,$langcode,$echo);
+        return static::Get('urlid_'.$key,$langCode,$echo);
     }//END public static function GetUrlId
 }//END class Translation
