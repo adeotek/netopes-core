@@ -20,6 +20,7 @@ use NETopes\Core\AppException;
  * @package  NETopes\Controls
  */
 class ConditionalControl extends Control {
+    use TControlConditions;
     /**
      * @var    array Controls parameters array
      */
@@ -42,7 +43,7 @@ class ConditionalControl extends Control {
                 continue;
             }
             try {
-                if(isset($c_params['conditions']) && is_array($c_params['conditions']) && !self::CheckConditions($c_params['conditions'])) {
+                if(isset($c_params['conditions']) && is_array($c_params['conditions']) && !$this->CheckConditions($c_params['conditions'])) {
                     continue;
                 }
                 $ctrl=new $c_name($c_params);
