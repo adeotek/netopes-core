@@ -762,6 +762,12 @@ select.input-sm {
 	margin-right: 0;
 }
 
+.input-group-addon.clear-input-group-addon {
+	padding: 0 !important;
+	border: 0 !important;
+	background: none;
+}
+
 /*.form-xxs .form-group > .btn,*/
 .btn-group-xxs > .btn,
 .btn-xxs {
