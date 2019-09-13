@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core;
 use Exception;
+use NETopes\Core\Validators\Validator;
 
 /**
  * Class DataHelpers
@@ -557,4 +558,40 @@ class DataHelpers {
         $array=$random;
         return $array;
     }//public static function customShuffle
+
+    /**
+     * @param string|\DateTime $startDate
+     * @param string|\DateTime $endDate
+     * @param string           $returnType
+     * @return \DateInterval|float|int|null
+     * @throws \NETopes\Core\AppException
+     */
+    public static function getDateDiff($startDate,$endDate,string $returnType) {
+        $sDt=Validator::ValidateValue($startDate,NULL,'is_datetime');
+        $eDt=Validator::ValidateValue($endDate,NULL,'is_datetime');
+        if(!$sDt || !$eDt) {
+            return NULL;
+        }
+        /** @var \DateInterval $di */
+        $di=$eDt->diff($sDt);
+        switch(strtolower($returnType)) {
+            case 'd':
+            case 'day':
+                return $di->days;
+            case 'h':
+            case 'hour':
+                return ($di->days * 24 + $di->h);
+            case 'm':
+            case 'minute':
+                return (($di->days * 24 + $di->h) * 60 + $di->i);
+            case 's':
+            case 'second':
+                return ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s);
+            case 'ms':
+            case 'microsecond':
+                return ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s + $di->f);
+            default:
+                return $di;
+        }//END switch
+    }//END public static function getDateDiff
 }//END class DataHelpers
