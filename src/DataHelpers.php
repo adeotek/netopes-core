@@ -566,7 +566,7 @@ class DataHelpers {
      * @return \DateInterval|float|int|null
      * @throws \NETopes\Core\AppException
      */
-    public static function getDateDiff($startDate,$endDate,string $returnType=NULL) {
+    public static function getDateDiff($startDate,$endDate,?string $returnType=NULL) {
         $sDt=Validator::ValidateValue($startDate,NULL,'is_datetime');
         $eDt=Validator::ValidateValue($endDate,NULL,'is_datetime');
         if(!$sDt || !$eDt) {
