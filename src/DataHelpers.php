@@ -566,30 +566,30 @@ class DataHelpers {
      * @return \DateInterval|float|int|null
      * @throws \NETopes\Core\AppException
      */
-    public static function getDateDiff($startDate,$endDate,string $returnType) {
+    public static function getDateDiff($startDate,$endDate,?string $returnType=NULL) {
         $sDt=Validator::ValidateValue($startDate,NULL,'is_datetime');
         $eDt=Validator::ValidateValue($endDate,NULL,'is_datetime');
         if(!$sDt || !$eDt) {
             return NULL;
         }
         /** @var \DateInterval $di */
-        $di=$eDt->diff($sDt);
+        $di=$sDt->diff($eDt);
         switch(strtolower($returnType)) {
             case 'd':
             case 'day':
-                return $di->days;
+                return ($di->invert===1 ? (-1) : 1) * $di->days;
             case 'h':
             case 'hour':
-                return ($di->days * 24 + $di->h);
+                return ($di->invert===1 ? (-1) : 1) * ($di->days * 24 + $di->h);
             case 'm':
             case 'minute':
-                return (($di->days * 24 + $di->h) * 60 + $di->i);
+                return ($di->invert===1 ? (-1) : 1) * (($di->days * 24 + $di->h) * 60 + $di->i);
             case 's':
             case 'second':
-                return ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s);
+                return ($di->invert===1 ? (-1) : 1) * ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s);
             case 'ms':
             case 'microsecond':
-                return ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s + $di->f);
+                return ($di->invert===1 ? (-1) : 1) * ((($di->days * 24 + $di->h) * 60 + $di->i) * 60 + $di->s + $di->f);
             default:
                 return $di;
         }//END switch
