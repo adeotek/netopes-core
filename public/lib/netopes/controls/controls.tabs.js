@@ -4,11 +4,10 @@
     $.fn.NetopesTabs=function(options) {
         // Plugin default options.
         let config={
-            // Available types: standard/accordion/vertical/vertical_floating/wizard
-            type: 'standard',
-            class: null,
-            onchange: null,
-            defaultTab: 0
+            type: 'standard', // Available types: standard/accordion/vertical/vertical_floating/wizard
+            class: null, // CSS class to be added to the main container
+            onchange: null, // Function called after tab change
+            defaultTab: 0 // Tab to be opened at initialization
         };
         if(typeof options==='object') { $.extend(config,options); }
 
@@ -21,22 +20,29 @@
 
         let toggleContent=function(obj,id) {
             if(config.type==='accordion') {
-                $(obj).find('div.' + nContentClass + '.' + nActiveClass).each(function() {
-                    $(this).removeClass(nActiveClass);
-                    $(this).slideUp(nEffect);
-                });
-                let $content=$(obj).children('div' + id).first();
-                $content.addClass(nActiveClass);
-                $content.slideDown(nEffect);
+                $(obj).find('div.' + nContentClass + '.' + nActiveClass).removeClass(nActiveClass).slideUp(nEffect);
+                $(obj).children('div' + id).first().addClass(nActiveClass).slideDown(nEffect);
             } else {
-                $(obj).find('div.' + nContentClass + '.' + nActiveClass).each(function() {
-                    $(this).hide();
-                    $(this).removeClass(nActiveClass);
-                });
-                let $content=$(obj).children('div' + id).first();
-                $content.addClass(nActiveClass);
-                $content.show();
+                $(obj).find('div.' + nContentClass + '.' + nActiveClass).hide().removeClass(nActiveClass);
+                $(obj).children('div' + id).first().addClass(nActiveClass).show();
             }//if(config.type==='accordion')
+        };
+
+        let reloadContent=function(obj,id) {
+            let tab=$(obj).children('div' + id).first();
+            let tabReload=parseInt($(tab).attr('data-reload'));
+            if(isNaN(tabReload) || tabReload!==1) {
+                return true;
+            }
+            let tabReloadAction=$(tab).attr('data-reload-action');
+            if(typeof tabReloadAction==='string' && tabReloadAction.length>0) {
+                try {
+                    eval(tabReloadAction);
+                } catch(e) {
+                    console.log(e);
+                    console.log(tabReloadAction);
+                }//END try
+            }
         };
 
         let tabClick=function(obj,actObj) {
@@ -53,7 +59,11 @@
                 $(actObj).parent().addClass(nActiveClass);
                 tabId=$(actObj).attr('href');
             }//if(config.type==='accordion')
+            reloadContent(obj,tabId);
             toggleContent(obj,tabId);
+            if(typeof config.onchange==='function') {
+                config.onchange($(actObj).index(),obj,actObj);
+            }
         };
 
         let methods={
@@ -108,15 +118,8 @@
                     $(obj).addClass(config.class);
                 }
 
-                $(obj).children('h3').each(function() {
-                    $(this).addClass(tabClass);
-                    $(this).on('click',function() { tabClick(obj,this); });
-                });
-
-                $(obj).children('div').each(function() {
-                    $(this).hide();
-                    $(this).addClass(contentClass);
-                });
+                $(obj).children('h3').addClass(tabClass).on('click',function() { tabClick(obj,this); });
+                $(obj).children('div').hide().addClass(contentClass);
             } else {
                 switch(config.type) {
                     case 'vertical':
@@ -144,15 +147,9 @@
 
                 $(obj).find('ul > li').each(function() {
                     $(this).addClass(tabClass);
-                    let $aTag=$(this).children('a').first();
-                    $aTag.addClass(nActionClass + ' nac-tab-button');
-                    $aTag.on('click',function() { tabClick(obj,this); });
+                    $(this).children('a').first().addClass(nActionClass + ' nac-tab-button').on('click',function() { tabClick(obj,this); });
                 });
-
-                $(obj).children('div').each(function() {
-                    $(this).hide();
-                    $(this).addClass(contentClass);
-                });
+                $(obj).children('div').hide().addClass(contentClass);
             }//if(config.type==='accordion')
             methods.tabChange(obj,config.defaultTab);
         }//END function init

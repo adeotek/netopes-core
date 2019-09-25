@@ -32,6 +32,8 @@
 	background: #f6f6f6;
 	font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
 	font-size: 13px;
+	line-height: 20px;
+	color: #333333;
 	white-space: nowrap;
 }
 
@@ -81,8 +83,9 @@
 	background: #F0F0F0;
 	padding: 15px 10px;
 	margin: 0;
+	font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
 }
-
 /*** END Global ***/
 /*** Standard tabs ***/
 .nac-tabs.nac-std-tabs > ul {
@@ -98,7 +101,6 @@
 .nac-tabs.nac-std-tabs > ul > li.nac-tab-item.nac-active {
 	border-bottom: 1px solid #F0F0F0;
 }
-
 /*** END Standard tabs ***/
 /*** Vertical tabs ***/
 .nac-tabs.nac-vertical-tabs > ul {
@@ -120,7 +122,6 @@
 .nac-tabs.nac-vertical-tabs > div.nac-tab-content {
 	width: calc(100% - 200px);
 }
-
 /*** END Vertical tabs ***/
 /*** Vertical floating tabs ***/
 
@@ -161,5 +162,4 @@
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px;
 }
-
 /*** END Accordion tabs ***/
