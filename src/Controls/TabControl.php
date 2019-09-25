@@ -67,9 +67,13 @@ class TabControl {
      */
     public $tabs=[];
     /**
-     * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion)
+     * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
      */
     public $mode=NULL;
+    /**
+     * @var    string|null TabControl javascript extension (null/jqueryui=jQueryUI Tabs, netopes=NETopes tabs)
+     */
+    public $js_extension=NULL;
     /**
      * @var    string Basic form base class
      */
@@ -341,17 +345,28 @@ class TabControl {
             }//END switch
         }//END foreach
         $thtype=get_array_value($tab,'height_type','content','is_notempty_string');
-        $jsScript=<<<JS
-            $('#{$this->tag_id}').tabs({
-				heightStyle: '{$thtype}',
-				activate: function(e,ui) {
-					let tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return true; }
-					let tcr_action = $(ui.newPanel).attr('data-reload-action');
-					if(tcr_action.length>0) { eval(tcr_action); }
-	            }
-			});
+        if($this->js_extension=='netopes') {
+            $tabsType=strtolower($this->mode);
+            $jsScript=<<<JS
+    $('#{$this->tag_id}').NetopesTabs({
+        type: '{$tabsType}',
+        class: null,
+		onchange: null
+    });
 JS;
+        } else {
+            $jsScript=<<<JS
+    $('#{$this->tag_id}').tabs({
+        heightStyle: '{$thtype}',
+        activate: function(e,ui) {
+            let tcr = $(ui.newPanel).attr('data-reload');
+            if(!tcr && tcr!==1) { return true; }
+            let tcr_action = $(ui.newPanel).attr('data-reload-action');
+            if(tcr_action.length>0) { eval(tcr_action); }
+        }
+    });
+JS;
+        }//END if($this->js_extension=='netopes')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetTabs
@@ -396,25 +411,35 @@ JS;
         }//END foreach
         $result.='</div>'."\n";
         $thtype=get_array_value($tab,'height_type','content','is_notempty_string');
-        $jsScript=<<<JS
-            $('#{$this->tag_id}_accordion').accordion({
-                heightStyle: '{$thtype}',
-                create: function(e,ui) {
-                    if(ui.panel.length>0) {
-                        let tcr = $(ui.panel).attr('data-reload');
-                        if(!tcr && tcr!=1) { return true; }
-                        let tcr_action = $(ui.panel).attr('data-reload-action');
-                        if(tcr_action.length>0) { eval(tcr_action); }
-                    }
-                },
-				activate: function(e,ui) {
-					let tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return true; }
-					let tcr_action = $(ui.newPanel).attr('data-reload-action');
-					if(tcr_action.length>0) { eval(tcr_action); }
-	            }
-			});
+        if($this->js_extension=='netopes') {
+            $jsScript=<<<JS
+    $('#{$this->tag_id}_accordion').NetopesTabs({
+        type: 'accordion',
+        class: null,
+		onchange: null
+    });
 JS;
+        } else {
+            $jsScript=<<<JS
+    $('#{$this->tag_id}_accordion').accordion({
+        heightStyle: '{$thtype}',
+        create: function(e,ui) {
+            if(ui.panel.length>0) {
+                let tcr = $(ui.panel).attr('data-reload');
+                if(!tcr && tcr!==1) { return true; }
+                let tcr_action = $(ui.panel).attr('data-reload-action');
+                if(tcr_action.length>0) { eval(tcr_action); }
+            }
+        },
+        activate: function(e,ui) {
+            let tcr = $(ui.newPanel).attr('data-reload');
+            if(!tcr && tcr!==1) { return true; }
+            let tcr_action = $(ui.newPanel).attr('data-reload-action');
+            if(tcr_action.length>0) { eval(tcr_action); }
+        }
+    });
+JS;
+        }//END if($this->js_extension=='netopes')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetAccordion
@@ -436,6 +461,9 @@ JS;
                 $result.=$this->GetAccordion();
                 break;
             case 'tabs':
+            case 'vertical':
+            case 'vertical_floating':
+            case 'wizard':
             default:
                 $result.=$this->GetTabs();
                 break;
