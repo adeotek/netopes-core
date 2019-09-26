@@ -79,9 +79,9 @@ class TabControl {
      */
     public $mode=NULL;
     /**
-     * @var    string|null TabControl javascript extension (null/netopes=NETopes tabs, jqueryui=jQueryUI Tabs)
+     * @var    string|null TabControl javascript plugin (null/netopes=NETopes tabs, jqueryui=jQueryUI Tabs)
      */
-    public $js_extension=NULL;
+    public $plugin=NULL;
     /**
      * @var    string Basic form base class
      */
@@ -103,6 +103,7 @@ class TabControl {
      * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
+        $this->plugin=is_object(NApp::$theme) ? NApp::$theme->GetTabsControlPlugin() : '';
         $this->base_class=get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
@@ -353,7 +354,7 @@ class TabControl {
             }//END switch
         }//END foreach
         $thType=get_array_value($tab,'height_type','content','is_notempty_string');
-        if($this->js_extension==='jqueryui') {
+        if($this->plugin==='jqueryui') {
             $jsScript=<<<JS
     $('#{$this->tag_id}').tabs({
         heightStyle: '{$thType}',
@@ -368,7 +369,7 @@ JS;
         } else {
             $tabsType=strtolower($this->mode);
             $jsScript="$('#{$this->tag_id}').NetopesTabs({ type: '{$tabsType}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
-        }//if($this->js_extension==='jqueryui')
+        }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetTabs
@@ -413,7 +414,7 @@ JS;
         }//END foreach
         $result.='</div>'."\n";
         $thType=get_array_value($tab,'height_type','content','is_notempty_string');
-        if($this->js_extension==='jqueryui') {
+        if($this->plugin==='jqueryui') {
             $jsScript=<<<JS
     $('#{$this->tag_id}_accordion').accordion({
         heightStyle: '{$thType}',
@@ -435,7 +436,7 @@ JS;
 JS;
         } else {
             $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({ type: 'accordion', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
-        }//if($this->js_extension==='jqueryui')
+        }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetAccordion
