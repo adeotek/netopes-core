@@ -63,13 +63,25 @@ class TabControl {
      */
     public $class=NULL;
     /**
+     * @var    string|null TabControl onChange javascript action string
+     */
+    public $onchange=NULL;
+    /**
+     * @var    int TabControl default tab index
+     */
+    public $default_tab_index=0;
+    /**
      * @var    array tabs descriptor array
      */
     public $tabs=[];
     /**
-     * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion)
+     * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
      */
     public $mode=NULL;
+    /**
+     * @var    string|null TabControl javascript plugin (null/netopes=NETopes tabs, jqueryui=jQueryUI Tabs)
+     */
+    public $plugin=NULL;
     /**
      * @var    string Basic form base class
      */
@@ -91,6 +103,7 @@ class TabControl {
      * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
+        $this->plugin=is_object(NApp::$theme) ? NApp::$theme->GetTabsControlPlugin() : '';
         $this->base_class=get_array_value($params,'clear_base_class',FALSE,'bool') ? '' : 'cls'.get_class_basename($this);
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$v) {
@@ -115,7 +128,7 @@ class TabControl {
     protected function SetContent(array $tab,?string &$contentType=NULL): ?string {
         $result='';
         $ctResult='';
-        $ct_data='';
+        $ctData='';
         $contentType=get_array_value($tab,'content_type','content','is_notempty_string');
         switch($contentType) {
             case static::FILE_CONTENT:
@@ -132,26 +145,26 @@ class TabControl {
                 $tAjaxContent=get_array_value($tab,'content_ajax_command',NULL,'is_notempty_string');
                 if($tAjaxContent) {
                     $reload_onchange=get_array_value($tab,'reload_onchange',FALSE,'bool');
-                    $ct_data.=$reload_onchange ? ' data-reload="1"' : '';
+                    $ctData.=$reload_onchange ? ' data-reload="1"' : '';
                     $tTargetId=$this->tag_id.'-'.$tab['t_uid'];
                     $tAjaxContent=str_replace('{!t_uid!}',$tab['t_uid'],$tAjaxContent);
                     $tAjaxContent=str_replace('{!t_name!}',$tab['t_name'],$tAjaxContent);
                     $tAjaxContent=str_replace('{!t_target!}',$tTargetId,$tAjaxContent);
                     $tScript=get_array_value($tab,'load_script',NULL,'?is_string');
                     $jsCommand=NApp::Ajax()->Prepare($tAjaxContent,$tTargetId,NULL,TRUE,NULL,TRUE,NULL,NULL,TRUE,NULL,NULL,NULL,$tScript);
-                    $ct_data.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
+                    $ctData.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
                     if(get_array_value($tab,'autoload',TRUE,'bool')) {
                         NApp::AddJsScript($jsCommand);
                     }//if(get_array_value($tab,'autoload',TRUE,'bool'))
                 } elseif($tContent=get_array_value($tab,'content',NULL,'is_notempty_string')) {
                     $reload_onchange=get_array_value($tab,'reload_onchange',FALSE,'bool');
-                    $ct_data.=$reload_onchange ? ' data-reload="1"' : '';
+                    $ctData.=$reload_onchange ? ' data-reload="1"' : '';
                     $tContent=str_replace('{!t_uid!}',$tab['t_uid'],$tContent);
                     $tContent=str_replace('{!t_name!}',$tab['t_name'],$tContent);
                     $tContent=str_replace('{!t_target!}',$this->tag_id.'-'.$tab['t_uid'],$tContent);
                     $tScript=get_array_value($tab,'load_script','','is_string');
                     $jsCommand=NApp::Ajax()->LegacyPrepare($tContent,1,NULL,$tScript);
-                    $ct_data.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
+                    $ctData.=$reload_onchange ? ' data-reload-action="'.$jsCommand.'"' : '';
                     if(get_array_value($tab,'autoload',TRUE,'bool')) {
                         NApp::AddJsScript($jsCommand);
                     }//if(get_array_value($tab,'autoload',TRUE,'bool'))
@@ -161,20 +174,20 @@ class TabControl {
                 break;
             case static::CONTROL_CONTENT:
                 $tContent=get_array_value($tab,'content',[],'is_array');
-                $c_type=get_array_value($tContent,'control_type',NULL,'is_notempty_string');
-                $c_type=$c_type ? '\NETopes\Core\Controls\\'.$c_type : $c_type;
-                if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type)) {
-                    NApp::Elog('Control class ['.$c_type.'] not found!');
+                $cType=get_array_value($tContent,'control_type',NULL,'is_notempty_string');
+                $cType=$cType ? '\NETopes\Core\Controls\\'.$cType : $cType;
+                if(!is_array($tContent) || !count($tContent) || !$cType || !class_exists($cType)) {
+                    NApp::Elog('Control class ['.$cType.'] not found!');
                     return NULL;
-                }//if(!is_array($tContent) || !count($tContent) || !$c_type || !class_exists($c_type))
-                $c_params=get_array_value($tContent,'control_params',[],'is_array');
-                $tt_params=get_array_value($tContent,'template_params',[],'is_array');
-                foreach($tt_params as $ttkey=>$ttparam) {
-                    if(array_key_exists($ttkey,$c_params)) {
-                        $c_params[$ttkey]=$ttparam;
+                }//if(!is_array($tContent) || !count($tContent) || !$cType || !class_exists($cType))
+                $cParams=get_array_value($tContent,'control_params',[],'is_array');
+                $ttParams=get_array_value($tContent,'template_params',[],'is_array');
+                foreach($ttParams as $ttKey=>$ttParam) {
+                    if(array_key_exists($ttKey,$cParams)) {
+                        $cParams[$ttKey]=$ttParam;
                     }
                 }//END foreach
-                $control=new $c_type($c_params);
+                $control=new $cType($cParams);
                 if(get_array_value($col,'clear_base_class',FALSE,'bool')) {
                     $control->ClearBaseClass();
                 }
@@ -210,7 +223,7 @@ class TabControl {
                 break;
         }//END switch
         $tabClass=get_array_param($tab,'class','','is_string');
-        $result.="\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ct_data.(strlen($tabClass) ? ' class="'.$tabClass.'"' : '').'>'."\n";
+        $result.="\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ctData.(strlen($tabClass) ? ' class="'.$tabClass.'"' : '').'>'."\n";
         $result.=$ctResult;
         $result.="\t".'</div>'."\n";
         return $result;
@@ -340,18 +353,23 @@ class TabControl {
                     break;
             }//END switch
         }//END foreach
-        $thtype=get_array_value($tab,'height_type','content','is_notempty_string');
-        $jsScript=<<<JS
-            $('#{$this->tag_id}').tabs({
-				heightStyle: '{$thtype}',
-				activate: function(e,ui) {
-					let tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return true; }
-					let tcr_action = $(ui.newPanel).attr('data-reload-action');
-					if(tcr_action.length>0) { eval(tcr_action); }
-	            }
-			});
+        $thType=get_array_value($tab,'height_type','content','is_notempty_string');
+        if($this->plugin==='jqueryui') {
+            $jsScript=<<<JS
+    $('#{$this->tag_id}').tabs({
+        heightStyle: '{$thType}',
+        activate: function(e,ui) {
+            let tcr = $(ui.newPanel).attr('data-reload');
+            if(!tcr && tcr!==1) { return true; }
+            let tcr_action = $(ui.newPanel).attr('data-reload-action');
+            if(tcr_action.length>0) { eval(tcr_action); }
+        }
+    });
 JS;
+        } else {
+            $tabsType=strtolower($this->mode);
+            $jsScript="$('#{$this->tag_id}').NetopesTabs({ type: '{$tabsType}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+        }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetTabs
@@ -395,26 +413,30 @@ JS;
             }//END switch
         }//END foreach
         $result.='</div>'."\n";
-        $thtype=get_array_value($tab,'height_type','content','is_notempty_string');
-        $jsScript=<<<JS
-            $('#{$this->tag_id}_accordion').accordion({
-                heightStyle: '{$thtype}',
-                create: function(e,ui) {
-                    if(ui.panel.length>0) {
-                        let tcr = $(ui.panel).attr('data-reload');
-                        if(!tcr && tcr!=1) { return true; }
-                        let tcr_action = $(ui.panel).attr('data-reload-action');
-                        if(tcr_action.length>0) { eval(tcr_action); }
-                    }
-                },
-				activate: function(e,ui) {
-					let tcr = $(ui.newPanel).attr('data-reload');
-					if(!tcr && tcr!=1) { return true; }
-					let tcr_action = $(ui.newPanel).attr('data-reload-action');
-					if(tcr_action.length>0) { eval(tcr_action); }
-	            }
-			});
+        $thType=get_array_value($tab,'height_type','content','is_notempty_string');
+        if($this->plugin==='jqueryui') {
+            $jsScript=<<<JS
+    $('#{$this->tag_id}_accordion').accordion({
+        heightStyle: '{$thType}',
+        create: function(e,ui) {
+            if(ui.panel.length>0) {
+                let tcr = $(ui.panel).attr('data-reload');
+                if(!tcr && tcr!==1) { return true; }
+                let tcr_action = $(ui.panel).attr('data-reload-action');
+                if(tcr_action.length>0) { eval(tcr_action); }
+            }
+        },
+        activate: function(e,ui) {
+            let tcr = $(ui.newPanel).attr('data-reload');
+            if(!tcr && tcr!==1) { return true; }
+            let tcr_action = $(ui.newPanel).attr('data-reload-action');
+            if(tcr_action.length>0) { eval(tcr_action); }
+        }
+    });
 JS;
+        } else {
+            $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({ type: 'accordion', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+        }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
     }//END private function GetAccordion
@@ -429,13 +451,18 @@ JS;
         if(!strlen($this->tag_id) || !is_array($this->tabs) || !count($this->tabs)) {
             return NULL;
         }
-        $lclass=trim($this->base_class.' '.$this->class);
-        $result='<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+        $this->onchange=is_string($this->onchange) && strlen($this->onchange) ? '"'.$this->onchange.'"' : 'null';
+        $this->default_tab_index=is_integer($this->default_tab_index) && $this->default_tab_index>=0 ? $this->default_tab_index : 0;
+        $lClass=trim($this->base_class.' '.$this->class);
+        $result='<div id="'.$this->tag_id.'" class="'.$lClass.'">'."\n";
         switch(strtolower($this->mode)) {
             case 'accordion':
                 $result.=$this->GetAccordion();
                 break;
             case 'tabs':
+            case 'vertical':
+            case 'vertical_floating':
+            case 'wizard':
             default:
                 $result.=$this->GetTabs();
                 break;

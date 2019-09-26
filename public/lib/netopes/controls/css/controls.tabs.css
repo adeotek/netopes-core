@@ -1,0 +1,165 @@
+/*** Global ***/
+.nac-tabs {
+	float: left;
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	border: 1px solid #c5c5c5;
+	border-radius: 3px;
+	background: #fcfcfc;
+}
+
+.nac-tabs:after {
+	display: table;
+	line-height: 0;
+	content: " ";
+	clear: both;
+}
+
+.nac-tabs .nac-action {
+	cursor: pointer;
+}
+
+.nac-tabs .nac-tab-item {
+	box-sizing: border-box;
+	float: left;
+	display: block;
+	padding: 0;
+	margin: 0;
+	border: 1px solid #c5c5c5;
+	background: #f6f6f6;
+	font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	line-height: 20px;
+	color: #333333;
+	white-space: nowrap;
+}
+
+.nac-tabs .nac-tab-item.nac-active {
+	background: #1690F3;
+}
+
+.nac-tabs > ul {
+	list-style: none;
+	box-sizing: border-box;
+	float: left;
+	display: block;
+	width: 100%;
+	margin: 0;
+	background: transparent;
+}
+
+.nac-tabs > ul > li.nac-tab-item {
+	list-style: none;
+	display: list-item;
+}
+
+.nac-tabs > ul > li.nac-tab-item a.nac-tab-button {
+	display: block;
+	padding: 5px 15px;
+	color: #2b2b2b;
+}
+
+.nac-tabs > ul > li.nac-tab-item a.nac-tab-button:hover {
+	background: #EDEDED;
+}
+
+.nac-tabs > ul > li.nac-tab-item.nac-active a.nac-tab-button {
+	color: #ffffff;
+	cursor: default;
+}
+
+.nac-tabs > ul > li.nac-tab-item.nac-active a.nac-tab-button:hover {
+	background: transparent;
+}
+
+.nac-tabs > div.nac-tab-content {
+	box-sizing: border-box;
+	float: left;
+	display: block;
+	width: 100%;
+	background: #F0F0F0;
+	padding: 15px 10px;
+	margin: 0;
+	font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+/*** END Global ***/
+/*** Standard tabs ***/
+.nac-tabs.nac-std-tabs > ul {
+	padding: 3px 3px 0 3px;
+}
+
+.nac-tabs.nac-std-tabs > ul > li.nac-tab-item {
+	margin: 0 3px 0 0;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+
+.nac-tabs.nac-std-tabs > ul > li.nac-tab-item.nac-active {
+	border-bottom: 1px solid #F0F0F0;
+}
+/*** END Standard tabs ***/
+/*** Vertical tabs ***/
+.nac-tabs.nac-vertical-tabs > ul {
+	width: 200px;
+	padding: 3px 0 3px 3px;
+}
+
+.nac-tabs.nac-vertical-tabs > ul > li.nac-tab-item {
+	margin: 0 0 3px 0;
+	width: 100%;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.nac-tabs.nac-vertical-tabs > ul > li.nac-tab-item.nac-active {
+	border-right: 1px solid #F0F0F0;
+}
+
+.nac-tabs.nac-vertical-tabs > div.nac-tab-content {
+	width: calc(100% - 200px);
+}
+/*** END Vertical tabs ***/
+/*** Vertical floating tabs ***/
+
+/*** END Vertical floating tabs ***/
+/*** Accordion tabs ***/
+.nac-tabs.nac-accordion-tabs {
+	border: none;
+}
+
+.nac-tabs.nac-accordion-tabs > .nac-tab-item.nac-accordion-item {
+	width: 100%;
+	padding: 8px 15px;
+	margin: 3px 0 0 0;
+	border-radius: 3px;
+	font-weight: normal;
+}
+
+.nac-tabs.nac-accordion-tabs > .nac-tab-item.nac-accordion-item.nac-active {
+	border-color: #1690F3;
+	border-bottom: none;
+	border-bottom-left-radius: unset;
+	border-bottom-right-radius: unset;
+	color: #ffffff;
+	background: #1690F3;
+	cursor: default;
+}
+
+.nac-tabs.nac-accordion-tabs > .nac-tab-item.nac-accordion-item:hover {
+	background: #EDEDED;
+}
+
+.nac-tabs.nac-accordion-tabs > .nac-tab-item.nac-accordion-item.nac-active:hover {
+	background: #1690F3;
+}
+
+.nac-tabs.nac-accordion-tabs > div.nac-tab-content.nac-active {
+	border: 1px solid #c5c5c5;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+/*** END Accordion tabs ***/

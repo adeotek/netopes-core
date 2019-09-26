@@ -126,6 +126,11 @@ interface ITheme {
     public function GetDateTimePickerControlsPlugin(): string;
 
     /**
+     * @return string
+     */
+    public function GetTabsControlPlugin(): string;
+
+    /**
      * @param Params $tags
      * @param bool   $hasActions
      * @param bool   $hasTitle
