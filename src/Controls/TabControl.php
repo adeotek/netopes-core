@@ -75,7 +75,7 @@ class TabControl {
      */
     public $tabs=[];
     /**
-     * @var    string|null TabControl mode (null/tabs=standard, accordion=accordion, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
+     * @var    string|null TabControl mode (null/standard=standard tabs, accordion=accordion, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
      */
     public $mode=NULL;
     /**
@@ -112,6 +112,10 @@ class TabControl {
                 }
             }//foreach ($params as $k=>$v)
         }//if(is_array($params) && count($params))
+        $this->mode=strtolower($this->mode);
+        if(!in_array($this->mode,['standard','vertical','vertical_floating','accordion','wizard'])) {
+            $this->mode='standard';
+        }
         if($this->cached) {
             $this->output_buffer=$this->SetControl();
         }
@@ -367,8 +371,7 @@ class TabControl {
     });
 JS;
         } else {
-            $tabsType=strtolower($this->mode);
-            $jsScript="$('#{$this->tag_id}').NetopesTabs({ type: '{$tabsType}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+            $jsScript="$('#{$this->tag_id}').NetopesTabs({ type: '{$this->mode}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
         }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
@@ -455,11 +458,11 @@ JS;
         $this->default_tab_index=is_integer($this->default_tab_index) && $this->default_tab_index>=0 ? $this->default_tab_index : 0;
         $lClass=trim($this->base_class.' '.$this->class);
         $result='<div id="'.$this->tag_id.'" class="'.$lClass.'">'."\n";
-        switch(strtolower($this->mode)) {
+        switch($this->mode) {
             case 'accordion':
                 $result.=$this->GetAccordion();
                 break;
-            case 'tabs':
+            case 'standard':
             case 'vertical':
             case 'vertical_floating':
             case 'wizard':
