@@ -156,7 +156,9 @@
 
         if(typeof options==='string') {
             if(methods[options]) {
-                return methods[options].apply(this,Array.prototype.slice.call(arguments,1));
+                let methodArgs=Array.prototype.slice.call(arguments,1);
+                methodArgs.unshift(this);
+                return methods[options].apply(this,methodArgs);
             } else {
                 console.log('Invalid or inaccessible method: [' + options + ']!');
             }
