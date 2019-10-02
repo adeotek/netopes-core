@@ -56,11 +56,11 @@ trait TControlFields {
     }//END protected function GetDisplayFieldValue
 
     /**
-     * @param array|null    $params
-     * @param VirtualEntity $data
-     * @param mixed         $controlValue
-     * @param bool          $isIterator
-     * @param string|null   $paramsPrefix
+     * @param array|null  $params
+     * @param object|null $data
+     * @param mixed       $controlValue
+     * @param bool        $isIterator
+     * @param string|null $paramsPrefix
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
@@ -72,7 +72,7 @@ trait TControlFields {
             return NULL;
         }//if(!$c_type_s || !class_exists($c_type))
         $controlParams=get_array_value($params,$paramsPrefix.'control_params',[],'is_array');
-        if(is_iterable($data) && count($data)) {
+        if(is_object($data)) {
             $controlParams=ControlsHelpers::ReplaceDynamicParams($controlParams,$data);
         }
         if($isIterator) {
