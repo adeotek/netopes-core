@@ -1482,6 +1482,15 @@ div.clsTableView div.clsTableViewActions span.f-title {
 	color: inherit;
 }
 
+div.clsTableView div.clsTableViewActions span.tw-title {
+	display: block;
+	margin-left: 40px;
+	margin-bottom: 5px;
+	font-size: 15px;
+	color: inherit;
+	font-weight: 600;
+}
+
 div.clsTableView div.clsTableViewActions div.tw-actions-container {
 	float: left;
 	display: block;
@@ -1498,7 +1507,16 @@ div.clsTableView div.clsTableViewActions div.tw-actions {
 	width: max-content;
 }
 
-div.clsTableView div.clsTableViewActions div.tw-actions > .btn {
+div.clsTableView div.clsTableViewActions div.tw-actions.tw-full-row {
+	float: left;
+	display: block;
+	width: 100%;
+	padding-top: 5px;
+	border-top: 1px solid #dddddd;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-actions > .tw-refresh-btn,
+div.clsTableView div.clsTableViewActions div.tw-actions > .tw-export-btn {
 	float: right;
 	margin-left: 10px;
 }
@@ -1508,6 +1526,7 @@ div.clsTableView div.clsTableViewActions div.tw-filters {
 	display: block;
 	width: 100%;
 	text-align: left;
+	margin-bottom: 5px;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters .f-ctrl {
@@ -1564,7 +1583,9 @@ div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items {
 	float: left;
 	display: block;
 	width: 100%;
-	padding: 5px;
+	padding: 5px 5px 0 5px;
+	margin-top: 5px;
+	border-top: 1px solid #dddddd;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-items-group .f-g-title {
@@ -1582,7 +1603,7 @@ div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-i-
 div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-active-title {
 	display: block;
 	margin-bottom: 5px;
-	border-bottom: 1px solid #DDDDDD;
+	/*border-bottom: 1px solid #DDDDDD;*/
 	padding: 0 34px;
 	font-size: 13px;
 	color: inherit;
@@ -1594,6 +1615,10 @@ div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-ac
 	line-height: 20px;
 	margin-bottom: 5px;
 	padding-left: 10px;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .f-active-item:last-child {
+	margin-bottom: 0;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters div.f-active-items .g-remove {
