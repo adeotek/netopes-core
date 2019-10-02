@@ -115,6 +115,10 @@ abstract class FilterControl {
      * @var    array|null Initial filters values (are destroyed after construct)
      */
     public $initial_filters=NULL;
+    /**
+     * @var    bool Switch active filter title on/off
+     */
+    public $active_filters_title=FALSE;
 
     /**
      * FilterControl class constructor method
@@ -208,23 +212,26 @@ abstract class FilterControl {
             return;
         }
         foreach($initialFilters as $filter) {
+            $fField=get_array_value($filter,'field',NULL,'?is_string');
             $fType=get_array_value($filter,'type',NULL,'?is_string');
             $cType=get_array_value($filter,'condition_type',NULL,'?is_string');
             $operator=get_array_value($filter,'logical_separator',NULL,'?is_string');
-            if(!strlen($fType) || !strlen($cType) || !strlen($operator)) {
+            if((!strlen($fType) && !strlen($fField)) || !strlen($cType) || !strlen($operator)) {
                 continue;
             }
+            $fValue=get_array_value($filter,'value');
+            $fDisplayValue=get_array_value($filter,'display_value',NULL,'is_string');
             $this->filters[]=[
-                'type'=>$fType,
+                'type'=>$fType ?? $fField,
                 'group_id'=>get_array_value($filter,'group_id',NULL,'?is_string'),
                 'logical_separator'=>$operator,
                 'is_ds_param'=>get_array_value($filter,'is_ds_param',0,'is_integer'),
                 'condition_type'=>$cType,
                 'data_type'=>get_array_value($filter,'data_type',NULL,'?is_string'),
-                'field'=>get_array_value($filter,'field',NULL,'?is_string'),
-                'value'=>get_array_value($filter,'value'),
+                'field'=>$fField,
+                'value'=>$fValue,
                 'end_value'=>get_array_value($filter,'end_value'),
-                'display_value'=>get_array_value($filter,'display_value',NULL,'is_string'),
+                'display_value'=>$fDisplayValue ?? $fValue,
                 'end_display_value'=>get_array_value($filter,'end_display_value',NULL,'is_string'),
                 'value_field'=>get_array_value($filter,'value_field',NULL,'?is_string'),
                 'value_data_type'=>get_array_value($filter,'value_data_type',NULL,'?is_string'),
@@ -972,7 +979,9 @@ abstract class FilterControl {
             return NULL;
         }
         $filters="\t\t\t\t".'<div class="f-active-items">'."\n";
-        $filters.="\t\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
+        if($this->active_filters_title) {
+            $filters.="\t\t\t\t\t".'<span class="f-active-title">'.Translate::GetTitle('active_filters').':</span>'."\n";
+        }
         $fcTypes=DataProvider::GetKeyValue('_Custom\Offline','FilterConditionsTypes',['type'=>'all'],['keyfield'=>'value']);
         if($this->with_filter_groups) {
             $groupedFilters=array_group_by_hierarchical('group_id',$this->filters,TRUE,'_');

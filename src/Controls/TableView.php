@@ -34,6 +34,7 @@ use Translate;
  * @package NETopes\Core\Controls
  */
 class TableView extends FilterControl {
+    use TControlFields;
     /**
      * @var    string Control instance session hash
      */
@@ -247,6 +248,18 @@ class TableView extends FilterControl {
      * @var    bool Flag to indicate if filters are persistent
      */
     public $persistent_state=FALSE;
+    /**
+     * @var    string|null Table view title
+     */
+    public $title=NULL;
+    /**
+     * @var    bool Table view actions container full row
+     */
+    public $full_row_actions_container=TRUE;
+    /**
+     * @var    array Custom actions list
+     */
+    public $custom_actions=[];
 
     /**
      * TableView class constructor method
@@ -491,6 +504,27 @@ class TableView extends FilterControl {
     }//END private function GetData
 
     /**
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessCustomActions(): string {
+        if(!is_array($this->custom_actions) || !count($this->custom_actions)) {
+            return NULL;
+        }
+        $result='';
+        foreach($this->custom_actions as $action) {
+            if(is_string($action)) {
+                $result.=$action;
+            } elseif(is_array($action)) {
+                $result.=$this->GetControlFieldData($action);
+            } else {
+                NApp::Elog($action,'Invalid TableView::custom_actions item:');
+            }
+        }//END foreach
+        return $result;
+    }//END protected function ProcessCustomActions
+
+    /**
      * Gets the actions bar controls html (except controls for filters)
      *
      * @return string Returns the actions bar controls html
@@ -498,7 +532,11 @@ class TableView extends FilterControl {
      */
     protected function GetActionsBarControls() {
         //NApp::Dlog($params,'GetActionsBarControls>>$params');
-        $actions='';
+        if(is_array($this->custom_actions) && count($this->custom_actions)) {
+            $actions=$this->ProcessCustomActions();
+        } else {
+            $actions='';
+        }//if(is_array($this->custom_actions) && count($this->custom_actions))
         if($this->exportable && $this->export_all && $this->with_pagination) {
             if($this->compact_mode) {
                 $actions.="\t\t\t".'<button class="'.NApp::$theme->GetBtnInfoClass('tw-export-btn compact clsTitleSToolTip'.$this->buttons_size_class).'" onclick="'.$this->GetActionCommand('export_all').'" title="'.Translate::GetButton('export_all').'"><i class="fa fa-download"></i></button>'."\n";
@@ -523,7 +561,7 @@ class TableView extends FilterControl {
         if(!strlen($actions)) {
             return NULL;
         }
-        $result="\t\t\t".'<div class="tw-actions'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').'">'."\n";
+        $result="\t\t\t".'<div class="tw-actions'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').($this->full_row_actions_container ? ' tw-full-row' : '').'">'."\n";
         $result.=$actions;
         $result.="\t\t\t".'</div>'."\n";
         return $result;
@@ -573,8 +611,8 @@ class TableView extends FilterControl {
             $params=new Params();
         }
         $result='';
-        if(!$this->compact_mode) {
-            $result.="\t\t\t".'<span class="f-title">'.Translate::GetLabel('filters').'</span>'."\n";
+        if(is_string($this->title) && strlen($this->title)) {
+            $result.="\t\t\t".'<span class="tw-title">'.$this->title.'</span>'."\n";
         }
         $result.="\t\t".'<div class="tw-actions-container">'."\n";
         $result.=$this->GetFilterBox($params);
@@ -920,12 +958,12 @@ class TableView extends FilterControl {
      * @param array  $v
      * @param string $name
      * @param string $type
-     * @param bool   $is_iterator
+     * @param bool   $isIterator
      * @param string $cClass
      * @return mixed Returns the table cell value
      * @throws \NETopes\Core\AppException
      */
-    protected function GetCellValue(&$row,array &$v,string $name,string $type,bool $is_iterator=FALSE,?string &$cClass=NULL) {
+    protected function GetCellValue(&$row,array &$v,string $name,string $type,bool $isIterator=FALSE,?string &$cClass=NULL) {
         $result=NULL;
         switch($type) {
             case 'actions':
@@ -1007,63 +1045,7 @@ class TableView extends FilterControl {
                 if(is_null($cValue) && isset($defaultDisplayValue)) {
                     $result=$defaultDisplayValue;
                 } else {
-                    $c_type_s=get_array_value($v,$params_prefix.'control_type',NULL,'is_notempty_string');
-                    $c_type='\NETopes\Core\Controls\\'.$c_type_s;
-                    if(!$c_type_s || !class_exists($c_type)) {
-                        NApp::Elog('Control class ['.$c_type.'] not found!');
-                        break;
-                    }//if(!$c_type_s || !class_exists($c_type))
-                    $cParams=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,$params_prefix.'control_params',[],'is_array'),$row);
-                    if($is_iterator) {
-                        $cParams['value']=$row->getProperty($cParams['value'],get_array_value($v,'default_value','','is_string'),'is_notempty_string');
-                    } elseif($c_type!='ConditionalControl' && $c_type!='InlineMultiControl' && !isset($cParams['value']) && isset($v['db_field'])) {
-                        $cParams['value']=isset($cValue) && $cValue!=='' ? $cValue : get_array_value($v,'default_value','','is_string');
-                    }//if($is_iterator)
-                    if(isset($cParams['tag_id'])) {
-                        $key_value=$row->getProperty(get_array_value($v,'db_key','id','is_notempty_string'),NULL,'isset');
-                        $key_value=strlen($key_value) ? $key_value : AppSession::GetNewUID();
-                        $cParams['tag_id'].='_'.$key_value;
-                    }//if(isset($cParams['tag_id']))
-                    $pAjaxCommands=get_array_value($v,$params_prefix.'control_ajax_commands',NULL,'?is_array');
-                    if($pAjaxCommands) {
-                        if(is_array($pAjaxCommands) && count($pAjaxCommands)) {
-                            foreach($pAjaxCommands as $pr=>$prTargetId) {
-                                if(!isset($cParams[$pr]) || !is_string($cParams[$pr]) || !strlen($cParams[$pr])) {
-                                    continue;
-                                }
-                                $cParams[$pr]=NApp::Ajax()->Prepare($cParams[$pr],$prTargetId,NULL,$this->loader);
-                            }//END foreach
-                        }//if(is_array($pAjaxCommands) && count($pAjaxCommands))
-                    } else {
-                        $p_pafreq=get_array_value($v,$params_prefix.'control_pafreq',NULL,'?is_array');
-                        if(is_array($p_pafreq) && count($p_pafreq)) {
-                            foreach($p_pafreq as $pr) {
-                                if(!isset($cParams[$pr]) || !is_string($cParams[$pr]) || !strlen($cParams[$pr])) {
-                                    continue;
-                                }
-                                $cParams[$pr]=NApp::Ajax()->LegacyPrepare($cParams[$pr],$this->loader);
-                            }//END foreach
-                        }//if(is_array($p_pafreq) && count($p_pafreq))
-                    }//if($pAjaxCommands)
-                    $c_action_params=NULL;
-                    $pp_params=get_array_value($v,$params_prefix.'passtrough_params',NULL,'is_array');
-                    if(is_array($pp_params) && count($pp_params)) {
-                        $c_action_params=[];
-                        foreach($pp_params as $pk=>$pv) {
-                            $c_action_params[$pk]=$row->getProperty($pv,NULL,'isset');
-                        }//END foreach
-                    }//if(is_array($pp_params) && count($pp_params))
-                    // Add [action_params] array to each action of the control
-                    if($c_action_params && isset($cParams['actions']) && is_array($cParams['actions'])) {
-                        foreach($cParams['actions'] as $ak=>$av) {
-                            $cParams['actions'][$ak]['action_params']=$c_action_params;
-                        }//END foreach
-                    }//if($c_action_params && isset($cParams['actions']) && is_array($cParams['actions']))
-                    $control=new $c_type($cParams);
-                    if(get_array_value($v,$params_prefix.'clear_base_class',FALSE,'bool')) {
-                        $control->ClearBaseClass();
-                    }
-                    $result=$control->Show();
+                    $result=$this->GetControlFieldData($v,$row,$cValue,$isIterator,$params_prefix);
                 }//if(is_null($cValue))
                 break;
             case 'value':
@@ -1449,11 +1431,11 @@ class TableView extends FilterControl {
      * @param null   $hasChild
      * @param null   $rLvl
      * @param null   $rTreeState
-     * @param bool   $is_iterator
+     * @param bool   $isIterator
      * @return string Returns the table cell html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetCell(&$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$is_iterator=FALSE) {
+    protected function SetCell(&$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE) {
         $cell_type=strtolower(get_array_value($v,'type','','is_string'));
         $result='';
         $c_style='';
@@ -1498,12 +1480,12 @@ class TableView extends FilterControl {
                     break;
                 }//if(!check_array_key('actions',$v,'is_notempty_array'))
                 $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'."\n";
-                $result.=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $result.=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $result.="\t\t\t\t".'</td>'."\n";
                 break;
             case 'control':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
             case 'running_total':
@@ -1522,7 +1504,7 @@ class TableView extends FilterControl {
                         $t_value.='<span class="clsTreeGridBtnNoChild"></span>';
                     }//if($hasChild)
                 }//if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string'))
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1542,7 +1524,7 @@ class TableView extends FilterControl {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
                 $t_value='';
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1561,7 +1543,7 @@ class TableView extends FilterControl {
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $c_def_value=get_array_value($v,'default_value','','is_string');
                 $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format',NULL,'isset'),$row);
                 $c_cond_format=get_array_value($v,'conditional_format',NULL,'is_notempty_array');
@@ -1580,7 +1562,7 @@ class TableView extends FilterControl {
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator,$c_class);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator,$c_class);
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
                 $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
@@ -1591,7 +1573,7 @@ class TableView extends FilterControl {
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
                     $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
-                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$is_iterator);
+                $cellValue=$this->GetCellValue($row,$v,$name,$cell_type,$isIterator);
                 $result.="\t\t\t\t".'<td'.$c_class.$c_style.$c_tooltip.'>'.(is_null($cellValue) ? '&nbsp;' : $cellValue).'</td>'."\n";
                 break;
         }//END switch
