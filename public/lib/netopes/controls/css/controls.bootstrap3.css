@@ -2622,5 +2622,4 @@ table.clsBasicForm > tbody > tr > td {
 input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeComboBox {
 	background-color: #FDC9C9 !important;
 }
-
 /*** END Generic Rules ***/
