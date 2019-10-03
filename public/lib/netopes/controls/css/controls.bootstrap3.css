@@ -1501,6 +1501,16 @@ div.clsTableView div.clsTableViewActions div.tw-actions-container {
 	background-color: #F5F5F5;
 }
 
+div.clsTableView div.clsTableViewActions div.tw-actions-container > .tw-header-item {
+	padding-bottom: 5px;
+	border-bottom: 1px solid #DDDDDD;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-actions-container > .tw-header-item:last-child {
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
 div.clsTableView div.clsTableViewActions div.tw-actions {
 	float: right;
 	display: inline-block;
@@ -1511,8 +1521,6 @@ div.clsTableView div.clsTableViewActions div.tw-actions.tw-full-row {
 	float: left;
 	display: block;
 	width: 100%;
-	padding-top: 5px;
-	border-top: 1px solid #dddddd;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-actions > .tw-refresh-btn,
