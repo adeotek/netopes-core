@@ -561,7 +561,7 @@ class TableView extends FilterControl {
         if(!strlen($actions)) {
             return NULL;
         }
-        $result="\t\t\t".'<div class="tw-actions'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').($this->full_row_actions_container ? ' tw-full-row' : '').'">'."\n";
+        $result="\t\t\t".'<div class="tw-header-item tw-actions'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-'.$this->controls_size : '').($this->full_row_actions_container ? ' tw-full-row' : '').'">'."\n";
         $result.=$actions;
         $result.="\t\t\t".'</div>'."\n";
         return $result;
@@ -589,7 +589,7 @@ class TableView extends FilterControl {
         if($params->safeGet('f_action','','is_string')=='update') {
             return $filters;
         }
-        $result="\t\t\t".'<div id="'.$this->tag_id.'-filter-box" class="tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'">'."\n";
+        $result="\t\t\t".'<div class="tw-header-item tw-filters'.(is_string($this->controls_size) && strlen($this->controls_size) ? ' form-group-'.$this->controls_size : '').'" id="'.$this->tag_id.'-filter-box">'."\n";
         $result.=$filters;
         $result.="\t\t\t".'</div>'."\n";
         return $result;
