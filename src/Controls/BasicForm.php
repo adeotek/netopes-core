@@ -354,20 +354,20 @@ class BasicForm {
         if(!$this->width || $this->width='100%') {
             switch(strtolower($this->align)) {
                 case 'left':
-                    $lsidecolumn='';
+                    $lSideColumn='';
                     $rsidecolumn="\t".'<td>&nbsp;</td>'."\n";
                     break;
                 case 'right':
-                    $lsidecolumn="\t".'<td>&nbsp;</td>'."\n";
+                    $lSideColumn="\t".'<td>&nbsp;</td>'."\n";
                     $rsidecolumn='';
                     break;
                 case 'center':
                 default:
-                    $lsidecolumn=$rsidecolumn="\t".'<td>&nbsp;</td>'."\n";
+                    $lSideColumn=$rsidecolumn="\t".'<td>&nbsp;</td>'."\n";
                     break;
             }//END switch
         } else {
-            $lsidecolumn=$rsidecolumn='';
+            $lSideColumn=$rsidecolumn='';
         }//if(!$this->width || $this->width='100%')
         $result='';
         if(strlen($this->sub_form_tag_id)) {
@@ -380,40 +380,45 @@ class BasicForm {
             if(!is_array($row) || !count($row)) {
                 continue;
             }
-            $sr_type=get_array_value($row,'separator',NULL,'is_notempty_string');
-            if($sr_type) {
+            $separatorType=get_array_value($row,'separator',NULL,'is_notempty_string');
+            if($separatorType) {
                 $result.="\t".'<tr>'."\n";
-                $result.=$lsidecolumn;
-                switch(strtolower($sr_type)) {
+                $result.=$lSideColumn;
+                switch(strtolower($separatorType)) {
                     case 'empty':
-                        $sr_class=' class="clsTRS"';
-                        $sr_hr='&nbsp;';
+                        $separatorCssClass=' class="clsTRS"';
+                        $separatorValue='&nbsp;';
                         break;
                     case 'title':
-                        $sr_hr=get_array_value($row,'value','&nbsp;','is_notempty_string');
-                        $sr_c_class=get_array_value($row,'class','','is_string');
-                        $sr_class=' class="clsTRS form-title'.($sr_c_class ? ' '.$sr_c_class : '').'"';
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' class="clsTRS form-title'.($separatorCustomClass ? ' '.$separatorCustomClass : '').'"';
                         break;
                     case 'subtitle':
-                        $sr_hr=get_array_value($row,'value','&nbsp;','is_notempty_string');
-                        $sr_c_class=get_array_value($row,'class','','is_string');
-                        $sr_class=' class="clsTRS sub-title'.($sr_c_class ? ' '.$sr_c_class : '').'"';
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' class="clsTRS sub-title'.($separatorCustomClass ? ' '.$separatorCustomClass : '').'"';
+                        break;
+                    case 'message':
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' class="clsTRS form-message'.($separatorCustomClass ? ' '.$separatorCustomClass : '').'"';
                         break;
                     case 'line':
                     default:
-                        $sr_class=' class="clsTRS"';
-                        $sr_hr='<hr>';
+                        $separatorCssClass=' class="clsTRS"';
+                        $separatorValue='<hr>';
                         break;
                 }//END switch
-                $sr_span=' colspan="'.($this->cols_no * 2 - 1).'"';
-                $result.="\t\t".'<td'.$sr_span.$sr_class.'>'.$sr_hr.'</td>'."\n";
+                $separatorSpan=' colspan="'.($this->cols_no * 2 - 1).'"';
+                $result.="\t\t".'<td'.$separatorSpan.$separatorCssClass.'>'.$separatorValue.'</td>'."\n";
                 $result.=$rsidecolumn;
                 $result.="\t".'</tr>'."\n";
                 continue;
-            }//if($sr_type)
+            }//if($separatorType)
             $hidden=get_array_value($row,[0,'hidden_row'],FALSE,'bool');
             $result.="\t".'<tr'.($hidden ? ' class="hidden"' : '').'>'."\n";
-            $result.=$lsidecolumn;
+            $result.=$lSideColumn;
             $first=TRUE;
             foreach($row as $col) {
                 if($first) {
@@ -459,14 +464,14 @@ class BasicForm {
         $lcolspan=(2 * $this->cols_no - 1)>1 ? ' colspan="'.(2 * $this->cols_no - 1).'"' : '';
         if(is_string($this->response_target) && strlen($this->response_target)) {
             $result.="\t".'<tr>'."\n";
-            $result.=$lsidecolumn;
+            $result.=$lSideColumn;
             $result.="\t\t".'<td'.$lcolspan.' id="'.$this->response_target.'" class="'.($this->base_class ? $this->base_class : 'cls').'ErrMsg'.'"></td>'."\n";
             $result.=$rsidecolumn;
             $result.="\t".'</tr>'."\n";
         }//if(is_string($this->response_target) && strlen($this->response_target))
         if(is_array($this->actions) && count($this->actions)) {
             $result.="\t".'<tr>'."\n";
-            $result.=$lsidecolumn;
+            $result.=$lSideColumn;
             $result.="\t\t".'<td'.$lcolspan.'>'."\n";
             $result.=$this->GetActions($ltabindex);
             $result.="\t\t".'</td>'."\n";
@@ -510,34 +515,39 @@ class BasicForm {
             if(!is_array($row) || !count($row)) {
                 continue;
             }
-            $sr_type=get_array_value($row,'separator',NULL,'is_notempty_string');
-            if($sr_type) {
+            $separatorType=get_array_value($row,'separator',NULL,'is_notempty_string');
+            if($separatorType) {
                 $result.="\t".'<div class="row">'."\n";
-                switch(strtolower($sr_type)) {
+                switch(strtolower($separatorType)) {
                     case 'empty':
-                        $sr_class=' clsTRS';
-                        $sr_hr='&nbsp;';
+                        $separatorCssClass=' clsTRS';
+                        $separatorValue='&nbsp;';
                         break;
                     case 'title':
-                        $sr_hr=get_array_value($row,'value','&nbsp;','is_notempty_string');
-                        $sr_c_class=get_array_value($row,'class','','is_string');
-                        $sr_class=' clsTRS form-title'.($sr_c_class ? ' '.$sr_c_class : '');
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' clsTRS form-title'.($separatorCustomClass ? ' '.$separatorCustomClass : '');
                         break;
                     case 'subtitle':
-                        $sr_hr=get_array_value($row,'value','&nbsp;','is_notempty_string');
-                        $sr_c_class=get_array_value($row,'class','','is_string');
-                        $sr_class=' clsTRS sub-title'.($sr_c_class ? ' '.$sr_c_class : '');
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' clsTRS sub-title'.($separatorCustomClass ? ' '.$separatorCustomClass : '');
+                        break;
+                    case 'message':
+                        $separatorValue=get_array_value($row,'value','&nbsp;','is_notempty_string');
+                        $separatorCustomClass=get_array_value($row,'class','','is_string');
+                        $separatorCssClass=' clsTRS form-message'.($separatorCustomClass ? ' '.$separatorCustomClass : '');
                         break;
                     case 'line':
                     default:
-                        $sr_class=' clsTRS';
-                        $sr_hr='<hr>';
+                        $separatorCssClass=' clsTRS';
+                        $separatorValue='<hr>';
                         break;
                 }//END switch
-                $result.="\t\t".'<div class="col-md-12'.$sr_class.'">'.$sr_hr.'</div>'."\n";
+                $result.="\t\t".'<div class="col-md-12'.$separatorCssClass.'">'.$separatorValue.'</div>'."\n";
                 $result.="\t".'</div>'."\n";
                 continue;
-            }//if($sr_type)
+            }//if($separatorType)
             $lgs=12;
             $hidden=get_array_value($row,[0,'hidden_row'],FALSE,'bool');
             if($this->cols_no>1) {
