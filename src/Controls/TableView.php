@@ -603,22 +603,28 @@ class TableView extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetActionsBox(Params $params=NULL): ?string {
-        // NApp::Dlog($params,'GetActionsBox>>$params');
-        if(!$this->with_filter && $this->hide_actions_bar) {
-            return NULL;
-        }
         if(is_null($params)) {
             $params=new Params();
         }
-        $result='';
+        $content=NULL;
         if(is_string($this->title) && strlen($this->title)) {
-            $result.="\t\t\t".'<span class="tw-title">'.$this->title.'</span>'."\n";
+            $content.="\t\t\t".'<span class="tw-title">'.$this->title.'</span>'."\n";
         }
-        $result.="\t\t".'<div class="tw-actions-container">'."\n";
-        $result.=$this->GetFilterBox($params);
-        $result.=$this->GetActionsBarControls();
-        $result.="\t\t".'</div>'."\n";
-        $result.="\t\t".'<div class="clearfix"></div>'."\n";
+        if($this->with_filter || $this->export_button || count($this->custom_actions) || !$this->hide_actions_bar) {
+            $content.="\t\t".'<div class="tw-actions-container">'."\n";
+            if($this->with_filter) {
+                $content.=$this->GetFilterBox($params);
+            }
+            $content.=$this->GetActionsBarControls();
+            $content.="\t\t".'<div class="clearfix"></div>'."\n";
+            $content.="\t\t".'</div>'."\n";
+        }//if($this->with_filter || $this->export_button || count($this->custom_actions) || !$this->hide_actions_bar)
+        $result=NULL;
+        if(strlen($content)) {
+            $result="\t\t\t".'<div id="'.$this->tag_id.'-actions" class="'.($this->base_class.'Actions'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
+            $result.=$content;
+            $result.="\t\t\t".'</div>'."\n";
+        }
         return $result;
     }//END protected function GetActionsBox
 
@@ -2027,11 +2033,7 @@ class TableView extends FilterControl {
                     $result.="\t".'<div class="col-md-12 '.$lclass.'" id="'.$this->tag_id.'">'."\n";
                     $closing_tags="\t".'</div>'."\n";
                 }//if($this->is_panel===TRUE)
-                if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
-                    $result.="\t\t\t".'<div id="'.$this->tag_id.'-actions" class="'.($this->base_class.'Actions'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
-                    $result.=$this->GetActionsBox(new Params());
-                    $result.="\t\t\t".'</div>'."\n";
-                }//if($this->with_filter || $this->export_button || !$this->hide_actions_bar)
+                $result.=$this->GetActionsBox(new Params());
                 $result.="\t".'<div class="clsTContainer'.(strlen($this->container_class) ? ' '.$this->container_class : '').'">'."\n";
                 $t_c_width=NULL;
                 $th_result=$this->GetTableHeader($t_c_width);
