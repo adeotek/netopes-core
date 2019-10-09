@@ -616,7 +616,6 @@ class TableView extends FilterControl {
                 $content.=$this->GetFilterBox($params);
             }
             $content.=$this->GetActionsBarControls();
-            $content.="\t\t".'<div class="clearfix"></div>'."\n";
             $content.="\t\t".'</div>'."\n";
         }//if($this->with_filter || $this->export_button || count($this->custom_actions) || !$this->hide_actions_bar)
         $result=NULL;

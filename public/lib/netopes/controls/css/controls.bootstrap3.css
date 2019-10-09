@@ -1469,12 +1469,14 @@ div.clsTableView {
 
 /* Actions */
 div.clsTableView div.clsTableViewActions {
+	float: left;
 	width: 100%;
 	min-height: 40px;
 	margin-bottom: 10px;
 }
 
 div.clsTableView div.clsTableViewActions span.f-title {
+	float: left;
 	display: block;
 	margin-left: 40px;
 	margin-bottom: 5px;
@@ -1483,6 +1485,7 @@ div.clsTableView div.clsTableViewActions span.f-title {
 }
 
 div.clsTableView div.clsTableViewActions span.tw-title {
+	float: left;
 	display: block;
 	margin-left: 40px;
 	margin-bottom: 5px;
@@ -1502,6 +1505,7 @@ div.clsTableView div.clsTableViewActions div.tw-actions-container {
 }
 
 div.clsTableView div.clsTableViewActions div.tw-actions-container > .tw-header-item {
+	float: left;
 	padding-bottom: 5px;
 	border-bottom: 1px solid #DDDDDD;
 }
