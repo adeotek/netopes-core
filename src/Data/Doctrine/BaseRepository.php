@@ -1,10 +1,41 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\EntityRepository;
+use NETopes\Core\AppException;
 
+/**
+ * Class BaseRepository
+ *
+ * @package NETopes\Core\Data\Doctrine
+ */
 class BaseRepository extends EntityRepository {
     use RepositoryStandardTrait;
 
+    /**
+     * @param $id
+     * @return object
+     * @throws \NETopes\Core\AppException
+     */
+    public function findRecord($id) {
+        if(!is_scalar($id)) {
+            throw new AppException('Invalid PK search value!');
+        }
+        $entity=$this->find($id);
+        if(!$entity instanceof $this->_entityName) {
+            throw new AppException('Record not found for PK ['.$id.'] in ['.$this->_entityName.']');
+        }
+        return $entity;
+    }//END public function findRecord
+
+    /**
+     * @param string     $term
+     * @param array      $targets
+     * @param array      $params
+     * @param int        $rowNum
+     * @param array|null $sort
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
     public function getSearchResults(string $term,array $targets=[],array $params=[],int $rowNum=10,?array $sort=NULL) {
         $qb=$this->createQueryBuilder('e');
         foreach($params as $pn=>$pv) {
