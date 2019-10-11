@@ -26,8 +26,9 @@ trait RepositoryBaseTrait {
             'notin'=>'notIn',
             'like'=>'like',
             'notlike'=>'notLike',
-            '=%'=>'startsWith',
-            '%='=>'endWith',
+            '=%'=>'like',
+            '%='=>'like',
+            'strictlike'=>'like',
             'between'=>'between',
         ];
     }//END public function getOperators
@@ -68,7 +69,8 @@ trait RepositoryBaseTrait {
             return NULL;
         }
         $operators=$this->getOperators();
-        $operator=get_array_value($operators,strtolower(get_array_value($filter,'condition_type','==','is_string')),'','is_string');
+        $operatorType=strtolower(get_array_value($filter,'condition_type','==','is_string'));
+        $operator=get_array_value($operators,$operatorType,'','is_string');
         if(!strlen($operator)) {
             return NULL;
         }
@@ -87,15 +89,15 @@ trait RepositoryBaseTrait {
                 if(array_key_exists($paramName,$parameters)) {
                     continue;
                 }
-                switch($operator) {
+                switch($operatorType) {
                     case 'like':
                     case 'notlike':
                         $parameters[$paramName]='%'.$value.'%';
                         break;
-                    case 'startsWith':
+                    case '=%':
                         $parameters[$paramName]=$value.'%';
                         break;
-                    case 'endWith':
+                    case '%=':
                         $parameters[$paramName]='%'.$value;
                         break;
                     default:
@@ -108,15 +110,15 @@ trait RepositoryBaseTrait {
             $paramName='in'.$key.'_'.str_replace('.','_',$field);
             $expression=$qb->expr()->$operator($field,':'.$paramName);
             if(!array_key_exists($paramName,$parameters)) {
-                switch($operator) {
+                switch($operatorType) {
                     case 'like':
                     case 'notlike':
                         $parameters[$paramName]='%'.$value.'%';
                         break;
-                    case 'startsWith':
+                    case '=%':
                         $parameters[$paramName]=$value.'%';
                         break;
-                    case 'endWith':
+                    case '%=':
                         $parameters[$paramName]='%'.$value;
                         break;
                     default:

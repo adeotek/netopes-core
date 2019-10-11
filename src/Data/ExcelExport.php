@@ -277,7 +277,7 @@ class ExcelExport {
                             $tformula='='.strtoupper($v['type']).'('.$this->IndexToColumn($c).'2:'.$this->IndexToColumn($c).($row_no - 1).')';
                             break;
                         default:
-                            continue;
+                            continue 2;
                             break;
                     }//END switch
                     $active_sheet->setCellValue($this->IndexToColumn($c).$row_no,$tformula);
