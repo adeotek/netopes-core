@@ -42,34 +42,40 @@ class ContainerBootstrap3 implements IControlContainer {
             $result=$content.$secondaryContent;
         } else {
             $result='';
-            $c_label_cols=0;
-            $c_label='';
-            $c_class=is_string($this->control->container_class) && strlen(trim($this->control->container_class)) ? $this->control->container_class : '';
+            $labelCols=0;
+            $labelTag='';
+            $containerClass=is_string($this->control->container_class) && strlen(trim($this->control->container_class)) ? $this->control->container_class : '';
             if(!$this->control->no_label) {
-                if($this->control->label_position=='top') {
-                    $c_label_cols=12;
-                } else {
-                    $c_label_cols=is_numeric($this->control->label_cols) && $this->control->label_cols>0 && $this->control->label_cols<12 ? $this->control->label_cols : 2;
-                }//if($this->control->label_position=='top')
-                $llabelclass='control-label col-md-'.$c_label_cols.(strlen($this->control->labelclass) ? ' '.$this->control->labelclass : '');
-                $lrequired=$this->control->required ? '<span class="clsMarkerRequired"></span>' : '';
-                if(strlen($this->control->size)) {
-                    $llabelclass.=' label-'.$this->control->size;
+                $labelClass='control-label';
+                if($this->control->inline!==TRUE) {
+                    if($this->control->label_position=='top') {
+                        $labelCols=12;
+                    } else {
+                        $labelCols=is_numeric($this->control->label_cols) && $this->control->label_cols>0 && $this->control->label_cols<12 ? $this->control->label_cols : 2;
+                    }//if($this->control->label_position=='top')
+                    $labelClass.=' col-md-'.$labelCols;
                 }
-                $c_label="\t\t".'<label class="'.$llabelclass.'" for="'.$this->control->tag_id.'">'.$this->control->label.$lrequired.'</label>'."\n";
+                $labelClass.=(strlen($this->control->labelclass) ? ' '.$this->control->labelclass : '');
+                $isRequired=$this->control->required ? '<span class="clsMarkerRequired"></span>' : '';
+                if(strlen($this->control->size)) {
+                    $labelClass.=' label-'.$this->control->size;
+                }
+                $labelTag="\t\t".'<label class="'.$labelClass.'" for="'.$this->control->tag_id.'">'.$this->control->label.$isRequired.'</label>'."\n";
             }//if(!$this->control->no_label)
             if(!$this->control->no_label && $this->control->label_position=='top') {
                 $c_cols=is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=12 ? $this->control->cols : 12;
             } else {
-                $c_cols=is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=(12 - $c_label_cols) ? $this->control->cols : (12 - $c_label_cols);
+                $c_cols=is_numeric($this->control->cols) && $this->control->cols>0 && $this->control->cols<=(12 - $labelCols) ? $this->control->cols : (12 - $labelCols);
             }//if(!$this->control->no_label && $this->control->label_position=='top')
             if($this->control->container) {
-                $result.="\t".'<div class="form-group'.(strlen($c_class) ? ' '.$c_class : '').'">'."\n";
+                $result.="\t".'<div class="form-group'.(strlen($containerClass) ? ' '.$containerClass : '').'">'."\n";
             }
             if($this->control->label_position!='right') {
-                $result.=$c_label;
+                $result.=$labelTag;
             }
-            $result.="\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
+            if($this->control->inline!==TRUE) {
+                $result.="\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
+            }
             if($this->control->hasActions()) {
                 $content="\t\t\t".'<div class="input-group">'."\n\t\t\t\t".$content."\n\t\t\t".'</div>';
             } else {
@@ -82,9 +88,11 @@ class ContainerBootstrap3 implements IControlContainer {
             if(is_string($this->control->field_hint) && strlen($this->control->field_hint)) {
                 $result.="\t\t\t".'<p'.(strlen($this->control->tag_id) ? ' id="'.$this->control->tag_id.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))
-            $result.="\t\t".'</div>'."\n";
+            if($this->control->inline!==TRUE) {
+                $result.="\t\t".'</div>'."\n";
+            }
             if($this->control->label_position=='right') {
-                $result.=$c_label;
+                $result.=$labelTag;
             }
             if($this->control->container) {
                 $result.="\t".'</div>'."\n";
