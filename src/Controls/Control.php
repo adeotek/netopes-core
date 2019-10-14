@@ -111,6 +111,10 @@ abstract class Control {
      */
     public $container=TRUE;
     /**
+     * @var    boolean Inline rendering
+     */
+    public $inline=FALSE;
+    /**
      * @var    boolean Flag for no label
      */
     public $no_label=FALSE;
@@ -412,6 +416,9 @@ abstract class Control {
                             if($raw===TRUE && (bool)$this->required) {
                                 $lclass.=' clsRequiredField';
                             }
+                            break;
+                        case 'InlineMultiControl':
+                            $lclass.=' form-inline';
                             break;
                         default:
                             if($this->theme_type!='bootstrap2') {

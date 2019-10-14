@@ -39,7 +39,7 @@ class DualControl extends Control {
     public $secondary_control_first=FALSE;
 
     /**
-     * InlineMultiControl constructor.
+     * DualControl constructor.
      *
      * @param null $params
      * @throws \NETopes\Core\AppException

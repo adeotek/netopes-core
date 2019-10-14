@@ -1161,6 +1161,20 @@ div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown > .gcbo-load
 }
 
 /* END clsKVList control */
+/*** InlineMultiControl ***/
+.clsInlineMultiControl {
+	float: left;
+	width: 100%;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+.clsInlineMultiControl.form-inline .form-group {
+	margin-left: 0 !important;
+	margin-right: 10px !important;
+}
+
+/* END InlineMultiControl */
 /*** File uploader ***/
 .clsFileUploaderContainer {
 	display: block;
