@@ -13,7 +13,6 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\App\Module;
-use NETopes\Core\AppException;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
@@ -180,64 +179,6 @@ class BasicForm {
         }
         $this->field_conditions=DataSourceHelpers::ConvertArrayToDataSet(is_iterable($this->field_conditions) ? $this->field_conditions : [],VirtualEntity::class,$this->field_name_property,$this->field_name_property_case);
     }//END public function __construct
-
-    /**
-     * @param array $action
-     * @param bool  $first
-     */
-    public function AddAction(array $action,bool $first=FALSE): void {
-        if(!is_array($this->actions)) {
-            $this->actions=[];
-        }
-        if($first) {
-            array_unshift($this->actions,$action);
-        } else {
-            $this->actions[]=$action;
-        }//if($first)
-    }//END public function AddAction
-
-    /**
-     * @param array $row
-     * @param bool  $first
-     */
-    public function AddRow(array $row,bool $first=FALSE): void {
-        if(!is_array($this->content)) {
-            $this->content=[];
-        }
-        if($first) {
-            array_unshift($this->content,$row);
-        } else {
-            $this->content[]=$row;
-        }//if($first)
-    }//END public function AddRow
-
-    /**
-     * @param array    $control
-     * @param int|null $row
-     * @param int|null $column
-     * @param bool     $overwrite
-     * @throws \NETopes\Core\AppException
-     */
-    public function AddControl(array $control,?int $row=NULL,?int $column=NULL,bool $overwrite=FALSE): void {
-        if(!is_array($this->content)) {
-            $this->content=[];
-        }
-        if($row!==NULL) {
-            if(!isset($this->content[$row]) || !is_array($this->content[$row])) {
-                $this->content[$row]=[];
-            }
-            if($column!==NULL) {
-                if(isset($this->content[$row][$column]) && is_array($this->content[$row][$column]) && !$overwrite) {
-                    throw new AppException("Form element already set [{$row}:{$column}]!");
-                }
-                $this->content[$row][$column]=$control;
-            } else {
-                $this->content[$row][]=$control;
-            }//if($column!==NULL)
-        } else {
-            $this->content[]=[$control];
-        }//if($row!==NULL)
-    }//END public function AddRow
 
     /**
      * @return array
