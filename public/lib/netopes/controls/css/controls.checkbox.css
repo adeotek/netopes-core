@@ -1,0 +1,71 @@
+.clsCheckBox[type="image"],
+.clsCheckBoxRound[type="image"],
+.clsCheckBoxPRed[type="image"] {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	padding: 0;
+	margin: 0 auto;
+	border: 1px solid transparent;
+}
+
+.clsCheckBoxSwitch[type="image"] {
+	display: inline-block;
+	width: 47px;
+	height: 28px;
+	line-height: 28px;
+	padding: 0;
+	margin: 0 auto;
+	border: 1px solid transparent;
+}
+
+.clsSmallCheckBoxSwitch {
+	display: inline-block;
+	width: 27px;
+	height: 16px;
+	line-height: 16px;
+	padding: 0;
+	margin: 0 auto;
+	border: 1px solid transparent;
+}
+
+.clsCheckBox[type="image"][value="1"] {
+	background: transparent url("../images/checked.png") no-repeat center center;
+}
+
+.clsCheckBox[type="image"][value="0"] {
+	background: transparent url("../images/unchecked.png") no-repeat center center;
+}
+
+.clsCheckBoxSwitch[type="image"][value="1"] {
+	background: transparent url("../images/switch-on.png") no-repeat center center;
+}
+
+.clsCheckBoxSwitch[type="image"][value="0"] {
+	background: transparent url("../images/switch-off.png") no-repeat center center;
+}
+
+.clsSmallCheckBoxSwitch[type="image"][value="1"] {
+	background: transparent url("../images/small-switch-on.png") no-repeat center center;
+}
+
+.clsSmallCheckBoxSwitch[type="image"][value="0"] {
+	background: transparent url("../images/small-switch-off.png") no-repeat center center;
+}
+
+.clsCheckBoxRound[type="image"][value="1"] {
+	background: transparent url("../images/round-checked.png") no-repeat center center;
+}
+
+.clsCheckBoxRound[type="image"][value="0"] {
+	background: transparent url("../images/round-unchecked.png") no-repeat center center;
+}
+
+.clsCheckBoxPRed[type="image"][value="1"] {
+	background: transparent url("../images/checked.png") no-repeat center center;
+}
+
+.clsCheckBoxPRed[type="image"][value="0"] {
+	background: transparent url("../images/unchecked-red.png") no-repeat center center;
+}

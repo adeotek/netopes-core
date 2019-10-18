@@ -884,18 +884,16 @@ select.clsPlaceholder option {
 	color: #000000;
 }
 
-.clsGridComboBox, .clsTreeComboBox {
+.clsGridComboBox {
 	margin: 0 !important;
 }
 
-div.clsGridComboBox.ctrl-container,
-div.clsTreeComboBox.ctrl-container {
+div.clsGridComboBox.ctrl-container {
 	display: inline-block;
 	width: 100%;
 }
 
-div.clsGridComboBox.ctrl-container > input.clsGridComboBox,
-div.clsTreeComboBox.ctrl-container > input.clsTreeComboBox {
+div.clsGridComboBox.ctrl-container > input.clsGridComboBox {
 	position: relative;
 	box-sizing: border-box;
 	padding-left: 5px;
@@ -903,14 +901,12 @@ div.clsTreeComboBox.ctrl-container > input.clsTreeComboBox {
 	width: 100%;
 }
 
-div.clsGridComboBox.ctrl-container.tall > input.clsGridComboBox,
-div.clsTreeComboBox.ctrl-container.tall > input.clsTreeComboBox {
+div.clsGridComboBox.ctrl-container.tall > input.clsGridComboBox {
 	padding-top: 8px;
 	padding-bottom: 8px;
 }
 
-div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dd-btn,
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-btn {
+div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dd-btn {
 	position: relative;
 	float: right;
 	background: transparent url("../images/combo-box-arrow.png") no-repeat center center;
@@ -923,13 +919,11 @@ div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-btn {
 	z-index: 10;
 }
 
-div.clsGridComboBox.ctrl-container.tall > .clsGridComboBox.ctrl-dd-btn,
-div.clsTreeComboBox.ctrl-container.tall > .clsTreeComboBox.ctrl-dd-btn {
+div.clsGridComboBox.ctrl-container.tall > .clsGridComboBox.ctrl-dd-btn {
 	margin-top: -26px !important;
 }
 
-div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dd-i-btn,
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-i-btn {
+div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dd-i-btn {
 	position: relative;
 	float: right;
 	background: transparent;
@@ -954,8 +948,7 @@ div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-i-btn.input-xxs {
 	margin: -18px 1px 0 0 !important;
 }
 
-div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-clear,
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-clear {
+div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-clear {
 	display: none;
 	position: relative;
 	float: right;
@@ -979,13 +972,11 @@ div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-clear.input-xxs {
 	margin: -15px 24px 0 0 !important;
 }
 
-div.clsGridComboBox.ctrl-container:hover > .clsGridComboBox.ctrl-clear,
-div.clsTreeComboBox.ctrl-container:hover > .clsTreeComboBox.ctrl-clear {
+div.clsGridComboBox.ctrl-container:hover > .clsGridComboBox.ctrl-clear {
 	display: block;
 }
 
-div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown,
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
+div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown {
 	display: block;
 	position: absolute;
 	top: 18px;
@@ -1004,19 +995,6 @@ div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
 div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown {
 	min-height: 60px;
 	max-height: 600px;
-}
-
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
-	max-height: 500px;
-}
-
-div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown > .gcbo-target {
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	background: transparent;
-	margin: 0;
-	padding: 0;
 }
 
 div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dropdown > .gcbo-loader {

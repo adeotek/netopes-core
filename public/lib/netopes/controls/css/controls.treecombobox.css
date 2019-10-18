@@ -1,0 +1,98 @@
+.clsTreeComboBox {
+	margin: 0 !important;
+}
+
+div.clsTreeComboBox.ctrl-container {
+	display: inline-block;
+	width: 100%;
+}
+
+div.clsTreeComboBox.ctrl-container > input.clsTreeComboBox {
+	position: relative;
+	box-sizing: border-box;
+	padding-left: 5px;
+	padding-right: 23px;
+	width: 100%;
+}
+
+div.clsTreeComboBox.ctrl-container.tall > input.clsTreeComboBox {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-btn {
+	position: relative;
+	float: right;
+	background: transparent url("../images/combo-box-arrow.png") no-repeat center center;
+	cursor: pointer;
+	width: 20px;
+	height: 17px;
+	line-height: 17px;
+	padding: 0;
+	margin: -18px 1px 0 0 !important;
+	z-index: 10;
+}
+
+div.clsTreeComboBox.ctrl-container.tall > .clsTreeComboBox.ctrl-dd-btn {
+	margin-top: -26px !important;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-i-btn {
+	position: relative;
+	float: right;
+	background: transparent;
+	cursor: pointer;
+	width: 18px;
+	height: 36px;
+	line-height: 36px;
+	padding: 0;
+	margin: -36px 1px 0 0 !important;
+	text-align: center;
+	z-index: 10;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-clear {
+	display: none;
+	position: relative;
+	float: right;
+	width: 10px;
+	height: 36px;
+	line-height: 36px;
+	margin: -36px 24px 0 0 !important;
+	background: transparent url("../images/x_button_small.png") no-repeat center center;
+	cursor: pointer;
+	z-index: 12;
+}
+
+div.clsTreeComboBox.ctrl-container:hover > .clsTreeComboBox.ctrl-clear {
+	display: block;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
+	display: block;
+	position: absolute;
+	top: 18px;
+	left: 0;
+	overflow: auto;
+	box-sizing: border-box;
+	background-color: #ffffff;
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	padding: 5px;
+	z-index: 12;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
+	max-height: 500px;
+}
+
+div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown > .gcbo-target {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	background: transparent;
+	margin: 0;
+	padding: 0;
+}

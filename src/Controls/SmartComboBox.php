@@ -223,7 +223,7 @@ class SmartComboBox extends Control {
                         $jsScriptPrefix.="$('#{$this->tag_id}').data('hasError','0');\n";
                     }
                     $jsScripts[]="\t\t\tajax: {
-						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$acModule}&method={$acMethod}&type=json{$acParams}&uid={$tagSessionUid}&phash='+window.name,
+						url: nAppBaseUrl+'/".AppConfig::GetValue('app_ajax_target')."?namespace={$cns}&module={$acModule}&method={$acMethod}&response_type=json{$acParams}&uid={$tagSessionUid}&phash='+window.name,
 						dataType: 'json',
 						delay: 0,
 						cache: false,
