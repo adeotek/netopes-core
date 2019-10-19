@@ -81,12 +81,12 @@ class TreeComboBox extends Control {
             default:
                 break;
         }//END switch
-        $containerClass=$this->base_class.' ctrl-container'.(strlen($this->class)>0 ? ' '.$this->class : '');
-        $dropdownBtnClass=$this->base_class.' ctrl-dd-i-btn'.(strlen($this->class)>0 ? ' '.$this->class : '');
+        $containerClass=$this->base_class.' ctrl-container'.(strlen($this->class) ? ' '.$this->class : '');
+        $dropdownBtnClass=$this->base_class.' ctrl-dd-i-btn'.(strlen($this->class) ? ' '.$this->class : '');
         if($this->disabled || $this->readonly) {
-            $result='<div id="'.$this->tag_id.'-container" class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
+            $result='<div class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
             $result.="\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$cssClass.($this->postable ? ' postable' : '').'">'."\n";
-            $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$tabindex.$extraTagParams.'>'."\n";
+            $result.="\t".'<input type="text" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$tabindex.$extraTagParams.'>'."\n";
             $result.="\t".'<div class="'.$dropdownBtnClass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
             $result.='</div>'."\n";
             return $result;
@@ -94,11 +94,11 @@ class TreeComboBox extends Control {
             $cssClass=trim($cssClass.' stdro');
         }//if($this->disabled || $this->readonly)
         $clearBtnClass=$this->base_class.' ctrl-clear'.(strlen($this->class) ? ' '.$this->class : '');
-        $treeContainerClass=$this->base_class.' ctrl-ctree'.(strlen($this->class)>0 ? ' '.$this->class : '');
+        $treeContainerClass=$this->base_class.' ctrl-ctree'.(strlen($this->class) ? ' '.$this->class : '');
         $dropdownContainerClass=$this->base_class.' ctrl-dropdown';
-        $result='<div id="'.$this->tag_id.'-container" class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
+        $result='<div class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
         $result.="\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$cssClass.($this->postable ? ' postable' : '').'"'.$onChange.'>'."\n";
-        $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.' readonly="readonly"'.$tabindex.$extraTagParams.' data-value="'.$this->selected_value.'">'."\n";
+        $result.="\t".'<input type="text" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.' readonly="readonly"'.$tabindex.$extraTagParams.' data-value="'.$this->selected_value.'">'."\n";
         $result.="\t".'<div class="'.$dropdownBtnClass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
         $result.="\t".'<div class="'.$clearBtnClass.'"></div>'."\n";
         $result.="\t".'<div class="'.$dropdownContainerClass.'"'.$dropdownCssStyle.'>';
@@ -129,15 +129,16 @@ class TreeComboBox extends Control {
             AppSession::SetSessionAcceptedRequest($this->uid,NApp::$currentNamespace);
             NApp::AddJsScript("$('#{$this->tag_id}').NetopesTreeComboBox({
                 value: '{$this->selected_value}',
-                ajaxUrl: nAppBaseUrl+'/aindex.php?namespace=".NApp::$currentNamespace."',
+                ajaxUrl: nAppBaseUrl+'/aindex.php?namespace=".NApp::$currentNamespace."&uid={$this->uid}',
                 module: '{$dsModule}',
                 method: '{$dsMethod}',
                 urlParams: '{$urlParams}',
                 jsParams: { {$urlJsParams} },
-                uid: '{$this->uid}',
                 encrypt: ".($this->encrypted ? 'true' : 'false').",
                 hideParentsCheckbox: ".($this->hide_parents_checkbox ? 'true' : 'false').",
-                useIcons: ".($this->icon ? 'true' : 'false')."
+                useIcons: ".($this->icon ? 'true' : 'false').",
+                onChange: ".(strlen($this->onchange) ? '"'.$this->onchange.'"' : 'false').",
+                disabled: ".($this->disabled_on_render ? 'true' : 'false')."
              });");
         }//if(strlen($dsModule) && strlen($dsMethod))
         $result.=$this->GetActions();

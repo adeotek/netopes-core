@@ -287,21 +287,21 @@ function GetCalculatedValue(element_value,decimal_separator) {
 /*** For CheckBox control ***/
 (function($) {
     $.fn.imageCheckBoxCheck=function() {
-        this.filter('input[type="text"]').each(function() {
+        this.filter('input[type="image"]').each(function() {
             $(this).val(1);
             $(this).trigger('change');
         });
         return this;
     };
     $.fn.imageCheckBoxUncheck=function() {
-        this.filter('input[type="text"]').each(function() {
+        this.filter('input[type="image"]').each(function() {
             $(this).val(0);
             $(this).trigger('change');
         });
         return this;
     };
     $.fn.imageCheckBoxToggle=function() {
-        this.filter('input[type="text"]').each(function() {
+        this.filter('input[type="image"]').each(function() {
             if($(this).val()==='1') {
                 $(this).val(0);
             } else {
@@ -488,150 +488,6 @@ function GCBOSetValue(elementid,val,title,btnclick) {
     let onchange=$('#' + elementid).attr('data-onchange');
     if(onchange && onchange.length>0) { eval(onchange); }
 }//END function GCBOSetValue
-
-/*** TreeComboBox ***/
-function TreeCBODDBtnClick(elementId) {
-    if(!$('#' + elementId + '-cbo').prop('disabled')) {
-        let obj=$('#' + elementId + '-dropdown');
-        if($(obj).css('display')=='none') {
-            let lwidth=$(obj).width();
-            let cwidth=$('#' + elementId + '-cbo').outerWidth();
-            let loffset=$('#' + elementId + '-cbo').position();
-            let ltop=loffset.top + $('#' + elementId + '-cbo').outerHeight();
-            let lleft=loffset.left;
-            if((lleft + lwidth)>window.innerWidth && window.innerWidth>lwidth) { lleft=Math.max(0,(lleft - (lwidth - cwidth))); }
-            $(obj).css('top',ltop + 'px');
-            $(obj).css('left',lleft + 'px');
-            $(obj).show();
-        } else {
-            $(obj).hide();
-        }//if($(obj).css('display')=='none')
-    }
-}//END function TreeCBODDBtnClick
-/**
- * @return {boolean}
- */
-function TreeCBOSetDisabled(elementId,val,resetValue) {
-    if(typeof elementId!=='string' || elementId.length<=0) {
-        return false;
-    }
-    let $obj=$('#' + elementId + '-cbo');
-    if(!$obj || $obj.length<=0) {
-        return false;
-    }
-    if(val===true || val===1 || val==='1') {
-        $obj.prop('disabled','disabled');
-        $obj.removeClass('stdro');
-        $('#' + elementId + '-dropdown').hide();
-    } else {
-        $obj.prop('disabled',false);
-        $obj.addClass('stdro');
-    }
-    if(resetValue===true || resetValue===1 || resetValue==='1') {
-        TreeCBOClear(elementId);
-    }
-    return true;
-}//END function TCBOSetDisabled
-
-function TreeCBOClear(elementId,btn) {
-    if(!btn || !$('#' + elementId + '-cbo').prop('disabled')) {
-        TreeCBOSetValue(elementId,'','',true);
-    }
-}//END function TreeCBOClear
-
-function TreeCBOSetValue(elementId,val,title,update_tree,reload) {
-    let oval=$('#' + elementId).val();
-    $('#' + elementId).val(val);
-    let obj=$('#' + elementId + '-cbo');
-    $(obj).val(title);
-    $(obj).attr('data-value',val);
-    if($('#' + elementId).attr('disabled')) { return false; }
-    if(reload===true || reload==1) {
-        let tree=$('#' + elementId + '-ctree').fancytree('getTree');
-        tree.reload();
-    } else if(update_tree===true || update_tree==1) {
-        let tree=$('#' + elementId + '-ctree').fancytree('getTree');
-        let node=tree.getNodeByKey(oval);
-        if(node!=null) { node.setSelected(false); }
-    }//if(update_tree==true || update_tree==1)
-    let onchange=$('#' + elementId).attr('data-onchange');
-    if(onchange && onchange.length>0) { eval(onchange); }
-}//END function TCBOClear
-
-function InitTCBOFancyTree(elementid,val,module,method,url_params,js_params,namespace,uid,encrypt,hide_parents_checkbox,icon) {
-    if(!elementid || elementid.length===0) { return; }
-    let lVal=encodeURIComponent(val);
-    let aurl=nAppBaseUrl + '/aindex.php?namespace=' + namespace;
-    let lparams='&module=' + module + '&method=' + method;
-    if(hide_parents_checkbox) { lparams+='&hpc=1'; }
-    if(uid || uid.length>0) { lparams+='&uid=' + uid; }
-    if(url_params) { lparams+=url_params; }
-    let urlCallback=function() {
-        let paramsString='';
-        if(typeof (js_params)==='object') {
-            for(let pk in js_params) {
-                let jspVal;
-                try {
-                    jspVal=eval(js_params[pk]);
-                } catch(er) {
-                    console.log(er);
-                    console.log(js_params[pk]);
-                    jspVal='';
-                }//try
-                paramsString+='&' + pk + '=' + jspVal;
-            }//for
-        } else if(typeof (js_params)==='string') {
-            paramsString=js_params;
-        }//if(typeof(js_params)==='object')
-        if(encrypt===1 || encrypt===true) {
-            aurl+='&arhash=' + encodeURIComponent(GibberishAES.enc(lparams + paramsString + '&phash=' + window.name,'xJS'));
-        } else {
-            aurl+=lparams + paramsString + '&phash=' + window.name;
-        }//if(encrypt===1 || encrypt===true)
-        // console.log('URL: '+aurl+'&response_type=json&tree=1&val='+lVal);
-        return aurl + '&response_type=json&tree=1&val=' + lVal;
-    };
-    $('#' + elementid + '-ctree').fancytree({
-        checkbox: true,
-        icon: icon || false,
-        selectMode: 1,
-        clickFolderMode: 1,
-        debugLevel: 0,
-        source: function() {
-            let iUrl=urlCallback();
-            return {
-                url: iUrl,
-                cache: false
-            };
-        },
-        lazyLoad: function(event,data) {
-            let iUrl=urlCallback();
-            data.result={
-                url: iUrl,
-                data: {key: data.node.key},
-            };
-        },
-        createNode: function(event,data) {
-            if(!data.node.data.hasSelectedChild) { return false; }
-            let iUrl=urlCallback();
-            $.ajax({
-                url: iUrl,
-                data: {key: data.node.key},
-                dataType: 'json',
-                success: function(response) { data.node.addChildren(response); }
-            });
-        },
-        select: function(event,data) {
-            if(data.node.isSelected()) {
-                TreeCBOSetValue(elementid,data.node.key,data.node.title,false);
-                CBODDBtnClick(elementid);
-            } else {
-                TreeCBOSetValue(elementid,'','',false);
-            }//if(data.node.isSelected())
-        }
-    });
-}//END function InitTCBOFancyTree
-/* END TreeComboBox */
 
 function InitFancyTree(elementid,module,method,url_params,namespace,uid,encrypt,checkboxes,hide_parents_checkbox,icon) {
     if(!elementid || elementid.length===0) { return; }
