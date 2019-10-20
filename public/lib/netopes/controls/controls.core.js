@@ -283,36 +283,6 @@ function GetCalculatedValue(element_value,decimal_separator) {
     return formated_value;
 }//END function GetCalculatedValue
 /*** END For NumericTextBox ***/
-
-/*** For CheckBox control ***/
-(function($) {
-    $.fn.imageCheckBoxCheck=function() {
-        this.filter('input[type="image"]').each(function() {
-            $(this).val(1);
-            $(this).trigger('change');
-        });
-        return this;
-    };
-    $.fn.imageCheckBoxUncheck=function() {
-        this.filter('input[type="image"]').each(function() {
-            $(this).val(0);
-            $(this).trigger('change');
-        });
-        return this;
-    };
-    $.fn.imageCheckBoxToggle=function() {
-        this.filter('input[type="image"]').each(function() {
-            if($(this).val()==='1') {
-                $(this).val(0);
-            } else {
-                $(this).val(1);
-            }//if($(this).val()==='1')
-            $(this).trigger('change');
-        });
-        return this;
-    };
-}(jQuery));
-/*** END For CheckBox control ***/
 /*** For GroupCheckBox control ***/
 function GroupCheckBoxBaseEvent(obj) {
     let multiple=$(obj).data('multiple') ? $(obj).data('multiple')==1 : false;

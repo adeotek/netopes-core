@@ -1,90 +1,122 @@
 (function($) {
     'use strict';
+    $.fn.NetopesCheckBox=function(options) {
 
-    $.fn.jqCheckBox=function(options) {
         // Plugin default options.
-        var config={
-            //1 = checkbox, 2 = switch
-            type: 1,
-            readonly: false,
-            onchange: function(obj,e) {},
-            root_url: nAppBaseUrl,
-            rel_path: '/lib/jquery.checkbox/'
+        let config={
+            type: 'checkbox', // checkbox/round_checkbox/switch/small_switch
+            checkedClass: '',
+            uncheckedClass: '',
+            baseUrl: '',
+            onChange: false,
+            onClick: false
         };
         if(options) { $.extend(config,options); }
 
-        function init(obj) {
-            obj.baseOnChange=function(e) {
-                if($(obj).attr('readonly')=='readonly' || config.readonly) { return; }
-                var cval=$(this).val();
-                if(cval==1) {
-                    $(this).val(0);
+        let methods={
+            toggle: function(obj) {
+                if($(obj).prop('disabled') || $(obj).prop('readonly')) {
+                    return false;
+                }
+                if($(obj).val()==='1') {
+                    $(obj).val(0);
                 } else {
-                    $(this).val(1);
-                }//if($(this).val()==1)
-                if(config.onchange) { config.onchange.call(this,e); }
-                var donchange=$(this).attr('onchange');
-                if(donchange) { if(donchange.length>0) { eval(donchange); } }
-                donchange=$(this).attr('data-onchange');
-                if(donchange) { if(donchange.length>0) { eval(donchange); } }
-            };
+                    $(obj).val(1);
+                }//if($(obj).val()==='1')
+                $(obj).trigger('change');
+            },
+            check: function(obj) {
+                if($(obj).prop('disabled') || $(obj).prop('readonly')) {
+                    return false;
+                }
+                $(obj).val(1);
+                $(obj).trigger('change');
+            },
+            uncheck: function(obj) {
+                if($(obj).prop('disabled') || $(obj).prop('readonly')) {
+                    return false;
+                }
+                $(obj).val(0);
+                $(obj).trigger('change');
+            }
+        };
 
-            obj.clear=function() { $(obj).off('change',obj.baseOnChange); };
-            $(obj).on('click',obj.baseOnChange);
-
+        function init(obj) {
             switch(config.type) {
-                case 2:
-                    $(obj).addClass('clsCheckBoxSwitch');
-                    $(obj).attr('src',config.root_url + config.rel_path + 'images/transparent-47x28.gif');
-                    break;
-                case 3:
+                case 'round_checkbox':
                     $(obj).addClass('clsCheckBoxRound');
-                    $(obj).attr('src',config.root_url + config.rel_path + 'images/transparent-16.gif');
+                    $(obj).attr('src',config.baseUrl + 'images/transparent.gif');
                     break;
-                case 4:
-                    $(obj).addClass('clsCheckBoxPRed');
-                    $(obj).attr('src',config.root_url + config.rel_path + 'images/transparent-16.gif');
+                case 'switch':
+                    $(obj).addClass('clsCheckBoxSwitch');
+                    $(obj).attr('src',config.baseUrl + 'images/transparent-47x28.gif');
                     break;
-                case 5:
-                    $(obj).addClass('clsSmallCheckBoxSwitch');
-                    $(obj).attr('src',config.root_url + config.rel_path + 'images/transparent-27x16.gif');
+                case 'small_switch':
+                    $(obj).addClass('clsCheckBoxSmallSwitch');
+                    $(obj).attr('src',config.baseUrl + 'images/transparent-27x16.gif');
                     break;
-                case 1:
+                case 'checkbox':
                 default:
-                    $(obj).addClass('clsCheckBox');
-                    $(obj).attr('src',config.root_url + config.rel_path + 'images/transparent-16.gif');
+                    $(obj).attr('src',config.baseUrl + 'images/transparent.gif');
                     break;
             }//END switch
+            if(config.checkedClass.length>0) {
+                $(obj).addClass(config.checkedClass);
+            } else {
+                $(obj).addClass('cb-default-ck');
+            }
+            if(config.uncheckedClass.length>0) {
+                $(obj).addClass(config.uncheckedClass);
+            } else {
+                $(obj).addClass('cb-default-uk');
+            }
+
+            if(typeof config.onClick==='string' && config.onClick.length>0) {
+                $(obj).on('click',function() {
+                    try {
+                        eval(config.onClick);
+                    } catch(e) {
+                        console.log(e);
+                        console.log(config.onClick);
+                    }
+                });
+            } else {
+                $(obj).on('click',function() {
+                    methods.toggle(obj);
+                });
+            }
+
+            if(typeof config.onChange==='string' && config.onChange.length>0) {
+                $(obj).on('change',function() {
+                    try {
+                        eval(config.onChange);
+                    } catch(e) {
+                        console.log(e);
+                        console.log(config.onChange);
+                    }
+                });
+            }
         }//END function init
-        // Return jQuery object to maintain chainability.
-        return this.each(function() { init(this); });
+
+        if(typeof options==='string') {
+            if(methods[options]) {
+                let methodArgs=Array.prototype.slice.call(arguments,1);
+                methodArgs.unshift(this);
+                return methods[options].apply(this,methodArgs);
+            } else {
+                console.log('Invalid or inaccessible method: [' + options + ']!');
+            }
+        } else {
+            // Return jQuery object to maintain chainabillity.
+            return this.each(function() {
+                console.log(this);
+                if(this.nodeName==='INPUT' && this.type==='image') {
+                    init(this);
+                } else {
+                    console.log('Invalid tag for NetopesCheckBox usage!');
+                    console.log(this);
+                }
+            });
+        }
     };//END $.fn.jqCheckBox
 })(jQuery);
-
-// (function($) {
-//     $.fn.imageCheckBoxCheck=function() {
-//         this.filter('input[type="text"]').each(function() {
-//             $(this).val(1);
-//             $(this).trigger('change');
-//         });
-//         return this;
-//     };
-//     $.fn.imageCheckBoxUncheck=function() {
-//         this.filter('input[type="text"]').each(function() {
-//             $(this).val(0);
-//             $(this).trigger('change');
-//         });
-//         return this;
-//     };
-//     $.fn.imageCheckBoxToggle=function() {
-//         this.filter('input[type="text"]').each(function() {
-//             if($(this).val()==='1') {
-//                 $(this).val(0);
-//             } else {
-//                 $(this).val(1);
-//             }//if($(this).val()==='1')
-//             $(this).trigger('change');
-//         });
-//         return this;
-//     };
-// }(jQuery));

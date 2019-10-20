@@ -277,9 +277,6 @@
 /* END Select2 overwrites */
 /*** END Overwrites ***/
 /*** Common controls ***/
-.clsCheckBox[type="image"],
-.clsCheckBoxRound[type="image"],
-.clsCheckBoxPRed[type="image"],
 .clsGCKBItem[type="image"] {
 	display: inline-block;
 	box-sizing: content-box;
@@ -290,59 +287,21 @@
 	border: 1px solid transparent;
 }
 
-.clsCheckBox[type="image"][value="1"],
 .clsGCKBItem[type="image"][value="1"] {
 	background: transparent url("../images/checked-blue.png") no-repeat center center;
 }
 
-.clsCheckBox[type="image"][value="0"],
 .clsGCKBItem[type="image"][value="0"] {
 	background: transparent url("../images/unchecked.png") no-repeat center center;
 }
 
-.clsCheckBoxRound[type="image"][value="1"] {
-	background: transparent url("../images/round-checked.png") no-repeat center center;
-}
-
-.clsCheckBoxRound[type="image"][value="0"] {
-	background: transparent url("../images/round-unchecked.png") no-repeat center center;
-}
-
-.clsCheckBoxPRed[type="image"][value="1"] {
-	background: transparent url("../images/checked-ggreen.png") no-repeat center center;
-}
-
-.clsCheckBoxPRed[type="image"][value="0"] {
-	background: transparent url("../images/unchecked-red.png") no-repeat center center;
-}
-
-.clsCheckBox[type="image"][value="1"][disabled="disabled"],
 .clsGCKBItem[type="image"][value="1"][disabled="disabled"] {
 	background: transparent url("../images/disabled-checked.png") no-repeat center center;
 	cursor: default;
 }
 
-.clsCheckBox[type="image"][value="0"][disabled="disabled"],
 .clsGCKBItem[type="image"][value="0"][disabled="disabled"] {
 	background: transparent url("../images/disabled-unchecked.png") no-repeat center center;
-	cursor: default;
-}
-
-/*.clsCheckBoxRound[type="image"][value="1"][disabled="disabled"] {*/
-/*background: transparent url("../images/disabled-round-checked.png") no-repeat center center;*/
-/*cursor: default;*/
-/*}*/
-/*.clsCheckBoxRound[type="image"][value="0"][disabled="disabled"] {*/
-/*background: transparent url("../images/disabled-round-unchecked.png") no-repeat center center;*/
-/*cursor: default;*/
-/*}*/
-.clsCheckBoxPRed[type="image"][value="1"][disabled="disabled"] {
-	background: transparent url("../images/disabled-checked-ggreen.png") no-repeat center center;
-	cursor: default;
-}
-
-.clsCheckBoxPRed[type="image"][value="0"][disabled="disabled"] {
-	background: transparent url("../images/disabled-unchecked-red.png") no-repeat center center;
 	cursor: default;
 }
 
@@ -2626,4 +2585,5 @@ table.clsBasicForm > tbody > tr > td {
 input[type=hidden].clsTreeComboBox.clsFieldError + input[type=text].clsTreeComboBox {
 	background-color: #FDC9C9 !important;
 }
+
 /*** END Generic Rules ***/

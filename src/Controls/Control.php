@@ -381,9 +381,9 @@ abstract class Control {
      * @return string Returns the html tag class
      */
     protected function GetTagClass($extra=NULL,$raw=FALSE) {
-        $lclass=(!$this->clear_base_class ? $this->base_class : '');
+        $cssClass=(!$this->clear_base_class ? $this->base_class : '');
         if(strlen($this->class)) {
-            $lclass.=' '.$this->class;
+            $cssClass.=' '.$this->class;
         }
         if(!$this->clear_base_class) {
             switch($this->theme_type) {
@@ -396,36 +396,36 @@ abstract class Control {
                         case 'Link':
                         case 'Container':
                             if(strlen($this->size)) {
-                                $lclass.=' btn-'.$this->size;
+                                $cssClass.=' btn-'.$this->size;
                             }
                             break;
                         case 'KVList':
                             break;
                         case 'CheckBox':
                             if(strlen($this->size)) {
-                                $lclass.=' checkbox-'.$this->size;
+                                $cssClass.=' checkbox-'.$this->size;
                             }
                             break;
                         case 'SmartComboBox':
                             if($this->theme_type!='bootstrap2') {
-                                $lclass.=' form-control';
+                                $cssClass.=' form-control';
                             }
                             if(strlen($this->size)) {
-                                $lclass.=' input-'.$this->size;
+                                $cssClass.=' input-'.$this->size;
                             }
                             if($raw===TRUE && (bool)$this->required) {
-                                $lclass.=' clsRequiredField';
+                                $cssClass.=' clsRequiredField';
                             }
                             break;
                         case 'InlineMultiControl':
-                            $lclass.=' form-inline';
+                            $cssClass.=' form-inline';
                             break;
                         default:
                             if($this->theme_type!='bootstrap2') {
-                                $lclass.=' form-control';
+                                $cssClass.=' form-control';
                             }
                             if(strlen($this->size)) {
-                                $lclass.=' input-'.$this->size;
+                                $cssClass.=' input-'.$this->size;
                             }
                             break;
                     }//END switch
@@ -434,7 +434,7 @@ abstract class Control {
                     switch(get_class_basename($this)) {
                         case 'SmartComboBox':
                             if($raw===TRUE && (bool)$this->required) {
-                                $lclass.=' clsRequiredField';
+                                $cssClass.=' clsRequiredField';
                             }
                             break;
                         default:
@@ -444,28 +444,28 @@ abstract class Control {
             }//END switch
         }//if(!$this->clear_base_class)
         if(strlen($extra)) {
-            $lclass.=' '.$extra;
+            $cssClass.=' '.$extra;
         }
         if($raw===TRUE) {
-            return trim($lclass);
+            return trim($cssClass);
         }
         if((bool)$this->required) {
-            $lclass.=' clsRequiredField';
+            $cssClass.=' clsRequiredField';
         }
         if($this->postable) {
-            $lclass.=' postable';
+            $cssClass.=' postable';
         }
         if(strlen($this->onenter)) {
-            $lclass.=' clsOnEnterAction';
+            $cssClass.=' clsOnEnterAction';
         }
         if(strlen($this->onenter_button)) {
-            $lclass.=' clsOnEnterActionButton';
+            $cssClass.=' clsOnEnterActionButton';
         }
         if($this->HasActions() && !$this->container) {
-            $lclass.=' w-act';
+            $cssClass.=' w-act';
         }
-        if(strlen(trim($lclass))) {
-            return ' class="'.trim($lclass).'"';
+        if(strlen(trim($cssClass))) {
+            return ' class="'.trim($cssClass).'"';
         }
         return '';
     }//END protected function GetTagClass
