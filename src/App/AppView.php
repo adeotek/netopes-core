@@ -450,92 +450,87 @@ class AppView {
     }//END public function AddModuleContent
 
     /**
-     * @param string     $file
-     * @param array|null $extraParams
-     * @param array|null $args
+     * @param string|array $config
+     * @param array|null   $extraParams
+     * @param array|null   $args
+     * @param string|null  $varName
      * @return void
      */
-    public function AddFilterBox(string $file,?array $extraParams=NULL,?array $args=NULL): void {
+    public function AddFilterBox($config,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\FilterBox','args'=>$args]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\FilterBox','args'=>$args,'var_name'=>$varName]);
     }//END public function AddFilterBox
 
     /**
-     * @param string     $file
-     * @param array|null $extraParams
-     * @param array|null $args
+     * @param string|array $config
+     * @param array|null   $extraParams
+     * @param array|null   $args
+     * @param string|null  $varName
      * @return void
      */
-    public function AddTableView(string $file,?array $extraParams=NULL,?array $args=NULL): void {
+    public function AddTableView($config,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args,'var_name'=>$varName]);
     }//END public function AddTableView
 
     /**
-     * @param string     $file
-     * @param array|null $extraParams
+     * @param string|array $config
+     * @param array|null   $extraParams
+     * @param string|null  $varName
      * @return void
      */
-    public function AddBasicForm(string $file,?array $extraParams=NULL): void {
+    public function AddBasicForm($config,?array $extraParams=NULL,?string $varName=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\BasicForm']);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\BasicForm','var_name'=>$varName]);
     }//END public function AddBasicForm
 
     /**
-     * @param string     $file
-     * @param array|null $extraParams
+     * @param string|array $config
+     * @param array|null   $extraParams
+     * @param string|null  $varName
      * @return void
      */
-    public function AddTabControl(string $file,?array $extraParams=NULL): void {
+    public function AddTabControl($config,?array $extraParams=NULL,?string $varName=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>'\NETopes\Core\Controls\TabControl']);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TabControl','var_name'=>$varName]);
     }//END public function AddTabControl
 
     /**
-     * @param string     $file
-     * @param string     $controlClass
-     * @param array|null $extraParams
-     * @param array|null $args
+     * @param string|array $config
+     * @param string       $controlClass
+     * @param array|null   $extraParams
+     * @param array|null   $args
+     * @param string|null  $varName
      * @return void
      */
-    public function AddControlContent(string $file,string $controlClass,?array $extraParams=NULL,?array $args=NULL): void {
+    public function AddControlContent($config,string $controlClass,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$file,'class'=>$controlClass,'args'=>$args]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$controlClass,'args'=>$args,'var_name'=>$varName]);
     }//END public function AddControlContent
 
     /**
-     * @param string     $_v_file  File full name (including absolute path)
-     * @param string     $_c_class Control class fully qualified name
+     * @param array      $_c_config Control configuration array
+     * @param string     $_c_class  Control class fully qualified name
      * @param array|null $args
-     * @param array|null $params
      * @return string
-     * @throws \NETopes\Core\AppException
      */
-    protected function GetControlContent(string $_v_file,string $_c_class,?array $args=NULL,?array $params=NULL): string {
-        $passTroughParams=array_merge($this->_params,$params ?? []);
-        if(count($passTroughParams)) {
-            extract($passTroughParams);
-        }
-        require($_v_file);
-        if(!isset($ctrl_params)) {
-            throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!');
-        }
-        $_control=new $_c_class($ctrl_params);
+    protected function GetControlContent(array $_c_config,string $_c_class,?array $args=NULL): string {
+        $_control=new $_c_class($_c_config);
         if(is_array($args) && count($args)) {
             $result=$_control->Show(...$args);
         } else {
@@ -549,7 +544,29 @@ class AppView {
             $this->AddJsScript($jsScript);
         }
         return $result;
-    }//END protected function GetControlContent
+    }//END protected function GetControlContentFromFile
+
+    /**
+     * @param string      $_v_file  File full name (including absolute path)
+     * @param string      $_c_class Control class fully qualified name
+     * @param array|null  $args
+     * @param array|null  $params
+     * @param string|null $_var_name
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetControlContentFromFile(string $_v_file,string $_c_class,?array $args=NULL,?array $params=NULL,?string $_var_name=NULL): string {
+        $_var_name=$_var_name ?? 'ctrl_params';
+        $passTroughParams=array_merge($this->_params,$params ?? []);
+        if(count($passTroughParams)) {
+            extract($passTroughParams);
+        }
+        require($_v_file);
+        if(!isset($$_var_name)) {
+            throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!');
+        }
+        return $this->GetControlContent($$_var_name,$_c_class,$args);
+    }//END protected function GetControlContentFromFile
 
     /**
      * @param string     $_v_file
@@ -735,8 +752,14 @@ class AppView {
                         continue 2;
                     }//if(!strlen($class) || !strlen($value))
                     $args=get_array_value($c,'args',NULL,'?is_array');
-                    $customParams=get_array_value($c,'params',NULL,'?is_array');
-                    $cContent=$this->GetControlContent($value,$class,$args,$customParams);
+                    $config=get_array_value($c,'value',NULL,'?is_array');
+                    if(is_array($config)) {
+                        $cContent=$this->GetControlContent($config,$class,$args);
+                    } else {
+                        $customParams=get_array_value($c,'params',NULL,'?is_array');
+                        $varName=get_array_value($c,'var_name',NULL,'?is_string');
+                        $cContent=$this->GetControlContentFromFile($value,$class,$args,$customParams,$varName);
+                    }//if(is_array($config))
                     break;
                 case self::FILE_CONTENT:
                     if(!strlen($value)) {
