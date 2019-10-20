@@ -42,7 +42,7 @@ class AppView {
      */
     const OBJECT_CONTENT='object';
     /**
-     * Module content contant
+     * Module content content
      */
     const MODULE_CONTENT='module';
     /**
