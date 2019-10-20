@@ -30,6 +30,10 @@ class AppView {
      */
     const CONTROL_CONTENT='control';
     /**
+     * Control builder constant
+     */
+    const CONTROL_BUILDER='builder';
+    /**
      * File content constant
      */
     const FILE_CONTENT='file';
@@ -452,31 +456,31 @@ class AppView {
     /**
      * @param string|array $config
      * @param array|null   $extraParams
-     * @param array|null   $args
      * @param string|null  $varName
+     * @param array|null   $args
      * @return void
      */
-    public function AddFilterBox($config,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
+    public function AddFilterBox($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\FilterBox','args'=>$args,'var_name'=>$varName]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\FilterBox','var_name'=>$varName,'args'=>$args]);
     }//END public function AddFilterBox
 
     /**
      * @param string|array $config
      * @param array|null   $extraParams
-     * @param array|null   $args
      * @param string|null  $varName
+     * @param array|null   $args
      * @return void
      */
-    public function AddTableView($config,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
+    public function AddTableView($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TableView','args'=>$args,'var_name'=>$varName]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TableView','var_name'=>$varName,'args'=>$args]);
     }//END public function AddTableView
 
     /**
@@ -511,17 +515,33 @@ class AppView {
      * @param string|array $config
      * @param string       $controlClass
      * @param array|null   $extraParams
-     * @param array|null   $args
      * @param string|null  $varName
+     * @param array|null   $args
      * @return void
      */
-    public function AddControlContent($config,string $controlClass,?array $extraParams=NULL,?array $args=NULL,?string $varName=NULL): void {
+    public function AddControlContent($config,string $controlClass,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$controlClass,'args'=>$args,'var_name'=>$varName]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$controlClass,'var_name'=>$varName,'args'=>$args]);
     }//END public function AddControlContent
+
+    /**
+     * @param string|object $builder
+     * @param string        $controlClass
+     * @param array|null    $extraParams
+     * @param string|null   $varName
+     * @param array|null    $args
+     * @return void
+     */
+    public function AddControlBuilderContent($builder,string $controlClass,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
+        $tag=get_array_value($extraParams,'tag','','is_string');
+        if(strlen($tag)) {
+            $this->_placeholders[$tag]=NULL;
+        }
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_BUILDER,'value'=>$builder,'class'=>$controlClass,'var_name'=>$varName,'args'=>$args]);
+    }//END public function AddControlBuilderContent
 
     /**
      * @param array      $_c_config Control configuration array
@@ -567,6 +587,28 @@ class AppView {
         }
         return $this->GetControlContent($$_var_name,$_c_class,$args);
     }//END protected function GetControlContentFromFile
+
+    /**
+     * @param string      $_v_file  File full name (including absolute path)
+     * @param string      $_c_class Control class fully qualified name
+     * @param array|null  $args
+     * @param array|null  $params
+     * @param string|null $_var_name
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetControlBuilderFromFile(string $_v_file,string $_c_class,?array $args=NULL,?array $params=NULL,?string $_var_name=NULL): string {
+        $_var_name=$_var_name ?? 'ctrl_builder';
+        $passTroughParams=array_merge($this->_params,$params ?? []);
+        if(count($passTroughParams)) {
+            extract($passTroughParams);
+        }
+        require($_v_file);
+        if(!isset($$_var_name) || !is_object($$_var_name)) {
+            throw new AppException('Undefined control builder variable [$ctrl_params:'.$_v_file.']!');
+        }
+        return $this->GetControlContent($$_var_name->Config(),$_c_class,$args);
+    }//END protected function GetControlBuilderFromFile
 
     /**
      * @param string     $_v_file
@@ -734,7 +776,6 @@ class AppView {
         $mainContainer=$this->GetContainer($this->_containerType,$this->_placeholders,$this->HasActions(),$this->HasTitle());
         foreach($this->_content as $k=>$c) {
             $type=get_array_value($c,'type','','is_string');
-            $value=get_array_value($c,'value','','is_string');
             $cContainerType=get_array_value($c,'container_type',NULL,'?is_string');
             $cContainerId=get_array_value($c,'container_id',NULL,'?is_string');
             $cContainerClass=get_array_value($c,'container_class',NULL,'?is_string');
@@ -745,23 +786,53 @@ class AppView {
             switch($type) {
                 case self::CONTROL_CONTENT:
                     $class=get_array_value($c,'class','','is_string');
-                    if(!strlen($class) || !strlen($value)) {
+                    if(!strlen($class)) {
                         if($this->_debug) {
-                            NApp::Wlog('Invalid content class/value [control:index:'.$k.']!');
+                            NApp::Wlog('Invalid content class [control:index:'.$k.']!');
                         }
                         continue 2;
-                    }//if(!strlen($class) || !strlen($value))
+                    }//if(!strlen($class))
                     $args=get_array_value($c,'args',NULL,'?is_array');
-                    $config=get_array_value($c,'value',NULL,'?is_array');
+                    $config=get_array_value($c,'value',NULL,'isset');
+
                     if(is_array($config)) {
                         $cContent=$this->GetControlContent($config,$class,$args);
-                    } else {
+                    } elseif(is_string($config) && strlen($config)) {
                         $customParams=get_array_value($c,'params',NULL,'?is_array');
                         $varName=get_array_value($c,'var_name',NULL,'?is_string');
-                        $cContent=$this->GetControlContentFromFile($value,$class,$args,$customParams,$varName);
+                        $cContent=$this->GetControlContentFromFile($config,$class,$args,$customParams,$varName);
+                    } else {
+                        if($this->_debug) {
+                            NApp::Wlog('Invalid content value [control:index:'.$k.']!');
+                        }
+                        continue 2;
+                    }//if(is_array($config))
+                    break;
+                case self::CONTROL_BUILDER:
+                    $class=get_array_value($c,'class','','is_string');
+                    if(!strlen($class)) {
+                        if($this->_debug) {
+                            NApp::Wlog('Invalid content class [control:index:'.$k.']!');
+                        }
+                        continue 2;
+                    }//if(!strlen($class))
+                    $args=get_array_value($c,'args',NULL,'?is_array');
+                    $builder=get_array_value($c,'value',NULL,'isset');
+                    if(is_object($builder)) {
+                        $cContent=$this->GetControlContent($builder->GetConfig(),$class,$args);
+                    } elseif(is_string($builder) && strlen($builder)) {
+                        $customParams=get_array_value($c,'params',NULL,'?is_array');
+                        $varName=get_array_value($c,'var_name',NULL,'?is_string');
+                        $cContent=$this->GetControlBuilderFromFile($builder,$class,$args,$customParams,$varName);
+                    } else {
+                        if($this->_debug) {
+                            NApp::Wlog('Invalid content value [control:index:'.$k.']!');
+                        }
+                        continue 2;
                     }//if(is_array($config))
                     break;
                 case self::FILE_CONTENT:
+                    $value=get_array_value($c,'value','','is_string');
                     if(!strlen($value)) {
                         if($this->_debug) {
                             NApp::Wlog('Invalid content value [file:index:'.$k.']!');
@@ -800,7 +871,7 @@ class AppView {
                     }//if(is_array($args) && count($args))
                     break;
                 case self::STRING_CONTENT:
-                    $cContent=$value;
+                    $cContent=get_array_value($c,'value','','is_string');
                     break;
                 default:
                     if($this->_debug) {
