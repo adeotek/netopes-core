@@ -62,6 +62,7 @@ class ControlsHelpers {
      * @param array|null  $actionParams
      * @param null        $triggerOnInitEvent
      * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     public static function GetAjaxActionString(string $command,?string $targetId=NULL,?array $actionParams=NULL,$triggerOnInitEvent=NULL): ?string {
         if(strpos($command,'#action_params#')!==FALSE) {
@@ -81,6 +82,7 @@ class ControlsHelpers {
      * @param array|null $actionParams
      * @param null       $triggerOnInitEvent
      * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     public static function LegacyGetAjaxActionString(string $command,?array $actionParams=NULL,$triggerOnInitEvent=NULL): ?string {
         if(strpos($command,'#action_params#')!==FALSE) {

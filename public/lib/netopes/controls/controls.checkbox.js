@@ -60,6 +60,7 @@
                     $(obj).attr('src',config.baseUrl + 'images/transparent.gif');
                     break;
             }//END switch
+
             if(config.checkedClass.length>0) {
                 $(obj).addClass(config.checkedClass);
             } else {
@@ -80,6 +81,13 @@
                         console.log(config.onClick);
                     }
                 });
+            } else if(typeof config.onClick==='function') {
+                try {
+                    config.onClick();
+                } catch(e) {
+                    console.log(e);
+                    console.log(config.onClick);
+                }
             } else {
                 $(obj).on('click',function() {
                     methods.toggle(obj);
@@ -95,6 +103,13 @@
                         console.log(config.onChange);
                     }
                 });
+            } else if(typeof config.onChange==='function') {
+                try {
+                    config.onChange();
+                } catch(e) {
+                    console.log(e);
+                    console.log(config.onChange);
+                }
             }
         }//END function init
 
@@ -109,7 +124,6 @@
         } else {
             // Return jQuery object to maintain chainabillity.
             return this.each(function() {
-                console.log(this);
                 if(this.nodeName==='INPUT' && this.type==='image') {
                     init(this);
                 } else {
