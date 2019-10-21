@@ -116,7 +116,7 @@
                 });
             }
         }//END function init
-
+        
         if(typeof options==='string') {
             if(methods[options]) {
                 let methodArgs=Array.prototype.slice.call(arguments,1);
