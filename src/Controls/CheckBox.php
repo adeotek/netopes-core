@@ -98,8 +98,8 @@ class CheckBox extends Control {
             baseUrl: '".NApp::$appBaseUrl.AppConfig::GetValue('app_js_path')."/controls/',
             checkedClass: '".get_array_value($this->colors,$this->checked_color,'cb-blue','is_notempty_string')."-ck',
             uncheckedClass: '".get_array_value($this->colors,$this->unchecked_color,'cb-grey','is_notempty_string')."-uk',
-            onChange: ".(strlen($onChange) ? '"'.$onChange.'"' : 'false').",
-            onClick: ".(strlen($onClick) ? '"'.$onClick.'"' : 'false')."
+            onChange: ".(strlen($onChange) ? 'function(obj,e) { '.$onChange.' }' : 'false').",
+            onClick: ".(strlen($onClick) ? 'function(obj,e) { '.$onClick.' }' : 'false')."
          });");
         return $result;
     }//END protected function SetControl
