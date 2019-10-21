@@ -91,13 +91,15 @@ class CheckBox extends Control {
             $currentValue=$currentValue ? 1 : 0;
         }//if($this->invert_value)
         $result="\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).' value="'.$currentValue.'">'."\n";
+        $onClick=addcslashes($this->GetOnClickAction(NULL,TRUE),'\\');
+        $onChange=addcslashes($this->GetOnChangeAction(NULL,TRUE),'\\');
         NApp::AddJsScript("$('#{$this->tag_id}').NetopesCheckBox({
             type: '{$this->type}',
             baseUrl: '".NApp::$appBaseUrl.AppConfig::GetValue('app_js_path')."/controls/',
             checkedClass: '".get_array_value($this->colors,$this->checked_color,'cb-blue','is_notempty_string')."-ck',
             uncheckedClass: '".get_array_value($this->colors,$this->unchecked_color,'cb-grey','is_notempty_string')."-uk',
-            onChange: ".(strlen($this->onchange) ? '"'.$this->onchange.'"' : 'false').",
-            onClick: ".(strlen($this->onclick) ? '"'.$this->onclick.'"' : 'false')."
+            onChange: ".(strlen($onChange) ? '"'.$onChange.'"' : 'false').",
+            onClick: ".(strlen($onClick) ? '"'.$onClick.'"' : 'false')."
          });");
         return $result;
     }//END protected function SetControl
