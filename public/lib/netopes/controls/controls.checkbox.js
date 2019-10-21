@@ -72,8 +72,17 @@
                 $(obj).addClass('cb-default-uk');
             }
 
-            if(typeof config.onClick==='string' && config.onClick.length>0) {
-                $(obj).on('click',function() {
+            if(typeof config.onClick==='function') {
+                $(obj).on('click',function(e) {
+                    try {
+                        config.onClick(obj,e);
+                    } catch(e) {
+                        console.log(e);
+                        console.log(config.onClick);
+                    }
+                });
+            } else if(typeof config.onClick==='string' && config.onClick.length>0) {
+                $(obj).on('click',function(e) {
                     try {
                         eval(config.onClick);
                     } catch(e) {
@@ -81,20 +90,22 @@
                         console.log(config.onClick);
                     }
                 });
-            } else if(typeof config.onClick==='function') {
-                try {
-                    config.onClick();
-                } catch(e) {
-                    console.log(e);
-                    console.log(config.onClick);
-                }
             } else {
                 $(obj).on('click',function() {
                     methods.toggle(obj);
                 });
             }
 
-            if(typeof config.onChange==='string' && config.onChange.length>0) {
+            if(typeof config.onChange==='function') {
+                $(obj).on('change',function(e) {
+                    try {
+                        config.onChange(obj,e);
+                    } catch(e) {
+                        console.log(e);
+                        console.log(config.onChange);
+                    }
+                });
+            } else if(typeof config.onChange==='string' && config.onChange.length>0) {
                 $(obj).on('change',function() {
                     try {
                         eval(config.onChange);
@@ -103,16 +114,9 @@
                         console.log(config.onChange);
                     }
                 });
-            } else if(typeof config.onChange==='function') {
-                try {
-                    config.onChange();
-                } catch(e) {
-                    console.log(e);
-                    console.log(config.onChange);
-                }
             }
         }//END function init
-
+        
         if(typeof options==='string') {
             if(methods[options]) {
                 let methodArgs=Array.prototype.slice.call(arguments,1);
