@@ -91,8 +91,8 @@ class CheckBox extends Control {
             $currentValue=$currentValue ? 1 : 0;
         }//if($this->invert_value)
         $result="\t\t".'<input type="image"'.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(FALSE).' value="'.$currentValue.'">'."\n";
-        $onClick=addcslashes($this->GetOnClickAction(NULL,TRUE),'\\');
-        $onChange=addcslashes($this->GetOnChangeAction(NULL,TRUE),'\\');
+        $onClick=$this->GetOnClickAction(NULL,TRUE);
+        $onChange=$this->GetOnChangeAction(NULL,TRUE);
         NApp::AddJsScript("$('#{$this->tag_id}').NetopesCheckBox({
             type: '{$this->type}',
             baseUrl: '".NApp::$appBaseUrl.AppConfig::GetValue('app_js_path')."/controls/',

@@ -19,6 +19,9 @@ use Translate;
  * Trait TControlFields
  *
  * @package NETopes\Core\Controls
+ * @property string|null selected_text_field
+ * @property bool|null   with_translate
+ * @property string|null translate_prefix
  */
 trait TControlFields {
     /**
