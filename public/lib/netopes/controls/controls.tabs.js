@@ -145,7 +145,7 @@
                     $(obj).addClass(config.class);
                 }
 
-                $(obj).find('ul > li').each(function() {
+                $(obj).children('ul').children('li').each(function() {
                     $(this).addClass(tabClass);
                     $(this).children('a').first().addClass(nActionClass + ' nac-tab-button').on('click',function() { tabClick(obj,this); });
                 });

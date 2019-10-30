@@ -400,6 +400,7 @@ abstract class Control {
                             }
                             break;
                         case 'KVList':
+                        case 'GroupCheckBox':
                             break;
                         case 'CheckBox':
                             if(strlen($this->size)) {
