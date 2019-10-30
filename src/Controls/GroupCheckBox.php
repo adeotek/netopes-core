@@ -93,10 +93,11 @@ class GroupCheckBox extends Control {
         $stateField=is_string($this->state_field) && strlen($this->state_field) ? $this->state_field : NULL;
         $activeState=is_string($this->active_state) && strlen($this->active_state) ? $this->active_state : '1';
         $this->ProcessActions();
-        $result='<div id="'.$this->tag_id.'-container" class='.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
+        $result='<div id="'.$this->tag_id.'-container" class="'.$this->GetTagClass('clsGCKBContainer',TRUE).'">'."\n";
         if($this->multiple && $this->multiResult) {
             $hiddenTagSufix='_value';
-            $result.="\t".'<input type="hidden" '.$this->GetTagId(FALSE,$hiddenTagSufix).$this->GetTagClass(NULL,TRUE).$this->GetTagActions().' value="'.$this->GetValue().'" />'."\n";
+            $iHiddenClass=$this->GetTagClass(NULL,TRUE);
+            $result.="\t".'<input type="hidden" '.$this->GetTagId(FALSE,$hiddenTagSufix).(strlen($iHiddenClass) ? ' class="'.$iHiddenClass.'"' : '').$this->GetTagActions().' value="'.$this->GetValue().'" />'."\n";
         } else {
             $hiddenTagSufix='';
             $result.="\t".'<input type="hidden" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagActions().' value="'.$this->GetValue().'" />'."\n";
