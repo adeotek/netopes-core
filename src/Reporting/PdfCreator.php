@@ -12,6 +12,8 @@
  */
 namespace NETopes\Core\Reporting;
 use NApp;
+use NETopes\Core\Data\TPlaceholdersManipulation;
+use NETopes\Core\Helpers;
 use TCPDF;
 
 /*
@@ -26,34 +28,27 @@ require_once(NApp::$appPath._NAPP_CONFIG_PATH.'/TcpdfConfig.php');
  * @package  NETopes\Reporting
  */
 class PdfCreator extends TCPDF {
+    use TPlaceholdersManipulation;
+
     /**
      * @var    bool Flag for custom header method
      */
     public $customHeader=FALSE;
+
     /**
      * @var    array Custom header params
      */
     public $customHeaderParams=FALSE;
+
     /**
      * @var    bool Flag for custom footer method
      */
     public $customFooter=FALSE;
+
     /**
      * @var    array Custom footer params
      */
     public $customFooterParams=FALSE;
-    /**
-     * @var    array Dynamic parameters placeholders separators
-     */
-    public $placeholderSeparators=['[[',']]'];
-    /**
-     * @var    string Regular expression for finding placeholders for dynamic parameters
-     */
-    public $placeholdersRegExp='/\[{2}[^\]]*\]{2}/iU';
-    /**
-     * @var    string Chars to trim for removing placeholders for dynamic parameters
-     */
-    public $placeholdersTrimChars='[]';
 
     /**
      * description
@@ -70,17 +65,17 @@ class PdfCreator extends TCPDF {
         $color_arr=get_array_value($format,'color',NULL,'is_notempty_array');
         if(!$color_arr) {
             $color=get_array_value($format,'color',NULL,'is_notempty_string');
-            $color_arr=$color ? hex2rgb($color) : NULL;
+            $color_arr=$color ? Helpers::hex2rgb($color) : NULL;
         }//if(!$color_arr)
         $dcolor_arr=get_array_value($format,'draw_color',NULL,'is_notempty_array');
         if(!$dcolor_arr) {
             $dcolor=get_array_value($format,'draw_color',NULL,'is_notempty_string');
-            $dcolor_arr=$dcolor ? hex2rgb($dcolor) : NULL;
+            $dcolor_arr=$dcolor ? Helpers::hex2rgb($dcolor) : NULL;
         }//if(!$color_arr)
         $bgcolor_arr=get_array_value($format,'background_color',NULL,'is_notempty_array');
         if(!$bgcolor_arr) {
             $bgcolor=get_array_value($format,'background_color',NULL,'is_notempty_string');
-            $bgcolor_arr=$bgcolor ? hex2rgb($bgcolor) : NULL;
+            $bgcolor_arr=$bgcolor ? Helpers::hex2rgb($bgcolor) : NULL;
         }//if(!$color_arr)
         if($font || $font_size || $bold || $italic) {
             $f=TRUE;
@@ -410,55 +405,4 @@ class PdfCreator extends TCPDF {
             $this->MultiCell($width - 4,0,$text,0,$align,$fill,0,$x + 2,$y);
         }//if(is_array($text))
     }//END public function RoundCornerBox
-
-    /**
-     * @param string $content
-     * @param array  $parameters
-     * @return string
-     */
-    public function ReplacePlaceholders(string $content,array $parameters): string {
-        $placeholders=[];
-        if(preg_match_all($this->placeholdersRegExp,$content,$placeholders)) {
-            foreach($placeholders[0] as $placeholder) {
-                $content=str_replace($placeholder,$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters),$content);
-            }//END foreach
-        }//if(preg_match_all($this->placeholdersRegExp,$content,$placeholders))
-        return $content;
-    }//END public function ReplacePlaceholders
-
-    /**
-     * @param string $placeholder
-     * @param array  $parameters
-     * @return string
-     */
-    public function GetPlaceholderValue(string $placeholder,array $parameters): string {
-        $paramValue=get_array_value($parameters,$placeholder,NULL,'isset');
-        if(is_array($paramValue)) {
-            $value=get_array_param($paramValue,'value',NULL,'?is_string');
-            if(!strlen($value)) {
-                return '';
-            }
-            $tagType=strtolower(get_array_param($paramValue,'type','','is_notempty_string'));
-            $label=get_array_param($paramValue,'label',NULL,'?is_string');
-            $style=get_array_param($paramValue,'style',NULL,'?is_string');
-            switch($tagType) {
-                case 'table':
-                    return '<table'.(strlen($style) ? ' style="'.$style.'"' : '').'><tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</td></tr></table>';
-                case 'table_x2':
-                    return '<table'.(strlen($style) ? ' style="'.$style.'"' : '').'><tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').'</td><td>'.$value.'</td></tr></table>';
-                case 'tr':
-                    return '<tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</td></tr>';
-                case 'tr_x2':
-                    return '<tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').'</td><td>'.$value.'</td></tr>';
-                case 'div':
-                case 'span':
-                    return '<'.$tagType.(strlen($style) ? ' style="'.$style.'"' : '').'>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</'.$tagType.'>';
-                case 'no_tag':
-                    return (strlen($label) ? $label.':&nbsp;' : '').$value;
-                default:
-                    return $value;
-            }//END switch
-        }//if(is_array($paramValue))
-        return (is_scalar($paramValue) ? $paramValue : NULL) ?? '';
-    }//END public function GetPlaceholderValue
 }//END class PdfCreator extends TCPDF
