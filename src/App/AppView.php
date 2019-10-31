@@ -970,5 +970,5 @@ class AppView {
             }//END foreach
         }//if(preg_match_all(ControlsHelpers::PLACEHOLDERS_REG_EXP,$content,$placeholders))
         return $content;
-    }//END protected function ReplaceEmptyPlaceholders
+    }//END protected function ReplacePlaceholders
 }//END class AppView
