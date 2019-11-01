@@ -1,7 +1,6 @@
 <?php
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\QueryBuilder;
-use NApp;
 use NETopes\Core\AppException;
 
 /**
@@ -189,6 +188,9 @@ trait RepositoryBaseTrait {
      * @return \Doctrine\ORM\QueryBuilder The objects.
      */
     public function wordsSearchConditionsGenerator(QueryBuilder $qb,string $searchTerm,array $searchFields): QueryBuilder {
+        if(!strlen($searchTerm)) {
+            return $qb;
+        }
         $words=str_word_count($searchTerm,1,'1234567890');
         foreach($words as $k=>$word) {
             $xor=$qb->expr()->orX();
