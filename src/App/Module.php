@@ -291,6 +291,7 @@ class Module {
      * @param string|null $pHash
      * @param null        $key
      * @return mixed
+     * @throws \NETopes\Core\AppException
      */
     public function GetSessionParamValue($defaultValue=NULL,?string $method=NULL,?string $pHash=NULL,$key=NULL) {
         if($key) {
@@ -311,6 +312,7 @@ class Module {
      * @param string|null $pHash
      * @param null        $key
      * @return void
+     * @throws \NETopes\Core\AppException
      */
     public function SetSessionParamValue($value,?string $method=NULL,?string $pHash=NULL,$key=NULL) {
         if($key) {
