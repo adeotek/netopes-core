@@ -18,6 +18,21 @@ use NApp;
  * DatePicker control class
  * DatePicker control (jQuery UI/Bootstrap)
  *
+ * @property bool                 button
+ * @property string               plugin_type
+ * @property string               plugin
+ * @property int                  minutes_stepping
+ * @property string               locale
+ * @property bool                 today_button
+ * @property DateTime|string|null value
+ * @property mixed                timepicker
+ * @property string|null          dateformat
+ * @property string|null          timeformat
+ * @property mixed                use_current
+ * @property mixed                js_params
+ * @property mixed                format
+ * @property string|null          view_mode
+ * @property mixed                mixed_view
  * @package  NETopes\Controls
  */
 class DatePicker extends Control {
@@ -51,6 +66,9 @@ class DatePicker extends Control {
         if(is_object($this->value) && $this->value instanceof DateTime) {
             $this->value=$this->timepicker ? $this->value->format(NApp::GetDateTimeFormat(TRUE)) : $this->value->format(NApp::GetDateFormat(TRUE));
         }//if(is_object($this->value) && $this->value instanceof \DateTime)
+        if(!is_string($this->view_mode) || !in_array($this->view_mode,['decades','years','months','days'])) {
+            $this->view_mode='days';
+        }
     }//END public function __construct
 
     /**
@@ -170,6 +188,8 @@ class DatePicker extends Control {
             $jsparams=$this->js_params;
         } else {
             $jsparams="{ "
+                ."collapse: ".($this->mixed_view ? 'false' : 'true').","
+                ."viewMode: '{$this->view_mode}', "
                 ."locale: '{$this->locale}', "
                 ."format: '{$lFormat}', "
                 ."showTodayButton: ".($this->today_button ? 'true' : 'false').", "
