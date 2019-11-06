@@ -17,13 +17,30 @@ use NETopes\Core\Validators\Validator;
 /**
  * NumericTextBox
  *
+ * @property bool   auto_select
+ * @property bool   js_validation
+ * @property int    max_length
+ * @property string number_format
+ * @property mixed  decimal_separator
+ * @property mixed  group_separator
+ * @property mixed  decimals_no
+ * @property mixed  allow_null
+ * @property mixed  sufix
+ * @property mixed  value
  * @package  NETopes\Controls
  */
 class NumericTextBox extends Control {
+    /**
+     * NumericTextBox constructor.
+     *
+     * @param null $params
+     * @throws \NETopes\Core\AppException
+     */
     public function __construct($params=NULL) {
         $this->js_validation=TRUE;
         $this->max_length=255;
         $this->auto_select=TRUE;
+        $this->align='center';
         parent::__construct($params);
         if(strlen($this->number_format) && is_numeric($this->placeholder)) {
             $this->placeholder=Validator::FormatNumberValue($this->placeholder,$this->number_format);
@@ -37,6 +54,10 @@ class NumericTextBox extends Control {
         }//if($this->number_format!==FALSE && !strlen($this->number_format))
     }//END public function __construct
 
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function SetControl(): ?string {
         $nclass='';
         if($this->disabled!==TRUE && $this->readonly!==TRUE) {
@@ -79,4 +100,3 @@ class NumericTextBox extends Control {
         return $result;
     }//END protected function SetControl
 }//END class NumericTextBox extends Control
-?>
