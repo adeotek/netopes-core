@@ -17,6 +17,7 @@ use NETopes\Core\AppException;
 use NETopes\Core\Controls\ControlsHelpers;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 use Translate;
 
 /**
@@ -250,6 +251,14 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     public function Exec(string $method,$params=NULL,?string $dynamicTargetId=NULL,bool $resetSessionParams=FALSE,$beforeCall=NULL) {
+        try {
+            $reflection=new ReflectionMethod($this,$method);
+            if(!$reflection->isPublic()) {
+                throw new AppException('Non public module method: ['.$this->name.'::'.$method.']!');
+            }
+        } catch(ReflectionException $re) {
+            throw AppException::GetInstance($re);
+        }
         $o_before_call=is_object($beforeCall) ? $beforeCall : new Params($beforeCall);
         if($o_before_call->count() && !$this->_BeforeExec($beforeCall)) {
             return FALSE;

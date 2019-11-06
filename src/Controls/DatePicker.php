@@ -33,6 +33,7 @@ use NApp;
  * @property mixed                format
  * @property string|null          view_mode
  * @property mixed                mixed_view
+ * @property mixed                side_by_side
  * @package  NETopes\Controls
  */
 class DatePicker extends Control {
@@ -44,6 +45,8 @@ class DatePicker extends Control {
      */
     public function __construct($params=NULL) {
         $this->button=TRUE;
+        $this->mixed_view=TRUE;
+        $this->fixed_width=200;
         $this->width_offset=is_object(NApp::$theme) ? NApp::$theme->GetControlsActionWidth() : 20;
         $this->plugin_type=is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsType() : '';
         $this->plugin=is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
@@ -81,8 +84,8 @@ class DatePicker extends Control {
         switch(strtolower($this->plugin_type)) {
             case 'bootstrap3':
                 return $this->SetBootstrap3Control();
-            case 'bootstrap4':
-                return $this->SetBootstrap4Control();
+            // case 'bootstrap4':
+            //     return $this->SetBootstrap4Control();
             case 'jqueryui':
             default:
                 return $this->SetJQueryUIControl();
@@ -141,7 +144,7 @@ class DatePicker extends Control {
         }//if($this->button)
         $result.=$this->GetActions();
         return $result;
-    }//END protected function SetControl
+    }//END protected function SetJQueryUIControl
 
     /**
      * Set Bootstrap 3 control HTML tag
@@ -188,7 +191,8 @@ class DatePicker extends Control {
             $jsparams=$this->js_params;
         } else {
             $jsparams="{ "
-                ."collapse: ".($this->mixed_view ? 'false' : 'true').","
+                ."collapse: ".($this->timepicker && $this->mixed_view ? 'false' : 'true').","
+                ."sideBySide: ".($this->timepicker && $this->side_by_side ? 'true' : 'false').","
                 ."viewMode: '{$this->view_mode}', "
                 ."locale: '{$this->locale}', "
                 ."format: '{$lFormat}', "
@@ -207,8 +211,9 @@ class DatePicker extends Control {
                 $this->onchange_str=NULL;
             }//if(!$this->readonly && !$this->disabled)
             $groupAddonClass=strlen($this->size) ? ' input-'.$this->size : '';
-            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
-            $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
+            $groupWithStyle=$this->GetTagWidthStyle();
+            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control"'.(strlen($groupWithStyle) ? ' style="'.$groupWithStyle.'"' : '').'>'."\n";
+            $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(TRUE,NULL,FALSE).$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
             $result.="\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
             $result.="\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
             $result.="\t\t\t".'</span>'."\n";
@@ -226,84 +231,84 @@ class DatePicker extends Control {
         return $result;
     }//END protected function SetBootstrap3Control
 
-    /**
-     * Set Bootstrap 4 control HTML tag
-     *
-     * @return string
-     * @throws \NETopes\Core\AppException
-     */
-    protected function SetBootstrap4Control(): string {
-        if(strlen($this->format)) {
-            $lFormat=$this->format;
-            if($this->timepicker!==TRUE && $this->timepicker!==1) {
-                $lDateFormat=str_replace('m','M',strtolower($this->format));
-                $lTimeFormat='';
-            } else {
-                $fParts=explode(' ',$lFormat);
-                $lDateFormat=str_replace('m','M',strtolower($fParts[0]));
-                $lTimeFormat=count($fParts)>1 ? $fParts[1] : 'HH:mm:ss';
-            }//if($this->timepicker!==TRUE && $this->timepicker!==1)
-        } elseif(strlen($this->dateformat)) {
-            $lDateFormat=$this->dateformat;
-            if($this->timepicker!==TRUE && $this->timepicker!==1) {
-                $lFormat=strtoupper($this->dateformat);
-                $lTimeFormat='';
-            } else {
-                $lTimeFormat=strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
-                $lFormat=strtoupper($this->dateformat).' '.$lTimeFormat;
-            }//if($this->timepicker!==TRUE && $this->timepicker!==1)
-        } else {
-            $lDateFormat='dd.MM.yyyy';
-            if($this->timepicker!==TRUE && $this->timepicker!==1) {
-                $lTimeFormat='';
-                $lFormat='DD.MM.YYYY';
-            } else {
-                $lTimeFormat=strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
-                $lFormat='DD.MM.YYYY HH:mm:ss';
-            }//if($this->timepicker!==TRUE && $this->timepicker!==1)
-        }//if(strlen($this->format))
-        // NApp::Dlog($lFormat,'$lFormat');
-        $ldata=' data-format="'.$lDateFormat.'"';
-        if(strlen($lTimeFormat)) {
-            $ldata.=' data-timeformat="'.$lTimeFormat.'"';
-        }
-        if(strlen($this->js_params)) {
-            $jsparams=$this->js_params;
-        } else {
-            $jsparams="{ "
-                ."locale: '{$this->locale}', "
-                ."format: '{$lFormat}', "
-                ."showTodayButton: ".($this->today_button ? 'true' : 'false').", "
-                ."stepping: {$this->minutes_stepping},"
-                ."useCurrent: ".($this->use_current ? 'true' : 'false')
-                ." }";
-        }//if(strlen($this->js_params))
-        // NApp::Dlog($jsparams);
-        $this->ProcessActions();
-        $onChange='';
-        if($this->button) {
-            if(!$this->readonly && !$this->disabled) {
-                $onChange=$this->GetOnChangeAction(NULL,TRUE);
-                $this->onchange=NULL;
-                $this->onchange_str=NULL;
-            }//if(!$this->readonly && !$this->disabled)
-            $groupAddonClass=strlen($this->size) ? ' input-'.$this->size : '';
-            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
-            $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
-            $result.="\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
-            $result.="\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
-            $result.="\t\t\t".'</span>'."\n";
-            $result.="\t\t".'</div>'."\n";
-        } else {
-            $result="\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
-        }//if($this->button)
-        $result.=$this->GetActions();
-        if($this->disabled!==TRUE && $this->readonly!==TRUE) {
-            NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
-            if(strlen($onChange)) {
-                NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });");
-            }
-        }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
-        return $result;
-    }//END protected function SetBootstrap4Control
+    // /**
+    //  * Set Bootstrap 4 control HTML tag
+    //  *
+    //  * @return string
+    //  * @throws \NETopes\Core\AppException
+    //  */
+    // protected function SetBootstrap4Control(): string {
+    //     if(strlen($this->format)) {
+    //         $lFormat=$this->format;
+    //         if($this->timepicker!==TRUE && $this->timepicker!==1) {
+    //             $lDateFormat=str_replace('m','M',strtolower($this->format));
+    //             $lTimeFormat='';
+    //         } else {
+    //             $fParts=explode(' ',$lFormat);
+    //             $lDateFormat=str_replace('m','M',strtolower($fParts[0]));
+    //             $lTimeFormat=count($fParts)>1 ? $fParts[1] : 'HH:mm:ss';
+    //         }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+    //     } elseif(strlen($this->dateformat)) {
+    //         $lDateFormat=$this->dateformat;
+    //         if($this->timepicker!==TRUE && $this->timepicker!==1) {
+    //             $lFormat=strtoupper($this->dateformat);
+    //             $lTimeFormat='';
+    //         } else {
+    //             $lTimeFormat=strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
+    //             $lFormat=strtoupper($this->dateformat).' '.$lTimeFormat;
+    //         }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+    //     } else {
+    //         $lDateFormat='dd.MM.yyyy';
+    //         if($this->timepicker!==TRUE && $this->timepicker!==1) {
+    //             $lTimeFormat='';
+    //             $lFormat='DD.MM.YYYY';
+    //         } else {
+    //             $lTimeFormat=strlen($this->timeformat) ? $this->timeformat : 'HH:mm:ss';
+    //             $lFormat='DD.MM.YYYY HH:mm:ss';
+    //         }//if($this->timepicker!==TRUE && $this->timepicker!==1)
+    //     }//if(strlen($this->format))
+    //     // NApp::Dlog($lFormat,'$lFormat');
+    //     $ldata=' data-format="'.$lDateFormat.'"';
+    //     if(strlen($lTimeFormat)) {
+    //         $ldata.=' data-timeformat="'.$lTimeFormat.'"';
+    //     }
+    //     if(strlen($this->js_params)) {
+    //         $jsparams=$this->js_params;
+    //     } else {
+    //         $jsparams="{ "
+    //             ."locale: '{$this->locale}', "
+    //             ."format: '{$lFormat}', "
+    //             ."showTodayButton: ".($this->today_button ? 'true' : 'false').", "
+    //             ."stepping: {$this->minutes_stepping},"
+    //             ."useCurrent: ".($this->use_current ? 'true' : 'false')
+    //             ." }";
+    //     }//if(strlen($this->js_params))
+    //     // NApp::Dlog($jsparams);
+    //     $this->ProcessActions();
+    //     $onChange='';
+    //     if($this->button) {
+    //         if(!$this->readonly && !$this->disabled) {
+    //             $onChange=$this->GetOnChangeAction(NULL,TRUE);
+    //             $this->onchange=NULL;
+    //             $this->onchange_str=NULL;
+    //         }//if(!$this->readonly && !$this->disabled)
+    //         $groupAddonClass=strlen($this->size) ? ' input-'.$this->size : '';
+    //         $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
+    //         $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
+    //         $result.="\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
+    //         $result.="\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
+    //         $result.="\t\t\t".'</span>'."\n";
+    //         $result.="\t\t".'</div>'."\n";
+    //     } else {
+    //         $result="\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
+    //     }//if($this->button)
+    //     $result.=$this->GetActions();
+    //     if($this->disabled!==TRUE && $this->readonly!==TRUE) {
+    //         NApp::AddJsScript("$('#{$this->tag_id}_control').{$this->plugin}({$jsparams});");
+    //         if(strlen($onChange)) {
+    //             NApp::AddJsScript("$('#{$this->tag_id}_control').on('dp.change',function(e) { {$onChange} });");
+    //         }
+    //     }//if($this->disabled!==TRUE && $this->readonly!==TRUE)
+    //     return $result;
+    // }//END protected function SetBootstrap4Control
 }//END class DatePicker extends Control

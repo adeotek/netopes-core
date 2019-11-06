@@ -472,14 +472,12 @@ abstract class Control {
     }//END protected function GetTagClass
 
     /**
-     * Gets the html tag style attribute string (' style="...")
+     * Gets the html tag width style
      *
      * @param mixed  $width  Custom css width
-     * @param bool   $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
-     * @param string $extra  Other css attributes to be included
-     * @return string Returns the html tag style attribute
+     * @return string Returns the html tag width style
      */
-    protected function GetTagStyle($width=NULL,$halign=TRUE,$extra=NULL) {
+    protected function GetTagWidthStyle($width=NULL) {
         $lstyle='';
         $f_width=$this->fixed_width;
         switch($this->theme_type) {
@@ -525,6 +523,23 @@ abstract class Control {
                 }
                 break;
         }//END switch
+        return $lstyle;
+    }//END protected function GetTagWidthStyle
+
+    /**
+     * Gets the html tag style attribute string (' style="...")
+     *
+     * @param mixed  $width  Custom css width
+     * @param bool   $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
+     * @param string $extra  Other css attributes to be included
+     * @return string Returns the html tag style attribute
+     */
+    protected function GetTagStyle($width=NULL,$halign=TRUE,$extra=NULL) {
+        if($width!==FALSE) {
+            $lstyle=$this->GetTagWidthStyle($width);
+        } else {
+            $lstyle='';
+        }
         if($halign && strlen($this->align)) {
             $lstyle.=' text-align: '.$this->align.';';
         }
@@ -546,12 +561,13 @@ abstract class Control {
      *
      * @param bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
      * @param string $extra Other html attributes to be included
+     * @param bool   $widthStyle
      * @return string Returns the html tag attributes
      */
-    protected function GetTagAttributes($style=TRUE,$extra=NULL) {
+    protected function GetTagAttributes($style=TRUE,$extra=NULL,bool $widthStyle=TRUE) {
         $lattr='';
         if($style) {
-            $lattr.=$this->GetTagStyle();
+            $lattr.=$this->GetTagStyle($widthStyle);
         }
         if((bool)$this->disabled || (bool)$this->disabled_on_render) {
             $lattr.=' disabled="disabled"';

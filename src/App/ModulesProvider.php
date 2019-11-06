@@ -71,7 +71,7 @@ class ModulesProvider {
             return FALSE;
         }
         $module=self::GetModule($module,$base);
-        return method_exists($module,$method);
+        return is_callable([$module,$method]);
     }//END public static function ModuleMethodExists
 
     /**
