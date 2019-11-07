@@ -75,7 +75,7 @@ class TabControl {
      */
     public $tabs=[];
     /**
-     * @var    string|null TabControl mode (null/standard=standard tabs, accordion=accordion, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
+     * @var    string|null TabControl mode (null/standard=standard tabs, accordion=accordion, multi_view_accordion=accordion with multiple views, vertical=vertical tabs, vertical_floating=floating vertical tabs, wizard=wizard style tabs)
      */
     public $mode=NULL;
     /**
@@ -113,7 +113,7 @@ class TabControl {
             }//foreach ($params as $k=>$v)
         }//if(is_array($params) && count($params))
         $this->mode=strtolower($this->mode);
-        if(!in_array($this->mode,['standard','vertical','vertical_floating','accordion','wizard'])) {
+        if(!in_array($this->mode,['standard','vertical','vertical_floating','accordion','multi_view_accordion','wizard'])) {
             $this->mode='standard';
         }
         if($this->cached) {
@@ -438,7 +438,7 @@ JS;
     });
 JS;
         } else {
-            $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({ type: 'accordion', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+            $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({ type: '{$this->mode}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
         }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
@@ -460,6 +460,7 @@ JS;
         $result='<div id="'.$this->tag_id.'" class="'.$lClass.'">'."\n";
         switch($this->mode) {
             case 'accordion':
+            case 'multi_view_accordion':
                 $result.=$this->GetAccordion();
                 break;
             case 'standard':
