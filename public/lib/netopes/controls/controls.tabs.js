@@ -4,7 +4,7 @@
     $.fn.NetopesTabs=function(options) {
         // Plugin default options.
         let config={
-            type: 'standard', // Available types: standard/accordion/vertical/vertical_floating/wizard
+            type: 'standard', // Available types: standard/accordion/multi_view_accordion/vertical/vertical_floating/wizard
             class: null, // CSS class to be added to the main container
             onchange: null, // Function called after tab change
             defaultTab: 0 // Tab to be opened at initialization
@@ -28,13 +28,18 @@
             }//if(config.type==='accordion')
         };
 
-        let reloadContent=function(obj,id) {
+        let reloadContent=function(obj,id,reloadAction) {
             let tab=$(obj).children('div' + id).first();
-            let tabReload=parseInt($(tab).attr('data-reload'));
-            if(isNaN(tabReload) || tabReload!==1) {
-                return true;
+            let tabReloadAction=null;
+            if(typeof reloadAction==='string' && reloadAction.length>0) {
+                tabReloadAction=reloadAction;
+            } else {
+                let tabReload=parseInt($(tab).attr('data-reload'));
+                if(isNaN(tabReload) || tabReload!==1) {
+                    return true;
+                }
+                tabReloadAction=$(tab).attr('data-reload-action');
             }
-            let tabReloadAction=$(tab).attr('data-reload-action');
             if(typeof tabReloadAction==='string' && tabReloadAction.length>0) {
                 try {
                     eval(tabReloadAction);
@@ -45,31 +50,46 @@
             }
         };
 
-        let tabClick=function(obj,actObj) {
-            if($(actObj).hasClass(nActiveClass)) {
-                return false;
-            }
-            let tabId='#';
-            if(config.type==='accordion') {
-                $(obj).find('h3.' + nActiveClass).removeClass(nActiveClass);
-                $(actObj).addClass(nActiveClass);
-                tabId+=$(actObj).attr('data-for');
+        let tabClick=function(obj,actObj,content) {
+            if(config.type==='multi_view_accordion') {
+                let tabId='#' + $(actObj).attr('data-for');
+                if($(actObj).hasClass(nActiveClass)) {
+                    $(actObj).removeClass(nActiveClass);
+                    $(obj).children('div' + tabId).first().removeClass(nActiveClass).hide();
+                } else {
+                    $(actObj).addClass(nActiveClass);
+                    $(obj).children('div' + tabId).first().addClass(nActiveClass).show();
+                    reloadContent(obj,tabId,content);
+                    if(typeof config.onchange==='function') {
+                        config.onchange($(actObj).index(),obj,actObj);
+                    }
+                }
             } else {
-                $(obj).find('li.' + nTabClass + '.' + nActiveClass).removeClass(nActiveClass);
-                $(actObj).parent().addClass(nActiveClass);
-                tabId=$(actObj).attr('href');
-            }//if(config.type==='accordion')
-            reloadContent(obj,tabId);
-            toggleContent(obj,tabId);
-            if(typeof config.onchange==='function') {
-                config.onchange($(actObj).index(),obj,actObj);
+                if($(actObj).hasClass(nActiveClass)) {
+                    return false;
+                }
+                let tabId='#';
+                if(config.type==='accordion') {
+                    $(obj).find('h3.' + nActiveClass).removeClass(nActiveClass);
+                    $(actObj).addClass(nActiveClass);
+                    tabId+=$(actObj).attr('data-for');
+                } else {
+                    $(obj).find('li.' + nTabClass + '.' + nActiveClass).removeClass(nActiveClass);
+                    $(actObj).parent().addClass(nActiveClass);
+                    tabId=$(actObj).attr('href');
+                }//if(config.type==='accordion')
+                reloadContent(obj,tabId,content);
+                toggleContent(obj,tabId);
+                if(typeof config.onchange==='function') {
+                    config.onchange($(actObj).index(),obj,actObj);
+                }
             }
         };
 
         let methods={
             tabChange: function(obj,index) {
                 let pIndex=parseInt(index);
-                if(config.type==='accordion') {
+                if(config.type==='accordion' || config.type==='multi_view_accordion') {
                     let tabs=$(obj).find('h3.' + nTabClass + '.nac-accordion-item');
                     if(isNaN(pIndex) || pIndex>tabs.length) {
                         console.log('Invalid tab index: [' + index + ']!');
@@ -83,7 +103,7 @@
                     } else {
                         tabClick(obj,$(tabs[pIndex]).children('a.' + nActionClass).first());
                     }
-                }//if(config.type==='accordion')
+                }//if(config.type==='accordion' || config.type==='multi_view_accordion')
             },
             tabChangeById: function(obj,id) {
                 if(typeof id!=='string' || id.length===0) {
@@ -91,16 +111,33 @@
                     return false;
                 }
                 let aObj=false;
-                if(config.type==='accordion') {
+                if(config.type==='accordion' || config.type==='multi_view_accordion') {
                     aObj=$(obj).find('h3.' + nActionClass + '.nac-accordion-item[data-for="' + id + '"]').first();
                 } else {
                     aObj=$(obj).find('ul > li > a.' + nActionClass + '[href="#' + id + '"]').first();
-                }//if(config.type==='accordion')
+                }//if(config.type==='accordion' || config.type==='multi_view_accordion')
                 if(!aObj || !aObj.length) {
                     console.log('Tab [' + id + '] not found!');
                     return false;
                 }
                 tabClick(obj,aObj);
+            },
+            tabChangeByIdWithContent: function(obj,id,content) {
+                if(typeof id!=='string' || id.length===0) {
+                    console.log('Invalid tab id: [' + id + ']!');
+                    return false;
+                }
+                let aObj=false;
+                if(config.type==='accordion' || config.type==='multi_view_accordion') {
+                    aObj=$(obj).find('h3.' + nActionClass + '.nac-accordion-item[data-for="' + id + '"]').first();
+                } else {
+                    aObj=$(obj).find('ul > li > a.' + nActionClass + '[href="#' + id + '"]').first();
+                }//if(config.type==='accordion' || config.type==='multi_view_accordion')
+                if(!aObj || !aObj.length) {
+                    console.log('Tab [' + id + '] not found!');
+                    return false;
+                }
+                tabClick(obj,aObj,content);
             }
         };
 
@@ -109,7 +146,7 @@
             let tabClass=nTabClass;
             let contentClass=nContentClass;
 
-            if(config.type==='accordion') {
+            if(config.type==='accordion' || config.type==='multi_view_accordion') {
                 objClass+=' nac-accordion-tabs';
                 tabClass+=' ' + nActionClass + ' nac-accordion-item';
 
@@ -150,7 +187,7 @@
                     $(this).children('a').first().addClass(nActionClass + ' nac-tab-button').on('click',function() { tabClick(obj,this); });
                 });
                 $(obj).children('div').hide().addClass(contentClass);
-            }//if(config.type==='accordion')
+            }//if(config.type==='accordion' || config.type==='multi_view_accordion')
             methods.tabChange(obj,config.defaultTab);
         }//END function init
 
