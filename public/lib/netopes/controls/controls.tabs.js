@@ -7,7 +7,8 @@
             type: 'standard', // Available types: standard/accordion/multi_view_accordion/vertical/vertical_floating/wizard
             class: null, // CSS class to be added to the main container
             onchange: null, // Function called after tab change
-            defaultTab: 0 // Tab to be opened at initialization
+            defaultTab: 0, // Index of tab to be opened at initialization
+            defaultTabUid: null // ID of tab to be opened at initialization
         };
         if(typeof options==='object') { $.extend(config,options); }
 
@@ -105,6 +106,14 @@
                     }
                 }//if(config.type==='accordion' || config.type==='multi_view_accordion')
             },
+            tabChangeByUid: function(obj,uid) {
+                if(typeof uid!=='string' || uid.length===0) {
+                    console.log('Invalid tab uid: [' + uid + ']!');
+                    return false;
+                }
+                let id=$(obj).attr('id') + '-' + uid;
+                methods.tabChangeById(obj,id);
+            },
             tabChangeById: function(obj,id) {
                 if(typeof id!=='string' || id.length===0) {
                     console.log('Invalid tab id: [' + id + ']!');
@@ -188,7 +197,11 @@
                 });
                 $(obj).children('div').hide().addClass(contentClass);
             }//if(config.type==='accordion' || config.type==='multi_view_accordion')
-            methods.tabChange(obj,config.defaultTab);
+            if(typeof config.defaultTabUid==='string' && config.defaultTabUid.length>0) {
+                methods.tabChangeById(obj,$(obj).attr('id') + '-' + uid);
+            } else {
+                methods.tabChange(obj,config.defaultTab);
+            }
         }//END function init
 
         if(typeof options==='string') {
