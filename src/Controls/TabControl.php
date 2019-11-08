@@ -71,6 +71,10 @@ class TabControl {
      */
     public $default_tab_index=0;
     /**
+     * @var    int TabControl default tab UID
+     */
+    public $default_tab_uid=NULL;
+    /**
      * @var    array tabs descriptor array
      */
     public $tabs=[];
@@ -371,7 +375,12 @@ class TabControl {
     });
 JS;
         } else {
-            $jsScript="$('#{$this->tag_id}').NetopesTabs({ type: '{$this->mode}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+            $jsScript="$('#{$this->tag_id}').NetopesTabs({
+                type: '{$this->mode}',
+                onchange: {$this->onchange},
+                defaultTab: {$this->default_tab_index},
+                defaultTabUid: ".(strlen($this->default_tab_uid) ? "'{$this->default_tab_uid}'" : 'null')."
+            });";
         }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
@@ -438,7 +447,12 @@ JS;
     });
 JS;
         } else {
-            $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({ type: '{$this->mode}', onchange: {$this->onchange}, defaultTab: {$this->default_tab_index} });";
+            $jsScript="$('#{$this->tag_id}_accordion').NetopesTabs({
+                type: '{$this->mode}',
+                onchange: {$this->onchange},
+                defaultTab: {$this->default_tab_index},
+                defaultTabUid: ".(strlen($this->default_tab_uid) ? "'{$this->default_tab_uid}'" : 'null')."
+            });";
         }//if($this->plugin==='jqueryui')
         NApp::AddJsScript($jsScript);
         return $result;
