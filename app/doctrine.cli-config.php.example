@@ -13,7 +13,7 @@ define('_VALID_NAPP_REQ',TRUE);
 if(!defined('_NAPP_ROOT_PATH')) {
     define('_NAPP_APPLICATION_PATH',DIRECTORY_SEPARATOR.'application');
     define('_NAPP_CONFIG_PATH',DIRECTORY_SEPARATOR.'Configs');
-    define('_NAPP_PUBLIC_ROOT_PATH',DIRECTORY_SEPARATOR.'public');
+    define('_NAPP_PUBLIC_ROOT_PATH',DIRECTORY_SEPARATOR.'public_html');
     define('_NAPP_PUBLIC_PATH','');
     define('_NAPP_ROOT_PATH',__DIR__);
 }//if(!defined('_NAPP_ROOT_PATH'))
