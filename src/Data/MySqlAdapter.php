@@ -153,7 +153,7 @@ class MySqlAdapter extends SqlDataAdapter {
                                 $filter_str.=($filter_str ? ' '.strtolower($sep) : '').' '.$t_alias.'`'.$ffield.'` '.$fcond." '".$fvalue."'";
                                 break;
                             default:
-                                continue;
+                                continue 2;
                                 break;
                         }//END switch
                     } elseif(count($v)==2) {
