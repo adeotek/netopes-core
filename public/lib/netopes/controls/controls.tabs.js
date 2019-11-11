@@ -198,7 +198,7 @@
                 $(obj).children('div').hide().addClass(contentClass);
             }//if(config.type==='accordion' || config.type==='multi_view_accordion')
             if(typeof config.defaultTabUid==='string' && config.defaultTabUid.length>0) {
-                methods.tabChangeById(obj,$(obj).attr('id') + '-' + uid);
+                methods.tabChangeById(obj,$(obj).attr('id') + '-' + config.defaultTabUid);
             } else {
                 methods.tabChange(obj,config.defaultTab);
             }
