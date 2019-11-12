@@ -62,7 +62,7 @@ class ControlIterator extends Control {
         $this->postable=FALSE;
         parent::__construct($params);
         if(!strlen($this->tag_id)) {
-            $this->tag_id=AppSession::GetNewUID('GroupCheckBox','md5');
+            $this->tag_id=AppSession::GetNewUID('ControlIterator','md5');
         }
         switch($this->theme_type) {
             case 'bootstrap2':

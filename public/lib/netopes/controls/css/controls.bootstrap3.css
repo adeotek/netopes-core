@@ -2126,6 +2126,56 @@ table.clsBasicForm > tbody > tr > td {
 /* End style for associations manager filters */
 /*** END AssociationManager ***/
 
+/*** ListBox ***/
+.clsListBox .clsListBoxItem {
+    padding: 5px 10px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #c5c5c5;
+    border-radius: 3px;
+    background: #ffffff;
+}
+
+.clsListBox .clsListBoxItem > div:last-child {
+    border-top: 1px solid #d0d0d0;
+    padding-top: 5px;
+}
+
+
+.clsListBox .clsListBoxItem > div:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemTitle {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #303064;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemTitle .lb-label {
+    color: #333333;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemSubTitle {
+    margin-top: 5px;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: bolder;
+    color: #000000;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemSubTitle .lb-label {
+    font-weight: normal;
+    color: #333333;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemBody {
+    margin-top: 5px;
+}
+
+/*** END ListBox ***/
+
 /*** Generic Rules ***/
 .clsDivTable {
 	display: table;

@@ -13,6 +13,7 @@
 namespace NETopes\Core\Data\Doctrine;
 use Exception;
 use NETopes\Core\AppException;
+use NETopes\Core\Data\IEntity;
 
 /**
  * BaseEntity class
@@ -20,7 +21,7 @@ use NETopes\Core\AppException;
  *
  * @package  NETopes\Core\App
  */
-abstract class BaseEntity {
+abstract class BaseEntity implements IEntity {
     /**
      * @var bool
      */
@@ -90,12 +91,12 @@ abstract class BaseEntity {
      * Check if property exists
      *
      * @param string $name The name of the property
-     * @param bool   $not_null
+     * @param bool   $notNull
      * @return bool Returns TRUE if property exists
      */
-    public function hasProperty(?string $name,bool $not_null=FALSE): bool {
+    public function hasProperty(?string $name,bool $notNull=FALSE): bool {
         $key=convert_to_camel_case($name,TRUE);
-        if($not_null) {
+        if($notNull) {
             $value=NULL;
             if(method_exists($this,'get'.ucfirst($key))) {
                 $getter='get'.ucfirst($key);
@@ -104,7 +105,7 @@ abstract class BaseEntity {
                 $value=$this->$key;
             }//if(method_exists($this,'get'.ucfirst($key)))
             return isset($value);
-        }//if($not_null)
+        }//if($notNull)
         return (method_exists($this,'get'.ucfirst($key)) || property_exists($this,$key));
     }//END public function hasProperty
 

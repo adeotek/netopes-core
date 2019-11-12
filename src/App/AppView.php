@@ -893,6 +893,8 @@ class AppView {
                     $mainContainer=str_replace($placeholder,$cContent,$mainContainer);
                     $placeholder='{!'.trim($cTag,'{}').'_ID!}';
                     $mainContainer=str_replace($placeholder,$cContainerId,$mainContainer);
+                    $placeholder='{!'.trim($cTag,'{}').'_TITLE!}';
+                    $mainContainer=str_replace($placeholder,$cContainerTitle,$mainContainer);
                     $processed=TRUE;
                 }//if(strpos($mainContainer,$placeholder)===FALSE)
             }//if(!$processed && strlen($cTag))
