@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\ORMException;
+use NApp;
 use NETopes\Core\AppException;
 
 /**
@@ -19,6 +20,28 @@ use NETopes\Core\AppException;
  * @package  NETopes\Core\Data
  */
 class DataSource extends \NETopes\Core\Data\DataSource {
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function __call($name,$arguments) {
+        if(!strlen($this->entityName) || !class_exists($this->entityName)) {
+            throw new AppException('Invalid entity ['.$this->entityName.']!');
+        }
+        $repository=$this->adapter->em->getRepository($this->entityName);
+        if(!strlen($name) || !method_exists($repository,$name)) {
+            throw new AppException('Invalid repository name ['.$name.'] for entity ['.$this->entityName.']!');
+        }//if(!strlen($name) || !method_exists($repository,$name))
+        NApp::Dlog($arguments,'$arguments');
+        $params=is_array($arguments) ? array_shift($arguments) : [];
+        NApp::Dlog(array_values($params));
+        $result=$repository->$name(...array_values($params));
+        return $result;
+    }//END public function __call
+
     /**
      * Execute a repository method and get returned data
      *

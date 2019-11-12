@@ -397,6 +397,12 @@ div.clsPreviewBox {
 	height: auto;
 }
 
+.form-xxs .form-group .clsCheckBox[type="image"],
+.form-group-xxs .clsCheckBox[type="image"],
+.clsCheckBox[type="image"].input-xxs {
+    height: 20px;
+}
+
 .form-xxs .form-group .input-group-addon,
 .form-group-xxs .input-group-addon,
 .input-group-addon.input-xxs {
@@ -495,6 +501,12 @@ select.input-xxs {
 	height: auto;
 }
 
+.form-xs .form-group .clsCheckBox[type="image"],
+.form-group-xs .clsCheckBox[type="image"],
+.clsCheckBox[type="image"].input-xs {
+    height: 24px;
+}
+
 .form-xs .form-group .input-group-addon,
 .form-group-xs .input-group-addon,
 .input-group-addon.input-xs {
@@ -591,6 +603,12 @@ select.input-xs {
 .clsPreviewBox.input-sm {
 	min-height: 30px;
 	height: auto;
+}
+
+.form-sm .form-group .clsCheckBox[type="image"],
+.form-group-sm .clsCheckBox[type="image"],
+.clsCheckBox[type="image"].input-sm {
+    height: 30px;
 }
 
 .form-sm .form-group .form-control.select2-selection--multiple,
