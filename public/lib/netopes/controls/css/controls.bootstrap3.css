@@ -2135,19 +2135,18 @@ table.clsBasicForm > tbody > tr > td {
     background: #ffffff;
 }
 
-.clsListBox .clsListBoxItem > div:last-child {
-    border-top: 1px solid #d0d0d0;
-    padding-top: 5px;
+.clsListBox .clsListBoxItem.special-box {
+    border: 1px solid #cf0000;
 }
 
-
-.clsListBox .clsListBoxItem > div:first-child {
-    border-top: none;
-    padding-top: 0;
+.clsListBox .clsListBoxItem .clsListBoxItemHeader {
+    border-bottom: 1px solid #d0d0d0;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .clsListBox .clsListBoxItem .clsListBoxItemTitle {
-    margin-top: 5px;
+    margin-bottom: 5px;
     font-size: 14px;
     font-weight: bold;
     color: #303064;
@@ -2158,7 +2157,6 @@ table.clsBasicForm > tbody > tr > td {
 }
 
 .clsListBox .clsListBoxItem .clsListBoxItemSubTitle {
-    margin-top: 5px;
     font-size: 13px;
     font-style: italic;
     font-weight: bolder;
@@ -2169,11 +2167,6 @@ table.clsBasicForm > tbody > tr > td {
     font-weight: normal;
     color: #333333;
 }
-
-.clsListBox .clsListBoxItem .clsListBoxItemBody {
-    margin-top: 5px;
-}
-
 /*** END ListBox ***/
 
 /*** Generic Rules ***/

@@ -6,11 +6,12 @@ use NETopes\Core\Data\IEntity;
 use NETopes\Core\Data\VirtualEntity;
 
 /**
- * @property string|null  content_field
- * @property string|null  title_field
- * @property mixed|string title_label
- * @property mixed|string sub_title_label
- * @property mixed|string sub_title_field
+ * @property string|null content_field
+ * @property string|null title_field
+ * @property string|null title_label
+ * @property string|null sub_title_label
+ * @property string|null sub_title_field
+ * @property string|null css_class_field
  */
 class ListBox extends Control {
     use TControlDataSource;
@@ -27,6 +28,10 @@ class ListBox extends Control {
      * @var    mixed Iterator items array
      */
     public $items;
+    /**
+     * @var    array Items actions array
+     */
+    public $actions=[];
 
     /**
      * ListBox constructor.
@@ -112,6 +117,25 @@ class ListBox extends Control {
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
+    protected function GetItemActions(IEntity $item,$key): ?string {
+        $result='';
+        // if(is_string($this->sub_title_field) && strlen($this->sub_title_field)) {
+        //     $result.='<div class="clsListBoxItemSubTitle">'."\n";
+        //     if(is_string($this->sub_title_label) && strlen($this->sub_title_label)) {
+        //         $result.='<span class="lb-label">'.$this->sub_title_label.':</span>'."\n";
+        //     }
+        //     $result.=$item->GetProperty($this->sub_title_field,'','is_string')."\n";
+        //     $result.='</div>'."\n";
+        // }
+        return $result;
+    }//END protected function GetItemActions
+
+    /**
+     * @param $item IEntity
+     * @param $key  int|string
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
     protected function GetItemContent(IEntity $item,$key): ?string {
         $result='<div class="clsListBoxItemBody">'."\n";
         $result.=html_entity_decode($item->GetProperty($this->content_field,'','is_string'))."\n";
@@ -126,9 +150,19 @@ class ListBox extends Control {
      * @throws \NETopes\Core\AppException
      */
     protected function GetItem(IEntity $item,$key): ?string {
-        $result='<div class="clsListBoxItem">'."\n";
-        $result.=$this->GetItemTitle($item,$key);
-        $result.=$this->GetItemSubTitle($item,$key);
+        $cssClass='';
+        if(is_string($this->css_class_field) && strlen($this->css_class_field)) {
+            $cssClass=$item->getProperty($this->css_class_field,'','is_string');
+        }
+        $header=$this->GetItemTitle($item,$key);
+        $header.=$this->GetItemSubTitle($item,$key);
+        $header.=$this->GetItemActions($item,$key);
+        $result='<div class="clsListBoxItem'.(strlen($cssClass) ? ' '.$cssClass : '').'">'."\n";
+        if(strlen($header)) {
+            $result.='<div class="clsListBoxItemHeader">'."\n";
+            $result.=$header;
+            $result.='</div>'."\n";
+        }
         $result.=$this->GetItemContent($item,$key);
         $result.='</div>'."\n";
         return $result;
