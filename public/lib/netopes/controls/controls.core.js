@@ -952,6 +952,14 @@ function SetCkEditorData(e,data) {
         editor.setData(data);
     }
 }//function SetCkEditorData
+
+function AppendCkEditorData(e,data) {
+    if(typeof (e)==='object') { e=e.getAttribute('id'); }
+    let editor=CKEDITOR.instances[e];
+    if(editor) {
+        editor.insertHtml(data);
+    }
+}//function AppendCkEditorData
 /*** END For CKEditor ***/
 /*** For FileUploader ***/
 function CreateFileUploader(elementid,multi) {
