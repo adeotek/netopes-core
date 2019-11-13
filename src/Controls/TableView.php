@@ -981,19 +981,18 @@ class TableView extends FilterControl {
                         continue;
                     }
                     $act=ControlsHelpers::ReplaceDynamicParams($act,$row);
-                    $aparams=get_array_value($act,'params',[],'is_array');
-                    $aparams=ControlsHelpers::ReplaceDynamicParams($aparams,$row);
-                    // Check conditions for displaing action
-                    $conditions=get_array_value($aparams,'conditions',NULL,'is_array');
+                    $actParams=get_array_value($act,'params',[],'is_array');
+                    // Check conditions for displaying action
+                    $conditions=get_array_value($actParams,'conditions',NULL,'is_array');
                     if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($row,$conditions)) {
                         continue;
                     }
-                    $atype=get_array_value($act,'type','DivButton','is_notempty_string');
-                    $atype='\NETopes\Core\Controls\\'.$atype;
-                    if(!class_exists($atype)) {
-                        NApp::Elog('Control class ['.$atype.'] not found!');
+                    $actType=get_array_value($act,'type','DivButton','is_notempty_string');
+                    $actType='\NETopes\Core\Controls\\'.$actType;
+                    if(!class_exists($actType)) {
+                        NApp::Elog('Control class ['.$actType.'] not found!');
                         continue;
-                    }//if(!class_exists($atype))
+                    }//if(!class_exists($actType))
                     $a_dright=get_array_value($act,'dright','','is_string');
                     if(strlen($a_dright)) {
                         $dright=Module::GetDRights($this->module,$this->method,$a_dright);
@@ -1007,13 +1006,13 @@ class TableView extends FilterControl {
                         $aCommand=get_array_value($act,'command_string',NULL,'?is_string');
                     }//if(!$ajaxCommand)
                     if($ajaxCommand) {
-                        $aparams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
+                        $actParams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
                     }//if($ajaxCommand)
-                    $btn_action=new $atype($aparams);
+                    $actControl=new $actType($actParams);
                     if(get_array_value($act,'clear_base_class',FALSE,'bool')) {
-                        $btn_action->ClearBaseClass();
+                        $actControl->ClearBaseClass();
                     }//if(get_array_value($act,'clear_base_class',FALSE,'bool'))
-                    $result.=$btn_action->Show();
+                    $result.=$actControl->Show();
                     $embedded_form=get_array_value($act,'embedded_form',NULL,'isset');
                     if(is_string($embedded_form) && strlen($embedded_form)) {
                         $this->row_embedded_form[]=['tag_id'=>ControlsHelpers::ReplaceDynamicParams($embedded_form,$row)];

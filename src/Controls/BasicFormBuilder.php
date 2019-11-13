@@ -18,20 +18,17 @@ use NETopes\Core\AppException;
  *
  * @package NETopes\Core\Controls
  */
-class BasicFormBuilder {
+class BasicFormBuilder extends ControlBuilder {
+
     /**
      * @var    array fields descriptor array
      */
     protected $content=[];
+
     /**
      * @var    array form actions descriptor array
      */
     protected $actions=[];
-
-    /**
-     * @var    array params array
-     */
-    protected $params=[];
 
     /**
      * BasicForm class constructor method
@@ -52,9 +49,7 @@ class BasicFormBuilder {
             }
             unset($params['actions']);
         }
-        if(is_array($params)) {
-            $this->params=$params;
-        }
+        parent::__construct($params);
     }//END public function __construct
 
     /**
@@ -84,20 +79,6 @@ class BasicFormBuilder {
     public function SetActions(array $actions): void {
         $this->actions=$actions;
     }//END public function SetActions
-
-    /**
-     * @return array
-     */
-    public function GetParams(): array {
-        return $this->params;
-    }//END public function GetParams
-
-    /**
-     * @param array $params
-     */
-    public function SetParams(array $params): void {
-        $this->params=$params;
-    }//END public function SetParams
 
     /**
      * @param array $action
@@ -155,7 +136,7 @@ class BasicFormBuilder {
         } else {
             $this->content[]=[$control];
         }//if($row!==NULL)
-    }//END public function AddRow
+    }//END public function AddControl
 
     /**
      * @return int
@@ -188,4 +169,4 @@ class BasicFormBuilder {
         $result['actions']=$this->actions;
         return $result;
     }//public function GetConfig
-}//END class BasicFormBuilder
+}//END class BasicFormBuilder extends ControlBuilder

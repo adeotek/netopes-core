@@ -15,6 +15,7 @@ use GibberishAES;
 use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\IEntity;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
 
@@ -156,7 +157,7 @@ class ControlsHelpers {
      */
     public static function CheckRowConditions(&$row,$conditions) {
         $result=FALSE;
-        if(!is_array($conditions) || !count($conditions) || !is_object($row)) {
+        if(!is_array($conditions) || !count($conditions) || !$row instanceof IEntity) {
             return $result;
         }
         foreach($conditions as $cond) {

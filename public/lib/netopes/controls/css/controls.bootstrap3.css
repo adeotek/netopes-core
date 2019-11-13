@@ -2140,30 +2140,53 @@ table.clsBasicForm > tbody > tr > td {
 }
 
 .clsListBox .clsListBoxItem .clsListBoxItemHeader {
+    position: relative;
     border-bottom: 1px solid #d0d0d0;
-    padding-bottom: 5px;
     margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 
-.clsListBox .clsListBoxItem .clsListBoxItemTitle {
+.clsListBox .clsListBoxItem .clsListBoxItemHeader:after {
+    content: '';
+    display: block;
+    height: 0;
+    clear: both;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemHeader .clsListBoxItemActions {
+    float: right;
+    position: relative;
+    display: block;
+    padding-left: 15px;
+}
+
+.clsListBox .clsListBoxItem .clsListBoxItemHeader .clsListBoxItemTitle {
+    position: relative;
     margin-bottom: 5px;
     font-size: 14px;
     font-weight: bold;
     color: #303064;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.clsListBox .clsListBoxItem .clsListBoxItemTitle .lb-label {
+.clsListBox .clsListBoxItem .clsListBoxItemHeader .clsListBoxItemTitle .lb-label {
     color: #333333;
 }
 
-.clsListBox .clsListBoxItem .clsListBoxItemSubTitle {
+.clsListBox .clsListBoxItem .clsListBoxItemHeader .clsListBoxItemSubTitle {
+    position: relative;
     font-size: 13px;
     font-style: italic;
     font-weight: bolder;
     color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.clsListBox .clsListBoxItem .clsListBoxItemSubTitle .lb-label {
+.clsListBox .clsListBoxItem .clsListBoxItemHeader .clsListBoxItemSubTitle .lb-label {
     font-weight: normal;
     color: #333333;
 }
