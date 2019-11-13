@@ -20,7 +20,7 @@ use NETopes\Core\Validators\Validator;
  *
  * @package  NETopes\Core\App
  */
-class VirtualEntity {
+class VirtualEntity implements IEntity {
     /**
      * int Fields/properties naming mode: original
      */
@@ -121,14 +121,14 @@ class VirtualEntity {
     /**
      * Get property value by name
      *
-     * @param string $name
-     * @param null   $defaultValue
-     * @param null   $validation
-     * @param bool   $strict
+     * @param string|null $name
+     * @param mixed|null  $defaultValue
+     * @param string|null $validation
+     * @param bool        $strict
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public function getProperty($name,$defaultValue=NULL,$validation=NULL,$strict=FALSE) {
+    public function getProperty(?string $name,$defaultValue=NULL,?string $validation=NULL,bool $strict=FALSE) {
         return $this->GetPropertyValue($name,$strict,$defaultValue,$validation);
     }//END public function getProperty
 
@@ -157,6 +157,19 @@ class VirtualEntity {
     }//END protected function GetPropertyValue
 
     /**
+     * Set property value by name
+     *
+     * @param string $name The name of the property
+     * @param mixed  $value
+     * @param bool   $strict
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function setProperty(string $name,$value,bool $strict=FALSE) {
+        $this->SetPropertyValue($name,$value,$strict);
+    }//END public function setProperty
+
+    /**
      * VirtualEntity dynamic setter method
      *
      * @param string $name The name of the property
@@ -165,7 +178,7 @@ class VirtualEntity {
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    protected function SetPropertyValue($name,$value,$strict=FALSE) {
+    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE) {
         $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
         if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
             throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
@@ -179,13 +192,13 @@ class VirtualEntity {
     /**
      * Check if property exists
      *
-     * @param string $name The name of the property
-     * @param bool   $not_null
+     * @param string|null $name The name of the property
+     * @param bool        $notNull
      * @return bool Returns TRUE if property exists
      */
-    public function hasProperty($name,$not_null=FALSE): bool {
+    public function hasProperty(?string $name,bool $notNull=FALSE): bool {
         $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
-        if($not_null) {
+        if($notNull) {
             return array_key_exists($key,$this->data) && isset($this->data[$key]);
         }
         return array_key_exists($key,$this->data);
