@@ -1,5 +1,6 @@
 <?php
 namespace NETopes\Core\Controls;
+use NApp;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\IEntity;
@@ -113,20 +114,58 @@ class ListBox extends Control {
 
     /**
      * @param $item IEntity
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessItemActions(IEntity $item): ?string {
+        $actions=NULL;
+        if(is_array($this->actions) && count($this->actions)) {
+            foreach($this->actions as $act) {
+                $act=ControlsHelpers::ReplaceDynamicParams($act,$item);
+                $actParams=get_array_value($act,'params',[],'is_array');
+                // Check conditions for displaying action
+                $conditions=get_array_value($actParams,'conditions',NULL,'is_array');
+                if(is_array($conditions) && !ControlsHelpers::CheckRowConditions($item,$conditions)) {
+                    continue;
+                }
+                $actType=get_array_value($act,'type','DivButton','is_notempty_string');
+                $actType='\NETopes\Core\Controls\\'.$actType;
+                if(!class_exists($actType)) {
+                    NApp::Elog('Control class ['.$actType.'] not found!');
+                    continue;
+                }//if(!class_exists($actType))
+                $ajaxCommand=get_array_value($act,'ajax_command',NULL,'is_notempty_string');
+                $targetId=get_array_value($act,'ajax_target_id',NULL,'is_notempty_string');
+                if(!$ajaxCommand) {
+                    $aCommand=get_array_value($act,'command_string',NULL,'?is_string');
+                }//if(!$ajaxCommand)
+                if($ajaxCommand) {
+                    $actParams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
+                }//if($ajaxCommand)
+                $actControl=new $actType($actParams);
+                if(get_array_value($act,'clear_base_class',FALSE,'bool')) {
+                    $actControl->ClearBaseClass();
+                }//if(get_array_value($act,'clear_base_class',FALSE,'bool'))
+                $actions.=$actControl->Show()."\n";
+            }//END foreach
+        }//if(is_array($this->actions) && count($this->actions))
+        return $actions;
+    }//END protected function ProcessItemActions
+
+    /**
+     * @param $item IEntity
      * @param $key  int|string
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
     protected function GetItemActions(IEntity $item,$key): ?string {
-        $result='';
-        // if(is_string($this->sub_title_field) && strlen($this->sub_title_field)) {
-        //     $result.='<div class="clsListBoxItemSubTitle">'."\n";
-        //     if(is_string($this->sub_title_label) && strlen($this->sub_title_label)) {
-        //         $result.='<span class="lb-label">'.$this->sub_title_label.':</span>'."\n";
-        //     }
-        //     $result.=$item->GetProperty($this->sub_title_field,'','is_string')."\n";
-        //     $result.='</div>'."\n";
-        // }
+        $actions=$this->ProcessItemActions($item);
+        if(!strlen($actions)) {
+            return NULL;
+        }
+        $result='<div class="clsListBoxItemActions">'."\n";
+        $result.=$actions;
+        $result.='</div>'."\n";
         return $result;
     }//END protected function GetItemActions
 
@@ -154,9 +193,9 @@ class ListBox extends Control {
         if(is_string($this->css_class_field) && strlen($this->css_class_field)) {
             $cssClass=$item->getProperty($this->css_class_field,'','is_string');
         }
-        $header=$this->GetItemTitle($item,$key);
+        $header=$this->GetItemActions($item,$key);
+        $header.=$this->GetItemTitle($item,$key);
         $header.=$this->GetItemSubTitle($item,$key);
-        $header.=$this->GetItemActions($item,$key);
         $result='<div class="clsListBoxItem'.(strlen($cssClass) ? ' '.$cssClass : '').'">'."\n";
         if(strlen($header)) {
             $result.='<div class="clsListBoxItemHeader">'."\n";

@@ -216,8 +216,9 @@ class BasicForm {
             if(!count($act_params)) {
                 continue;
             }
+            $forceVisible=get_array_value($action,'force_visible',FALSE,'bool');
             $actDRight=get_array_value($action,'dright',NULL,'?is_string');
-            if(strlen($actDRight) && Module::GetDRights($this->module,$this->method,$actDRight)) {
+            if(($this->disabled && !$forceVisible) || (strlen($actDRight) && Module::GetDRights($this->module,$this->method,$actDRight))) {
                 continue;
             }
             $a_class=get_array_value($act_params,'class','','is_string');
