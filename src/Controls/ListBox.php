@@ -7,6 +7,7 @@ use NETopes\Core\Data\IEntity;
 use NETopes\Core\Data\VirtualEntity;
 
 /**
+ * @property string|null item_id_field
  * @property string|null content_field
  * @property string|null title_field
  * @property string|null title_label
@@ -189,6 +190,10 @@ class ListBox extends Control {
      * @throws \NETopes\Core\AppException
      */
     protected function GetItem(IEntity $item,$key): ?string {
+        $itemId='';
+        if(is_string($this->item_id_field) && strlen($this->item_id_field)) {
+            $itemId=$item->getProperty($this->item_id_field,'','is_string');
+        }
         $cssClass='';
         if(is_string($this->css_class_field) && strlen($this->css_class_field)) {
             $cssClass=$item->getProperty($this->css_class_field,'','is_string');
@@ -196,7 +201,7 @@ class ListBox extends Control {
         $header=$this->GetItemActions($item,$key);
         $header.=$this->GetItemTitle($item,$key);
         $header.=$this->GetItemSubTitle($item,$key);
-        $result='<div class="clsListBoxItem'.(strlen($cssClass) ? ' '.$cssClass : '').'">'."\n";
+        $result='<div class="clsListBoxItem'.(strlen($cssClass) ? ' '.$cssClass : '').'"'.(strlen($itemId) ? ' id="'.$itemId.'"' : '').'>'."\n";
         if(strlen($header)) {
             $result.='<div class="clsListBoxItemHeader">'."\n";
             $result.=$header;
