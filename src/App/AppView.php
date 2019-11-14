@@ -605,9 +605,9 @@ class AppView {
         }
         require($_v_file);
         if(!isset($$_var_name) || !is_object($$_var_name)) {
-            throw new AppException('Undefined control builder variable [$ctrl_params:'.$_v_file.']!');
+            throw new AppException('Undefined control builder variable [$ctrl_builder:'.$_v_file.']!');
         }
-        return $this->GetControlContent($$_var_name->Config(),$_c_class,$args);
+        return $this->GetControlContent($$_var_name->GetConfig(),$_c_class,$args);
     }//END protected function GetControlBuilderFromFile
 
     /**
