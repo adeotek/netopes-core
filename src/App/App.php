@@ -725,10 +725,11 @@ HTML;
      * @param string           $namespace Namespace for generating app_web_link or NULL for current namespace
      * @param bool             $base      If set to TRUE will return only base link (app_web_link property) else will return base link + language path
      * @param string|bool|null $langCode
+     * @param string|null      $uriPrefix
      * @return string The link of the application (with or without language path)
      * @throws \NETopes\Core\AppException
      */
-    public static function GetAppBaseUrl(?string $uri=NULL,?string $namespace=NULL,bool $base=FALSE,$langCode=NULL): string {
+    public static function GetAppBaseUrl(?string $uri=NULL,?string $namespace=NULL,bool $base=FALSE,?string $langCode=NULL,?string $uriPrefix=NULL): string {
         $namespace=$namespace ? $namespace : static::$currentNamespace;
         if($namespace!=static::$currentNamespace) {
             $domainsConfig=defined('_NAPP_DOMAINS_CONFIG') ? _NAPP_DOMAINS_CONFIG : NULL;
@@ -744,13 +745,16 @@ HTML;
         $lang=(static::IsMultiLanguage($namespace) && !AppConfig::GetValue('url_without_language') && strlen($langCode)) ? strtolower($langCode) : '';
         if(AppConfig::GetValue('app_mod_rewrite')) {
             if($base) {
-                return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '');
+                return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($uriPrefix) ? $uriPrefix.'/' : '');
             }
-            return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen($uri) ? '?'.$uri : '');
+            return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($uriPrefix) ? $uriPrefix.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen($uri) ? '?'.$uri : '');
         }//if(AppConfig::GetValue('app_mod_rewrite'))
         $url=static::$appBaseUrl.'/';
         if(strlen($nsLinkAlias)) {
             $url.='?namespace='.$nsLinkAlias;
+        }
+        if(strlen($uriPrefix)) {
+            $url.='?view_mode='.$uriPrefix;
         }
         if($base) {
             return $url;

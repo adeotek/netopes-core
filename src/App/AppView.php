@@ -933,7 +933,7 @@ class AppView {
             if($this->_debug && strlen($this->_title) && strpos($mainContainer,'{!TITLE!}')===FALSE) {
                 NApp::Dlog('{!TITLE!} placeholder is missing for view container ['.$this->_containerType.']!');
             }
-            $mainContainer=str_replace('{!CSSCLASS!}',$this->_containerClass,$mainContainer);
+            $mainContainer=str_replace('{!CSSCLASS!}',' '.trim($this->_containerClass),$mainContainer);
             $mainContainer=str_replace('{!TITLE!}',$this->_title,$mainContainer);
             $mainContainer=str_replace('{!TARGETID!}',$this->_targetId,$mainContainer);
             $mainContainer=str_replace('{!ACTIONS!}',implode("\n",$this->_actions),$mainContainer);
