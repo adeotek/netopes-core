@@ -111,6 +111,17 @@ class BasicFormBuilder extends ControlBuilder {
     }//END public function AddRow
 
     /**
+     * @param int|string $rowIndex
+     * @return bool
+     */
+    public function RowExists($rowIndex): bool {
+        if(!is_array($this->content)) {
+            $this->content=[];
+        }
+        return array_key_exists($rowIndex,$this->content);
+    }//END public function AddRow
+
+    /**
      * @param array    $control
      * @param int|null $row
      * @param int|null $column

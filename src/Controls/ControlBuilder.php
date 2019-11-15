@@ -1,6 +1,6 @@
 <?php
 /**
- * ControlBuilder abstract class file
+ * ControlBuilder class file
  *
  * @package    NETopes\Core\Controls
  * @author     George Benjamin-Schonberger
@@ -18,7 +18,7 @@ use NETopes\Core\AppException;
  *
  * @package NETopes\Core\Controls
  */
-abstract class ControlBuilder {
+class ControlBuilder implements IControlBuilder {
 
     /**
      * @var    array params array
@@ -28,10 +28,10 @@ abstract class ControlBuilder {
     /**
      * BasicForm class constructor method
      *
-     * @param array $params Parameters array
+     * @param array|null $params Parameters array
      * @return void
      */
-    public function __construct($params=NULL) {
+    public function __construct(?array $params=NULL) {
         if(is_array($params)) {
             $this->params=$params;
         }
@@ -86,9 +86,4 @@ abstract class ControlBuilder {
         }
         unset($this->params[$name]);
     }//END public function UnsetParam
-
-    /**
-     * @return array
-     */
-    abstract public function GetConfig(): array;
-}//END abstract class ControlBuilder
+}//END class ControlBuilder implements IControlBuilder

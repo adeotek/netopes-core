@@ -2228,6 +2228,20 @@ table.clsBasicForm > tbody > tr > td {
 	line-height: 14px;
 }
 
+ul.errors-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.errors-list > li {
+    display: block;
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .col-xs-offset-right-12 {
 	margin-right: 100%;
 }
