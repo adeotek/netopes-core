@@ -35,11 +35,12 @@
             if($(obj).prop('disabled')) {
                 return false;
             }
+            let treeId=$(obj).attr('id');
             if(reload===true || reload===1 || reload==='1') {
-                let tree=$('#' + obj.id + '-ctree').fancytree('getTree');
+                let tree=$('#' + treeId + '-ctree').fancytree('getTree');
                 tree.reload();
             } else if(updateTree===true || updateTree===1 || updateTree==='1') {
-                let tree=$('#' + obj.id + '-ctree').fancytree('getTree');
+                let tree=$('#' + treeId + '-ctree').fancytree('getTree');
                 let node=tree.getNodeByKey(oldValue);
                 if(node!=null) { node.setSelected(false); }
             }
