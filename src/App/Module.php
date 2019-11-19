@@ -194,7 +194,7 @@ class Module {
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDRights(string $module,string $method='',string $type='All') {
+    public static function GetDRights(?string $module,?string $method=NULL,string $type='All') {
         if(NApp::GetParam('sadmin')==1) {
             return FALSE;
         }
@@ -206,7 +206,7 @@ class Module {
         }
         $module=$module==='Module' ? '' : $module;
         $rights=NApp::GetParam('user_rights_revoked');
-        $rights=get_array_value($rights,[$module,$method],NULL,'is_array');
+        $rights=get_array_value($rights,[$module ?? '',$method ?? ''],NULL,'is_array');
         // NApp::Dlog($rights,'$rights');
         if(is_null($rights)) {
             return NULL;
