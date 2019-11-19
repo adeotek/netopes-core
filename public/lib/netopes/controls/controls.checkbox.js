@@ -14,7 +14,7 @@
         if(options) { $.extend(config,options); }
 
         let methods={
-            toggle: function(obj) {
+            toggle: function(obj,prevDefault) {
                 if($(obj).prop('disabled') || $(obj).prop('readonly')) {
                     return false;
                 }
@@ -23,21 +23,27 @@
                 } else {
                     $(obj).val(1);
                 }//if($(obj).val()==='1')
-                $(obj).trigger('change');
+                if(prevDefault!==true && prevDefault!==1 && prevDefault!=='1') {
+                    $(obj).trigger('change');
+                }
             },
-            check: function(obj) {
+            check: function(obj,prevDefault) {
                 if($(obj).prop('disabled') || $(obj).prop('readonly')) {
                     return false;
                 }
                 $(obj).val(1);
-                $(obj).trigger('change');
+                if(prevDefault!==true && prevDefault!==1 && prevDefault!=='1') {
+                    $(obj).trigger('change');
+                }
             },
-            uncheck: function(obj) {
+            uncheck: function(obj,prevDefault) {
                 if($(obj).prop('disabled') || $(obj).prop('readonly')) {
                     return false;
                 }
                 $(obj).val(0);
-                $(obj).trigger('change');
+                if(prevDefault!==true && prevDefault!==1 && prevDefault!=='1') {
+                    $(obj).trigger('change');
+                }
             }
         };
 
@@ -98,25 +104,29 @@
 
             if(typeof config.onChange==='function') {
                 $(obj).on('change',function(e) {
-                    try {
-                        config.onChange(obj,e);
-                    } catch(e) {
-                        console.log(e);
-                        console.log(config.onChange);
+                    if($(this).data('prevdef')!=='1') {
+                        try {
+                            config.onChange(obj,e);
+                        } catch(e) {
+                            console.log(e);
+                            console.log(config.onChange);
+                        }
                     }
                 });
             } else if(typeof config.onChange==='string' && config.onChange.length>0) {
                 $(obj).on('change',function() {
-                    try {
-                        eval(config.onChange);
-                    } catch(e) {
-                        console.log(e);
-                        console.log(config.onChange);
+                    if($(this).data('prevdef')!=='1') {
+                        try {
+                            eval(config.onChange);
+                        } catch(e) {
+                            console.log(e);
+                            console.log(config.onChange);
+                        }
                     }
                 });
             }
         }//END function init
-        
+
         if(typeof options==='string') {
             if(methods[options]) {
                 let methodArgs=Array.prototype.slice.call(arguments,1);
