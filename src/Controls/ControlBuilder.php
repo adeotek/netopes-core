@@ -86,4 +86,11 @@ class ControlBuilder implements IControlBuilder {
         }
         unset($this->params[$name]);
     }//END public function UnsetParam
+
+    /**
+     * @return array
+     */
+    public function GetConfig(): array {
+        return $this->params;
+    }//public function GetConfig
 }//END class ControlBuilder implements IControlBuilder
