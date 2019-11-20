@@ -186,9 +186,10 @@ class AppHelpers {
      * Get dynamic javascript to be executed
      *
      * @param bool $asArray
+     * @param bool $raw
      * @return string|array Returns scripts to be executed
      */
-    public static function GetDynamicJs(bool $asArray=FALSE) {
+    public static function GetDynamicJs(bool $asArray=FALSE,bool $raw=FALSE) {
         $scripts=self::GetGlobalVar('dynamic_js_scripts',[],'is_array');
         if($asArray || !count($scripts)) {
             return $scripts;
@@ -209,6 +210,12 @@ class AppHelpers {
                 $data.=$s."\n\n";
             }//if(is_array($s))
         }//END foreach
+        if($raw) {
+            return [
+                'html'=>$html_data,
+                'js'=>$data,
+            ];
+        }
         return $html_data.'<script type="text/javascript">'."\n".$data."\n".'</script>'."\n";
     }//END public static function GetDynamicJs
 
