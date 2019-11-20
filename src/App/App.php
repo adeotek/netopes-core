@@ -691,9 +691,16 @@ HTML;
     /**
      * Get dynamic javascript to be executed
      *
+     * @param string|null $html
+     * @param bool        $raw
      * @return string Returns scripts to be executed
      */
-    public static function GetDynamicJs(): ?string {
+    public static function GetDynamicJs(?string &$html=NULL,bool $raw=FALSE): ?string {
+        if($raw) {
+            $result=AppHelpers::GetDynamicJs(FALSE,$raw);
+            $html=get_array_value($result,'html','','is_string');
+            return get_array_value($result,'js','','is_string');
+        }
         $result=AppHelpers::GetDynamicJs();
         return (is_array($result) ? implode(' ',$result) : $result);
     }//END public static function GetDynamicJs
