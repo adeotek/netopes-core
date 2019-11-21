@@ -136,11 +136,12 @@ abstract class App implements IApp {
     /**
      * Load domain specific configuration
      *
-     * @param bool $isCli
+     * @param bool        $isCli
+     * @param string|null $virtualPath
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    protected static function LoadDomainConfig(bool $isCli=FALSE): void {
+    protected static function LoadDomainConfig(bool $isCli=FALSE,?string $virtualPath=NULL): void {
         if(!defined('_NAPP_DOMAINS_CONFIG') || !is_array(_NAPP_DOMAINS_CONFIG['domains'])) {
             die('Invalid domain registry settings!');
         }
@@ -156,7 +157,7 @@ abstract class App implements IApp {
         }
         $domainConfig=_NAPP_DOMAINS_CONFIG['namespaces'][static::$currentNamespace];
         static::$defaultDbConnection=$domainConfig['db_connection'];
-        static::$_url->urlVirtualPath=isset($domainConfig['link_alias']) ? $domainConfig['link_alias'] : '';
+        static::$_url->urlVirtualPath=trim((isset($domainConfig['link_alias']) ? $domainConfig['link_alias'] : '').'/'.(strlen($virtualPath) ? $virtualPath : ''),'/');
         $defaultViewsDir=get_array_value($domainConfig,'default_views_dir','','is_string');
         if(strlen($defaultViewsDir)) {
             AppConfig::SetValue('app_default_views_dir',$defaultViewsDir);
@@ -253,11 +254,11 @@ abstract class App implements IApp {
         static::InitDebugger();
         static::StartOutputBuffer();
         static::$_appState=AppSession::WithSession() ? AppSession::GetState() : TRUE;
-        static::LoadDomainConfig();
+        static::LoadDomainConfig(FALSE,array_key_exists('vpath',$params) && strlen($params['vpath']) ? $params['vpath'] : NULL);
         static::$guiLoaded=static::$_isAjax;
         static::$_url->data=static::$_isAjax ? (is_array(static::GetPageParam('get_params')) ? static::GetPageParam('get_params') : []) : static::$_url->data;
         static::SetPageParam('get_params',static::$_url->data);
-        static::$_url->specialParams=['language','urlid','namespace'];
+        static::$_url->specialParams=['language','urlid','namespace','vpath'];
         if(!static::$_isAjax!==TRUE) {
             $curl=static::$_url->GetCurrentUrl();
             if(static::GetPageParam('current_url')!=$curl) {
@@ -732,11 +733,11 @@ HTML;
      * @param string           $namespace Namespace for generating app_web_link or NULL for current namespace
      * @param bool             $base      If set to TRUE will return only base link (app_web_link property) else will return base link + language path
      * @param string|bool|null $langCode
-     * @param string|null      $uriPrefix
+     * @param string|null      $virtualPath
      * @return string The link of the application (with or without language path)
      * @throws \NETopes\Core\AppException
      */
-    public static function GetAppBaseUrl(?string $uri=NULL,?string $namespace=NULL,bool $base=FALSE,?string $langCode=NULL,?string $uriPrefix=NULL): string {
+    public static function GetAppBaseUrl(?string $uri=NULL,?string $namespace=NULL,bool $base=FALSE,?string $langCode=NULL,?string $virtualPath=NULL): string {
         $namespace=$namespace ? $namespace : static::$currentNamespace;
         if($namespace!=static::$currentNamespace) {
             $domainsConfig=defined('_NAPP_DOMAINS_CONFIG') ? _NAPP_DOMAINS_CONFIG : NULL;
@@ -752,16 +753,16 @@ HTML;
         $lang=(static::IsMultiLanguage($namespace) && !AppConfig::GetValue('url_without_language') && strlen($langCode)) ? strtolower($langCode) : '';
         if(AppConfig::GetValue('app_mod_rewrite')) {
             if($base) {
-                return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($uriPrefix) ? $uriPrefix.'/' : '');
+                return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($virtualPath) ? $virtualPath.'/' : '');
             }
-            return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($uriPrefix) ? $uriPrefix.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen($uri) ? '?'.$uri : '');
+            return static::$appBaseUrl.'/'.($nsLinkAlias ? $nsLinkAlias.'/' : '').(strlen($virtualPath) ? $virtualPath.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen($uri) ? '?'.$uri : '');
         }//if(AppConfig::GetValue('app_mod_rewrite'))
         $url=static::$appBaseUrl.'/';
         if(strlen($nsLinkAlias)) {
             $url.='?namespace='.$nsLinkAlias;
         }
-        if(strlen($uriPrefix)) {
-            $url.='?view_mode='.$uriPrefix;
+        if(strlen($virtualPath)) {
+            $url.='?vpath='.$virtualPath;
         }
         if($base) {
             return $url;

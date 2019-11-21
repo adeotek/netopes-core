@@ -424,14 +424,14 @@ class Url {
      * Create new application URL
      *
      * @param object|null $params Parameters object (instance of [Params])
-     * @param int         $url_format
+     * @param int         $urlFormat
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    public function GetNewUrl($params=NULL,$url_format=self::URL_FORMAT_FRIENDLY) {
+    public function GetNewUrl($params=NULL,$urlFormat=self::URL_FORMAT_FRIENDLY) {
         $result='';
         $anchor='';
-        $lurl_format=AppConfig::GetValue('app_mod_rewrite') ? $url_format : self::URL_FORMAT_SHORT;
+        $lUrlFormat=AppConfig::GetValue('app_mod_rewrite') ? $urlFormat : self::URL_FORMAT_SHORT;
         if(is_array($params) && count($params)) {
             $first=TRUE;
             foreach($params as $k=>$v) {
@@ -439,7 +439,7 @@ class Url {
                     $anchor=$this->ParamToString($v);
                     continue;
                 }//if($k=='anchor')
-                if(($lurl_format==self::URL_FORMAT_FRIENDLY || $lurl_format==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->specialParams)) {
+                if(($lUrlFormat==self::URL_FORMAT_FRIENDLY || $lUrlFormat==self::URL_FORMAT_FRIENDLY_ORIGINAL) && in_array($k,$this->specialParams)) {
                     continue;
                 }
                 $val=$this->ParamToString($v);
@@ -454,7 +454,7 @@ class Url {
                 $result.=$prefix.$k.'='.$val;
             }//END foreach
         }//if(is_array($params) && count($params))
-        return $this->GetBase($lurl_format,$params).$result.(strlen($anchor) ? '#'.$anchor : '');
+        return $this->GetBase($lUrlFormat,$params).$result.(strlen($anchor) ? '#'.$anchor : '');
     }//END public function GetNewUrl
 
     /**
