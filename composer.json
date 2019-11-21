@@ -1,36 +1,36 @@
 {
-    "name": "netopes/core",
-    "description": "NETopes Framework Core",
-    "type": "library",
-    "license": "MIT License",
-    "authors": [
-        {
-            "name": "George Benjamin-Schonberger",
-            "email": "george.benjamin@gmail.com"
-        }
-    ],
-    "repositories": [
-		{
-		  	"type": "git",
-		  	"url": "https://github.com/adeotek/gibberish-aes-php.git"
-		}
-	],
-	"minimum-stability": "stable",
-    "require": {
-        "php": ">=7.2",
-        "ext-json": "*",
-        "ext-curl": "*",
-        "ext-mbstring": "*",
-        "adeotek/gibberish-aes-php": "~1.3.4",
-		"php-console/php-console": "^3.1",
-		"frankforte/quantumphp": "^1.0.11",
-      "tecnickcom/tcpdf": "6.3.*",
-      "phpoffice/phpspreadsheet": "1.8.*",
-      "swiftmailer/swiftmailer": "6.2.*"
-    },
-    "autoload": {
-        "psr-4": {
-            "NETopes\\Core\\": "src"
-        }
+  "name": "netopes/core",
+  "description": "NETopes Framework Core",
+  "type": "library",
+  "license": "MIT License",
+  "authors": [
+    {
+      "name": "George Benjamin-Schonberger",
+      "email": "george.benjamin@gmail.com"
     }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/adeotek/gibberish-aes-php.git"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.2",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-mbstring": "*",
+    "adeotek/gibberish-aes-php": "~1.3.4",
+    "php-console/php-console": "^3.1",
+    "frankforte/quantumphp": "^1.0.11",
+    "tecnickcom/tcpdf": "6.3.*",
+    "phpoffice/phpspreadsheet": "1.8.*",
+    "swiftmailer/swiftmailer": "6.2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "NETopes\\Core\\": "src"
+    }
+  }
 }
