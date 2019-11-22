@@ -51,19 +51,28 @@ class TableViewBuilder extends ControlBuilder {
     }//END public function __construct
 
     /**
-     * @param array $column
-     * @param bool  $first
+     * @param string $columnKey
+     * @param array  $column
+     * @param bool   $first
      */
-    public function AddColumn(array $column,bool $first=FALSE): void {
+    public function SetColumn(string $columnKey,array $column,bool $first=FALSE): void {
         if(!is_array($this->columns)) {
             $this->columns=[];
         }
         if($first) {
-            array_unshift($this->columns,$column);
+            array_unshift($this->columns,[$columnKey=>$column]);
         } else {
-            $this->columns[]=$column;
+            $this->columns[$columnKey]=$column;
         }//if($first)
-    }//END public function AddColumn
+    }//END public function SetColumn
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected function GetColumn(string $key): array {
+        return isset($this->columns[$key]) ? $this->columns[$key] : NULL;
+    }//END private function GetColumn
 
     /**
      * @param array $columns
@@ -85,6 +94,72 @@ class TableViewBuilder extends ControlBuilder {
     public function GetColumnsCount(): int {
         return count($this->columns);
     }//END public function GetColumnsCount
+
+    /**
+     * @param string $key
+     * @param array  $action
+     * @param bool   $incrementCount
+     * @param bool   $first
+     * @return void
+     */
+    public function AddAction(string $key,array $action,bool $incrementCount=TRUE,bool $first=FALSE): void {
+        if(!is_array($this->columns)) {
+            $this->columns=[];
+        }
+        if(!isset($this->columns[$key])) {
+            $this->columns[$key]=['type'=>'actions','visual_count'=>0,'actions'=>[]];
+        }
+        if(!isset($this->columns[$key]['actions']) || !is_array($this->columns[$key]['actions'])) {
+            $this->columns[$key]['actions']=[];
+        }
+        if($first) {
+            array_unshift($this->columns[$key]['actions'],$action);
+        } else {
+            $this->columns[$key]['actions'][]=$action;
+        }//if($first)
+        if($incrementCount) {
+            if(isset($this->columns[$key]['visual_count'])) {
+                ++$this->columns[$key]['visual_count'];
+            } else {
+                $this->columns[$key]['visual_count']=1;
+            }
+        }//if($incrementCount)
+    }//END public function AddAction
+
+    /**
+     * @param string $key
+     * @param int    $count
+     * @return void
+     */
+    public function SetActionsVisualCount(string $key,int $count): void {
+        if(!is_array($this->columns)) {
+            $this->columns=[];
+        }
+        if(!isset($this->columns[$key])) {
+            $this->columns[$key]=['type'=>'actions','visual_count'=>$count,'actions'=>[]];
+        } elseif(!isset($this->columns[$key]['visual_count'])) {
+            $this->columns[$key]['visual_count']=$count;
+        }
+        if(!isset($this->columns[$key]['actions']) || !is_array($this->columns[$key]['actions'])) {
+            $this->columns[$key]['actions']=[];
+        }
+    }//END public function SetActionsVisualCount
+
+    /**
+     * @param string $key
+     * @return int
+     */
+    public function GetActionsCount(string $key): int {
+        return isset($this->columns[$key]['actions']) ? count($this->columns[$key]['actions']) : 0;
+    }//END public function GetActionsCount
+
+    /**
+     * @param string $key
+     * @return int
+     */
+    public function GetActionsVisualCount(string $key): int {
+        return isset($this->columns[$key]['visual_count']) ? $this->columns[$key]['visual_count'] : 0;
+    }//END public function GetActionsVisualCount
 
     /**
      * @param array $customAction
