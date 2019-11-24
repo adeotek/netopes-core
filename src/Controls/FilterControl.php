@@ -643,9 +643,9 @@ abstract class FilterControl {
                 $ctrlParams['placeholder']=get_array_value($ctrlParams,'placeholder',Translate::GetLabel('please_select'),'is_notempty_string');
                 $ctrlParams['allow_clear']=get_array_value($ctrlParams,'allow_clear',TRUE,'is_bool');
                 $ctrlParams['load_type']=get_array_value($ctrlParams,'load_type','database','is_notempty_string');
-                if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
+                if($isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source'])) {
                     $ctrlParams['data_source']=get_array_value($selectedItem,'filter_data_source',NULL,'is_notempty_array');
-                }//if(!$isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
+                }//if($isFilterValueField || !isset($ctrlParams['data_source']) || !is_array($ctrlParams['data_source']) || !count($ctrlParams['data_source']))
                 $dValue='{nEval|GetSmartCBOText(\''.$this->tag_id.'-'.$fvName.'\',false)}';
                 $selectedItem['f_d_value_source']=$dValue;
                 $ctrlParams['selected_value']=$selectedValue;
