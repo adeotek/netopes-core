@@ -96,17 +96,32 @@ class BasicFormBuilder extends ControlBuilder {
     }//END public function AddAction
 
     /**
-     * @param array $row
+     * @param array $content
      * @param bool  $first
      */
-    public function AddRow(array $row,bool $first=FALSE): void {
+    public function AddRow(array $content,bool $first=FALSE): void {
         if(!is_array($this->content)) {
             $this->content=[];
         }
         if($first) {
-            array_unshift($this->content,$row);
+            array_unshift($this->content,$content);
         } else {
-            $this->content[]=$row;
+            $this->content[]=$content;
+        }//if($first)
+    }//END public function AddRow
+
+    /**
+     * @param array    $content
+     * @param int|null $row
+     */
+    public function SetRow(array $content,?int $row=NULL): void {
+        if(!is_array($this->content)) {
+            $this->content=[];
+        }
+        if(is_integer($row)) {
+            $this->content[$row]=$content;
+        } else {
+            $this->content[]=$content;
         }//if($first)
     }//END public function AddRow
 
