@@ -732,4 +732,3 @@ class PdfDocument {
         return number_format($data[$column['dbfield']],2,$this->decimal_separator,$this->group_separator);
     }//END protected function NumberFormat2
 }//END class PdfDocument
-?>
