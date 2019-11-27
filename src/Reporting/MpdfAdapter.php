@@ -1,0 +1,220 @@
+<?php
+/**
+ * MpdfAdapter class file
+ *
+ * @package    NETopes\Reporting
+ * @author     George Benjamin-Schonberger
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
+ * @license    LICENSE.md
+ * @version    3.1.10.1
+ * @filesource
+ */
+namespace NETopes\Core\Reporting;
+use Mpdf\HTMLParserMode;
+use Mpdf\Mpdf;
+use Mpdf\MpdfException;
+use Mpdf\Output\Destination;
+use NETopes\Core\AppException;
+use NETopes\Core\DataHelpers;
+
+/**
+ * Class TcpdfAdapter
+ *
+ * @package NETopes\Core\Reporting
+ */
+class MpdfAdapter extends mPDF implements IPdfAdapter {
+    use TPdfAdapter;
+
+    /**
+     * @var string|null
+     */
+    protected $fileId=NULL;
+
+    /**
+     * @var float|null
+     */
+    protected $modificationTimestamp=NULL;
+
+    /**
+     * IPdfAdapter constructor.
+     *
+     * @param array $params
+     * @throws \Mpdf\MpdfException
+     */
+    public function __construct(array $params=[]) {
+        $this->ProcessInitialParams($params);
+        parent::__construct([
+            'mode'=>'',
+            'format'=>$this->pageSize,
+            'default_font_size'=>0,
+            'default_font'=>'',
+            'margin_left'=>15,
+            'margin_right'=>15,
+            'margin_top'=>16,
+            'margin_bottom'=>16,
+            'margin_header'=>9,
+            'margin_footer'=>9,
+            'orientation'=>$this->orientation,
+        ]);
+    }//END public function __construct
+
+    /**
+     * @param array|null $params
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetOutput(?array $params=NULL) {
+        $destination=get_array_value($params,'destination','S','is_notempty_string');
+        $currentFileName=get_array_value($params,'file_name',NULL,'?is_string');
+        if(!strlen($currentFileName)) {
+            $currentFileName=$this->fileName ? DataHelpers::normalizeString($this->fileName) : date("Y-m-d-H-i-s").'.pdf';
+        }
+        try {
+            $first=TRUE;
+            foreach($this->content as $pageContent) {
+                if($first) {
+                    $first=FALSE;
+                } else {
+                    $this->AddPage();
+                }
+                // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
+                $this->WriteHTML($pageContent,HTMLParserMode::DEFAULT_MODE,TRUE,TRUE);
+            }//END foreach
+            return $this->Output($currentFileName,$destination);
+        } catch(MpdfException $e) {
+            throw AppException::GetInstance($e);
+        }//END try
+    }//END public function GetOutput
+
+    /**
+     * @param array|null $params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function Render(?array $params=NULL) {
+        if(!is_array($params)) {
+            $params=[];
+        }
+        $params['destination']='I';
+        $this->GetOutput($params);
+    }//END public function Render
+
+    /**
+     * @param string $content
+     * @param string $name
+     * @param string $dest
+     * @throws \NETopes\Core\AppException
+     */
+    public function OutputContent(string $content,?string $name=NULL,string $dest='I') {
+        if(!strlen($content)) {
+            throw new AppException('Invalid PDF content!');
+        }
+        $name=strlen($name) ? DataHelpers::normalizeString($name) : date("Y-m-d-H-i-s").'.pdf';
+        try {
+            switch(strtoupper($dest)) {
+                case Destination::INLINE:
+                    if(headers_sent($filename,$line)) {
+                        throw new MpdfException(
+                            sprintf('Data has already been sent to output (%s at line %s), unable to output PDF file',$filename,$line)
+                        );
+                    }
+                    if($this->debug && !$this->allow_output_buffering && ob_get_contents()) {
+                        throw new MpdfException('Output has already been sent from the script - PDF file generation aborted.');
+                    }
+                    // We send to a browser
+                    if(PHP_SAPI!=='cli') {
+                        header('Content-Type: application/pdf');
+                        if(!isset($_SERVER['HTTP_ACCEPT_ENCODING']) || empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+                            // don't use length if server using compression
+                            header('Content-Length: '.strlen($this->buffer));
+                        }
+                        header('Content-disposition: inline; filename="'.$name.'"');
+                        header('Cache-Control: public, must-revalidate, max-age=0');
+                        header('Pragma: public');
+                        header('X-Generator: mPDF '.static::VERSION);
+                        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+                        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+                    }
+                    echo $content;
+                    break;
+                case Destination::DOWNLOAD:
+                    if(headers_sent()) {
+                        throw new MpdfException('Data has already been sent to output, unable to output PDF file');
+                    }
+                    header('Content-Description: File Transfer');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Cache-Control: public, must-revalidate, max-age=0');
+                    header('Pragma: public');
+                    header('X-Generator: mPDF '.static::VERSION);
+                    header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+                    header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+                    header('Content-Type: application/pdf');
+                    if(!isset($_SERVER['HTTP_ACCEPT_ENCODING']) || empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+                        // don't use length if server using compression
+                        header('Content-Length: '.strlen($this->buffer));
+                    }
+                    header('Content-Disposition: attachment; filename="'.$name.'"');
+                    echo $content;
+                    break;
+                default:
+                    throw new MpdfException(sprintf('Incorrect output destination %s',$dest));
+            }
+        } catch(MpdfException $e) {
+            throw AppException::GetInstance($e);
+        }//END try
+    }//END public function OutputContent
+
+    /**
+     * @param array|null $params
+     * @return void
+     */
+    public function SetCustomHeader(?array $params=NULL) {
+        if(is_null($params)) {
+            $params=$this->customHeaderParams;
+        }
+        if(!count($params)) {
+            return;
+        }
+        $write=get_array_value($params,'write',TRUE,'bool');
+        $html=get_array_value($params,'html','','is_notempty_string');
+        // string $html [, string $side [, boolean $write ]]
+        $this->SetHTMLHeader($html,'O',$write);
+    }//END public function SetCustomHeader
+
+    /**
+     * @param array|null $params
+     * @return void
+     */
+    public function SetCustomFooter(?array $params=NULL) {
+        if(is_null($params)) {
+            $params=$this->customHeaderParams;
+        }
+        if(!count($params)) {
+            return;
+        }
+        $html=get_array_value($params,'html','','is_notempty_string');
+        // string $html [, string $side]
+        $this->SetHTMLFooter($html);
+    }//END public function SetCustomFooter
+
+    /**
+     * @return string|null
+     */
+    public function GetTitle() {
+        return $this->title;
+    }
+
+    /**
+     * @param float $timestamp
+     */
+    public function SetModificationTimestamp(float $timestamp): void {
+        $this->modificationTimestamp=$timestamp;
+    }
+
+    /**
+     * @param string|null $fileId
+     */
+    public function SetFileId(?string $fileId): void {
+        $this->fileId=$fileId;
+    }
+}//END class MpdfAdapter extends mPDF implements IPdfAdapter
