@@ -10,6 +10,7 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
+use DateTime;
 use Exception;
 use NApp;
 use NETopes\Core\AppException;
@@ -46,44 +47,19 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
     }//END public function __construct
 
     /**
-     * @param array|null $params
-     * @return mixed
+     * @param string   $family
+     * @param string   $style
+     * @param int|null $size
      * @throws \NETopes\Core\AppException
      */
-    public function GetOutput(?array $params=NULL) {
-        $destination=get_array_value($params,'destination','S','is_notempty_string');
-        $currentFileName=get_array_value($params,'file_name',NULL,'?is_string');
-        if(!strlen($currentFileName)) {
-            $currentFileName=$this->fileName ? DataHelpers::normalizeString($this->fileName) : date("Y-m-d-H-i-s").'.pdf';
-        }
+    public function SetActiveFont(string $family,string $style='',?int $size=NULL) {
         try {
-            $first=TRUE;
-            foreach($this->content as $pageContent) {
-                if($first) {
-                    $first=FALSE;
-                } else {
-                    $this->AddPage();
-                }
-                $this->writeHTML($pageContent,TRUE,FALSE,FALSE,FALSE,'');
-            }//END foreach
-            return $this->Output($currentFileName,$destination);
+            // $family, $style='', $size=null, $fontfile='', $subset='default', $out=true
+            $this->SetFont($family,$style,$size=NULL,'','default',TRUE);
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
         }//END try
-    }//END public function GetOutput
-
-    /**
-     * @param array|null $params
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    public function Render(?array $params=NULL) {
-        if(!is_array($params)) {
-            $params=[];
-        }
-        $params['destination']='I';
-        $this->GetOutput($params);
-    }//END public function Render
+    }//END public function SetActiveFont
 
     /**
      * @param string $content
@@ -139,6 +115,46 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
             throw AppException::GetInstance($e);
         }//END try
     }//END public function OutputContent
+
+    /**
+     * @param array|null $params
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetOutput(?array $params=NULL) {
+        $destination=get_array_value($params,'destination','S','is_notempty_string');
+        $currentFileName=get_array_value($params,'file_name',NULL,'?is_string');
+        if(!strlen($currentFileName)) {
+            $currentFileName=$this->fileName ? DataHelpers::normalizeString($this->fileName) : date("Y-m-d-H-i-s").'.pdf';
+        }
+        try {
+            $first=TRUE;
+            foreach($this->content as $pageContent) {
+                if($first) {
+                    $first=FALSE;
+                } else {
+                    $this->AddPage();
+                }
+                $this->writeHTML($pageContent,TRUE,FALSE,FALSE,FALSE,'');
+            }//END foreach
+            return $this->Output($currentFileName,$destination);
+        } catch(Exception $e) {
+            throw AppException::GetInstance($e);
+        }//END try
+    }//END public function GetOutput
+
+    /**
+     * @param array|null $params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function Render(?array $params=NULL) {
+        if(!is_array($params)) {
+            $params=[];
+        }
+        $params['destination']='I';
+        $this->GetOutput($params);
+    }//END public function Render
 
     /**
      * @param array|null $params
@@ -224,10 +240,13 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
     }
 
     /**
-     * @param float $timestamp
+     * @param \DateTime|null $modifiedDate
+     * @param \DateTime|null $createDate
+     * @throws \Exception
      */
-    public function SetModificationTimestamp(float $timestamp): void {
-        $this->doc_creation_timestamp=$this->doc_modification_timestamp=$timestamp;
+    public function SetDocumentDate(?DateTime $modifiedDate,?DateTime $createDate=NULL): void {
+        $this->doc_creation_timestamp=($createDate ?? $modifiedDate ?? new DateTime())->getTimestamp();
+        $this->doc_modification_timestamp=($modifiedDate ?? new DateTime())->getTimestamp();
     }
 
     /**

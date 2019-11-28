@@ -11,6 +11,8 @@
  */
 namespace NETopes\Core\Reporting;
 
+use DateTime;
+
 /**
  * Interface IPdfAdapter
  *
@@ -98,9 +100,18 @@ interface IPdfAdapter {
     public function SetFileName(?string $fileName);
 
     /**
-     * @param float $timestamp
+     * @param string   $family
+     * @param string   $style
+     * @param int|null $size
+     * @throws \NETopes\Core\AppException
      */
-    public function SetModificationTimestamp(float $timestamp): void;
+    public function SetActiveFont(string $family,string $style='',?int $size=NULL);
+
+    /**
+     * @param \DateTime|null $modifiedDate
+     * @param \DateTime|null $createDate
+     */
+    public function SetDocumentDate(?DateTime $modifiedDate,?DateTime $createDate=NULL): void;
 
     /**
      * @param string|null $fileId

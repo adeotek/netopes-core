@@ -10,10 +10,12 @@
  * @filesource
  */
 namespace NETopes\Core\Reporting;
+use DateTime;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 use Mpdf\Output\Destination;
+use Mpdf\Utils\PdfDate;
 use NETopes\Core\AppException;
 use NETopes\Core\DataHelpers;
 
@@ -28,12 +30,17 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     /**
      * @var string|null
      */
-    protected $fileId=NULL;
+    protected $file_id=NULL;
 
     /**
-     * @var float|null
+     * @var DateTime|null
      */
-    protected $modificationTimestamp=NULL;
+    protected $doc_creation_timestamp=NULL;
+
+    /**
+     * @var DateTime|null
+     */
+    protected $doc_modification_timestamp=NULL;
 
     /**
      * IPdfAdapter constructor.
@@ -48,56 +55,30 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
             'format'=>$this->pageSize,
             'default_font_size'=>0,
             'default_font'=>'',
-            'margin_left'=>15,
-            'margin_right'=>15,
-            'margin_top'=>16,
-            'margin_bottom'=>16,
-            'margin_header'=>9,
-            'margin_footer'=>9,
+            'margin_left'=>10,
+            'margin_right'=>10,
+            'margin_top'=>10,
+            'margin_bottom'=>10,
+            'margin_header'=>8,
+            'margin_footer'=>8,
             'orientation'=>$this->orientation,
         ]);
     }//END public function __construct
 
     /**
-     * @param array|null $params
-     * @return mixed
+     * @param string   $family
+     * @param string   $style
+     * @param int|null $size
      * @throws \NETopes\Core\AppException
      */
-    public function GetOutput(?array $params=NULL) {
-        $destination=get_array_value($params,'destination','S','is_notempty_string');
-        $currentFileName=get_array_value($params,'file_name',NULL,'?is_string');
-        if(!strlen($currentFileName)) {
-            $currentFileName=$this->fileName ? DataHelpers::normalizeString($this->fileName) : date("Y-m-d-H-i-s").'.pdf';
-        }
+    public function SetActiveFont(string $family,string $style='',?int $size=NULL) {
         try {
-            $first=TRUE;
-            foreach($this->content as $pageContent) {
-                if($first) {
-                    $first=FALSE;
-                } else {
-                    $this->AddPage();
-                }
-                // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
-                $this->WriteHTML($pageContent,HTMLParserMode::DEFAULT_MODE,TRUE,TRUE);
-            }//END foreach
-            return $this->Output($currentFileName,$destination);
+            // $family, $style = '', $size = 0, $write = true, $forcewrite = false
+            $this->SetFont($family,$style,$size ?? 0,TRUE,FALSE);
         } catch(MpdfException $e) {
             throw AppException::GetInstance($e);
         }//END try
-    }//END public function GetOutput
-
-    /**
-     * @param array|null $params
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    public function Render(?array $params=NULL) {
-        if(!is_array($params)) {
-            $params=[];
-        }
-        $params['destination']='I';
-        $this->GetOutput($params);
-    }//END public function Render
+    }//END public function SetActiveFont
 
     /**
      * @param string $content
@@ -166,6 +147,47 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
 
     /**
      * @param array|null $params
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetOutput(?array $params=NULL) {
+        $destination=get_array_value($params,'destination','S','is_notempty_string');
+        $currentFileName=get_array_value($params,'file_name',NULL,'?is_string');
+        if(!strlen($currentFileName)) {
+            $currentFileName=$this->fileName ? DataHelpers::normalizeString($this->fileName) : date("Y-m-d-H-i-s").'.pdf';
+        }
+        try {
+            $first=TRUE;
+            foreach($this->content as $pageContent) {
+                if($first) {
+                    $first=FALSE;
+                } else {
+                    $this->AddPage();
+                }
+                // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
+                $this->WriteHTML($pageContent,HTMLParserMode::HTML_BODY,TRUE,FALSE);
+            }//END foreach
+            return $this->Output($currentFileName,$destination);
+        } catch(MpdfException $e) {
+            throw AppException::GetInstance($e);
+        }//END try
+    }//END public function GetOutput
+
+    /**
+     * @param array|null $params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function Render(?array $params=NULL) {
+        if(!is_array($params)) {
+            $params=[];
+        }
+        $params['destination']='I';
+        $this->GetOutput($params);
+    }//END public function Render
+
+    /**
+     * @param array|null $params
      * @return void
      */
     public function SetCustomHeader(?array $params=NULL) {
@@ -177,6 +199,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
         }
         $write=get_array_value($params,'write',TRUE,'bool');
         $html=get_array_value($params,'html','','is_notempty_string');
+        $this->setAutoTopMargin='stretch';
         // string $html [, string $side [, boolean $write ]]
         $this->SetHTMLHeader($html,'O',$write);
     }//END public function SetCustomHeader
@@ -193,6 +216,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
             return;
         }
         $html=get_array_value($params,'html','','is_notempty_string');
+        $this->setAutoBottomMargin='stretch';
         // string $html [, string $side]
         $this->SetHTMLFooter($html);
     }//END public function SetCustomFooter
@@ -205,16 +229,40 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     }
 
     /**
-     * @param float $timestamp
+     * @param \DateTime|null $modifiedDate
+     * @param \DateTime|null $createDate
+     * @throws \Exception
      */
-    public function SetModificationTimestamp(float $timestamp): void {
-        $this->modificationTimestamp=$timestamp;
+    public function SetDocumentDate(?DateTime $modifiedDate,?DateTime $createDate=NULL): void {
+        $this->doc_creation_timestamp=($createDate ?? $modifiedDate ?? new DateTime())->getTimestamp();
+        $this->doc_modification_timestamp=($modifiedDate ?? new DateTime())->getTimestamp();
     }
 
     /**
      * @param string|null $fileId
      */
     public function SetFileId(?string $fileId): void {
-        $this->fileId=$fileId;
+        $this->file_id=$fileId;
+    }
+
+    function _enddoc() {
+        parent::_enddoc();
+        if(strlen($this->file_id)) {
+            // /ID [<17c247569bd744cdb637f8d8e89baa29> <17c247569bd744cdb637f8d8e89baa29>]
+            $fileId="/ID [<{$this->file_id}> <{$this->file_id}>]";
+            $this->buffer=preg_replace('/\/ID[\s]\[<[0-9a-zA-Z]*>[\s]<[0-9a-zA-Z]*>\]/',$fileId,$this->buffer);
+        }
+        if($this->doc_creation_timestamp) {
+            // /CreationDate (D:20191128130335+02'00')
+            $createdAt=PdfDate::format($this->doc_creation_timestamp);
+            $docCreatedAt='/CreationDate (D:'.$createdAt.')';
+            $this->buffer=preg_replace('/\/CreationDate[\s]\(D\:[0-9\+\']*\)/',$docCreatedAt,$this->buffer);
+        }
+        if($this->doc_modification_timestamp) {
+            // /ModDate (D:20191128130335+02'00')
+            $modifiedAt=PdfDate::format($this->doc_modification_timestamp);
+            $docModifiedAt='/ModDate (D:'.$modifiedAt.')';
+            $this->buffer=preg_replace('/\/ModDate[\s]\(D\:[0-9\+\']*\)/',$docModifiedAt,$this->buffer);
+        }
     }
 }//END class MpdfAdapter extends mPDF implements IPdfAdapter

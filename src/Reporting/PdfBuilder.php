@@ -144,6 +144,16 @@ class PdfBuilder {
     }
 
     /**
+     * @param string   $family
+     * @param string   $style
+     * @param int|null $size
+     * @throws \NETopes\Core\AppException
+     */
+    public function SetFont(string $family,string $style='',?int $size=NULL) {
+        $this->pdf->SetActiveFont($family,$style,$size);
+    }
+
+    /**
      * @return string|null
      */
     public function GetTitle(): ?string {
@@ -268,7 +278,7 @@ class PdfBuilder {
             $params['html']=$this->ReplacePlaceholders(get_array_value($params,'html','','is_notempty_string'),get_array_value($params,'params',[],'is_array'));
             unset($params['params']);
         }
-        $this->pdf->SetCustomFooter($params);
+        $this->pdf->SetCustomHeader($params);
     }//END public function SetHeader
 
     /**
