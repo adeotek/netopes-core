@@ -692,6 +692,9 @@ function SetFieldErrorClass(obj,reset,errClass) {
         } else {
             validValue=$obj.val() && $obj.val().length>0;
         }
+        if($obj.hasClass('clsCkEditor')) {
+            $obj=$obj.parent().find('#cke_' + $obj.attr('id') + ' .cke_contents .cke_wysiwyg_div');
+        }
     }
     if(validValue) {
         $obj.removeClass(lClass);
