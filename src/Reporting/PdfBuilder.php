@@ -168,6 +168,13 @@ class PdfBuilder {
     }
 
     /**
+     * Add new page
+     */
+    public function AddPage(): void {
+        $this->pdf->AddNewPage();
+    }//END public function AddPage
+
+    /**
      * Get content elements (HTML data)
      *
      * @return array Document HTML data

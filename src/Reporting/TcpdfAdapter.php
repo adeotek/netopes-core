@@ -240,6 +240,16 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
     }
 
     /**
+     * Add new page to PDF
+     *
+     * @param string $orientation
+     * @return void
+     */
+    public function AddNewPage(string $orientation=''): void {
+        $this->AddPage($orientation);
+    }
+
+    /**
      * @param \DateTime|null $modifiedDate
      * @param \DateTime|null $createDate
      * @throws \Exception
