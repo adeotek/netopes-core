@@ -50,6 +50,14 @@ interface IPdfAdapter {
     public function SetCustomFooter(?array $params=NULL);
 
     /**
+     * Add new page to PDF
+     *
+     * @param string $orientation
+     * @return void
+     */
+    public function AddNewPage(string $orientation=''): void;
+
+    /**
      * Get content elements (HTML data)
      *
      * @return array Document HTML data

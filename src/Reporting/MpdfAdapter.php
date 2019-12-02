@@ -165,7 +165,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
                     $this->AddPage();
                 }
                 // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
-                $this->WriteHTML($pageContent,HTMLParserMode::HTML_BODY,TRUE,FALSE);
+                $this->WriteHTML($pageContent,HTMLParserMode::HTML_BODY,TRUE,TRUE);
             }//END foreach
             return $this->Output($currentFileName,$destination);
         } catch(MpdfException $e) {
@@ -226,6 +226,16 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
      */
     public function GetTitle() {
         return $this->title;
+    }
+
+    /**
+     * Add new page to PDF
+     *
+     * @param string $orientation
+     * @return void
+     */
+    public function AddNewPage(string $orientation=''): void {
+        $this->AddPage($orientation);
     }
 
     /**
