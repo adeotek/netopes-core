@@ -99,7 +99,7 @@ trait TPdfAdapter {
      * @param string   $content
      * @param int|null $page
      */
-    public function SetContent(string $content,?int $page=0): void {
+    public function SetContent(string $content,?int $page=NULL): void {
         if(is_integer($page)) {
             $this->content[$page]=$content;
         } else {
@@ -113,11 +113,15 @@ trait TPdfAdapter {
      * @param string   $content
      * @param int|null $page
      */
-    public function AddContent(string $content,int $page=0): void {
-        if(!isset($this->content[$page])) {
-            $this->content[$page]='';
+    public function AddContent(string $content,?int $page=NULL): void {
+        if(is_integer($page)) {
+            if(!isset($this->content[$page])) {
+                $this->content[$page]='';
+            }
+            $this->content[$page].=$content;
+        } else {
+            $this->content[]=$content;
         }
-        $this->content[$page].=$content;
     }//END public function AddContent
 
     /**
@@ -127,7 +131,7 @@ trait TPdfAdapter {
      */
     public function AddContents(array $contents): void {
         foreach($contents as $k=>$content) {
-            $this->AddContent($content,$k);
+            $this->AddContent($content,is_integer($k) ? $k : NULL);
         }//END foreach
     }//END public function AddContents
 
