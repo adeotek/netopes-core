@@ -190,7 +190,7 @@ class PdfBuilder {
      * @param array    $params
      * @param int|null $page
      */
-    public function SetContent(string $content,array $params=[],?int $page=0): void {
+    public function SetContent(string $content,array $params=[],?int $page=NULL): void {
         $content=$this->ReplacePlaceholders($content,$params);
         $this->pdf->SetContent($content,$page);
     }//END public function setContent
@@ -202,7 +202,7 @@ class PdfBuilder {
      * @param array    $params
      * @param int|null $page
      */
-    public function AddContent(string $content,array $params=[],int $page=0): void {
+    public function AddContent(string $content,array $params=[],?int $page=NULL): void {
         $content=$this->ReplacePlaceholders($content,$params);
         $this->pdf->AddContent($content,$page);
     }//END public function AddContent

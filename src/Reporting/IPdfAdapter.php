@@ -70,7 +70,7 @@ interface IPdfAdapter {
      * @param string   $content
      * @param int|null $page
      */
-    public function SetContent(string $content,?int $page=0): void;
+    public function SetContent(string $content,?int $page=NULL): void;
 
     /**
      * Add content element (HTML data)
@@ -78,7 +78,7 @@ interface IPdfAdapter {
      * @param string   $content
      * @param int|null $page
      */
-    public function AddContent(string $content,int $page=0): void;
+    public function AddContent(string $content,?int $page=NULL): void;
 
     /**
      * Set content elements (HTML data)
