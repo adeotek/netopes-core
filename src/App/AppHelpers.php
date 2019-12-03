@@ -77,6 +77,25 @@ class AppHelpers {
     }//END public static function GetCachePath
 
     /**
+     * @param mixed     $input
+     * @param mixed     $position
+     * @param bool|null $defaultValue
+     * @param bool      $zeroBasedPosition
+     * @return bool|null
+     */
+    public static function GetBitFromString($input,$position,?bool $defaultValue=NULL,bool $zeroBasedPosition=TRUE): ?bool {
+        if(!is_numeric($position) || !is_integer($position * 1) || $position<($zeroBasedPosition ? 0 : 1)) {
+            return $defaultValue;
+        }
+        $position-=$zeroBasedPosition ? 0 : 1;
+        if(!is_string($input) || strlen($input)<($position + 1)) {
+            return $defaultValue;
+        }
+        $value=substr(str_pad($input,$position + 1,'0'),$position,1);
+        return ($value==='1' ? TRUE : ($value==='0' ? FALSE : $defaultValue));
+    }//END public static function GetBitFromString
+
+    /**
      * Set global parameters data
      *
      * @param array|null $data
