@@ -25,16 +25,16 @@ use Translate;
  * All applications modules extend this base class
  *
  * @package  NETopes\Core\App
- * @method static ViewDRights()
- * @method static ListDRights()
- * @method static SearchDRights()
- * @method static AddDRights()
- * @method static EditDRights()
- * @method static DeleteDRights()
- * @method static PrintDRights()
- * @method static ValidateDRights()
- * @method static ExportDRights()
- * @method static ImportDRights()
+ * @method static ViewDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static ListDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static SearchDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static AddDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static EditDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static DeleteDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static PrintDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static ValidateDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static ExportDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static ImportDRights(?string $method=NULL,?string $module=NULL): ?bool
  */
 class Module {
     /**
@@ -194,7 +194,7 @@ class Module {
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDRights(?string $module,?string $method=NULL,string $type='All') {
+    public static function GetDRights(?string $module,?string $method=NULL,string $type='All'): ?bool {
         if(NApp::GetParam('sadmin')==1) {
             return FALSE;
         }
@@ -211,7 +211,12 @@ class Module {
         if(is_null($rights)) {
             return NULL;
         }
-        if(get_array_value($rights,'state',0,'is_integer')!=1 || (get_array_value($rights,'sadmin',0,'is_integer')==1 && NApp::GetParam('sadmin')!=1)) {
+        if(get_array_value($rights,'state',0,'is_integer')!=1) {
+            return TRUE;
+        }
+        $userAccess=AppHelpers::GetBitFromString(get_array_value($rights,'access_type','','is_string'),NApp::GetParam('user_access_type'));
+        // NApp::Dlog($userAccess,'$userAccess');
+        if(!$userAccess && NApp::GetParam('sadmin')!=1) {
             return TRUE;
         }
         if(strtolower($type)=='all') {

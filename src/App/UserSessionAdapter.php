@@ -76,6 +76,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
             NApp::SetParam('id_section',$idsection);
             NApp::SetParam('id_zone',$idzone);
             NApp::SetParam('user_hash',$user_hash);
+            NApp::SetParam('user_access_type',NULL);
             NApp::$currentSectionFolder='';
             NApp::SetParam('account_timezone',AppConfig::GetValue('server_timezone'));
             NApp::SetParam('timezone',AppConfig::GetValue('server_timezone'));
@@ -149,6 +150,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
             NApp::SetParam('time_separator',$appdata->getProperty('time_separator'));
             NApp::SetParam(static::GetUserIdKey(),$appdata->getProperty('id_user'));
             NApp::SetParam('id_users_group',$appdata->getProperty('id_users_group'));
+            NApp::SetParam('user_access_type',$appdata->getProperty('access_type'));
             NApp::SetParam('restrict_access',$appdata->getProperty('restrict_access'));
             NApp::SetParam('id_country',$appdata->getProperty('id_country'));
             NApp::SetParam('id_company',$appdata->getProperty('id_company'));
@@ -261,6 +263,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
         NApp::SetParam('user_full_name',$user_full_name);
         NApp::SetParam('phone',$userData->getProperty('phone',NULL,'is_string'));
         NApp::SetParam('sadmin',$userData->getProperty('sadmin',0,'is_integer'));
+        NApp::SetParam('user_access_type',$userData->getProperty('access_type'));
         NApp::SetPageParam('menu_state',$userData->getProperty('menu_state',0,'is_integer'));
         NApp::SetParam('rows_per_page',$userData->getProperty('rows_per_page',NApp::GetParam('rows_per_page'),'is_integer'));
         NApp::SetParam('timezone',$userData->getProperty('timezone',NApp::GetParam('timezone'),'is_notempty_string'));
