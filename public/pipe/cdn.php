@@ -20,7 +20,7 @@ ini_set('max_input_time',-1);
 require_once(realpath(dirname(__FILE__).'/../bootstrap.php'));
 // NApp::StartTimeTrack('cdnTime');
 $debug=(array_key_exists('dbg',$_GET) && $_GET['dbg']==1) ? TRUE : FALSE;
-$cNamespace=array_key_exists('namespace',$_GET) ? $_GET['namespace'] : (array_key_exists('namespace',$_POST) ? $_POST['namespace'] : 'web');
+$cNamespace=array_key_exists('namespace',$_GET) ? $_GET['namespace'] : (array_key_exists('namespace',$_POST) ? $_POST['namespace'] : NULL);
 NApp::Start(FALSE,['namespace'=>$cNamespace,'startup_path'=>realpath(dirname(__FILE__)),'debug'=>$debug,'silent_errors'=>TRUE]);
 if(!NApp::GetAppState()) {
     end_request($debug,'Invalid request (1)!');

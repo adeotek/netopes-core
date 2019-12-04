@@ -69,7 +69,7 @@ class Url {
     /**
      * @var    array GET (URL) special parameters list
      */
-    public $specialParams=['language','urlid'];
+    public $specialParams=['language','urlid','vpath'];
     /**
      * @var    string URL virtual path
      */
@@ -396,18 +396,23 @@ class Url {
             case self::URL_FORMAT_FRIENDLY:
                 $lang=NULL;
                 $urlid=NULL;
+                $vpath=NULL;
                 $urlpath=NULL;
                 if(is_array($params) && count($params)) {
+                    $vpath=array_key_exists('vpath',$params) ? $this->ParamToString($params['vpath']) : NULL;
                     $lang=array_key_exists('language',$params) ? $this->ParamToString($params['language']) : NULL;
                     $urlid=array_key_exists('urlid',$params) ? $this->ParamToString($params['urlid']) : NULL;
                 }//if(is_array($params) && count($params))
+                if(is_null($vpath)) {
+                    $vpath=array_key_exists('vpath',$this->data) ? $this->ParamToString($this->data['vpath']) : NULL;
+                }//if(is_null($vpath))
                 if(is_null($lang)) {
                     $lang=array_key_exists('language',$this->data) ? $this->ParamToString($this->data['language']) : NULL;
                 }//if(is_null($lang))
                 if(is_null($urlid)) {
                     $urlid=array_key_exists('urlid',$this->data) ? $this->ParamToString($this->data['urlid']) : NULL;
                 }//if(is_null($urlid))
-                return $this->GetWebLink().'/'.(strlen($this->urlVirtualPath) ? $this->urlVirtualPath.'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
+                return $this->GetWebLink().'/'.(strlen($this->urlVirtualPath) ? $this->urlVirtualPath.'/' : '').(strlen(trim($vpath,'/')) ? trim($vpath,'/').'/' : '').(strlen($lang) ? $lang.'/' : '').(strlen(trim($urlid,'/')) ? trim($urlid,'/').'/' : '');
             case self::URL_FORMAT_FRIENDLY_ORIGINAL:
                 return $this->urlBase;
             case self::URL_FORMAT_FULL:
