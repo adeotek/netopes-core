@@ -18,7 +18,7 @@ use NETopes\Core\AppSession;
 /**
  * Link control class
  *
- * @property string|null rtype
+ * @property string|null type
  * @property string      href
  * @property bool        encrypted
  * @property string      hash_separator
@@ -62,41 +62,41 @@ class Link extends Control {
      */
     protected function SetControl(): ?string {
         $ePass=is_string($this->encrypted) && strlen($this->encrypted) ? $this->encrypted : 'eUrlHash';
+        $urlParams='';
+        if(is_array($this->url_params)) {
+            foreach($this->url_params as $k=>$v) {
+                if(is_array($v)) {
+                    $val='';
+                    foreach($v as $hp) {
+                        $val.=(strlen($val) ? $this->hash_separator : '').$hp;
+                    }
+                    if(strlen($val) && $this->encrypted!==FALSE) {
+                        $val=GibberishAES::enc($val,$ePass);
+                    }
+                } else {
+                    $val=$v;
+                }//if(is_array($v))
+                $urlParams.=(strlen($urlParams) ? '&' : '').$k.'='.rawurlencode($val);
+            }//END foreach
+        }//if(is_array($this->url_params))
         $href=$this->href;
-        switch($this->rtype) {
+        switch($this->type) {
             case 'ehash':
                 $payload=rawurlencode(GibberishAES::enc(json_encode($this->payload ?? []),$ePass));
-                $href.='?ehash='.$payload;
+                $urlParams.=(strlen($urlParams) ? '&' : '').'ehash='.$payload;
                 break;
             default:
-                $urlParams='';
                 if(is_array($this->session_params) && count($this->session_params)) {
                     $sHash=rawurlencode(AppSession::GetNewUID($this->tag_id.serialize($this->session_params),'sha1',TRUE));
                     $namespace=get_array_value($this->url_params,'namespace','','is_string');
                     NApp::SetParam($sHash,$this->session_params,FALSE,$namespace);
-                    $urlParams='shash='.$sHash;
+                    $urlParams.=(strlen($urlParams) ? '&' : '').'shash='.$sHash;
                 }//if(is_array($this->session_params) && count($this->session_params))
-                if(is_array($this->url_params)) {
-                    foreach($this->url_params as $k=>$v) {
-                        if(is_array($v)) {
-                            $val='';
-                            foreach($v as $hp) {
-                                $val.=(strlen($val) ? $this->hash_separator : '').$hp;
-                            }
-                            if(strlen($val) && $this->encrypted!==FALSE) {
-                                $val=GibberishAES::enc($val,$ePass);
-                            }
-                        } else {
-                            $val=$v;
-                        }//if(is_array($v))
-                        $urlParams.=(strlen($urlParams) ? '&' : '').$k.'='.rawurlencode($val);
-                    }//END foreach
-                }//if(is_array($this->url_params))
-                if(strlen($urlParams)) {
-                    $href.=(strpos($href,'?')===FALSE ? '?' : '&').$urlParams;
-                }
                 break;
         }//END switch
+        if(strlen($urlParams)) {
+            $href.=(strpos($href,'?')===FALSE ? '?' : '&').$urlParams;
+        }
         if(strlen($this->anchor)) {
             $href=rtrim($href,'#').'#'.$this->anchor;
         }
