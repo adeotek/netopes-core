@@ -17,11 +17,12 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use Swift_Attachment;
-use Swift_Encoding;
 use Swift_Mailer;
 use Swift_Message;
+use Swift_Mime_ContentEncoder_PlainContentEncoder;
 use Swift_SendmailTransport;
 use Swift_SmtpTransport;
+use Swift_Transport_Esmtp_EightBitMimeHandler;
 
 /**
  * Class Mailer
@@ -99,12 +100,10 @@ class Mailer {
                 // 	'7_exchangedomain'=>$exchangedomain,
                 // ),'SMTP');
                 if($smtpauth==0) {
-                    $transport=Swift_SmtpTransport::newInstance($smtphost,$smtpport);
-                    $transport->setEncryption($encryption);
-                    $transport->setTimeout(10);
+                    $transport=(new Swift_SmtpTransport($smtphost,$smtpport,$encryption))
+                        ->setTimeout(10);
                 } else {
-                    $transport=Swift_SmtpTransport::newInstance($smtphost,$smtpport)
-                        ->setEncryption($encryption)
+                    $transport=(new Swift_SmtpTransport($smtphost,$smtpport,$encryption))
                         ->setUsername($smtpuser)
                         ->setPassword($smtppass)
                         ->setTimeout(10);
@@ -114,17 +113,20 @@ class Mailer {
                 }
             } else {
                 // NApp::Dlog($sendmail,'sendmail');
-                $transport=Swift_SendmailTransport::newInstance('/usr/sbin/sendmail -t -i');
+                $transport=new Swift_SendmailTransport('/usr/sbin/sendmail -t -i');
             }//if($sendmail!=1)
-            $mailer=Swift_Mailer::newInstance($transport);
-            $message=Swift_Message::newInstance()
+            $mailer=new Swift_Mailer($transport);
+            $message=(new Swift_Message())
                 ->setSubject($subject)
                 ->setFrom($afrom)
                 ->setTo($ato)
                 ->setCc($acc)
                 ->setBcc($abcc)
                 ->setBody($msg,'text/html');
-            $message->setEncoder(Swift_Encoding::get8BitEncoding());
+            $eightBitMime=new Swift_Transport_Esmtp_EightBitMimeHandler();
+            $transport->setExtensionHandlers([$eightBitMime]);
+            $plainEncoder=new Swift_Mime_ContentEncoder_PlainContentEncoder('8bit');
+            $message->setEncoder($plainEncoder);
             if(strlen($replyto)) {
                 $message->setReplyTo($replyto);
             }
