@@ -23,13 +23,18 @@ trait TPlaceholdersManipulation {
     /**
      * @param string $content
      * @param array  $parameters
+     * @param bool   $all
      * @return string
      */
-    public function ReplacePlaceholders(string $content,array $parameters): string {
+    public function ReplacePlaceholders(string $content,array $parameters,bool $all=TRUE): string {
         $placeholders=[];
         if(preg_match_all($this->placeholdersRegExp,$content,$placeholders)) {
             foreach($placeholders[0] as $placeholder) {
-                $content=str_replace($placeholder,$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters),$content);
+                $value=$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters);
+                if(is_null($value) && !$all) {
+                    continue;
+                }
+                $content=str_replace($placeholder,$value,$content);
             }//END foreach
         }//if(preg_match_all($this->placeholdersRegExp,$content,$placeholders))
         return $content;
@@ -40,7 +45,10 @@ trait TPlaceholdersManipulation {
      * @param array  $parameters
      * @return string
      */
-    public function GetPlaceholderValue(string $placeholder,array $parameters): string {
+    public function GetPlaceholderValue(string $placeholder,array $parameters): ?string {
+        if(!array_key_exists($placeholder,$parameters)) {
+            return NULL;
+        }
         $paramValue=get_array_value($parameters,$placeholder,NULL,'isset');
         if(is_array($paramValue)) {
             $value=get_array_param($paramValue,'value',NULL,'?is_string');
