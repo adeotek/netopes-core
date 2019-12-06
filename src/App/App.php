@@ -678,15 +678,17 @@ HTML;
     /**
      * Add javascript code to the dynamic js queue (executed at the end of the current request)
      *
-     * @param string $value Javascript code
-     * @param bool   $dynamic
+     * @param string     $value Javascript code
+     * @param bool       $fromFile
+     * @param array|null $jsParams
+     * @param bool       $dynamic
      * @return void
      */
-    public static function AddJsScript(string $value,bool $dynamic=FALSE) {
+    public static function AddJsScript(string $value,bool $fromFile=FALSE,?array $jsParams=NULL,bool $dynamic=FALSE) {
         if(!strlen($value)) {
             return;
         }
-        AppHelpers::AddJsScript($value,$dynamic);
+        AppHelpers::AddJsScript($value,$fromFile,$jsParams,$dynamic);
     }//END public static function AddJsScript
 
     /**
