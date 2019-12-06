@@ -20,6 +20,11 @@ use NETopes\Core\AppSession;
  * @package NETopes\Core
  */
 class AppHelpers {
+    const JS_SCRIPT_INJECTION_TYPE_STRING='string';
+    const JS_SCRIPT_INJECTION_TYPE_FUNCTION='function';
+    const JS_SCRIPT_INJECTION_TYPE_OBJECT='object';
+    const JS_SCRIPT_INJECTION_TYPE_NUMERIC='object';
+
     /**
      * @var array
      */
@@ -182,21 +187,65 @@ class AppHelpers {
     }//END public static function _ProcessRequestParams
 
     /**
+     * @param array|null $params
+     * @return string|null
+     */
+    public static function ProcessJsScriptParams(?array $params): ?string {
+        if(!is_array($params)) {
+            return NULL;
+        }
+        $result='';
+        foreach($params as $k=>$v) {
+            if(is_array($v)) {
+                $type=get_array_value($v,'type',static::JS_SCRIPT_INJECTION_TYPE_STRING,'is_notempty_string');
+                $jsVarType=get_array_value($v,'js_var_type','const','is_notempty_string');
+                $value=get_array_value($v,'value',NULL,'isset');
+                if(!is_scalar($value)) {
+                    $value=json_encode($value);
+                }
+                if($type==static::JS_SCRIPT_INJECTION_TYPE_FUNCTION) {
+                    $result.="{$jsVarType} {$k}=function(){ {$value} };\n";
+                } elseif($type==static::JS_SCRIPT_INJECTION_TYPE_OBJECT) {
+                    $result.=$jsVarType.' '.$k.'='.$value.';'."\n";
+                } else {
+                    $result.=" {$jsVarType} {$k}='{$value}';\n";
+                }
+            } else {
+                $result.=' const '.$k.'='.(is_numeric($v) ? $v : (is_string($v) ? "'{$v}'" : json_encode($v))).';';
+            }
+        }//END foreach
+        return $result;
+    }//END public static function ProcessJsScriptParams
+
+    /**
      * Add javascript code to the dynamic js queue (executed at the end of the current request)
      *
-     * @param string $value Javascript code
-     * @param bool   $dynamic
+     * @param string     $value Javascript code
+     * @param bool       $fromFile
+     * @param array|null $jsParams
+     * @param bool       $dynamic
      * @return void
      */
-    public static function AddJsScript(string $value,bool $dynamic=FALSE) {
+    public static function AddJsScript(string $value,bool $fromFile=FALSE,?array $jsParams=NULL,bool $dynamic=FALSE) {
+        $value=trim($value);
+        if($fromFile) {
+            if(file_exists($value)) {
+                $jsScript=file_get_contents($value);
+            } else {
+                $jsScript=NULL;
+            }
+        } else {
+            $jsScript=$value;
+        }
         if(!strlen($value)) {
             return;
         }
+        $jsScript=static::ProcessJsScriptParams($jsParams).$jsScript;
         if(!$dynamic && NApp::IsAjax() && NApp::IsValidAjaxRequest()) {
-            NApp::Ajax()->ExecuteJs($value);
+            NApp::Ajax()->ExecuteJs($jsScript);
         } else {
             $dynamic_js_scripts=self::GetGlobalVar('dynamic_js_scripts',[],'is_array');
-            $dynamic_js_scripts[]=['js'=>$value];
+            $dynamic_js_scripts[]=['js'=>$jsScript];
             self::SetGlobalVar('dynamic_js_scripts',$dynamic_js_scripts);
         }//if(!$dynamic && NApp::IsAjax() && NApp::IsValidAjaxRequest())
     }//END public static function AddJsScript

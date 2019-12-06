@@ -255,18 +255,31 @@ class AppView {
     }//END public function GetJsScript
 
     /**
-     * @param string $script
-     * @param bool   $first
+     * @param string     $script
+     * @param bool       $first
+     * @param bool       $fromFile
+     * @param array|null $jsParams
      * @return void
      */
-    public function AddJsScript(string $script,bool $first=FALSE): void {
-        if(!strlen(trim($script))) {
+    public function AddJsScript(string $script,bool $first=FALSE,bool $fromFile=FALSE,?array $jsParams=NULL): void {
+        $script=trim($script);
+        if($fromFile) {
+            if(file_exists($script)) {
+                $jsScript=file_get_contents($script);
+            } else {
+                $jsScript=NULL;
+            }
+        } else {
+            $jsScript=$script;
+        }
+        if(!strlen($script)) {
             return;
         }
+        $jsScript=AppHelpers::ProcessJsScriptParams($jsParams).$jsScript;
         if($first) {
-            array_unshift($this->_jsScripts,$script);
+            array_unshift($this->_jsScripts,$jsScript);
         } else {
-            $this->_jsScripts[]=$script;
+            $this->_jsScripts[]=$jsScript;
         }//if($first)
     }//END public function GetJsScripts
 

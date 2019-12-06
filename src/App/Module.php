@@ -282,10 +282,11 @@ class Module {
      * Add JavaScript code to execution queue
      *
      * @param string $script
+     * @param bool   $fromFile
      * @return void
      */
-    public function AddJsScript(string $script): void {
-        AppHelpers::AddJsScript($script);
+    public function AddJsScript(string $script,bool $fromFile=FALSE): void {
+        AppHelpers::AddJsScript($script,$fromFile);
     }//END public function AddJsScript
 
     /**
@@ -450,21 +451,22 @@ class Module {
      * Gets the view full file name (including absolute path)
      *
      * @param string      $name      View name (without extension)
-     * @param string|null $sub_dir   View sub-directory or empty/NULL for none
-     * @param string|null $theme_dir View theme sub-directory
+     * @param string|null $subDir    View sub-directory or empty/NULL for none
+     * @param string|null $themeDir  View theme sub-directory
      *                               (if empty/NULL) application configuration will be used
+     * @param string|null $ext       File extension
      * @return string Returns view full name (including absolute path and extension)
      * @throws \NETopes\Core\AppException
      * @throws \ReflectionException
      */
-    private function ViewFileProvider(string $name,?string $sub_dir=NULL,?string $theme_dir=NULL) {
-        $fName=(is_string($sub_dir) && strlen($sub_dir) ? '/'.trim($sub_dir,'/') : '').'/'.$name.$this->viewsExtension;
+    private function ViewFileProvider(string $name,?string $subDir=NULL,?string $themeDir=NULL,?string $ext=NULL) {
+        $fName=(strlen($subDir) ? '/'.trim($subDir,'/') : '').'/'.$name.(strlen($ext) ? '.'.trim($ext,'.') : $this->viewsExtension);
         // Get theme directory and theme views base directory
         $appTheme=strtolower(AppConfig::GetValue('app_theme'));
         $viewsDefDir=AppConfig::GetValue('app_default_views_dir');
         $themeModulesViewsPath=AppConfig::GetValue('app_theme_modules_views_path');
         $defDir=(is_string($viewsDefDir) ? (strlen(trim($viewsDefDir,'/')) ? '/'.trim($viewsDefDir,'/') : '') : '/_default');
-        $themeDir=(is_string($theme_dir) && strlen($theme_dir)) ? $theme_dir : (is_string($appTheme) && strlen($appTheme) ? $appTheme : NULL);
+        $themeDir=strlen($themeDir) ? $themeDir : (is_string($appTheme) && strlen($appTheme) ? $appTheme : NULL);
         // NApp::Dlog($fName,'$fName');
         // NApp::Dlog($themeDir,'$themeDir');
         if(isset($themeDir) && is_string($themeModulesViewsPath) && strlen($themeModulesViewsPath)) {
@@ -573,16 +575,16 @@ class Module {
      * Gets the view full file name (including absolute path)
      *
      * @param string      $name      View name (without extension)
-     * @param string|null $sub_dir   View sub-directory or empty/NULL for none
-     * @param string|null $theme_dir View theme sub-directory
+     * @param string|null $subDir    View sub-directory or empty/NULL for none
+     * @param string|null $themeDir  View theme sub-directory
      *                               (if empty/NULL) application configuration will be used
      * @return string Returns view full name (including absolute path and extension)
      * @throws \NETopes\Core\AppException
      */
-    public function GetViewFile(string $name,?string $sub_dir=NULL,?string $theme_dir=NULL) {
+    public function GetViewFile(string $name,?string $subDir=NULL,?string $themeDir=NULL) {
         // \NETopes\Core\App\Debugger::StartTimeTrack('MGetViewFile');
         try {
-            $result=$this->ViewFileProvider($name,$sub_dir,$theme_dir);
+            $result=$this->ViewFileProvider($name,$subDir,$themeDir);
         } catch(ReflectionException $re) {
             throw AppException::GetInstance($re,'reflection',0);
         }//END try
@@ -590,6 +592,29 @@ class Module {
         // NApp::Dlog($result,'GetViewFile::'.$name);
         return $result;
     }//END public function GetViewFile
+
+    /**
+     * Gets a resource full file name (including absolute path)
+     *
+     * @param string      $name      View name (without extension)
+     * @param string      $ext       File extension
+     * @param string|null $subDir    View sub-directory or empty/NULL for none
+     * @param string|null $themeDir  View theme sub-directory
+     *                               (if empty/NULL) application configuration will be used
+     * @return string Returns view full name (including absolute path and extension)
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetResourceFile(string $name,string $ext,?string $subDir=NULL,?string $themeDir=NULL) {
+        // \NETopes\Core\App\Debugger::StartTimeTrack('MGetResourceFile');
+        try {
+            $result=$this->ViewFileProvider($name,$subDir,$themeDir,$ext);
+        } catch(ReflectionException $re) {
+            throw AppException::GetInstance($re,'reflection',0);
+        }//END try
+        // NApp::Dlog(number_format(\NETopes\Core\App\Debugger::ShowTimeTrack('MGetResourceFile'),3,'.','').' sec.','GetResourceFile::'.$name);
+        // NApp::Dlog($result,'GetResourceFile::'.$name);
+        return $result;
+    }//END public function GetResourceFile
 
     /**
      * @param      $data
