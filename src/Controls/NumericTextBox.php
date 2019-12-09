@@ -76,7 +76,7 @@ class NumericTextBox extends Control {
             if($this->number_format===FALSE) {
                 $lvalue=$this->value;
             } else {
-                $lvalue=static::FormatValue($this->value,$this->number_format,$this->allow_null);
+                $lvalue=static::FormatValue($this->value,$this->number_format,is_bool($this->allow_null) ? $this->allow_null : FALSE);
             }//if($this->number_format===FALSE)
         }//if($this->allow_null && !strlen($this->value))
         $baseact=[];
