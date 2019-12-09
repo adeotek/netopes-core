@@ -204,7 +204,8 @@ class AppHelpers {
                     $value=json_encode($value);
                 }
                 if($type==static::JS_SCRIPT_INJECTION_TYPE_FUNCTION) {
-                    $result.="{$jsVarType} {$k}=function(){ {$value} };\n";
+                    $arguments=get_array_value($v,'arguments',[],'is_array');
+                    $result.="{$jsVarType} {$k}=function(".implode(',',$arguments)."){ {$value} };\n";
                 } elseif($type==static::JS_SCRIPT_INJECTION_TYPE_OBJECT) {
                     $result.=$jsVarType.' '.$k.'='.$value.';'."\n";
                 } else {
