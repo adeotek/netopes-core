@@ -76,11 +76,7 @@ class NumericTextBox extends Control {
             if($this->number_format===FALSE) {
                 $lvalue=$this->value;
             } else {
-                $lvalue=is_numeric($this->value) ? $this->value : 0;
-                if(strlen($this->number_format)) {
-                    $format_arr=explode('|',$this->number_format);
-                    $lvalue=number_format($lvalue,$format_arr[0],$format_arr[1],$format_arr[2]).$format_arr[3];
-                }//if(strlen($this->number_format))
+                $lvalue=static::FormatValue($this->value,$this->number_format,$this->allow_null);
             }//if($this->number_format===FALSE)
         }//if($this->allow_null && !strlen($this->value))
         $baseact=[];
@@ -99,4 +95,22 @@ class NumericTextBox extends Control {
         $result.=$this->GetActions();
         return $result;
     }//END protected function SetControl
+
+    /**
+     * @param             $value
+     * @param string|null $format
+     * @param bool        $allowNull
+     * @return string|null
+     */
+    public static function FormatValue($value,?string $format,bool $allowNull=FALSE): ?string {
+        if(!is_numeric($value) && $allowNull) {
+            return NULL;
+        }
+        $lValue=is_numeric($value) ? $value : 0;
+        if(strlen($format)) {
+            $formatArray=explode('|',$format);
+            $lValue=number_format($lValue,$formatArray[0],$formatArray[1],$formatArray[2]).$formatArray[3];
+        }//if(strlen($this->number_format))
+        return $lValue;
+    }//END public static function FormatValue
 }//END class NumericTextBox extends Control
