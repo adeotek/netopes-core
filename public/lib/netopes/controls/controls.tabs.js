@@ -21,10 +21,20 @@
 
         let toggleContent=function(obj,id) {
             if(config.type==='accordion') {
-                $(obj).find('div.' + nContentClass + '.' + nActiveClass).removeClass(nActiveClass).slideUp(nEffect);
+                let slideUpOptions=nEffect;
+                slideUpOptions['complete']=function() {
+                    if($(this).data('reload')===1 || $(this).data('reload')==='1') {
+                        $(this).html('');
+                    }
+                };
+                $(obj).find('div.' + nContentClass + '.' + nActiveClass).removeClass(nActiveClass).slideUp(slideUpOptions);
                 $(obj).children('div' + id).first().addClass(nActiveClass).slideDown(nEffect);
             } else {
-                $(obj).find('div.' + nContentClass + '.' + nActiveClass).hide().removeClass(nActiveClass);
+                let oldContentObj=$(obj).find('div.' + nContentClass + '.' + nActiveClass);
+                $(oldContentObj).hide().removeClass(nActiveClass);
+                if($(oldContentObj).data('reload')===1 || $(oldContentObj).data('reload')==='1') {
+                    $(oldContentObj).html('');
+                }
                 $(obj).children('div' + id).first().addClass(nActiveClass).show();
             }//if(config.type==='accordion')
         };
@@ -56,7 +66,11 @@
                 let tabId='#' + $(actObj).attr('data-for');
                 if($(actObj).hasClass(nActiveClass)) {
                     $(actObj).removeClass(nActiveClass);
-                    $(obj).children('div' + tabId).first().removeClass(nActiveClass).hide();
+                    let oldContentObj=$(obj).children('div' + tabId).first();
+                    $(oldContentObj).removeClass(nActiveClass).hide();
+                    if($(oldContentObj).data('reload')===1 || $(oldContentObj).data('reload')==='1') {
+                        $(oldContentObj).html('');
+                    }
                 } else {
                     $(actObj).addClass(nActiveClass);
                     $(obj).children('div' + tabId).first().addClass(nActiveClass).show();
