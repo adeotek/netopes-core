@@ -313,7 +313,7 @@ function get_array_param(&$var,$key,$defaultValue=NULL,?string $validation=NULL,
  *                       Values can be: "function" and "class" for returning full array of the specified step
  *                       or "array" and empty string for returning an array containing only the name of the function/method
  *                       and the  class name (if there is one) of the specified step.
- * @return  array The full array or an array containing function/method and class names from the specified stop.
+ * @return  array|string The full array or an array containing function/method and class names from the specified stop.
  */
 function call_back_trace(int $step=1,?string $param='function') {
     $result=[];
