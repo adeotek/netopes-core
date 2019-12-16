@@ -699,12 +699,18 @@ function SetFieldErrorClass(obj,reset,errClass) {
     if(validValue) {
         $obj.removeClass(lClass);
         if($obj.hasClass('clsSmartComboBox')) {
-            $obj.data('select2').$selection.removeClass(lClass);
+            let $sObj=$obj.data('select2');
+            if($sObj) {
+                $sObj.$selection.removeClass(lClass);
+            }
         }
     } else {
         $obj.addClass(lClass);
         if($obj.hasClass('clsSmartComboBox')) {
-            $obj.data('select2').$selection.addClass(lClass);
+            let $sObj=$obj.data('select2');
+            if($sObj) {
+                $sObj.$selection.addClass(lClass);
+            }
         }
     }
     return true;

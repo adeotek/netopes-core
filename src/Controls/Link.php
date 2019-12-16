@@ -34,9 +34,18 @@ use NETopes\Core\AppSession;
  * @package  NETopes\Controls
  */
 class Link extends Control {
+    /**
+     * @var array|null
+     */
     protected $url_params=[];
 
-    public function __construct($params=NULL) {
+    /**
+     * Link constructor.
+     *
+     * @param array|null $params
+     * @throws \NETopes\Core\AppException
+     */
+    public function __construct(?array $params=NULL) {
         $this->postable=FALSE;
         $this->no_label=TRUE;
         $this->container=FALSE;

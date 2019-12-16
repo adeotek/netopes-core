@@ -186,6 +186,75 @@ class Module {
     }//END public static function __callStatic
 
     /**
+     * @param array|null               $redirect
+     * @param \NETopes\Core\App\Params $params
+     * @return bool|mixed
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ExecRedirect(?array $redirect,Params $params) {
+        $module=get_array_value($redirect,'module',NULL,'is_notempty_string');
+        $method=get_array_value($redirect,'method',NULL,'is_notempty_string');
+        if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
+            NApp::Wlog($redirect,'Invalid redirect data!');
+            return FALSE;
+        }
+        $rParams=get_array_value($redirect,'params',[],'is_array');
+        if(count($rParams)) {
+            $params->merge($rParams);
+        }
+        return ModulesProvider::Exec($module,$method,$params);
+    }//END protected function ExecRedirect
+
+    /**
+     * @param \NETopes\Core\App\Params $params
+     * @param array|null               $current
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessRedirects(Params $params,?array &$current=NULL): ?string {
+        $redirects=$params->safeGet('redirects',[],'is_array');
+        if(!count($redirects)) {
+            return NULL;
+        }
+        $current=array_shift($redirects);
+        if(!count($redirects)) {
+            return NULL;
+        }
+        $params->set('redirects',$redirects);
+        $cParams=clone $params;
+        $rParams=get_array_value($redirects,[0,'params'],[],'is_array');
+        if(count($rParams)) {
+            $cParams->merge($rParams);
+        }
+        return NApp::Ajax()->PrepareAjaxRequest([
+            'module'=>$this->name,
+            'method'=>'ExecAndRedirect',
+            'params'=>$cParams->toArray(),
+        ],['target_id'=>get_array_value($redirects,[0,'target_id'],NULL,'is_notempty_string')]);
+    }//END protected function ProcessRedirects
+
+    /**
+     * @param \NETopes\Core\App\Params $params
+     * @return mixed|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function ExecAndRedirect(Params $params) {
+        $redirect=$this->ProcessRedirects($params,$cAction);
+        $module=get_array_value($cAction,'module',NULL,'is_notempty_string');
+        $method=get_array_value($cAction,'method',NULL,'is_notempty_string');
+        if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
+            NApp::Wlog($cAction,'Invalid current redirect data!');
+            return NULL;
+        }
+        $params->remove('redirects');
+        $result=$this->ExecRedirect($cAction,$params);
+        if(strlen($redirect)) {
+            $this->AddJsScript($redirect);
+        }
+        return $result;
+    }//END public function ExecAndRedirect
+
+    /**
      * Gets the user rights
      *
      * @param string $module
@@ -313,9 +382,9 @@ class Module {
             $result=NApp::GetParam($key);
             return ($result ? $result : $defaultValue);
         }//if($key)
-        $lmethod=$method ? $method : call_back_trace();
-        $pagehash=$pHash ? $pHash : $this->phash;
-        $result=NApp::GetParam($this->name.$lmethod.$pagehash);
+        $lMethod=$method ? $method : call_back_trace();
+        $pageHash=$pHash ? $pHash : $this->phash;
+        $result=NApp::GetParam($this->name.$lMethod.$pageHash);
         return ($result ? $result : $defaultValue);
     }//END public function GetSessionParamValue
 
