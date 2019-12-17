@@ -72,6 +72,7 @@ use Translate;
  * @property mixed        onkeypress_ajax_command
  * @property mixed        onkeypress_target_id
  * @property mixed        disabled_on_render
+ * @property bool         multi_field_require
  */
 abstract class Control {
     /**
@@ -475,7 +476,7 @@ abstract class Control {
     /**
      * Gets the html tag width style
      *
-     * @param mixed  $width  Custom css width
+     * @param mixed $width Custom css width
      * @return string Returns the html tag width style
      */
     protected function GetTagWidthStyle($width=NULL) {
