@@ -24,13 +24,14 @@ trait TPlaceholdersManipulation {
      * @param string $content
      * @param array  $parameters
      * @param bool   $all
+     * @param bool   $skipLabels
      * @return string
      */
-    public function ReplacePlaceholders(string $content,array $parameters,bool $all=TRUE): string {
+    public function ReplacePlaceholders(string $content,array $parameters,bool $all=TRUE,bool $skipLabels=FALSE): string {
         $placeholders=[];
         if(preg_match_all($this->placeholdersRegExp,$content,$placeholders)) {
             foreach($placeholders[0] as $placeholder) {
-                $value=$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters);
+                $value=$this->getPlaceholderValue(trim($placeholder,$this->placeholdersTrimChars),$parameters,$skipLabels);
                 if(is_null($value) && !$all) {
                     continue;
                 }
@@ -43,9 +44,10 @@ trait TPlaceholdersManipulation {
     /**
      * @param string $placeholder
      * @param array  $parameters
+     * @param bool   $skipLabels
      * @return string
      */
-    public function GetPlaceholderValue(string $placeholder,array $parameters): ?string {
+    public function GetPlaceholderValue(string $placeholder,array $parameters,bool $skipLabels=FALSE): ?string {
         if(!array_key_exists($placeholder,$parameters)) {
             return NULL;
         }
@@ -56,7 +58,11 @@ trait TPlaceholdersManipulation {
                 return '';
             }
             $tagType=strtolower(get_array_param($paramValue,'type','','is_notempty_string'));
-            $label=get_array_param($paramValue,'label',NULL,'?is_string');
+            if($skipLabels) {
+                $label=NULL;
+            } else {
+                $label=get_array_param($paramValue,'label',NULL,'?is_string');
+            }
             $style=get_array_param($paramValue,'style',NULL,'?is_string');
             switch($tagType) {
                 case 'table':

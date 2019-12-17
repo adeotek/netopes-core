@@ -23,6 +23,11 @@ class PdfBuilder {
     use TPlaceholdersManipulation;
 
     /**
+     * @var bool Skip labels
+     */
+    public $skipLabels=FALSE;
+
+    /**
      * @var \NETopes\Core\Reporting\IPdfAdapter|null
      */
     protected $pdf=NULL;
@@ -191,7 +196,7 @@ class PdfBuilder {
      * @param int|null $page
      */
     public function SetContent(string $content,array $params=[],?int $page=NULL): void {
-        $content=$this->ReplacePlaceholders($content,$params);
+        $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
         $this->pdf->SetContent($content,$page);
     }//END public function setContent
 
@@ -203,7 +208,7 @@ class PdfBuilder {
      * @param int|null $page
      */
     public function AddContent(string $content,array $params=[],?int $page=NULL): void {
-        $content=$this->ReplacePlaceholders($content,$params);
+        $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
         $this->pdf->AddContent($content,$page);
     }//END public function AddContent
 
@@ -215,7 +220,7 @@ class PdfBuilder {
      */
     public function AddContents(array $contents,array $params=[]): void {
         foreach($contents as $k=>$content) {
-            $content=$this->ReplacePlaceholders($content,$params);
+            $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
             $this->pdf->AddContent($content,$k);
         }//END foreach
     }//END public function AddContents
