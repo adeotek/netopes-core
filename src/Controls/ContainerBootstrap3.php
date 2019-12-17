@@ -56,7 +56,11 @@ class ContainerBootstrap3 implements IControlContainer {
                     $labelClass.=' col-md-'.$labelCols;
                 }
                 $labelClass.=(strlen($this->control->labelclass) ? ' '.$this->control->labelclass : '');
-                $isRequired=$this->control->required ? '<span class="clsMarkerRequired"></span>' : '';
+                if($this->control->required) {
+                    $isRequired=$this->control->multi_field_require ? '<span class="clsDblMarkerRequired"></span>' : '<span class="clsMarkerRequired"></span>';
+                } else {
+                    $isRequired='';
+                }
                 if(strlen($this->control->size)) {
                     $labelClass.=' label-'.$this->control->size;
                 }
