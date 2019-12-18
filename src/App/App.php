@@ -958,10 +958,11 @@ HTML;
      * Get application (user) date format string
      *
      * @param bool $forPhp
+     * @param bool $forMoment
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDateFormat(bool $forPhp=FALSE): ?string {
+    public static function GetDateFormat(bool $forPhp=FALSE,bool $forMoment=FALSE): ?string {
         $format=static::GetParam('date_format');
         if(!strlen($format)) {
             if(!strlen(static::GetParam('date_separator'))) {
@@ -970,7 +971,7 @@ HTML;
             $format='dd'.static::GetParam('date_separator').'MM'.static::GetParam('date_separator').'yyyy';
         }//if(!strlen($format))
         if(!$forPhp) {
-            return $format;
+            return ($forMoment ? strtoupper($format) : $format);
         }
         return str_replace(['yyyy','mm','MM','dd','yy'],['Y','m','m','d','Y'],$format);
     }//END public static function GetDateFormat
