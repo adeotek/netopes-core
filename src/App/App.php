@@ -980,10 +980,11 @@ HTML;
      * Get application (user) time format string
      *
      * @param bool $forPhp
+     * @param bool $forMoment
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public static function GetTimeFormat(bool $forPhp=FALSE): ?string {
+    public static function GetTimeFormat(bool $forPhp=FALSE,bool $forMoment=FALSE): ?string {
         $format=static::GetParam('time_format');
         if(!strlen($format)) {
             if(!strlen(static::GetParam('time_separator'))) {
@@ -1001,11 +1002,12 @@ HTML;
      * Get application (user) datetime format string
      *
      * @param bool $forPhp
+     * @param bool $forMoment
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDateTimeFormat(bool $forPhp=FALSE): ?string {
-        return static::GetDateFormat($forPhp).' '.static::GetTimeFormat($forPhp);
+    public static function GetDateTimeFormat(bool $forPhp=FALSE,bool $forMoment=FALSE): ?string {
+        return static::GetDateFormat($forPhp,$forMoment).' '.static::GetTimeFormat($forPhp,$forMoment);
     }//END public static function GetTimeFormat
 
     /**
