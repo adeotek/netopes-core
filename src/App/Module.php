@@ -264,24 +264,24 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     public static function GetDRights(?string $module,?string $method=NULL,string $type='All'): ?bool {
-        if(NApp::GetParam('sadmin')==1) {
-            return FALSE;
-        }
+        $sAdmin=NApp::GetParam('sadmin')===1;
         // NApp::Dlog($module,'$module');
         // NApp::Dlog($method,'$method');
         // NApp::Dlog($type,'$type');
         if(!strlen($type)) {
-            return NULL;
+            return ($sAdmin ? FALSE : NULL);
         }
         $module=$module==='Module' ? '' : $module;
         $rights=NApp::GetParam('user_rights_revoked');
         $rights=get_array_value($rights,[$module ?? '',$method ?? ''],NULL,'is_array');
         // NApp::Dlog($rights,'$rights');
         if(is_null($rights)) {
-            return NULL;
+            return ($sAdmin ? FALSE : NULL);
         }
         if(get_array_value($rights,'state',0,'is_integer')!=1) {
             return TRUE;
+        } elseif($sAdmin) {
+            return FALSE;
         }
         $userAccess=AppHelpers::GetBitFromString(get_array_value($rights,'access_type','','is_string'),NApp::GetParam('user_access_type'));
         // NApp::Dlog($userAccess,'$userAccess');
