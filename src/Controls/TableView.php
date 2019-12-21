@@ -23,6 +23,7 @@ use NETopes\Core\Data\DataProvider;
 use NETopes\Core\Data\DataSet;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\ExcelExport;
+use NETopes\Core\Data\IEntity;
 use NETopes\Core\Data\VirtualEntity;
 use NETopes\Core\Validators\Validator;
 use DateTime;
@@ -890,18 +891,19 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell raw value
      *
-     * @param object      $row
-     * @param array       $v
-     * @param string|null $fieldName
+     * @param \NETopes\Core\Data\IEntity $row
+     * @param array                      $v
+     * @param string|null                $fieldName
      * @return mixed Returns the table cell raw value
+     * @throws \NETopes\Core\AppException
      */
-    protected function GetCellData(&$row,&$v,?string $fieldName=NULL) {
+    protected function GetCellData(IEntity &$row,array &$v,?string $fieldName=NULL) {
         $cellValue=NULL;
         $fieldName=$fieldName ?? $v['db_field'];
         $valueSource=get_array_value($v,'value_source',NULL,'?is_string');
         switch(strtolower($valueSource)) {
             case 'relation':
-                if(is_object($row)) {
+                if($row instanceof IEntity) {
                     $rObj=NULL;
                     $rFirst=TRUE;
                     $cRelations=get_array_value($v,'relation',[],'is_array');
@@ -942,6 +944,7 @@ class TableView extends FilterControl {
      * @param array  $v
      * @param string $name
      * @return string
+     * @throws \NETopes\Core\AppException
      */
     protected function GetRunningTotalHash(&$row,array &$v,string $name): string {
         $runningTotalOver=get_array_param($v,'running_total_over',[],'is_array');
@@ -959,16 +962,16 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell value (un-formatted)
      *
-     * @param object $row
-     * @param array  $v
-     * @param string $name
-     * @param string $type
-     * @param bool   $isIterator
-     * @param string $cClass
+     * @param IEntity $row
+     * @param array   $v
+     * @param string  $name
+     * @param string  $type
+     * @param bool    $isIterator
+     * @param string  $cClass
      * @return mixed Returns the table cell value
      * @throws \NETopes\Core\AppException
      */
-    protected function GetCellValue(&$row,array &$v,string $name,string $type,bool $isIterator=FALSE,?string &$cClass=NULL) {
+    protected function GetCellValue(IEntity &$row,array &$v,string $name,string $type,bool $isIterator=FALSE,?string &$cClass=NULL) {
         $result=NULL;
         switch($type) {
             case 'actions':
@@ -1077,7 +1080,7 @@ class TableView extends FilterControl {
                             $cellValue=$cellValue / 100;
                         }
                     }//if(strlen($c_format) && $cellDataType=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'sum':
@@ -1126,7 +1129,7 @@ class TableView extends FilterControl {
                             $cellValue=$cellValue / 100;
                         }
                     }//if(strlen($c_format) && $cellDataType=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case '__rowno':
@@ -1139,7 +1142,7 @@ class TableView extends FilterControl {
                 $cellValue=$result=isset($row->__rowno) ? $row->__rowno : NULL;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
                     $c_format=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'running_total':
@@ -1175,7 +1178,7 @@ class TableView extends FilterControl {
                             $cellValue=$cellValue / 100;
                         }
                     }//if(strlen($c_format) && $cellDataType=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'multi-value':
@@ -1209,7 +1212,7 @@ class TableView extends FilterControl {
                 }//if(is_array($v['db_field']) && count($v['db_field']))
                 $result=$m_value;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $this->export_data['data'][$row->__rowid][$name]=$result;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$result;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'indexof':
@@ -1244,7 +1247,7 @@ class TableView extends FilterControl {
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
                 $result=($cellValue ? $cellValue : NULL);
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $this->export_data['data'][$row->__rowid][$name]=$result;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$result;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'custom_function':
@@ -1271,7 +1274,7 @@ class TableView extends FilterControl {
                             $cellValue=$cellValue / 100;
                         }
                     }//if(strlen($c_format) && $cellDataType=='numeric')
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'translate':
@@ -1288,10 +1291,13 @@ class TableView extends FilterControl {
                 if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name)) {
                     $this->SetCellSubTotal($name,$cellValue,'count');
                 }//if($this->with_totals && get_array_value($v,'summarize',FALSE,'bool') && strlen($name))
-                $cellValue=Translate::Get(get_array_value($v,'prefix','','is_string').$cellValue.get_array_value($v,'sufix','','is_string'));
-                $result=$cellValue;
+                $cellRawValue=get_array_value($v,'prefix','','is_string').$cellValue.get_array_value($v,'sufix','','is_string');
+                if(substr($cellRawValue,0,2)==='[[') {
+                    $cellRawValue=substr($cellRawValue,1,-1);
+                }
+                $result=Translate::Get($cellRawValue);
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $this->export_data['data'][$row->__rowid][$name]=$result;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$result;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'checkbox':
@@ -1322,7 +1328,7 @@ class TableView extends FilterControl {
                     }//if(get_array_value($v,'checkbox_eval_as_bool',FALSE,'bool'))
                 }//if(is_array($cb_classes) && count($cb_classes))
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $this->export_data['data'][$row->__rowid][$name]=$cb_val;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cb_val;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             case 'filter-only':
@@ -1330,13 +1336,13 @@ class TableView extends FilterControl {
                 if($this->exportable && get_array_value($v,'export',FALSE,'bool')) {
                     $cellDataType=get_array_value($v,'data_type','','is_string');
                     $cellValue=$this->GetCellData($row,$v);
-                    $this->export_data['data'][$row->__rowid][$name]=$cellValue;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
             default:
                 $result=NULL;
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $this->export_data['data'][$row->__rowid][$name]=$result;
+                    $this->export_data['data'][$row->getProperty('__rowId')][$name]=$result;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
         }//END switch
@@ -1587,13 +1593,13 @@ class TableView extends FilterControl {
     /**
      * Gets the table row html
      *
-     * @param object $row
-     * @param null   $rcClass
-     * @param bool   $hasChild
+     * @param IEntity     $row
+     * @param string|null $rcClass
+     * @param bool        $hasChild
      * @return string Returns the table row html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetRow($row,$rcClass=NULL,$hasChild=FALSE) {
+    protected function SetRow(IEntity $row,?string $rcClass=NULL,bool $hasChild=FALSE) {
         $result='';
         $r_style='';
         $rTData='';
@@ -1802,13 +1808,13 @@ class TableView extends FilterControl {
      *
      * @param DataSet                  $data
      * @param \NETopes\Core\App\Params $params
-     * @param null                     $rcClass
-     * @param null                     $lvl
-     * @param null                     $id_parent
+     * @param string|null              $rcClass
+     * @param int|null                 $lvl
+     * @param int|null                 $id_parent
      * @return string Returns the table html
      * @throws \NETopes\Core\AppException
      */
-    protected function IterateData($data,Params $params,$rcClass=NULL,$lvl=NULL,$id_parent=NULL) {
+    protected function IterateData($data,Params $params,?string $rcClass=NULL,?int $lvl=NULL,?int $id_parent=NULL) {
         // NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$rcClass),'IterateData');
         if(!is_object($data) || !count($data)) {
             return NULL;
@@ -1819,13 +1825,13 @@ class TableView extends FilterControl {
             if(is_null($lvl)) {
                 $this->tree_top_lvl=$lvl=$data->first()->getProperty('lvl',1,'is_integer');
             }
-            foreach($data as $rowid=>$row) {
+            foreach($data as $rowId=>$row) {
                 if($row->getProperty('lvl',1,'is_integer')!=$lvl || ($has_parent && $row->getProperty('id_parent',1,'is_integer')!=$id_parent)) {
                     continue;
                 }
-                $row->__rowid=$rowid;
-                $row->__rowno=$rowid;
-                $data->remove($rowid);
+                $row->set('__rowId',$rowId);
+                $row->set('__rowNo',$rowId);
+                $data->remove($rowId);
                 if($this->export_only) {
                     if($row->getProperty('has_child',0,'is_integer')==1) {
                         $this->IterateData($data,$params,$rcClass,$lvl + 1,$row->safeGetId(NULL,'is_integer'));
@@ -1843,21 +1849,22 @@ class TableView extends FilterControl {
             }//END foreach
         } else {
             if($this->export_only) {
-                foreach($data as $rowid=>$row) {
-                    $row->__rowid=$rowid;
-                    $row->__rowno=$rowid;
+                foreach($data as $rowId=>$row) {
+                    $row->set('__rowId',$rowId);
+                    $row->set('__rowNo',$rowId);
                     $this->SetRow($row,$rcClass);
                 }//END foreach
             } else {
-                $firstrow=$lastrow=NULL;
-                ControlsHelpers::GetPaginationParams($firstrow,$lastrow,$this->current_page);
-                $rowid=0;
+                $firstRow=$lastRow=NULL;
+                ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$this->current_page);
+                $rowId=0;
+                /** @var IEntity $row */
                 foreach($data as $row) {
-                    $row->__rowid=$rowid;
-                    $row->__rowno=abs($firstrow) + $rowid;
+                    $row->set('__rowId',$rowId);
+                    $row->set('__rowNo',abs($firstRow) + $rowId);
                     $rcClass=$this->alternate_row_color ? ($rcClass ? '' : 'altc') : '';
                     $result.=$this->SetRow($row,$rcClass);
-                    $rowid++;
+                    $rowId++;
                 }//END foreach
             }//if($this->export_only)
         }//if($this->tree)
