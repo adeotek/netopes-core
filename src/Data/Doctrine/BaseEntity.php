@@ -110,6 +110,57 @@ abstract class BaseEntity implements IEntity {
     }//END public function hasProperty
 
     /**
+     * @param string $key
+     * @param mixed  $value
+     * @throws \NETopes\Core\AppException
+     */
+    public function set(string $key,$value): void {
+        $this->SetPropertyValue($key,$value,FALSE);
+    }//END public function set
+
+    /**
+     * Set property value by name
+     *
+     * @param string $name The name of the property
+     * @param mixed  $value
+     * @param bool   $strict
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function setProperty(string $name,$value,bool $strict=FALSE): void {
+        $this->SetPropertyValue($name,$value,$strict);
+    }//END public function setProperty
+
+    /**
+     * VirtualEntity dynamic setter method
+     *
+     * @param string $name The name of the property
+     * @param mixed  $value
+     * @param bool   $strict
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
+        $keyComponents=explode('_',rtrim($name,'_'));
+        $key=convert_to_camel_case(array_pop($keyComponents),TRUE);
+        if(count($keyComponents)) {
+            $key=implode('_',array_merge($keyComponents,[$key]));
+            $setter=NULL;
+        } else {
+            $setter='set'.ucfirst($key);
+        }//if(count($keyComponents))
+        if(isset($setter) && method_exists($this,$setter)) {
+            $this->$setter($value);
+            return;
+        }
+        if(property_exists($this,$key) || !$strict) {
+            $this->$key=$value;
+            return;
+        }//if(method_exists($this,$setter))
+        throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
+    }//END protected function SetPropertyValue
+
+    /**
      * Get data array
      *
      * @param bool $originalNames

@@ -114,9 +114,9 @@ class VirtualEntity implements IEntity {
     /**
      * {@inheritDoc}
      */
-    public function set($key,$value) {
+    public function set($key,$value): void {
         $this->data[$key]=$value;
-    }
+    }//END public function set
 
     /**
      * Get property value by name
@@ -165,7 +165,7 @@ class VirtualEntity implements IEntity {
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    public function setProperty(string $name,$value,bool $strict=FALSE) {
+    public function setProperty(string $name,$value,bool $strict=FALSE): void {
         $this->SetPropertyValue($name,$value,$strict);
     }//END public function setProperty
 
@@ -178,7 +178,7 @@ class VirtualEntity implements IEntity {
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE) {
+    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
         $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
         if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
             throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
