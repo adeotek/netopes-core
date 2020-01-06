@@ -34,7 +34,7 @@ class Translation {
      * @return array
      * @throws \NETopes\Core\AppException
      */
-    protected static function GetTranslationCacheFile(?string $langCode,bool $loop=TRUE): array {
+    protected static function GetTranslationCacheFile(?string $langCode,bool $loop=TRUE): ?array {
         if(!strlen($langCode)) {
             return NULL;
         }
