@@ -1,7 +1,6 @@
 <?php
 /**
- * Basic controls classes file
- * File containing basic controls classes
+ * Message control class file
  *
  * @package    NETopes\Controls
  * @author     George Benjamin-Schonberger
@@ -12,12 +11,20 @@
  */
 namespace NETopes\Core\Controls;
 /**
- * Message control
+ * Class Message
  * Control for displaying a label/message
  *
+ * @property string|null text
+ * @property string|null value
  * @package  NETopes\Controls
  */
 class Message extends Control {
+    /**
+     * Message constructor.
+     *
+     * @param null $params
+     * @throws \NETopes\Core\AppException
+     */
     public function __construct($params=NULL) {
         $this->postable=FALSE;
         $this->no_label=TRUE;
@@ -26,15 +33,12 @@ class Message extends Control {
     }//END public function __construct
 
     /**
-     * description
-     *
-     * @param object|null $params Parameters object (instance of [Params])
-     * @return void
+     * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $lvalue=strlen($this->text) ? $this->text : $this->value;
-        $result="\t\t".'<span'.$this->GetTagId().$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$lvalue.'</span>'."\n";
+        $lValue=strlen($this->text) ? $this->text : $this->value;
+        $result="\t\t".'<span'.$this->GetTagId().$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().'>'.$lValue.'</span>'."\n";
         return $result;
     }//END protected function SetControl
 }//END class Message extends Control
-?>

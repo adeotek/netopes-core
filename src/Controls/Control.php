@@ -403,6 +403,7 @@ abstract class Control {
                         case 'KVList':
                         case 'GroupCheckBox':
                         case 'ListBox':
+                        case 'Message':
                             break;
                         case 'CheckBox':
                             if(strlen($this->size)) {
