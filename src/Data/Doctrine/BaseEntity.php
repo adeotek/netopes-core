@@ -48,6 +48,26 @@ abstract class BaseEntity implements IEntity {
     }//END public function __call
 
     /**
+     * @param string|null $name
+     * @param bool|null   $special
+     * @return string|null
+     */
+    protected function convertPropertyName(?string $name,?bool &$special=NULL): ?string {
+        if(is_null($name)) {
+            return NULL;
+        }
+        $keyComponents=explode('_',rtrim($name,'_'));
+        $key=convert_to_camel_case(array_pop($keyComponents),TRUE);
+        if(count($keyComponents)) {
+            $key=implode('_',array_merge($keyComponents,[$key]));
+            $special=TRUE;
+        } else {
+            $special=FALSE;
+        }//if(count($keyComponents))
+        return $key;
+    }//END protected function convertPropertyName
+
+    /**
      * Get property value by name
      *
      * @param string|null $name
@@ -72,8 +92,9 @@ abstract class BaseEntity implements IEntity {
      * @throws \NETopes\Core\AppException
      */
     protected function GetPropertyValue(?string $name,bool $strict=FALSE,$default_value=NULL,?string $validation=NULL) {
-        $key=convert_to_camel_case($name,TRUE);
-        if(method_exists($this,'get'.ucfirst($key))) {
+        $special=NULL;
+        $key=$this->convertPropertyName($name,$special);
+        if(!$special && method_exists($this,'get'.ucfirst($key))) {
             $getter='get'.ucfirst($key);
             $value=$this->$getter();
             return validate_param($value,$default_value,$validation);
@@ -95,10 +116,11 @@ abstract class BaseEntity implements IEntity {
      * @return bool Returns TRUE if property exists
      */
     public function hasProperty(?string $name,bool $notNull=FALSE): bool {
-        $key=convert_to_camel_case($name,TRUE);
+        $special=NULL;
+        $key=$this->convertPropertyName($name,$special);
         if($notNull) {
             $value=NULL;
-            if(method_exists($this,'get'.ucfirst($key))) {
+            if(!$special && method_exists($this,'get'.ucfirst($key))) {
                 $getter='get'.ucfirst($key);
                 $value=$this->$getter();
             } elseif(property_exists($this,$key)) {
@@ -141,15 +163,10 @@ abstract class BaseEntity implements IEntity {
      * @throws \NETopes\Core\AppException
      */
     protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
-        $keyComponents=explode('_',rtrim($name,'_'));
-        $key=convert_to_camel_case(array_pop($keyComponents),TRUE);
-        if(count($keyComponents)) {
-            $key=implode('_',array_merge($keyComponents,[$key]));
-            $setter=NULL;
-        } else {
-            $setter='set'.ucfirst($key);
-        }//if(count($keyComponents))
-        if(isset($setter) && method_exists($this,$setter)) {
+        $special=NULL;
+        $key=$this->convertPropertyName($name,$special);
+        $setter='set'.ucfirst($key);
+        if(!$special && method_exists($this,$setter)) {
             $this->$setter($value);
             return;
         }

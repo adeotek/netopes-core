@@ -310,6 +310,7 @@ class ExcelExport {
      * @param bool                                          $return
      * @return mixed
      * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \NETopes\Core\AppException
      */
     protected function SetCellValue(Worksheet &$sheet,int $row,int $col,array $column,array $data,bool $return=FALSE) {
         if(array_key_exists('format_value_func',$column) && $column['format_value_func']) {

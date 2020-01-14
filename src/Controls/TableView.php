@@ -1848,16 +1848,17 @@ class TableView extends FilterControl {
                 }//if($this->export_only)
             }//END foreach
         } else {
+            $rowId=0;
             if($this->export_only) {
-                foreach($data as $rowId=>$row) {
+                foreach($data as $row) {
                     $row->set('__rowId',$rowId);
-                    $row->set('__rowNo',$rowId);
+                    $row->set('__rowNo',$rowId + 1);
                     $this->SetRow($row,$rcClass);
+                    $rowId++;
                 }//END foreach
             } else {
                 $firstRow=$lastRow=NULL;
                 ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$this->current_page);
-                $rowId=0;
                 /** @var IEntity $row */
                 foreach($data as $row) {
                     $row->set('__rowId',$rowId);
@@ -2207,16 +2208,16 @@ class TableView extends FilterControl {
             'layouts'=>[$this->export_data],
             'summarize'=>$this->with_totals,
         ];
-        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'_all.tmpexp';
-        // NApp::Dlog($cachefile,'$cachefile');
+        $cacheFile=AppHelpers::GetCachePath().'datagrid/'.$this->cHash.'_all.tmpexp';
+        // NApp::Dlog($cacheFile,'$cacheFile');
         try {
             if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
                 mkdir(AppHelpers::GetCachePath().'datagrid',755);
             }
-            if(file_exists($cachefile)) {
-                unlink($cachefile);
+            if(file_exists($cacheFile)) {
+                unlink($cacheFile);
             }
-            file_put_contents($cachefile,serialize($params));
+            file_put_contents($cacheFile,serialize($params));
         } catch(Exception $e) {
             NApp::Elog($e);
             $output=FALSE;
@@ -2246,13 +2247,13 @@ class TableView extends FilterControl {
         }
         $export_all=get_array_value($params,'exportall',FALSE,'bool');
         //\NETopes\Core\App\Debugger::StartTimeTrack('TableViewExportData');
-        $cachefile=AppHelpers::GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
+        $cacheFile=AppHelpers::GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
         try {
-            if(!file_exists($cachefile)) {
-                NApp::Elog('File '.$cachefile.' not found !','TableView::GetExportCacheFile');
+            if(!file_exists($cacheFile)) {
+                NApp::Elog('File '.$cacheFile.' not found !','TableView::GetExportCacheFile');
                 return;
-            }//if(!file_exists($cachefile))
-            $exportData=unserialize(file_get_contents($cachefile));
+            }//if(!file_exists($cacheFile))
+            $exportData=unserialize(file_get_contents($cacheFile));
             // NApp::Log2File(print_r($export_data,TRUE),NApp::$appPath.AppConfig::GetValue('logs_path').'/test.log');
             // NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
             if(!is_array($exportData) || !count($exportData)) {
