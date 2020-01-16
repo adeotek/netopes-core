@@ -28,6 +28,7 @@ class DataSourceHelpers {
      * @param bool     $convertToDataSet
      * @param int|null $case
      * @return array Returns the converted array
+     * @throws \NETopes\Core\AppException
      */
     public static function ConvertResultsToKeyValue($results,?string $keyField=NULL,bool $convertToDataSet=FALSE,?int $case=NULL) {
         if(!is_iterable($results)) {
@@ -37,20 +38,21 @@ class DataSourceHelpers {
         if(is_object($results)) {
             $tempResults=new DataSet();
             foreach($results as $v) {
-                if(is_object($v)) {
-                    $tempResults->set(change_case($v->getProperty($key),$case),$v);
+                if($v instanceof IEntity) {
+                    $keyValue=$v->getProperty($key);
+                    $tempResults->set(change_case($keyValue,$case),$v);
                 } else {
                     $tempResults->set(change_case(get_array_value($v,$key,NULL,'isset'),$case),$v);
-                }//if(is_object($v))
+                }//if($v instanceof IEntity)
             }//END foreach
         } else {
             $tempResults=[];
             foreach($results as $v) {
-                if(is_object($v)) {
+                if($v instanceof IEntity) {
                     $tempResults[change_case($v->getProperty($key),$case)]=$v;
                 } else {
                     $tempResults[change_case(get_array_value($v,$key,NULL,'isset'),$case)]=$v;
-                }//if(is_object($v))
+                }//if($v instanceof IEntity)
             }//END foreach
             if($convertToDataSet) {
                 $tempResults=new DataSet($tempResults);
@@ -67,6 +69,7 @@ class DataSourceHelpers {
      * @param null|string $fieldToUseAsKey
      * @param int         $case
      * @return mixed Returns the DataSet or NULL on error
+     * @throws \NETopes\Core\AppException
      */
     public static function ConvertArrayToDataSet($data=[],$entityClass=NULL,?string $fieldToUseAsKey=NULL,?int $case=CASE_LOWER) {
         if(!is_array($data)) {
