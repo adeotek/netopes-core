@@ -56,9 +56,9 @@ abstract class BaseEntity implements IEntity {
         if(is_null($name)) {
             return NULL;
         }
-        $mainKey=trim($name,'_');
+        $mainKey=ltrim($name,'_');
         $keyPrefixCount=strlen($name) - strlen($mainKey);
-        $key=convert_to_camel_case($mainKey,TRUE);
+        $key=convert_to_camel_case(rtrim($mainKey,'_'),TRUE);
         if($keyPrefixCount>0) {
             $key=str_repeat('_',$keyPrefixCount).$key;
             $special=TRUE;

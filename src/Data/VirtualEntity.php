@@ -112,6 +112,20 @@ class VirtualEntity implements IEntity {
     }//END public function __call
 
     /**
+     * @param string|null $name
+     * @param bool|null   $special
+     * @return string|null
+     */
+    protected function convertPropertyName(?string $name,?bool &$special=NULL): ?string {
+        if(is_null($name)) {
+            return NULL;
+        }
+        $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
+        $special=(strlen($name) - strlen(ltrim($name,'_')))>0;
+        return $key;
+    }//END protected function convertPropertyName
+
+    /**
      * {@inheritDoc}
      */
     public function set($key,$value): void {
@@ -143,7 +157,7 @@ class VirtualEntity implements IEntity {
      * @throws \NETopes\Core\AppException
      */
     protected function GetPropertyValue($name,$strict=FALSE,$defaultValue=NULL,$validation=NULL) {
-        $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
+        $key=$this->convertPropertyName($name);
         if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
             throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
         }//if(is_array($this->data) && array_key_exists($key,$this->data))
@@ -179,7 +193,7 @@ class VirtualEntity implements IEntity {
      * @throws \NETopes\Core\AppException
      */
     protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
-        $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
+        $key=$this->convertPropertyName($name);
         if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
             throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
         }//if(is_array($this->data) && array_key_exists($key,$this->data))
@@ -197,7 +211,7 @@ class VirtualEntity implements IEntity {
      * @return bool Returns TRUE if property exists
      */
     public function hasProperty(?string $name,bool $notNull=FALSE): bool {
-        $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
+        $key=$this->convertPropertyName($name);
         if($notNull) {
             return array_key_exists($key,$this->data) && isset($this->data[$key]);
         }

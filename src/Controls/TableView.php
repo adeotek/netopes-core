@@ -1829,8 +1829,8 @@ class TableView extends FilterControl {
                 if($row->getProperty('lvl',1,'is_integer')!=$lvl || ($has_parent && $row->getProperty('id_parent',1,'is_integer')!=$id_parent)) {
                     continue;
                 }
-                $row->set('__rowId',$rowId);
-                $row->set('__rowNo',$rowId);
+                $row->setProperty('__rowId',$rowId);
+                $row->setProperty('__rowNo',$rowId);
                 $data->remove($rowId);
                 if($this->export_only) {
                     if($row->getProperty('has_child',0,'is_integer')==1) {
@@ -1851,8 +1851,8 @@ class TableView extends FilterControl {
             $rowId=0;
             if($this->export_only) {
                 foreach($data as $row) {
-                    $row->set('__rowId',$rowId);
-                    $row->set('__rowNo',$rowId + 1);
+                    $row->setProperty('__rowId',$rowId);
+                    $row->setProperty('__rowNo',$rowId + 1);
                     $this->SetRow($row,$rcClass);
                     $rowId++;
                 }//END foreach
@@ -1861,8 +1861,8 @@ class TableView extends FilterControl {
                 ControlsHelpers::GetPaginationParams($firstRow,$lastRow,$this->current_page);
                 /** @var IEntity $row */
                 foreach($data as $row) {
-                    $row->set('__rowId',$rowId);
-                    $row->set('__rowNo',abs($firstRow) + $rowId);
+                    $row->setProperty('__rowId',$rowId);
+                    $row->setProperty('__rowNo',abs($firstRow) + $rowId);
                     $rcClass=$this->alternate_row_color ? ($rcClass ? '' : 'altc') : '';
                     $result.=$this->SetRow($row,$rcClass);
                     $rowId++;
