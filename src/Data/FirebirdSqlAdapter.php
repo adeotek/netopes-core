@@ -556,8 +556,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(!is_array($outParams)) {
             $outParams=[];
         }
-        $outParams['rawsqlqry']=$rawQuery;
-        $outParams['sqlqry']=$query;
+        $outParams['__raw_sql_qry']=$rawQuery;
+        $outParams['__sql_qry']=$query;
         $finalResult=NULL;
         try {
             if(is_resource($transaction)) {
@@ -728,8 +728,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $rawQuery=NULL;
         $bindParams=NULL;
         $query=$this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
-        $outParams['rawsqlqry']=$rawQuery;
-        $outParams['sqlqry']=$query;
+        $outParams['__raw_sql_qry']=$rawQuery;
+        $outParams['__sql_qry']=$query;
         //if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
         $finalResult=NULL;
         try {

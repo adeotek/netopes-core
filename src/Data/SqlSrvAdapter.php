@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data;
+use DateTime;
 use Exception;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
@@ -486,8 +487,8 @@ class SqlSrvAdapter extends SqlDataAdapter {
         if(!is_array($outParams)) {
             $outParams=[];
         }
-        $outParams['rawsqlqry']=$rawQuery;
-        $outParams['sqlqry']=$query;
+        $outParams['__raw_sql_qry']=$rawQuery;
+        $outParams['__sql_qry']=$query;
         if(strlen($tranName)) {
             if(!array_key_exists($tranName,$this->transactions) || !$this->transactions[$tranName]) {
                 throw new  AppException("FAILED QUERY: NULL database transaction in statement: ".$query,E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
@@ -582,15 +583,20 @@ class SqlSrvAdapter extends SqlDataAdapter {
                     $sqlParams[]=[$p,SQLSRV_PARAM_IN];
                 }//END foreach
             }//if(is_array($params) && count($params))
-            if(is_array($outParams) && count($outParams)) {
-                foreach(self::SqlSrvEscapeString($outParams) as $n=>$p) {
-                    $parameters.='?,';
-                    $sqlParams[]=[&$outParams[$n],SQLSRV_PARAM_OUT];
-                }//END foreach
-            }//if(is_array($outParams) && count($outParams))
+            foreach($outParams as $n=>$p) {
+                if(is_array($p)) {
+                    $pType=get_array_value($p,'type',NULL,'is_integer');
+                    $outParams[$n]=self::SqlSrvEscapeString(get_array_value($p,'value',NULL));
+                } else {
+                    $pType=NULL;
+                    $outParams[$n]=self::SqlSrvEscapeString($p);
+                }
+                $parameters.='?,';
+                $pType=$pType ?? SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR);
+                $sqlParams[]=[&$outParams[$n],SQLSRV_PARAM_OUT,$pType];
+            }//END foreach
             $parameters=trim($parameters,',');
-            $query="{ call {$procedure}({$parameters}) }";
-            return $query;
+            return "{ call {$procedure}({$parameters}) }";
         }//if(is_array($outParams) && count($outParams))
         // Without output parameters
         if(is_array($params) && count($params)) {
@@ -668,8 +674,8 @@ class SqlSrvAdapter extends SqlDataAdapter {
         $rawQuery=NULL;
         $query=$this->SqlSrvPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$sqlParams);
         $sqlParams4dbg=$sqlParams ? '>>Param: '.print_r($sqlParams,TRUE) : '';
-        $outParams['rawsqlqry']=$rawQuery;
-        $outParams['sqlqry']=$query;
+        $outParams['__raw_sql_qry']=$rawQuery;
+        $outParams['__sql_qry']=$query;
         if(strlen($tranName)) {
             if(!array_key_exists($tranName,$this->transactions) || !$this->transactions[$tranName]) {
                 throw new  AppException("FAILED EXECUTE PROCEDURE: NULL database transaction in statement: {$query}{$sqlParams4dbg}",E_USER_ERROR,1,__FILE__,__LINE__,'sqlsrv',0);
@@ -781,17 +787,13 @@ class SqlSrvAdapter extends SqlDataAdapter {
         if(is_array($param)) {
             $result=[];
             foreach($param as $k=>$v) {
-                $result[$k]=$v;
-                if(isset($result[$k]) && !is_numeric($result[$k])) {
-                    foreach(self::$non_displayables as $regex) {
-                        $result[$k]=preg_replace($regex,'',$result[$k]);
-                    }
-                    $result[$k]=str_replace("'","''",self::UTF8Encode($result[$k]));
-                }//if(isset($result[$k]) && !is_numeric($result[$k]))
+                $result[$k]=static::SqlSrvEscapeString($v);
             }//END foreach
         } else {
             $result=$param;
-            if(isset($result) && !is_numeric($result)) {
+            if($result instanceof DateTime) {
+                $result=$result->format('c');
+            } elseif(isset($result) && !is_numeric($result)) {
                 foreach(self::$non_displayables as $regex) {
                     $result=preg_replace($regex,'',$result);
                 }

@@ -253,8 +253,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
         if(!is_array($out_params)) {
             $out_params=[];
         }
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
+        $out_params['__raw_sql_qry']=$raw_query;
+        $out_params['__sql_qry']=$query;
         if(strlen($tran_name)) {
             if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
                 $transaction=$tran_name;
@@ -500,8 +500,8 @@ class OracleSqlAdapter extends SqlDataAdapter {
         $raw_query=NULL;
         $query=$this->OraclePrepareProcedureStatement($procedure,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
         $sql_params4dbg=$sql_params ? '>>Param: '.print_r($sql_params,TRUE) : '';
-        $out_params['rawsqlqry']=$raw_query;
-        $out_params['sqlqry']=$query;
+        $out_params['__raw_sql_qry']=$raw_query;
+        $out_params['__sql_qry']=$query;
         //if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
         if(strlen($tran_name)) {
             if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
