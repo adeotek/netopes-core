@@ -2026,47 +2026,47 @@ class TableView extends FilterControl {
                 }//END try
             }//if($this->exportable && $this->export_data)
         }//if(isset($items['data']))
-        $lclass=$this->base_class.(strlen($this->class) ? ' '.$this->class : '').(($this->scrollable || ($this->min_width && !$this->width)) ? ' clsScrollable' : ' clsFixedWidth');
+        $lClass=$this->base_class.(strlen($this->class) ? ' '.$this->class : '').(($this->scrollable || ($this->min_width && !$this->width)) ? ' clsScrollable' : ' clsFixedWidth');
         switch($this->theme_type) {
             case 'bootstrap3':
                 $result='<div class="row">'."\n";
                 if($this->is_panel===TRUE) {
                     $result.="\t".'<div class="col-md-12">'."\n";
-                    $result.="\t\t".'<div class="panel panel-flat '.$lclass.'" id="'.$this->tag_id.'">'."\n";
+                    $result.="\t\t".'<div class="panel panel-flat '.$lClass.'" id="'.$this->tag_id.'">'."\n";
                     $closing_tags="\t\t".'</div>'."\n";
                     $closing_tags.="\t".'</div>'."\n";
                 } else {
-                    $result.="\t".'<div class="col-md-12 '.$lclass.'" id="'.$this->tag_id.'">'."\n";
+                    $result.="\t".'<div class="col-md-12 '.$lClass.'" id="'.$this->tag_id.'">'."\n";
                     $closing_tags="\t".'</div>'."\n";
                 }//if($this->is_panel===TRUE)
                 $result.=$this->GetActionsBox(new Params());
                 $result.="\t".'<div class="clsTContainer'.(strlen($this->container_class) ? ' '.$this->container_class : '').'">'."\n";
                 $t_c_width=NULL;
                 $th_result=$this->GetTableHeader($t_c_width);
-                $tcontainerfull='';
+                $tContainerFull='';
                 if(strlen($this->width) && $this->width!=='100%') {
-                    $tcontainerfull='<div class="clsTContainerFull" style="width: '.$this->width.'px;">';
+                    $tContainerFull='<div class="clsTContainerFull" style="width: '.$this->width.'px;">';
                 } else {
                     if($this->min_width) {
-                        $tcontainerfull='<div class="clsTContainerFull" style="min-width: '.$this->min_width.'px; width: 100%;">';
+                        $tContainerFull='<div class="clsTContainerFull" style="min-width: '.$this->min_width.'px;">';
                     } elseif($this->scrollable && $t_c_width>0) {
-                        $tcontainerfull='<div class="clsTContainerFull" style="width: '.$t_c_width.'px;">';
+                        $tContainerFull='<div class="clsTContainerFull" style="width: '.$t_c_width.'px;">';
                     }//if($this->min_width)
                 }//if(strlen($this->width) && $this->width!=='100%')
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
-                    $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
+                    $lClass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tContainerFull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lClass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
-                $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
+                $result.="\t".'</table>'.(strlen($tContainerFull) ? '</div>' : '')."\n";
                 $result.="\t".'</div>'."\n";
                 $result.=$this->GetPaginationBox($items);
                 $result.=$closing_tags;
                 $result.='</div>'."\n";
                 break;
             default:
-                $result='<div id="'.$this->tag_id.'" class="'.$lclass.'">'."\n";
+                $result='<div id="'.$this->tag_id.'" class="'.$lClass.'">'."\n";
                 if($this->with_filter || $this->export_button || !$this->hide_actions_bar) {
                     $result.="\t".'<div id="'.$this->tag_id.'-filters" class="'.($this->base_class.'Filters'.(strlen($this->class)>0 ? ' '.$this->class : '')).'">'."\n";
                     $result.=$this->GetActionsBox(new Params());
@@ -2075,23 +2075,23 @@ class TableView extends FilterControl {
                 $result.="\t".'<div class="clsTContainer">'."\n";
                 $t_c_width=NULL;
                 $th_result=$this->GetTableHeader($t_c_width);
-                $tcontainerfull='';
+                $tContainerFull='';
                 if(strlen($this->width) && $this->width!=='100%') {
-                    $tcontainerfull='<div class="clsTContainerFull" style="width: '.$this->width.'px;">';
+                    $tContainerFull='<div class="clsTContainerFull" style="width: '.$this->width.'px;">';
                 } else {
                     if($this->min_width) {
-                        $tcontainerfull='<div class="clsTContainerFull" style="min-width: '.$this->min_width.'px; width: 100%;">';
+                        $tContainerFull='<div class="clsTContainerFull" style="min-width: '.$this->min_width.'px; width: 100%;">';
                     } elseif($this->scrollable && $t_c_width>0) {
-                        $tcontainerfull='<div class="clsTContainerFull" style="width: '.$t_c_width.'px;">';
+                        $tContainerFull='<div class="clsTContainerFull" style="width: '.$t_c_width.'px;">';
                     }//if($this->min_width)
                 }//if(strlen($this->width) && $this->width!=='100%')
                 if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0') {
-                    $lclass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
+                    $lClass.=' rh-'.(is_numeric($this->row_height) ? $this->row_height.'px' : str_replace('%','p',$this->row_height));
                 }//if(strlen($this->row_height) && str_replace('px','',$this->row_height)!='0')
-                $result.="\t".$tcontainerfull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lclass.'"'.'>'."\n";
+                $result.="\t".$tContainerFull.'<table id="'.($this->tag_id ? $this->tag_id : $this->cHash).'_table" class="'.$lClass.'"'.'>'."\n";
                 $result.=$th_result;
                 $result.=$table_data;
-                $result.="\t".'</table>'.(strlen($tcontainerfull) ? '</div>' : '')."\n";
+                $result.="\t".'</table>'.(strlen($tContainerFull) ? '</div>' : '')."\n";
                 $result.="\t".'</div>'."\n";
                 $result.=$this->GetPaginationBox($items);
                 $result.='</div>'."\n";
