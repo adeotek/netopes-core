@@ -451,4 +451,22 @@ class ConverterAdapter {
         }
         return trim($value);
     }//END public static function ToTrimmedString
+
+    /**
+     * @param mixed $value
+     * @return string|null
+     */
+    public function ToRomanNumerals($value): ?string {
+        if(!is_numeric($value) || !is_integer($value * 1)) {
+            return NULL;
+        }
+        $result='';
+        foreach(array_filter(
+            ['M'=>1000,'CM'=>900,'D'=>500,'CD'=>400,'C'=>100,'XC'=>90,'L'=>50,'XL'=>40,'X'=>10,'IX'=>9,'V'=>5,'IV'=>4,'I'=>1],
+            function($i) use ($value) { return $i<=$value; }) as $s=>$v) {
+            $result.=str_repeat($s,intval($value / $v));
+            $value%=$v;
+        }//END foreach
+        return $result;
+    }//END public function ToRomanNumerals
 }//END class ConverterAdapter
