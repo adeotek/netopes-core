@@ -1922,6 +1922,17 @@ table.clsBasicForm > tbody > tr > td {
 	border-top: 1px solid #DDDDDD;
 }
 
+.clsBasicForm .form-act-section {
+	float: left;
+	display: block;
+	width: 100%;
+	margin-top: 8px;
+}
+
+.clsBasicForm .form-act-section:first-child {
+	margin-top: 0;
+}
+
 /*** END BasicForm ***/
 /*** AssociationManager ***/
 .clsAssociationManager.clsPanel {
