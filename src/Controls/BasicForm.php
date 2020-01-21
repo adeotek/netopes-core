@@ -210,7 +210,7 @@ class BasicForm {
      * @throws \NETopes\Core\AppException
      */
     protected function GetActions($tabindex=0) {
-        $result='';
+        $processedActions=[''=>[]];
         foreach($this->actions as $action) {
             $act_params=get_array_value($action,'params',[],'is_array');
             if(!count($act_params)) {
@@ -238,10 +238,14 @@ class BasicForm {
             if(!class_exists($act_class)) {
                 continue;
             }
-            if(strlen($result)) {
+            $actSection=get_array_value($action,'section','','is_string');
+            if(!array_key_exists($actSection,$processedActions)) {
+                $processedActions[$actSection]=[];
+            }
+            if(count($processedActions[$actSection])) {
                 $ml_class=is_object(NApp::$theme) ? NApp::$theme->GetActionsSeparatorClass() : 'ml10';
                 $act_params['class'].=(strlen(trim($ml_class)) ? ' '.trim($ml_class) : '');
-            }//if(strlen($result))
+            }//if(count($processedActions[$actSection]))
             if(strlen($this->actions_size)) {
                 $act_params['size']=$this->actions_size;
             }
@@ -252,8 +256,16 @@ class BasicForm {
             if(get_array_value($action,'clear_base_class',FALSE,'bool')) {
                 $act_instance->ClearBaseClass();
             }
-            $result.=$act_instance->Show();
+            $processedActions[$actSection][]=$act_instance->Show();
         }//END foreach
+        $result='';
+        if(count($processedActions)===1) {
+            $result.=implode('',array_shift($processedActions));
+        } elseif(count($processedActions)>1) {
+            foreach($processedActions as $section=>$sectionActions) {
+                $result.='<div class="form-act-section '.$section.'">'.implode('',$sectionActions).'</div>';
+            }//END foreach
+        }
         return $result;
     }//END protected function GetActions
 
