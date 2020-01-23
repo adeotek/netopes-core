@@ -12,6 +12,7 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppSession;
+use NETopes\Core\Data\IEntity;
 use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
@@ -64,10 +65,11 @@ trait TControlFields {
      * @param mixed       $controlValue
      * @param bool        $isIterator
      * @param string|null $paramsPrefix
+     * @param bool        $makeUnique
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    protected function GetControlFieldData(?array $params,$data=NULL,$controlValue=NULL,bool $isIterator=FALSE,?string $paramsPrefix=NULL): ?string {
+    protected function GetControlFieldData(?array $params,$data=NULL,$controlValue=NULL,bool $isIterator=FALSE,?string $paramsPrefix=NULL,bool $makeUnique=TRUE): ?string {
         $controlType=get_array_value($params,$paramsPrefix.'control_type',NULL,'is_notempty_string');
         $controlClass='\NETopes\Core\Controls\\'.$controlType;
         if(!$controlType || !class_exists($controlClass)) {
@@ -79,15 +81,20 @@ trait TControlFields {
             $controlParams=ControlsHelpers::ReplaceDynamicParams($controlParams,$data);
         }
         if($isIterator) {
-            $controlParams['value']=$data->getProperty($controlParams['value'],get_array_value($params,'default_value','','is_string'),'is_notempty_string');
+            $ctrlDefVal=get_array_value($params,'default_value','','is_string');
+            $controlParams['value']=$data instanceof IEntity ? $data->getProperty($controlParams['value'],$ctrlDefVal,'is_notempty_string') : $ctrlDefVal;
         } elseif($controlClass!='ConditionalControl' && $controlClass!='InlineMultiControl' && !isset($controlParams['value']) && isset($params['db_field'])) {
             $controlParams['value']=isset($controlValue) && $controlValue!=='' ? $controlValue : get_array_value($params,'default_value','','is_string');
         }//if($isIterator)
-        if(isset($controlParams['tag_id'])) {
-            $keyValue=$data->getProperty(get_array_value($params,'db_key','id','is_notempty_string'),NULL,'isset');
+        if(isset($controlParams['tag_id']) && $makeUnique) {
+            if($data instanceof IEntity) {
+                $keyValue=$data->getProperty(get_array_value($params,'db_key','id','is_notempty_string'),NULL,'isset');
+            } else {
+                $keyValue=NULL;
+            }
             $keyValue=strlen($keyValue) ? $keyValue : AppSession::GetNewUID();
             $controlParams['tag_id'].='_'.$keyValue;
-        }//if(isset($controlParams['tag_id']))
+        }//if(isset($controlParams['tag_id']) && $makeUnique)
         $pAjaxCommands=get_array_value($params,$paramsPrefix.'control_ajax_commands',NULL,'?is_array');
         if($pAjaxCommands) {
             if(is_array($pAjaxCommands) && count($pAjaxCommands)) {
@@ -114,7 +121,7 @@ trait TControlFields {
         if(is_array($passTroughParams) && count($passTroughParams)) {
             $actionParams=[];
             foreach($passTroughParams as $pk=>$pv) {
-                $actionParams[$pk]=$data->getProperty($pv,NULL,'isset');
+                $actionParams[$pk]=$data instanceof IEntity ? $data->getProperty($pv,NULL,'isset') : NULL;
             }//END foreach
         }//if(is_array($passTroughParams) && count($passTroughParams))
         // Add [action_params] array to each action of the control

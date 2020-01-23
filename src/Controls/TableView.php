@@ -517,7 +517,7 @@ class TableView extends FilterControl {
             if(is_string($action)) {
                 $result.=$action;
             } elseif(is_array($action)) {
-                $result.=$this->GetControlFieldData($action);
+                $result.=$this->GetControlFieldData($action,NULL,NULL,FALSE,NULL,FALSE);
             } else {
                 NApp::Elog($action,'Invalid TableView::custom_actions item:');
             }
