@@ -368,14 +368,12 @@ abstract class FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetFilterActionCommand(string $type,Params $params,?string &$targetId=NULL,?string $method=NULL): ?string {
-        $params=($params instanceof $params) ? $params : new Params($params);
         $targetId=$this->target;
         switch($type) {
             case 'filters.render':
                 $method=$method ?? 'ShowFiltersBox';
                 $targetId=$this->tag_id.'-filter-box';
                 $conditionType=$params->safeGet('f_c_type','','is_string');
-
                 $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'render', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '".(strlen($conditionType) ? '{nGet|'.$conditionType.'}' : '')."',";
                 if($params->safeGet('f_v_f_mode',FALSE,'bool')) {
                     $fdValue=$params->safeGet('f_d_value','{nGet|'.$this->tag_id.'-f-value:value}','is_notempty_string');
@@ -395,7 +393,7 @@ abstract class FilterControl {
                 if(strlen($fdValue) && strpos($fdValue,'{nEval|')===FALSE && strpos($fdValue,'{nGet|')===FALSE) {
                     $fdValue='{nGet|'.$fdValue.'}';
                 }
-                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'add', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'f_d_type': '{$dataType}',".(strlen($field) ? " ' f_field': '{$field}'," : '')." 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '{nGet|{$this->filter_cond_value_source}}', 'f_value': '{nGet|".$params->safeGet('f_value',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'f_d_value': '{$fdValue}', ";
+                $command="{ 'control_hash': '{$this->cHash}', 'method': '{$method}', 'control': '".$this->GetThis()."', 'via_post': 1, 'params': { 'f_action': 'add', 'f_type': '{nGet|{$this->tag_id}-f-type:value}', 'f_d_type': '{$dataType}',".(strlen($field) ? " 'f_field': '{$field}'," : '')." 'g_id': '{nGet|{$this->tag_id}-f-group:value}', 'g_type': '{nGet|{$this->tag_id}-f-group-type:value}', 'l_op': '{nGet|{$this->tag_id}-f-l-op:value}',  'f_c_type': '{nGet|{$this->filter_cond_value_source}}', 'f_value': '{nGet|".$params->safeGet('f_value',$this->tag_id.'-f-value:value','is_notempty_string')."}', 'f_d_value': '{$fdValue}', ";
                 $feValue=$params->safeGet('f_e_value','','is_string');
                 if(strlen($feValue)) {
                     if(strpos($feValue,'{nEval|')===FALSE && strpos($feValue,'{nGet|')===FALSE) {
@@ -612,6 +610,11 @@ abstract class FilterControl {
     protected function GetFilterValueControl(Params $params,?string $filterType,?array &$selectedItem,?array &$onClickActionParams=[],?string $filterValueField=NULL): string {
         $isDsParam=intval(strlen(get_array_value($selectedItem,'ds_param','','is_string'))>0);
         $conditionType=$params->safeGet('f_c_type','','is_string');
+        if(is_array($onClickActionParams)) {
+            $onClickActionParams['f_field']=get_array_value($selectedItem,'db_field',NULL,'is_notempty_string');
+        } else {
+            $onClickActionParams=['f_field'=>get_array_value($selectedItem,'db_field',NULL,'is_notempty_string')];
+        }
         if(strlen($filterValueField)) {
             $isFilterValueField=TRUE;
             $fvName='f-v-value';
@@ -659,7 +662,7 @@ abstract class FilterControl {
                 if($isFilterValueField) {
                     $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
                 } else {
-                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                    $onClickActionParams=array_merge($onClickActionParams,['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                 }//if($isFilterValueField)
                 break;
             case 'combobox':
@@ -682,7 +685,7 @@ abstract class FilterControl {
                 if($isFilterValueField) {
                     $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
                 } else {
-                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                    $onClickActionParams=array_merge($onClickActionParams,['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                 }//if($isFilterValueField)
                 break;
             case 'treecombobox':
@@ -702,7 +705,7 @@ abstract class FilterControl {
                 if($isFilterValueField) {
                     $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
                 } else {
-                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                    $onClickActionParams=array_merge($onClickActionParams,['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                 }//if($isFilterValueField)
                 break;
             case 'checkbox':
@@ -717,7 +720,7 @@ abstract class FilterControl {
                 if($isFilterValueField) {
                     $onClickActionParams=array_merge($onClickActionParams,['v_d_value'=>$dValue,'v_d_type'=>$dataType]);
                 } else {
-                    $onClickActionParams=['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                    $onClickActionParams=array_merge($onClickActionParams,['f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                 }//if($isFilterValueField)
                 break;
             case 'datepicker':
@@ -812,9 +815,9 @@ abstract class FilterControl {
                     }
                 } else {
                     if($conditionType=='><') {
-                        $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_e_value'=>$eValue,'f_e_d_value'=>$edValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                        $onClickActionParams=array_merge($onClickActionParams,['f_value'=>$fValue,'f_d_value'=>$dValue,'f_e_value'=>$eValue,'f_e_d_value'=>$edValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                     } else {
-                        $onClickActionParams=['f_value'=>$fValue,'f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam];
+                        $onClickActionParams=array_merge($onClickActionParams,['f_value'=>$fValue,'f_d_value'=>$dValue,'f_d_type'=>$dataType,'is_ds_param'=>$isDsParam]);
                     }
                 }//if($isFilterValueField)
                 break;
@@ -1090,18 +1093,18 @@ abstract class FilterControl {
     /**
      * Generate and return the control HTML string
      *
-     * @param \NETopes\Core\App\Params|null $params
+     * @param \NETopes\Core\App\Params $params
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    abstract protected function SetControl(Params $params=NULL): ?string;
+    abstract protected function SetControl(Params $params): ?string;
 
     /**
      * Gets the filter box HTML
      *
-     * @param \NETopes\Core\App\Params|null $params
+     * @param \NETopes\Core\App\Params $params
      * @return string|null Returns the filter box HTML string
      * @throws \NETopes\Core\AppException
      */
-    abstract protected function GetFilterBox(Params $params=NULL): ?string;
+    abstract protected function GetFilterBox(Params $params): ?string;
 }//END abstract class FilterControl

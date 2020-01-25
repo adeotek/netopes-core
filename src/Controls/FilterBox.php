@@ -84,7 +84,7 @@ class FilterBox extends FilterControl {
      */
     protected function GetActionCommand(?string $type=NULL,$params=NULL,bool $processCall=TRUE): ?string {
         // NApp::Dlog($params,'GetActionCommand>>$params');
-        $params=is_object($params) ? $params : new Params($params);
+        $params=$params instanceof Params ? $params : new Params($params);
         if(in_array($type,['filters.get','filters.apply'])) {
             $actionParams=$this->apply_callback_params;
             if(!isset($actionParams['params']) || !is_array($actionParams['params'])) {
@@ -129,12 +129,9 @@ class FilterBox extends FilterControl {
      * @return string|null Returns the filter box html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFilterBox(Params $params=NULL): ?string {
-        // NApp::Dlog($params,'GetFilterBox>>$params');
+    protected function GetFilterBox(Params $params): ?string {
+        // NApp::Dlog($params->toArray(),'GetFilterBox>>$params');
         // NApp::Dlog($this->filters,'GetFilterBox>>$this->filters');
-        if(is_null($params)) {
-            $params=new Params();
-        }
         $filters=$this->GetFilterControls($this->items,$params);
         $filters.=$this->GetFilterGlobalActions(FALSE);
         $filters.=$this->GetFilterApplyAction();
@@ -155,10 +152,7 @@ class FilterBox extends FilterControl {
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    protected function SetControl(Params $params=NULL): ?string {
-        if(is_null($params)) {
-            $params=new Params();
-        }
+    protected function SetControl(Params $params): ?string {
         if(is_array($this->initial_filters)) {
             $this->filters=$this->initial_filters;
         }

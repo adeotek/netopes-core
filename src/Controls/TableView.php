@@ -575,14 +575,11 @@ class TableView extends FilterControl {
      * @return string|null Returns the filter box html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetFilterBox(Params $params=NULL): ?string {
+    protected function GetFilterBox(Params $params): ?string {
         // NApp::Dlog($params,'GetFilterBox>>$params');
         // NApp::Dlog($this->filters,'GetFilterBox>>$this->filters');
         if(!$this->with_filter) {
             return NULL;
-        }
-        if(is_null($params)) {
-            $params=new Params();
         }
         $filters=$this->GetFilterControls($this->columns,$params);
         $filters.=$this->GetFilterGlobalActions(!$this->auto_load_data_on_filter_change);
@@ -1972,7 +1969,7 @@ class TableView extends FilterControl {
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    protected function SetControl(Params $params=NULL): ?string {
+    protected function SetControl(Params $params): ?string {
         // NApp::Dlog($params,'SetControl>>$params');
         // NApp::Dlog($this->auto_load_data_on_filter_change,'SetControl>>auto_load_data_on_filter_change');
         $fActionsParam=$params->safeGet('f_action',NULL,'?is_string');
