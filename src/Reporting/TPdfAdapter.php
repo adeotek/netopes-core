@@ -98,13 +98,15 @@ trait TPdfAdapter {
      *
      * @param string   $content
      * @param int|null $page
+     * @return int Current page
      */
-    public function SetContent(string $content,?int $page=NULL): void {
+    public function SetContent(string $content,?int $page=NULL): int {
         if(is_integer($page)) {
             $this->content[$page]=$content;
         } else {
             $this->content[]=$content;
         }
+        return ($page ?? count($this->content) - 1);
     }//END public function SetContent
 
     /**
@@ -112,8 +114,9 @@ trait TPdfAdapter {
      *
      * @param string   $content
      * @param int|null $page
+     * @return int Current page
      */
-    public function AddContent(string $content,?int $page=NULL): void {
+    public function AddContent(string $content,?int $page=NULL): int {
         if(is_integer($page)) {
             if(!isset($this->content[$page])) {
                 $this->content[$page]='';
@@ -122,18 +125,31 @@ trait TPdfAdapter {
         } else {
             $this->content[]=$content;
         }
+        return ($page ?? count($this->content) - 1);
     }//END public function AddContent
 
     /**
      * Set content elements (HTML data)
      *
-     * @param array $contents
+     * @param array    $contents
+     * @param int|null $startPage
+     * @return int
      */
-    public function AddContents(array $contents): void {
+    public function AddContents(array $contents,?int $startPage=NULL): int {
         foreach($contents as $k=>$content) {
-            $this->AddContent($content,is_integer($k) ? $k : NULL);
+            $startPage=$this->AddContent($content,$startPage);
         }//END foreach
+        return $startPage;
     }//END public function AddContents
+
+    /**
+     * Get content last index
+     *
+     * @return int|null
+     */
+    public function GetLastPage(): ?int {
+        return (!is_array($this->content) || !count($this->content) ? NULL : count($this->content) - 1);
+    }//END public function GetLastPage
 
     /**
      * @return string|null

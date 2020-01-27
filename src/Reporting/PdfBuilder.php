@@ -194,10 +194,11 @@ class PdfBuilder {
      * @param string   $content
      * @param array    $params
      * @param int|null $page
+     * @return int
      */
-    public function SetContent(string $content,array $params=[],?int $page=NULL): void {
+    public function SetContent(string $content,array $params=[],?int $page=NULL): int {
         $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-        $this->pdf->SetContent($content,$page);
+        return $this->pdf->SetContent($content,$page);
     }//END public function setContent
 
     /**
@@ -206,24 +207,37 @@ class PdfBuilder {
      * @param string   $content
      * @param array    $params
      * @param int|null $page
+     * @return int
      */
-    public function AddContent(string $content,array $params=[],?int $page=NULL): void {
+    public function AddContent(string $content,array $params=[],?int $page=NULL): int {
         $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-        $this->pdf->AddContent($content,$page);
+        return $this->pdf->AddContent($content,$page);
     }//END public function AddContent
 
     /**
      * Set content elements (HTML data)
      *
-     * @param array $contents
-     * @param array $params
+     * @param array    $contents
+     * @param array    $params
+     * @param int|null $startPage
+     * @return int|null
      */
-    public function AddContents(array $contents,array $params=[]): void {
-        foreach($contents as $k=>$content) {
+    public function AddContents(array $contents,array $params=[],?int $startPage=NULL): ?int {
+        foreach($contents as $content) {
             $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-            $this->pdf->AddContent($content,$k);
+            $startPage=$this->pdf->AddContent($content,$startPage) + 1;
         }//END foreach
+        return $startPage;
     }//END public function AddContents
+
+    /**
+     * Get content last index
+     *
+     * @return int|null
+     */
+    public function GetLastPage(): ?int {
+        return $this->pdf->GetLastPage();
+    }//END public function GetLastPage
 
     /**
      * @return bool Custom header
