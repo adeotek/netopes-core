@@ -69,23 +69,34 @@ interface IPdfAdapter {
      *
      * @param string   $content
      * @param int|null $page
+     * @return int
      */
-    public function SetContent(string $content,?int $page=NULL): void;
+    public function SetContent(string $content,?int $page=NULL): int;
 
     /**
      * Add content element (HTML data)
      *
      * @param string   $content
      * @param int|null $page
+     * @return int
      */
-    public function AddContent(string $content,?int $page=NULL): void;
+    public function AddContent(string $content,?int $page=NULL): int;
 
     /**
      * Set content elements (HTML data)
      *
-     * @param array $contents
+     * @param array    $contents
+     * @param int|null $startPage
+     * @return int
      */
-    public function AddContents(array $contents): void;
+    public function AddContents(array $contents,?int $startPage=NULL): int;
+
+    /**
+     * Get content last index
+     *
+     * @return int|null
+     */
+    public function GetLastPage(): ?int;
 
     /**
      * @return string|null
