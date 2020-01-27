@@ -29,6 +29,7 @@ trait RepositoryBaseTrait {
             '%='=>'like',
             'strictlike'=>'like',
             'between'=>'between',
+            '><'=>'between',
         ];
     }//END public function getOperators
 
@@ -58,7 +59,7 @@ trait RepositoryBaseTrait {
      * @param string                     $key
      * @param array                      $parameters
      * @param string|null                $logicalSeparator
-     * @return \Doctrine\ORM\Query\Expr|null
+     * @return \Doctrine\ORM\Query\Expr|\Doctrine\ORM\Query\Expr\Orx|string|null
      * @throws \NETopes\Core\AppException
      */
     protected function getFilterExpression(QueryBuilder $qb,?array $filter,string $key,array &$parameters,?string &$logicalSeparator=NULL) {
@@ -106,25 +107,37 @@ trait RepositoryBaseTrait {
             }//END foreach
         } elseif(is_string($field) && strlen($field)) {
             $field=$this->getFieldName($field,'e');
-            $paramName='in'.$key.'_'.str_replace('.','_',$field);
-            $expression=$qb->expr()->$operator($field,':'.$paramName);
-            if(!array_key_exists($paramName,$parameters)) {
-                switch($operatorType) {
-                    case 'like':
-                    case 'notlike':
-                        $parameters[$paramName]='%'.$value.'%';
-                        break;
-                    case '=%':
-                        $parameters[$paramName]=$value.'%';
-                        break;
-                    case '%=':
-                        $parameters[$paramName]='%'.$value;
-                        break;
-                    default:
-                        $parameters[$paramName]=$value;
-                        break;
-                }//END switch
-            }//if(!array_key_exists($paramName,$parameters))
+            if($operator==='between') {
+                $endValue=get_array_value($filter,'end_value',NULL,'isset');
+                if(is_null($endValue)) {
+                    return NULL;
+                }
+                $startParamName='in'.$key.'_start_'.str_replace('.','_',$field);
+                $endParamName='in'.$key.'_end_'.str_replace('.','_',$field);
+                $expression=$qb->expr()->$operator($field,':'.$startParamName,':'.$endParamName);
+                $parameters[$startParamName]=$value;
+                $parameters[$endParamName]=$endValue;
+            } else {
+                $paramName='in'.$key.'_'.str_replace('.','_',$field);
+                $expression=$qb->expr()->$operator($field,':'.$paramName);
+                if(!array_key_exists($paramName,$parameters)) {
+                    switch($operatorType) {
+                        case 'like':
+                        case 'notlike':
+                            $parameters[$paramName]='%'.$value.'%';
+                            break;
+                        case '=%':
+                            $parameters[$paramName]=$value.'%';
+                            break;
+                        case '%=':
+                            $parameters[$paramName]='%'.$value;
+                            break;
+                        default:
+                            $parameters[$paramName]=$value;
+                            break;
+                    }//END switch
+                }//if(!array_key_exists($paramName,$parameters))
+            }//if($operatorType==='between')
         }//if(is_array($field) && count($field))
         return $expression;
     }//END protected function getFilterExpression
@@ -155,7 +168,7 @@ trait RepositoryBaseTrait {
                 $result.='('.(string)$expr.')';
             } else {
                 $expr=$this->getFilterExpression($qb,$f,$k,$parameters,$lSeparator);
-                if(!is_object($expr)) {
+                if(is_null($expr)) {
                     continue;
                 }
                 $result.=(strlen($result) && strlen($lSeparator) ? ' '.strtoupper($lSeparator).' ' : '').(string)$expr;
