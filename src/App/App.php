@@ -1054,7 +1054,7 @@ HTML;
         }
         $tmpPath=AppConfig::GetValue('debug_console_cache_path');
         if(strlen($tmpPath)) {
-            $tmpPath=(substr($tmpPath,0,2)==='..' ? _NAPP_ROOT_PATH : '').$tmpPath;
+            $tmpPath=(substr($tmpPath,0,2)==='..' ? _NAPP_ROOT_PATH.'/' : '').$tmpPath;
         } else {
             $tmpPath=isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
         }
