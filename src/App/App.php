@@ -1052,7 +1052,12 @@ HTML;
         if(is_object(static::$debugger)) {
             return static::$debugger->IsEnabled();
         }
-        $tmpPath=isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
+        $tmpPath=AppConfig::GetValue('debug_console_cache_path');
+        if(strlen($tmpPath)) {
+            $tmpPath=(substr($tmpPath,0,2)==='..' ? _NAPP_ROOT_PATH : '').$tmpPath;
+        } else {
+            $tmpPath=isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
+        }
         static::$debugger=new Debugger(AppConfig::GetValue('debug'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),$tmpPath,AppConfig::GetValue('debug_console_password'));
         static::$debugger->showExceptionsTrace=AppConfig::GetValue('show_exceptions_trace');
         static::$debugger->log_file=AppConfig::GetValue('log_file');

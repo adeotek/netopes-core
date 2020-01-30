@@ -190,6 +190,8 @@ $_NAPP_CONFIG_STRUCTURE=[
     'console_show_file'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
     // Javascript php console password
     'debug_console_password'=>['access'=>'readonly','default'=>'112233','validation'=>'is_string'],
+    // PHPConsole cache file location
+    'debug_console_cache_path'=>['access'=>'readonly','default'=>'../../tmp','validation'=>'is_string'],
     // Relative path to the logs folder
     'logs_path'=>['access'=>'readonly','default'=>'/.logs','validation'=>'is_notempty_string'],
     // Name of the main log file
