@@ -1003,7 +1003,7 @@ class TableView extends FilterControl {
                     $ajaxCommand=get_array_value($act,'ajax_command',NULL,'is_notempty_string');
                     $targetId=get_array_value($act,'ajax_target_id',NULL,'is_notempty_string');
                     if(!$ajaxCommand) {
-                        $aCommand=get_array_value($act,'command_string',NULL,'?is_string');
+                        $ajaxCommand=get_array_value($act,'command_string',NULL,'?is_string');
                     }//if(!$ajaxCommand)
                     if($ajaxCommand) {
                         $actParams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
