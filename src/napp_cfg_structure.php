@@ -178,6 +178,8 @@ $_NAPP_CONFIG_STRUCTURE=[
     'session_keys_case'=>['access'=>'readonly','default'=>CASE_LOWER,'validation'=>'is_integer'],
     //END Session configuration
     //START Logs & errors reporting
+    // Developer mode on/off
+    'developer_mode'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Debug mode on/off
     'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
     // Database debug mode on/off
