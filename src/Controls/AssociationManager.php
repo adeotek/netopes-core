@@ -50,6 +50,10 @@ abstract class AssociationManager {
      */
     protected $base_class='';
     /**
+     * @var    string Control display mode (LTR/RTL)
+     */
+    protected $display_mode='ltr';
+    /**
      * @var    string Layout type: native(css grid)/bootstrap
      */
     public $layout_type=NULL;
@@ -610,48 +614,74 @@ JS;
     }//END public function GetLiveVersionItemsBox
 
     /**
+     * @param bool        $rtl
+     * @param int|null    $lvCols
+     * @param int|null    $sisCols
+     * @param int|null    $aisCols
+     * @param string|null $midColClass
+     * @return string|null
+     */
+    protected function GetLiveVersionBox(bool $rtl,?int &$lvCols,?int &$sisCols,?int &$aisCols,?string &$midColClass): ?string {
+        $liveBox=$this->GetLiveVersionItemsBox();
+        if(!$this->show_live_version || !strlen($liveBox)) {
+            $lvCols=0;
+            $sisCols=$aisCols=6;
+            $midColClass=$rtl ? 'clsLeftPanel' : 'clsRightPanel';
+            return NULL;
+        }
+        $sisCols=$aisCols=$lvCols=4;
+        if(is_numeric($this->live_version_box_cols_no) && $this->live_version_box_cols_no>0 && $this->live_version_box_cols_no<=10) {
+            $lvCols=$this->live_version_box_cols_no;
+            $sisCols=$aisCols=ceil((12 - $lvCols) / 2);
+        }//if(is_numeric($this->live_version_box_cols_no) && $this->live_version_box_cols_no>0  && $this->live_version_box_cols_no<=10)
+        $midColClass='clsMiddlePanel';
+        $result="\t\t".'<div class="'.$this->colcls.$lvCols.' clsDivTableCell '.($rtl ? 'clsLeftPanel' : 'clsRightPanel').'" id="'.$this->tag_id.'-lis">'."\n";
+        $result.=$liveBox;
+        $result.="\t\t".'</div>'."\n";
+        $fixedSisCols=FALSE;
+        if(is_numeric($this->associated_box_cols_no) && $this->associated_box_cols_no>0 && $this->associated_box_cols_no<12) {
+            $sisCols=$this->associated_box_cols_no;
+            $aisCols=12 - $lvCols - $sisCols;
+            $fixedSisCols=TRUE;
+        }//if(is_numeric($this->associated_box_cols_no) && $this->associated_box_cols_no>0  && $this->associated_box_cols_no<=10)
+        if(is_numeric($this->assignable_box_cols_no) && $this->assignable_box_cols_no>0 && $this->assignable_box_cols_no<12) {
+            $aisCols=$this->assignable_box_cols_no;
+            if(!$fixedSisCols) {
+                $sisCols=12 - $lvCols - $sisCols;
+            }
+        }//if(is_numeric($this->assignable_box_cols_no) && $this->assignable_box_cols_no>0  && $this->assignable_box_cols_no<=10)
+        return $result;
+    }//END protected function GetLiveVersionBox
+
+    /**
      * Sets the output buffer value
      *
      * @return string Returns the complete HTML for the control
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $live_box=$this->GetLiveVersionItemsBox();
         $result='<div class="'.$this->rowcls.' '.$this->base_class.' clsPanel">'."\n";
         $result.="\t".'<div class="clsDivTable">'."\n";
-        if($this->show_live_version && strlen($live_box)) {
-            $sis_cols=$ais_cols=$lv_cols=4;
-            if(is_numeric($this->live_version_box_cols_no) && $this->live_version_box_cols_no>0 && $this->live_version_box_cols_no<=10) {
-                $lv_cols=$this->live_version_box_cols_no;
-                $sis_cols=$ais_cols=ceil((12 - $lv_cols) / 2);
-            }//if(is_numeric($this->live_version_box_cols_no) && $this->live_version_box_cols_no>0  && $this->live_version_box_cols_no<=10)
-            $fcol_class=' clsMiddlePanel';
-            $result.="\t\t".'<div class="'.$this->colcls.$lv_cols.' clsDivTableCell clsLeftPanel" id="'.$this->tag_id.'-lis">'."\n";
-            $result.=$live_box;
+        $lvCols=0;
+        $sisCols=$aisCols=6;
+        $midColClass=NULL;
+        if(strtolower($this->display_mode)==='rtl') {
+            $result.=$this->GetLiveVersionBox(TRUE,$lvCols,$sisCols,$aisCols,$midColClass);
+            $result.="\t\t".'<div class="'.$this->colcls.$sisCols.' clsDivTableCell '.$midColClass.'" id="'.$this->tag_id.'-sis">'."\n";
+            $result.=$this->GetAssociatedItemsBox();
+            $result.="\t\t".'</div>'."\n";
+            $result.="\t\t".'<div class="'.$this->colcls.$aisCols.' clsDivTableCell clsRightPanel" id="'.$this->tag_id.'-ais">'."\n";
+            $result.=$this->GetAssignableItemsBox();
             $result.="\t\t".'</div>'."\n";
         } else {
-            $lv_cols=0;
-            $sis_cols=$ais_cols=6;
-            $fcol_class=' clsLeftPanel';
-        }//if($this->show_live_version && strlen($live_box))
-        $fixed_sis_cols=FALSE;
-        if(is_numeric($this->associated_box_cols_no) && $this->associated_box_cols_no>0 && $this->associated_box_cols_no<12) {
-            $sis_cols=$this->associated_box_cols_no;
-            $ais_cols=12 - $lv_cols - $sis_cols;
-            $fixed_sis_cols=TRUE;
-        }//if(is_numeric($this->associated_box_cols_no) && $this->associated_box_cols_no>0  && $this->associated_box_cols_no<=10)
-        if(is_numeric($this->assignable_box_cols_no) && $this->assignable_box_cols_no>0 && $this->assignable_box_cols_no<12) {
-            $ais_cols=$this->assignable_box_cols_no;
-            if(!$fixed_sis_cols) {
-                $sis_cols=12 - $lv_cols - $sis_cols;
-            }
-        }//if(is_numeric($this->assignable_box_cols_no) && $this->assignable_box_cols_no>0  && $this->assignable_box_cols_no<=10)
-        $result.="\t\t".'<div class="'.$this->colcls.$sis_cols.' clsDivTableCell'.$fcol_class.'" id="'.$this->tag_id.'-sis">'."\n";
-        $result.=$this->GetAssociatedItemsBox();
-        $result.="\t\t".'</div>'."\n";
-        $result.="\t\t".'<div class="'.$this->colcls.$ais_cols.' clsDivTableCell clsRightPanel" id="'.$this->tag_id.'-ais">'."\n";
-        $result.=$this->GetAssignableItemsBox();
-        $result.="\t\t".'</div>'."\n";
+            $result.="\t\t".'<div class="'.$this->colcls.$aisCols.' clsDivTableCell clsLeftPanel" id="'.$this->tag_id.'-ais">'."\n";
+            $result.=$this->GetAssignableItemsBox();
+            $result.="\t\t".'</div>'."\n";
+            $result.="\t\t".'<div class="'.$this->colcls.$sisCols.' clsDivTableCell '.$midColClass.'" id="'.$this->tag_id.'-sis">'."\n";
+            $result.=$this->GetAssociatedItemsBox();
+            $result.="\t\t".'</div>'."\n";
+            $result.=$this->GetLiveVersionBox(FALSE,$lvCols,$sisCols,$aisCols,$midColClass);
+        }//if(strtolower($this->display_mode)==='rtl')
         $result.="\t".'</div>'."\n";
         $result.='</div>'."\n";
         return $result;
