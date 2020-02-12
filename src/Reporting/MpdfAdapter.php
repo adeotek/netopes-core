@@ -257,6 +257,26 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
         $this->file_id=$fileId;
     }
 
+    /**
+     * @param string $pageSize
+     */
+    public function SetPageSize(string $pageSize): void {
+        $this->pageSize=$pageSize;
+        $this->_setPageSize($this->pageSize,$this->orientation);
+    }
+
+    /**
+     * @param float $width
+     * @param float $height
+     */
+    public function SetCustomPageSize(float $width,float $height): void {
+        $this->pageSize='';
+        $this->_setPageSize([$width,$height],$this->orientation);
+    }
+
+    /**
+     *
+     */
     function _enddoc() {
         parent::_enddoc();
         if(strlen($this->file_id)) {
