@@ -136,4 +136,15 @@ interface IPdfAdapter {
      * @param string|null $fileId
      */
     public function SetFileId(?string $fileId): void;
+
+    /**
+     * @param string $pageSize
+     */
+    public function SetPageSize(string $pageSize): void;
+
+    /**
+     * @param float $width
+     * @param float $height
+     */
+    public function SetCustomPageSize(float $width,float $height): void;
 }//END interface IPdfAdapter

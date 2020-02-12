@@ -295,6 +295,23 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
     }//END public function Footer
 
     /**
+     * @param string $pageSize
+     */
+    public function SetPageSize(string $pageSize): void {
+        $this->pageSize=$pageSize;
+        $this->setPageFormat($this->pageSize,$this->orientation);
+    }
+
+    /**
+     * @param float $width
+     * @param float $height
+     */
+    public function SetCustomPageSize(float $width,float $height): void {
+        $this->pageSize='';
+        $this->setPageFormat([$width,$height],$this->orientation);
+    }
+
+    /**
      * @param array $format
      * @return array
      */

@@ -103,7 +103,15 @@ class PdfBuilder {
      * @param string Document HTML data $pageSize the page size
      */
     public function SetPageSize(string $pageSize): void {
-        $this->pdf->pageSize=$pageSize;
+        $this->pdf->SetPageSize($pageSize);
+    }
+
+    /**
+     * @param float $width
+     * @param float $height
+     */
+    public function SetCustomPageSize(float $width,float $height): void {
+        $this->pdf->SetCustomPageSize($width,$height);
     }
 
     /**
