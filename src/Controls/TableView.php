@@ -1665,25 +1665,41 @@ class TableView extends FilterControl {
             $iterator=get_array_value($v,'iterator',[],'is_array');
             if(count($iterator)) {
                 $ik=get_array_value($v,'iterator_key','id','is_notempty_string');
+                $rowSep=get_array_value($v,'row_separator',':#:','is_notempty_string');
+                $keySep=get_array_value($v,'key_separator',',','is_notempty_string');
+                $isKeyValueField=get_array_value($v,'is_key_value_field',FALSE,'bool');
                 $values=[];
                 try {
-                    $ids_arr=explode(',',$row->getProperty(get_array_value($v,'db_ids_field','','is_string')));
-                    $keys_arr=explode(',',$row->getProperty(get_array_value($v,'db_keys_field','','is_string')));
-                    $values_arr=explode(':#:',$row->getProperty(get_array_value($v,'db_field','','is_string')));
-                    foreach($keys_arr as $kl=>$vl) {
-                        $values[$vl]=['id'=>$ids_arr[$kl],'key'=>$vl,'value'=>$values_arr[$kl]];
-                    }//END foreach
+                    $valuesArray=explode($rowSep,$row->getProperty(get_array_value($v,'db_field','','is_string')));
+                    if($isKeyValueField) {
+                        foreach($valuesArray as $vs) {
+                            $vsArray=explode($keySep,$vs);
+                            if(count($vsArray)<2) {
+                                continue;
+                            } elseif(count($vsArray)>2) {
+                                $values[$vsArray[0]]=['__it_id'=>$vsArray[2],'__it_key'=>$vsArray[0],'__it_value'=>$vsArray[1]];
+                            } else {
+                                $values[$vsArray[0]]=['__it_id'=>$vsArray[0],'__it_key'=>$vsArray[0],'__it_value'=>$vsArray[1]];
+                            }
+                        }//END foreach
+                    } else {
+                        $keysArray=explode($keySep,$row->getProperty(get_array_value($v,'db_keys_field','','is_string')));
+                        $idsArray=explode($keySep,$row->getProperty(get_array_value($v,'db_ids_field','','is_string')));
+                        foreach($keysArray as $kl=>$vl) {
+                            $values[$vl]=['__it_id'=>$idsArray[$kl],'__it_key'=>$vl,'__it_value'=>$valuesArray[$kl]];
+                        }//END foreach
+                    }
                 } catch(AppException $e) {
                     NApp::Elog($e);
                     throw $e;
                 }//END try
                 foreach($iterator as $it) {
-                    $i_row_def=['id'=>NULL,'key'=>$it[$ik],'value'=>NULL];
+                    $i_row_def=['__it_id'=>NULL,'__it_key'=>$it[$ik],'__it_value'=>NULL];
                     $i_row=clone $row;
                     $i_row->merge(get_array_value($values,$it[$ik],$i_row_def,'is_array'));
                     $i_v=$v;
-                    $i_v['db_field']='value';
-                    $i_v['db_key']='id';
+                    $i_v['db_field']='__it_value';
+                    $i_v['db_key']='__it_id';
                     if($this->export_only) {
                         if(get_array_value($v,'export',TRUE,'bool')) {
                             if(!array_key_exists($k,$this->export_data['columns'])) {
