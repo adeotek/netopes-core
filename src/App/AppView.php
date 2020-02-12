@@ -569,12 +569,15 @@ class AppView {
         } else {
             $result=$_control->Show();
         }//if(is_array($args) && count($args))
-        if(!method_exists($_control,'GetJsScript')) {
-            return $result;
+        if(method_exists($_control,'GetJsScript')) {
+            $jsScript=$_control->GetJsScript();
+            if(strlen(trim($jsScript))) {
+                $this->AddJsScript($jsScript);
+            }
         }
-        $jsScript=$_control->GetJsScript();
-        if(strlen(trim($jsScript))) {
-            $this->AddJsScript($jsScript);
+        if(is_null($result)) {
+            NApp::Dlog($_control,'Invalid AppView control');
+            return '';
         }
         return $result;
     }//END protected function GetControlContentFromFile
