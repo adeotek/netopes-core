@@ -56,7 +56,7 @@ switch($uType) {
         break;
 }//END switch
 if(array_key_exists('targetdir',$_POST) && strlen($_POST['targetdir'])) {
-    $targetDir=trim(rawurldecode($_POST['targetdir']),'/').'/';
+    $targetDir=rtrim(rawurldecode($_POST['targetdir']),'/').'/';
     $uploadUrl=NApp::$appBaseUrl;
 } else {
     $subFolder=(array_key_exists('subfolder',$_POST) && strlen($_POST['subfolder'])) ? trim(rawurldecode($_POST['subfolder']),'/').'/' : '';
@@ -182,7 +182,7 @@ class UploadHandler {
             'reject_file_types'=>'',
             //NETopse: added name sanitization option
             // Replace file name spaces with "_"
-            'replace_space_in_filenames'=>FALSE,
+            'replace_space_in_filenames'=>TRUE,
             // Replaces dots in filenames with the given string.
             // Can be disabled by setting it to false or an empty string.
             // Note that this is a security feature for servers that support
@@ -517,7 +517,7 @@ class UploadHandler {
         $min_height=@$this->options['min_height'];
         if(($max_width || $max_height || $min_width || $min_height)
             && $this->is_valid_image_file($uploaded_file)) {
-            list($img_width,$img_height)=$this->get_image_size($uploaded_file);
+            [$img_width,$img_height]=$this->get_image_size($uploaded_file);
             // If we are auto rotating the image by default, do the checks on
             // the correct orientation
             if(
@@ -796,7 +796,7 @@ class UploadHandler {
             error_log('Function not found: imagecreatetruecolor');
             return FALSE;
         }
-        list($file_path,$new_file_path)=
+        [$file_path,$new_file_path]=
             $this->get_scaled_image_file_paths($file_name,$version);
         $type=strtolower(substr(strrchr($file_name,'.'),1));
         switch($type) {
@@ -962,7 +962,7 @@ class UploadHandler {
     }
 
     protected function imagick_create_scaled_image($file_name,$version,$options) {
-        list($file_path,$new_file_path)=
+        [$file_path,$new_file_path]=
             $this->get_scaled_image_file_paths($file_name,$version);
         $image=$this->imagick_get_image_object(
             $file_path,
@@ -1052,7 +1052,7 @@ class UploadHandler {
     }
 
     protected function imagemagick_create_scaled_image($file_name,$version,$options) {
-        list($file_path,$new_file_path)=
+        [$file_path,$new_file_path]=
             $this->get_scaled_image_file_paths($file_name,$version);
         $resize=@$options['max_width']
             .(empty($options['max_height']) ? '' : 'X'.$options['max_height']);
