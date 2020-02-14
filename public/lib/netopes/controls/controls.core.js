@@ -1011,17 +1011,18 @@ function CreateFileUploader(elementid,multi) {
                 if(data.result.files[0].error && data.result.files[0].error!=='') {
                     ShowErrorDialog('Upload failed: ' + data.result.files[0].error);
                 } else {
-                    let callbackfunc=$(element).attr('data-callback');
-                    if(callbackfunc) {
-                        callbackfunc=GibberishAES.dec(decodeURIComponent(callbackfunc),'HTML');
-                        if(callbackfunc instanceof Function) {
-                            callbackfunc(data.result.files[0].name,this);
+                    let callbackFunc=$(element).attr('data-callback');
+                    if(callbackFunc) {
+                        callbackFunc=GibberishAES.dec(decodeURIComponent(callbackFunc),'HTML');
+                        if(callbackFunc instanceof Function) {
+                            callbackFunc(data.result.files[0].name,data.files[0].name,this);
                         } else {
-                            callbackfunc=callbackfunc.replace('&amp;namespace=','&namespace=');
-                            callbackfunc=callbackfunc.replaceAll('#uploadedfile#',data.files[0].name);
-                            eval(callbackfunc);
-                        }//if(callbackfunc instanceof Function)
-                    }//if(callbackfunc)
+                            callbackFunc=callbackFunc.replace('&amp;namespace=','&namespace=');
+                            callbackFunc=callbackFunc.replaceAll('#uploadedFile#',data.result.files[0].name);
+                            callbackFunc=callbackFunc.replaceAll('#originalFile#',data.files[0].name);
+                            eval(callbackFunc);
+                        }//if(callbackFunc instanceof Function)
+                    }//if(callbackFunc)
                 }//if(data.files[0].error && data.files[0].error!='')
             },//done: function(e,data)
             fail: function(e,data) {
@@ -1033,6 +1034,7 @@ function CreateFileUploader(elementid,multi) {
     }//if(multi==1)
 }//END function CreateFileUploader
 /*** END For FileUploader ***/
+
 /*** For TreeGrid ***/
 function TreeGridViewAction(obj,pid,tableid,cval,orgid) {
     if(!orgid) { orgid=pid; }
