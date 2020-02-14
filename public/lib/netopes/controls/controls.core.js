@@ -1015,7 +1015,7 @@ function CreateFileUploader(elementid,multi) {
                     if(callbackfunc) {
                         callbackfunc=GibberishAES.dec(decodeURIComponent(callbackfunc),'HTML');
                         if(callbackfunc instanceof Function) {
-                            callbackfunc(data.files[0].name,this);
+                            callbackfunc(data.result.files[0].name,this);
                         } else {
                             callbackfunc=callbackfunc.replace('&amp;namespace=','&namespace=');
                             callbackfunc=callbackfunc.replaceAll('#uploadedfile#',data.files[0].name);
