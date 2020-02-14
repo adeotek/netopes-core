@@ -177,10 +177,10 @@ class UploadHandler {
             // Please also read the SECURITY.md document in this repository.
             'accept_file_types'=>'/.+$/i',
             // 'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
-            //NETopse: added filter condition
+            // NETopes: added filter condition
             // Defines which files (based on their names) are rejected for upload:
             'reject_file_types'=>'',
-            //NETopse: added name sanitization option
+            // NETopes: added name sanitization option
             // Replace file name spaces with "_"
             'replace_space_in_filenames'=>TRUE,
             // Replaces dots in filenames with the given string.
@@ -482,7 +482,7 @@ class UploadHandler {
             $file->error=$this->get_error_message('accept_file_types');
             return FALSE;
         }
-        //NETopse: added filter condition
+        // NETopes: added filter condition
         if(strlen($this->options['reject_file_types']) && preg_match($this->options['reject_file_types'],$file->name)) {
             $file->error=$this->get_error_message('reject_file_types');
             return FALSE;
@@ -556,12 +556,22 @@ class UploadHandler {
     protected function upcount_name_callback($matches) {
         $index=isset($matches[1]) ? ((int)$matches[1]) + 1 : 1;
         $ext=isset($matches[2]) ? $matches[2] : '';
+        // NETopes: implement name sanitization option (replace_space_in_filenames)
+        if(isset($this->options['replace_space_in_filenames']) && $this->options['replace_space_in_filenames']) {
+            return '-'.$index.'-'.$ext;
+        }
         return ' ('.$index.')'.$ext;
     }
 
     protected function upcount_name($name) {
+        // NETopes: implement name sanitization option (replace_space_in_filenames)
+        if(isset($this->options['replace_space_in_filenames']) && $this->options['replace_space_in_filenames']) {
+            $regEx='/(?:(?:\-([\d]+)\-)?(\.[^.]+))?$/';
+        } else {
+            $regEx='/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/';
+        }
         return preg_replace_callback(
-            '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
+            $regEx,
             [$this,'upcount_name_callback'],
             $name,
             1
