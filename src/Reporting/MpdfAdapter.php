@@ -164,6 +164,8 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
                 } else {
                     $this->AddPage();
                 }
+                // Fix usage of '<br />' or '<br/>'
+                $pageContent=preg_replace('/<br\s?\/>/im','<br>',$pageContent);
                 // Fix for error when content is ending with '<br />' or '<br />&nbsp;'
                 $pageContent=preg_replace('/(<br\s?\/>)+(\&nbsp;)*$/im','',rtrim($pageContent));
                 // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
