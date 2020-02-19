@@ -27,6 +27,7 @@ class OfflineBase extends DataSource {
      * @param array $params Parameters array
      * @param array $extra_params
      * @return array|bool
+     * @throws \NETopes\Core\AppException
      */
     public function GetGenericArrays($params=[],$extra_params=[]) {
         $type=get_array_value($params,'type',NULL,'is_notempty_string');
@@ -81,6 +82,13 @@ class OfflineBase extends DataSource {
                 break;
             case 'yes-no':
                 $result=[
+                    ['id'=>1,'name'=>Translate::GetLabel('yes',$langcode)],
+                    ['id'=>0,'name'=>Translate::GetLabel('no',$langcode)],
+                ];
+                break;
+            case 'all-yes-no':
+                $result=[
+                    ['id'=>NULL,'name'=>Translate::GetLabel('all',$langcode)],
                     ['id'=>1,'name'=>Translate::GetLabel('yes',$langcode)],
                     ['id'=>0,'name'=>Translate::GetLabel('no',$langcode)],
                 ];
