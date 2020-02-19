@@ -239,6 +239,7 @@ class ExcelExport {
                 $col_no=0;
                 $row_no++;
                 $row_format=(array_key_exists('format_row_func',$layout) && $layout['format_row_func']) ? $this->$layout['format_row_func']($data_row) : [];
+                // TODO: correct iterator column from TableView
                 foreach($layout['columns'] as $column) {
                     $col_no++;
                     $col_format_name=get_array_value($column,'format',NULL,'is_notempty_string');
@@ -248,7 +249,10 @@ class ExcelExport {
                         $col_format_name=get_array_value($column,'eformat','standard','is_notempty_string');
                     }//if($col_format_name)
                     $col_def_format=get_array_value($this->formats,$col_format_name,[],'is_array');
-                    $col_custom_format=(array_key_exists('format_func',$column) && $column['format_func']) ? $this->$column['format_func']($data_row,$column) : [];
+                    $col_custom_format=[];
+                    if(array_key_exists('format_func',$column) && $column['format_func'] && is_string($column['format_func']) && method_exists($this,$column['format_func'])) {
+                        $col_custom_format=$this->$column['format_func']($data_row,$column);
+                    }
                     $col_format=array_merge((is_array($col_def_format) ? $col_def_format : []),(is_array($row_format) ? $row_format : []),(is_array($col_custom_format) ? $col_custom_format : []));
                     $this->ApplyStyleArray($active_sheet,$this->IndexToColumn($col_no).$row_no,$col_format);
                     $this->SetCellValue($active_sheet,$row_no,$col_no,$column,$data_row);

@@ -173,4 +173,83 @@ class FilterBox extends FilterControl {
         }//END switch
         return $result;
     }//END private function SetControl
+
+    /**
+     * @param array       $filter
+     * @param string|null $filterType
+     * @param string|null $conditionType
+     * @param string      $fieldPrefix
+     * @param string      $validation
+     * @param null        $defVal
+     * @param null        $result
+     * @param null        $startResult
+     * @param null        $endResult
+     * @return int
+     */
+    public static function ProcessFilterCondition(array $filter,?string $filterType,?string $conditionType,string $fieldPrefix,string $validation,$defVal=NULL,&$result=NULL,&$startResult=NULL,&$endResult=NULL): int {
+        switch($conditionType) {
+            case '><':
+                $startResult=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                $endResult=get_array_value($filter,$fieldPrefix.'end_value',$defVal,$validation);
+                return 22;
+            case '>=':
+                $result=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                return 23;
+            case '<=':
+                $result=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                return 24;
+            case '!=':
+            case '<>':
+                $result=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                return ($filterType==='numeric' || $filterType==='integer' || $filterType==='date' ? 25 : 13);
+            case 'notlike':
+                $result=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                return 11;
+            default:
+                $result=get_array_value($filter,$fieldPrefix.'value',$defVal,$validation);
+                if($filterType==='numeric' || $filterType==='integer' || $filterType==='date') {
+                    return 21;
+                } else {
+                    return ($conditionType==='==' ? 12 : 10);
+                }
+        }//END switch
+    }//END public static function ProcessFilterCondition
+
+    /**
+     * @param array       $filter
+     * @param string|null $filterType
+     * @param int|null    $recordId
+     * @param string|null $fieldPrefix
+     * @return array
+     */
+    public static function ProcessFilterItemToArray(array $filter,?string $filterType,?int $recordId=NULL,?string $fieldPrefix=NULL): array {
+        $fieldPrefix=$fieldPrefix ?? 'value_';
+        $stringValue=NULL;
+        $numericValue=NULL;
+        $intValue=NULL;
+        $datetimeValue=NULL;
+        $startValue=NULL;
+        $endValue=NULL;
+        if(in_array($filterType,['numeric','integer','date'])) {
+            if($filterType==='date') {
+                $type=static::ProcessFilterCondition($filter,$filterType,strtolower($filter['condition_type']),$fieldPrefix,'is_datetime',NULL,$datetimeValue,$startValue,$endValue);
+            } elseif($filterType==='integer') {
+                $type=static::ProcessFilterCondition($filter,$filterType,strtolower($filter['condition_type']),$fieldPrefix,'is_integer',NULL,$intValue,$startValue,$endValue);
+            } else {
+                $type=static::ProcessFilterCondition($filter,$filterType,strtolower($filter['condition_type']),$fieldPrefix,'is_numeric',0,$numericValue,$startValue,$endValue);
+            }
+        } else {
+            $type=static::ProcessFilterCondition($filter,$filterType,strtolower($filter['condition_type']),$fieldPrefix,'is_string','',$stringValue);
+        }
+        return [
+            'id_record'=>$recordId,
+            'type'=>$type,
+            'svalue'=>$stringValue,
+            'nvalue'=>$numericValue,
+            'ivalue'=>$intValue,
+            'dvalue'=>$datetimeValue,
+            'vfrom'=>$startValue,
+            'vto'=>$endValue,
+        ];
+    }//END public static function ProcessFilterItemToArray
 }//END class FilterBox extends FilterControl
