@@ -283,8 +283,10 @@ class TableView extends FilterControl {
         if(Module::GetDRights($this->module,$this->method,'export')) {
             $this->exportable=FALSE;
         }
-        if(!is_array($this->sortby) || !count($this->sortby) || !array_key_exists('column',$this->sortby) || !array_key_exists('direction',$this->sortby)) {
-            $this->sortby=['column'=>'','direction'=>''];
+        if(!is_array($this->sortby)) {
+            $this->sortby=[];
+        } elseif(array_key_exists('column',$this->sortby) && strlen($this->sortby['column'])) {
+            $this->sortby=[$this->sortby['column']=>get_array_value($this->sortby,'direction','ASC','is_notempty_string')];
         }
     }//END public function __construct
 
@@ -466,18 +468,11 @@ class TableView extends FilterControl {
             $extra_params['first_row']=$firstRow;
             $extra_params['last_row']=$lastRow;
         }//if($this->with_pagination && !$this->export_only)
-        $sortColumn=get_array_value($this->sortby,'column',NULL,'is_notempty_string');
-        $extra_params['sort']=[];
         if($this->tree) {
             $extra_params['sort']['LVL']='ASC';
+        } else {
+            $extra_params['sort']=$this->sortby;
         }
-        if(strlen($sortColumn)) {
-            if(get_array_value($extra_params,'mode','','is_string')=='Doctrine') {
-                $extra_params['sort'][$sortColumn]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
-            } else {
-                $extra_params['sort'][strtoupper($sortColumn)]=strtoupper(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
-            }//if(get_array_value($extra_params,'mode','','is_string')=='Doctrine')
-        }//if(strlen($sortColumn))
     }//END protected function ProcessDataCallParams
 
     /**
@@ -719,20 +714,20 @@ class TableView extends FilterControl {
             $ch_sort_act='';
             $ch_sort_icon='';
             $ch_sclass='';
-            if(get_array_value($v,'sortable',FALSE,'true')) {
+            if(get_array_value($v,'sortable',FALSE,'bool')) {
                 $ch_sclass.='sortable';
-                if(get_array_value($this->sortby,'column','','is_notempty_string')==$k) {
-                    $ch_sortdir=strtolower(get_array_value($this->sortby,'direction','asc','is_notempty_string'));
+                if(in_array($k,array_keys($this->sortby))) {
+                    $ch_sortdir=strtolower(get_array_value($this->sortby,$k,'asc','is_notempty_string'));
                     $ch_iclass=' active';
                     $ch_psortdir=$ch_sortdir;
                 } else {
                     $ch_sortdir='asc';
                     $ch_iclass='';
                     $ch_psortdir='desc';
-                }//if(get_array_value($this->sortby,'column','','is_notempty_string')==$k)
+                }//if(in_array($k,array_keys($this->sortby)))
                 $ch_sort_icon='<i class="fa '.($ch_sortdir=='desc' ? 'fa-arrow-down' : 'fa-arrow-up').$ch_iclass.'"></i>';
                 $ch_sort_act=' onclick="'.$this->GetActionCommand('sort',['column'=>$k,'direction'=>$ch_psortdir]).'"';
-            }//if(get_array_value($v,'sortable',FALSE,'true'))
+            }//if(get_array_value($v,'sortable',FALSE,'bool'))
             $ch_class=get_array_value($v,'class','','is_notempty_string');
             $ch_class=strlen(trim($ch_class.' '.$ch_sclass))>0 ? ' class="'.trim($ch_class.' '.$ch_sclass).'"' : '';
             $iterator=get_array_value($v,'iterator',[],'is_array');
@@ -1932,29 +1927,27 @@ class TableView extends FilterControl {
                 case 'page':
                     $this->current_page=$params->safeGet('page',$this->current_page,'is_numeric');
                     $ssortby=NApp::GetPageParam($this->sessionHash.'#sortby');
-                    $this->sortby=get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby;
+                    $this->sortby=is_array($ssortby) && count($ssortby) ? $ssortby : $this->sortby;
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
                     break;
                 case 'sort':
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
-                    $this->sortby=[
-                        'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
-                        'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
-                    ];
+                    if(strlen($params->safeGet('sort_by',NULL,'?is_string'))) {
+                        $this->sortby=[$params->safeGet('sort_by',NULL,'?is_string')=>$params->safeGet('sort_dir','ASC','is_notempty_string')];
+                    }
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
                     break;
                 case 'filters':
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
                     $ssortby=NApp::GetPageParam($this->sessionHash.'#sortby');
-                    $this->sortby=get_array_value($ssortby,'column',NULL,'is_notempty_string') ? $ssortby : $this->sortby;
+                    $this->sortby=is_array($ssortby) && count($ssortby) ? $ssortby : $this->sortby;
                     $this->ProcessActiveFilters($params);
                     break;
                 case 'reset':
                     $this->current_page=$params->safeGet('page',1,'is_numeric');
-                    $this->sortby=[
-                        'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
-                        'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
-                    ];
+                    if(strlen($params->safeGet('sort_by',NULL,'?is_string'))) {
+                        $this->sortby=[$params->safeGet('sort_by',NULL,'?is_string')=>$params->safeGet('sort_dir','ASC','is_notempty_string')];
+                    }
                     $this->ProcessActiveFilters($params);
                     break;
                 default:
@@ -1963,14 +1956,13 @@ class TableView extends FilterControl {
                         $this->current_page=$params->safeGet('page',$this->current_page,'is_numeric');
                     }//if(!$this->current_page)
                     $ssortby=NApp::GetPageParam($this->sessionHash.'#sortby');
-                    if(!get_array_value($ssortby,'column',NULL,'is_notempty_string')) {
-                        $this->sortby=[
-                            'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
-                            'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
-                        ];
+                    if(!is_array($ssortby) || !count($ssortby)) {
+                        if(strlen($params->safeGet('sort_by',NULL,'?is_string'))) {
+                            $this->sortby=[$params->safeGet('sort_by',NULL,'?is_string')=>$params->safeGet('sort_dir','ASC','is_notempty_string')];
+                        }
                     } else {
                         $this->sortby=$ssortby;
-                    }//if(!get_array_value($ssortby,'column',NULL,'is_notempty_string'))
+                    }//if(!is_array($ssortby) && count($ssortby))
                     $this->filters=NApp::GetPageParam($this->sessionHash.'#filters');
                     $this->ProcessActiveFilters($params);
                     break;
@@ -1980,10 +1972,9 @@ class TableView extends FilterControl {
             NApp::SetPageParam($this->sessionHash.'#filters',$this->filters);
         } else {
             $this->current_page=$params->safeGet('page',$this->current_page,'is_numeric');
-            $this->sortby=[
-                'column'=>$params->safeGet('sort_by',$this->sortby['column'],'is_notempty_string'),
-                'direction'=>$params->safeGet('sort_dir',$this->sortby['direction'],'is_notempty_string'),
-            ];
+            if(strlen($params->safeGet('sort_by',NULL,'?is_string'))) {
+                $this->sortby=[$params->safeGet('sort_by',NULL,'?is_string')=>$params->safeGet('sort_dir','ASC','is_notempty_string')];
+            }
             $this->ProcessActiveFilters($params);
         }//if($this->persistent_state)
     }//END protected function LoadState
