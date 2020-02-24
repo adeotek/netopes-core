@@ -116,18 +116,22 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
     });
 }//END function ShowConfirmDialog
 
-function ShowMessageDialog(message,title,encrypted,targetid) {
+/**
+ * @return {boolean}
+ */
+function ShowMessageDialog(message,title,encrypted,targetId,dlgClass) {
     if(!message || typeof (message)!='string' || message.length<=0) { return false; }
     if(encrypted) { message=GibberishAES.dec(message,'HTML'); }
-    var ltitle=title ? title : '';
-    if(!targetid || typeof (targetid)!='string' && targetid.length<=0) { targetid=getUid(); }
-    if(!$('#' + targetid).length) { $('body').append('<div id="' + targetid + '" style="display: none;"></div>'); }
-    $('#' + targetid).html(message);
-    var minWidth=$(window).width()>500 ? 500 : ($(window).width() - 20);
-    var maxWidth=$(window).width()>600 ? ($(window).width() - 80) : ($(window).width() - 20);
-    $('#' + targetid).dialog({
-        title: ltitle,
-        dialogClass: 'ui-dlg',
+    let lTitle=title ? title : '';
+    if(!targetId || typeof (targetId)!='string' && targetId.length<=0) { targetId=getUid(); }
+    if(!$('#' + targetId).length) { $('body').append('<div id="' + targetId + '" style="display: none;"></div>'); }
+    $('#' + targetId).html(message);
+    let minWidth=$(window).width()>500 ? 500 : ($(window).width() - 20);
+    let maxWidth=$(window).width()>600 ? ($(window).width() - 80) : ($(window).width() - 20);
+    let cssClass=dlgClass || 'ui-dlg';
+    $('#' + targetId).dialog({
+        title: lTitle,
+        dialogClass: cssClass,
         minWidth: minWidth,
         maxWidth: maxWidth,
         minHeight: 'auto',
