@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
+use NApp;
 use Translate;
 
 /**
@@ -25,6 +26,14 @@ use Translate;
  * @package  NETopes\Controls
  */
 class PageControl extends Control {
+    /**
+     * @var    string|null Module
+     */
+    public $module=NULL;
+    /**
+     * @var    string|null Method
+     */
+    public $method=NULL;
 
     /**
      * PageControl constructor.
@@ -45,6 +54,7 @@ class PageControl extends Control {
      * @param int $last
      * @param int $page
      * @return mixed
+     * @throws \NETopes\Core\AppException
      */
     protected function GetAjaxCommandString(?int $first,?int $last,$page) {
         return NApp::Ajax()->Prepare("{ 'module': '{$this->module}', 'method': '{$this->method}', 'params': { ".(isset($first) ? "'first_row': {$first}, " : '').(isset($last) ? "'last_row': {$last}, " : '')."'current_page': {$page}, 'fullpagination': 1,".($this->passparams ? $this->passparams.', ' : '')."'target': '{$this->target}' !}",$this->target);
@@ -52,6 +62,7 @@ class PageControl extends Control {
 
     /**
      * @return string|null
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
         $result='';

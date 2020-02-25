@@ -51,6 +51,7 @@ class UserSessionAdapter implements IUserSessionAdapter {
      * @param string|null $appAccessKey
      * @return void
      * @throws \NETopes\Core\AppException
+     * @throws \Exception
      */
     public static function LoadAppSettings(bool $notFromDb=FALSE,?array $params=NULL,?string &$appAccessKey=NULL): void {
         $cookieHash=UserSession::GetCookieHash();
@@ -179,8 +180,8 @@ class UserSessionAdapter implements IUserSessionAdapter {
             $ur_ts=NApp::GetParam('user_rights_revoked_ts');
             $dt_ur_ts=strlen($ur_ts) ? new DateTime($ur_ts) : new DateTime('1900-01-01 01:00:00');
             if($dt_ur_ts->add(new DateInterval('PT30M'))<(new DateTime('now'))) {
-                $rightsrevoked=DataProvider::GetArray('System\Users','GetUserRightsRevoked',['user_id'=>NApp::GetParam(static::GetUserIdKey())],['results_keys_case'=>CASE_LOWER]);
-                NApp::SetParam('user_rights_revoked',AppHelpers::ConvertRightsRevokedArray($rightsrevoked));
+                $rightsRevoked=DataProvider::GetKeyValueArray('System\Users','GetUserRightsRevoked',['user_id'=>NApp::GetParam(static::GetUserIdKey())],['results_keys_case'=>CASE_LOWER,'keyfield'=>'uid']);
+                NApp::SetParam('user_rights_revoked',$rightsRevoked);
                 NApp::SetParam('user_rights_revoked_ts',date('Y-m-d H:i:s'));
             }//if($dt_ur_ts->add(new DateInterval('PT30M'))<(new DateTime('now')))
         } else {
