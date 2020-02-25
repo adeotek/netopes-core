@@ -109,7 +109,7 @@ class Module {
     /**
      * @var    string|null Module menu GUID
      */
-    public $menuUid=NULL;
+    public $dRightsUid=NULL;
 
     /**
      * Get class name with relative namespace
@@ -137,9 +137,9 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     protected function _BeforeExec(Params $params): bool {
-        $menuUid=$params->safeGet('_menu_uid',NULL,'?is_string');
-        if(strlen($menuUid)) {
-            $this->menuUid=$menuUid;
+        $dRightsUid=$params->safeGet('_drights_uid',NULL,'?is_string');
+        if(strlen($dRightsUid)) {
+            $this->dRightsUid=$dRightsUid;
         }
         return TRUE;
     }//END protected function _BeforeExec
@@ -167,7 +167,7 @@ class Module {
         if(strpos($name,'DRights')===FALSE) {
             throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
         }
-        $uid=get_array_value($arguments,0,$this->menuUid,'is_notempty_string');
+        $uid=get_array_value($arguments,0,$this->dRightsUid,'is_notempty_string');
         // NApp::Dlog($uid,'$uid');
         return self::GetDRights($uid,str_replace('DRights','',$name));
     }//END public function __call

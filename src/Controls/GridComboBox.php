@@ -176,7 +176,7 @@ class GridComboBox extends Control {
             }
         }//if($qsearch && $qsearch!=$selectedtext)
         $ctrl_params=[
-            'menu_uid'=>$this->menu_uid,
+            'drights_uid'=>$this->drights_uid,
             'persistent_state'=>get_array_value($this->grid_params,'persistent_state',FALSE,'bool'),
             'exportable'=>get_array_value($this->grid_params,'exportable',FALSE,'bool'),
             'target'=>$this->target,

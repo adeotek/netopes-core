@@ -57,7 +57,7 @@ use Translate;
  * @property mixed        action_params
  * @property mixed        onchange_str
  * @property mixed        data_onkeypress
- * @property mixed        menu_uid
+ * @property string|null  drights_uid
  * @property mixed|string onkeypress
  * @property mixed        data_onchange
  * @property mixed|string onchange
@@ -843,7 +843,7 @@ abstract class Control {
             }
             $caDRight=get_array_value($ca,'dright','','is_string');
             if(strlen($caDRight)) {
-                $dright=Module::GetDRights($this->menu_uid,$caDRight);
+                $dright=Module::GetDRights($this->drights_uid,$caDRight);
                 if($dright) {
                     continue;
                 }
