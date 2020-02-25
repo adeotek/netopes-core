@@ -25,16 +25,16 @@ use Translate;
  * All applications modules extend this base class
  *
  * @package  NETopes\Core\App
- * @method static ViewDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static ListDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static SearchDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static AddDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static EditDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static DeleteDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static PrintDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static ValidateDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static ExportDRights(?string $method=NULL,?string $module=NULL): ?bool
- * @method static ImportDRights(?string $method=NULL,?string $module=NULL): ?bool
+ * @method static ViewDRights(?string $uid=NULL): ?bool
+ * @method static ListDRights(?string $uid=NULL): ?bool
+ * @method static SearchDRights(?string $uid=NULL): ?bool
+ * @method static AddDRights(?string $uid=NULL): ?bool
+ * @method static EditDRights(?string $uid=NULL): ?bool
+ * @method static DeleteDRights(?string $uid=NULL): ?bool
+ * @method static PrintDRights(?string $uid=NULL): ?bool
+ * @method static ValidateDRights(?string $uid=NULL): ?bool
+ * @method static ExportDRights(?string $uid=NULL): ?bool
+ * @method static ImportDRights(?string $uid=NULL): ?bool
  */
 class Module {
     /**
@@ -106,6 +106,10 @@ class Module {
      * @var    bool Page hash (window.name)
      */
     public $phash=NULL;
+    /**
+     * @var    string|null Module menu GUID
+     */
+    public $menuUid=NULL;
 
     /**
      * Get class name with relative namespace
@@ -128,11 +132,15 @@ class Module {
     /**
      * Method to be invoked before a standard method call
      *
-     * @param \NETopes\Core\App\Params|array|null $params Parameters
-     * @return bool  Returns TRUE by default
-     *                                                    If FALSE is return the call is canceled
+     * @param \NETopes\Core\App\Params $params Parameters
+     * @return bool  Returns TRUE by default, if FALSE is return the call is canceled
+     * @throws \NETopes\Core\AppException
      */
-    protected function _BeforeExec($params=NULL) {
+    protected function _BeforeExec(Params $params): bool {
+        $menuUid=$params->safeGet('_menu_uid',NULL,'?is_string');
+        if(strlen($menuUid)) {
+            $this->menuUid=$menuUid;
+        }
         return TRUE;
     }//END protected function _BeforeExec
 
@@ -159,11 +167,9 @@ class Module {
         if(strpos($name,'DRights')===FALSE) {
             throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
         }
-        $method=get_array_value($arguments,0,call_back_trace(1),'is_notempty_string');
-        $module=get_array_value($arguments,1,$this->name,'is_notempty_string');
-        // NApp::Dlog($module,'$module');
-        // NApp::Dlog($method,'$method');
-        return self::GetDRights($module,$method,str_replace('DRights','',$name));
+        $uid=get_array_value($arguments,0,$this->menuUid,'is_notempty_string');
+        // NApp::Dlog($uid,'$uid');
+        return self::GetDRights($uid,str_replace('DRights','',$name));
     }//END public function __call
 
     /**
@@ -175,14 +181,15 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     public static function __callStatic($name,$arguments) {
+        $uid=get_array_value($arguments,0,NULL,'?is_string');
+        // NApp::Dlog($uid,'$uid');
+        if(!strlen($uid)) {
+            throw new AppException('Invalid menu UID!',E_ERROR,1);
+        }
         if(strpos($name,'DRights')===FALSE) {
             throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
         }
-        $method=get_array_value($arguments,0,call_back_trace(1),'is_notempty_string');
-        $module=get_array_value($arguments,1,get_called_class(),'is_notempty_string');
-        // NApp::Dlog($module,'$module');
-        // NApp::Dlog($method,'$method');
-        return self::GetDRights($module,$method,str_replace('DRights','',$name));
+        return self::GetDRights($uid,str_replace('DRights','',$name));
     }//END public static function __callStatic
 
     /**
@@ -257,23 +264,20 @@ class Module {
     /**
      * Gets the user rights
      *
-     * @param string $module
-     * @param string $method
-     * @param string $type
+     * @param string|null $uid
+     * @param string      $type
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDRights(?string $module,?string $method=NULL,string $type='All'): ?bool {
+    public static function GetDRights(?string $uid,string $type='All'): ?bool {
         $sAdmin=NApp::GetParam('sadmin')===1;
-        // NApp::Dlog($module,'$module');
-        // NApp::Dlog($method,'$method');
+        // NApp::Dlog($uid,'$uid');
         // NApp::Dlog($type,'$type');
         if(!strlen($type)) {
             return ($sAdmin ? FALSE : NULL);
         }
-        $module=$module==='Module' ? '' : $module;
         $rights=NApp::GetParam('user_rights_revoked');
-        $rights=get_array_value($rights,[$module ?? '',$method ?? ''],NULL,'is_array');
+        $rights=get_array_value($rights,$uid ?? '',NULL,'?is_array');
         // NApp::Dlog($rights,'$rights');
         if(is_null($rights)) {
             return ($sAdmin ? FALSE : NULL);
@@ -333,18 +337,19 @@ class Module {
         } catch(ReflectionException $re) {
             throw AppException::GetInstance($re);
         }
-        $o_before_call=is_object($beforeCall) ? $beforeCall : new Params($beforeCall);
-        if($o_before_call->count() && !$this->_BeforeExec($beforeCall)) {
+        $oParams=($params instanceof Params) ? $params : new Params($params);
+        $beforeCallParams=$beforeCall instanceof Params ? $beforeCall : new Params($beforeCall);
+        $beforeCallParams->merge($oParams->toArray());
+        if(!$this->_BeforeExec($beforeCallParams)) {
             return FALSE;
         }
-        $o_params=($params instanceof Params) ? $params : new Params($params);
         if(is_string($dynamicTargetId) && strlen(trim($dynamicTargetId))) {
             NApp::Ajax()->SetDynamicTarget($dynamicTargetId);
         }
         if($resetSessionParams) {
             $this->SetSessionParamValue(NULL,$method);
         }
-        return $this->$method($o_params);
+        return $this->$method($oParams);
     }//END public function Exec
 
     /**
