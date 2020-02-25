@@ -38,7 +38,7 @@ class BasicForm {
     /**
      * @var    string|null DRights menu GUID
      */
-    public $menu_uid=NULL;
+    public $drights_uid=NULL;
     /**
      * @var    string|null BasicForm width
      */
@@ -214,7 +214,7 @@ class BasicForm {
             }
             $forceVisible=get_array_value($action,'force_visible',FALSE,'bool');
             $actDRight=get_array_value($action,'dright',NULL,'?is_string');
-            if(($this->disabled && !$forceVisible) || (strlen($actDRight) && Module::GetDRights($this->menu_uid,$actDRight))) {
+            if(($this->disabled && !$forceVisible) || (strlen($actDRight) && Module::GetDRights($this->drights_uid,$actDRight))) {
                 continue;
             }
             $a_class=get_array_value($act_params,'class','','is_string');

@@ -73,9 +73,9 @@ class TableView extends FilterControl {
      */
     public $phash=NULL;
     /**
-     * @var    string DRights menu GUID
+     * @var    string|null DRights menu GUID
      */
-    public $menu_uid=NULL;
+    public $drights_uid=NULL;
     /**
      * @var    bool Is individual panel or integrated in other view
      */
@@ -270,13 +270,13 @@ class TableView extends FilterControl {
         parent::__construct($params);
         $this->items_default_filterable_value=FALSE;
         if($this->persistent_state) {
-            $this->sessionHash=$this->tag_id ? $this->tag_id : $this->menu_uid;
+            $this->sessionHash=$this->tag_id ? $this->tag_id : $this->drights_uid;
             if(!strlen($this->sessionHash)) {
                 $this->persistent_state=FALSE;
             }
         }//if($this->persistent_state)
         $this->tag_id=$this->tag_id ? $this->tag_id : $this->cHash;
-        if(Module::GetDRights($this->menu_uid,'export')) {
+        if(Module::GetDRights($this->drights_uid,'export')) {
             $this->exportable=FALSE;
         }
         if(!is_array($this->sortby)) {
@@ -992,7 +992,7 @@ class TableView extends FilterControl {
                     }//if(!class_exists($actType))
                     $a_dright=get_array_value($act,'dright','','is_string');
                     if(strlen($a_dright)) {
-                        $dright=Module::GetDRights($this->menu_uid,$a_dright);
+                        $dright=Module::GetDRights($this->drights_uid,$a_dright);
                         if($dright) {
                             continue;
                         }
