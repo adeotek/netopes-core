@@ -133,18 +133,30 @@ class Module {
      * @param \NETopes\Core\App\Params $params
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessDRightsUid(Params $params) {
+    protected function ProcessContext(Params $params) {
         $dRightsUid=$params->safeGet('_drights_uid',NULL,'?is_string');
-        $sessionDRightsUid=NApp::GetPageParam($this->class.'::DRIGHTS_UID');
+        $callerClass=$params->safeGet('_caller_class',NULL,'?is_string');
+        $routes=NApp::GetPageParam('ROUTES');
+        if(!is_array($routes)) {
+            $routes=[];
+        }
+        $sessionDRightsUid=get_array_value($routes,[$this->class,'drights_uid'],NULL,'?is_string');
         if(strlen($dRightsUid)) {
             $this->dRightsUid=$dRightsUid;
-            NApp::SetPageParam($this->class.'::DRIGHTS_UID',$dRightsUid);
+            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass];
+        } elseif(strlen($callerClass) && (!defined($this->class.'::DRIGHTS_UID') || !strlen(static::DRIGHTS_UID))) {
+            $dRightsUid=get_array_value($routes,[$callerClass,'drights_uid'],NULL,'?is_string');
+            $this->dRightsUid=$dRightsUid;
+            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$callerClass,'caller_class'=>$callerClass];
         } elseif(strlen($sessionDRightsUid)) {
             $this->dRightsUid=$sessionDRightsUid;
+            $routes[$this->class]=['drights_uid'=>$sessionDRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass];
         } elseif(defined($this->class.'::DRIGHTS_UID')) {
-            $this->dRightsUid=$this::DRIGHTS_UID;
+            $this->dRightsUid=static::DRIGHTS_UID;
+            $routes[$this->class]=['drights_uid'=>static::DRIGHTS_UID,'drights_class'=>$this->class,'caller_class'=>$callerClass];
         }
-    }//END protected function ProcessDRightsUid
+        NApp::SetPageParam('ROUTES',$routes);
+    }//END protected function ProcessContext
 
     /**
      * Method to be invoked before a standard method call
@@ -154,9 +166,27 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     protected function _BeforeExec(Params $params): bool {
-        $this->ProcessDRightsUid($params);
+        $this->ProcessContext($params);
         return TRUE;
     }//END protected function _BeforeExec
+
+    /**
+     * description
+     *
+     * @param string $name
+     * @param string $class
+     * @param bool   $custom
+     * @return object
+     */
+    public static function GetInstance(string $name,string $class,bool $custom=FALSE) {
+        if(!array_key_exists($class,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$class])) {
+            self::$ModuleInstances[$class]=new $class();
+            self::$ModuleInstances[$class]->name=$name;
+            self::$ModuleInstances[$class]->class=$class;
+            self::$ModuleInstances[$class]->custom=$custom;
+        }//if(!array_key_exists($name,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$name]))
+        return self::$ModuleInstances[$class];
+    }//END public static function GetInstance
 
     /**
      * Module class constructor
@@ -168,43 +198,6 @@ class Module {
         $this->viewsExtension=AppConfig::GetValue('app_views_extension');
         $this->_Init();
     }//END protected final function __construct
-
-    /**
-     * Module class method call
-     *
-     * @param string $name
-     * @param array  $arguments
-     * @return mixed
-     * @throws \NETopes\Core\AppException
-     */
-    public function __call(string $name,$arguments) {
-        if(strpos($name,'DRights')===FALSE) {
-            throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
-        }
-        $uid=get_array_value($arguments,0,$this->dRightsUid,'is_notempty_string');
-        // NApp::Dlog($uid,'$uid');
-        return self::GetDRights($uid,str_replace('DRights','',$name));
-    }//END public function __call
-
-    /**
-     * Module class static method call
-     *
-     * @param string $name
-     * @param array  $arguments
-     * @return mixed
-     * @throws \NETopes\Core\AppException
-     */
-    public static function __callStatic($name,$arguments) {
-        $uid=get_array_value($arguments,0,NULL,'?is_string');
-        // NApp::Dlog($uid,'$uid');
-        if(!strlen($uid)) {
-            throw new AppException('Invalid menu UID!',E_ERROR,1);
-        }
-        if(strpos($name,'DRights')===FALSE) {
-            throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
-        }
-        return self::GetDRights($uid,str_replace('DRights','',$name));
-    }//END public static function __callStatic
 
     /**
      * @param array|null               $redirect
@@ -255,25 +248,57 @@ class Module {
     }//END protected function ProcessRedirects
 
     /**
-     * @param \NETopes\Core\App\Params $params
-     * @return mixed|null
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function ExecAndRedirect(Params $params) {
-        $redirect=$this->ProcessRedirects($params,$cAction);
-        $module=get_array_value($cAction,'module',NULL,'is_notempty_string');
-        $method=get_array_value($cAction,'method',NULL,'is_notempty_string');
-        if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
-            NApp::Wlog($cAction,'Invalid current redirect data!');
-            return NULL;
+    public function GetDRightsUid() {
+        if(strlen($this->dRightsUid)) {
+            return $this->dRightsUid;
         }
-        $params->remove('redirects');
-        $result=$this->ExecRedirect($cAction,$params);
-        if(strlen($redirect)) {
-            $this->AddJsScript($redirect);
+        $routes=NApp::GetPageParam('ROUTES');
+        $sessionDRightsUid=get_array_value($routes,[$this->class,'drights_uid'],NULL,'?is_string');
+        if(strlen($sessionDRightsUid)) {
+            return $sessionDRightsUid;
         }
-        return $result;
-    }//END public function ExecAndRedirect
+        if(defined($this->class.'::DRIGHTS_UID')) {
+            return static::DRIGHTS_UID;
+        }
+        return NULL;
+    }//END public function GetDRightsUid
+
+    /**
+     * Module class method call
+     *
+     * @param string $name
+     * @param array  $arguments
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function __call(string $name,$arguments) {
+        if(strpos($name,'DRights')===FALSE) {
+            throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
+        }
+        $uid=get_array_value($arguments,0,$this->dRightsUid,'is_notempty_string');
+        // NApp::Dlog($uid,'$uid');
+        return self::GetDRights($uid,str_replace('DRights','',$name));
+    }//END public function __call
+
+    /**
+     * Module class static method call
+     *
+     * @param string $name
+     * @param array  $arguments
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public static function __callStatic($name,$arguments) {
+        if(strpos($name,'DRights')===FALSE) {
+            throw new AppException('Undefined module method ['.$name.']!',E_ERROR,1);
+        }
+        $uid=get_array_value($arguments,0,NULL,'?is_string');
+        // NApp::Dlog($uid,'$uid');
+        return self::GetDRights($uid,str_replace('DRights','',$name));
+    }//END public static function __callStatic
 
     /**
      * Gets the user rights
@@ -314,22 +339,25 @@ class Module {
     }//END public static function GetDRights
 
     /**
-     * description
-     *
-     * @param string $name
-     * @param string $class
-     * @param bool   $custom
-     * @return object
+     * @param \NETopes\Core\App\Params $params
+     * @return mixed|null
+     * @throws \NETopes\Core\AppException
      */
-    public static function GetInstance(string $name,string $class,bool $custom=FALSE) {
-        if(!array_key_exists($class,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$class])) {
-            self::$ModuleInstances[$class]=new $class();
-            self::$ModuleInstances[$class]->name=$name;
-            self::$ModuleInstances[$class]->class=$class;
-            self::$ModuleInstances[$class]->custom=$custom;
-        }//if(!array_key_exists($name,self::$ModuleInstances) || !is_object(self::$ModuleInstances[$name]))
-        return self::$ModuleInstances[$class];
-    }//END public static function GetInstance
+    public function ExecAndRedirect(Params $params) {
+        $redirect=$this->ProcessRedirects($params,$cAction);
+        $module=get_array_value($cAction,'module',NULL,'is_notempty_string');
+        $method=get_array_value($cAction,'method',NULL,'is_notempty_string');
+        if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
+            NApp::Wlog($cAction,'Invalid current redirect data!');
+            return NULL;
+        }
+        $params->remove('redirects');
+        $result=$this->ExecRedirect($cAction,$params);
+        if(strlen($redirect)) {
+            $this->AddJsScript($redirect);
+        }
+        return $result;
+    }//END public function ExecAndRedirect
 
     /**
      * description
@@ -339,10 +367,11 @@ class Module {
      * @param null|string                         $dynamicTargetId
      * @param bool                                $resetSessionParams
      * @param mixed                               $beforeCall
+     * @param string|null                         $callerClass
      * @return mixed return description
      * @throws \NETopes\Core\AppException
      */
-    public function Exec(string $method,$params=NULL,?string $dynamicTargetId=NULL,bool $resetSessionParams=FALSE,$beforeCall=NULL) {
+    public function Exec(string $method,$params=NULL,?string $dynamicTargetId=NULL,bool $resetSessionParams=FALSE,$beforeCall=NULL,?string $callerClass=NULL) {
         try {
             $reflection=new ReflectionMethod($this,$method);
             if(!$reflection->isPublic()) {
@@ -352,6 +381,9 @@ class Module {
             throw AppException::GetInstance($re);
         }
         $oParams=($params instanceof Params) ? $params : new Params($params);
+        if($callerClass && $this->class!==$callerClass) {
+            $oParams->set('_caller_class',$callerClass);
+        }
         $beforeCallParams=$beforeCall instanceof Params ? $beforeCall : new Params($beforeCall);
         $beforeCallParams->merge($oParams->toArray());
         if(!$this->_BeforeExec($beforeCallParams)) {

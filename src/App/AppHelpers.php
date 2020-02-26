@@ -289,6 +289,23 @@ class AppHelpers {
     }//END public static function GetDynamicJs
 
     /**
+     * @param int $startFrom
+     * @return string|null
+     */
+    public static function GetParentCallerModule(int $startFrom=1): ?string {
+        foreach(debug_backtrace() as $k=>$btItem) {
+            if($k<$startFrom) {
+                continue;
+            }
+            $class=get_array_value($btItem,'class',NULL,'is_notempty_string');
+            if(is_subclass_of($class,Module::class) && !in_array(ISystemModule::class,class_implements($class))) {
+                return '\\'.ltrim($class,'\\');
+            }
+        }//END foreach
+        return NULL;
+    }//END public static function GetParentCallerModule
+
+    /**
      * Converts the rights revoked database array to an nested array
      * (on 3 levels - module=>method=>rights_revoked)
      *
