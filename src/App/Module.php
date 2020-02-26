@@ -138,7 +138,7 @@ class Module {
         $sessionDRightsUid=NApp::GetPageParam($this->class.'::DRIGHTS_UID');
         if(strlen($dRightsUid)) {
             $this->dRightsUid=$dRightsUid;
-            NApp::SetPageParam($this->class.'::DRIGHTS_UID',$menuUid);
+            NApp::SetPageParam($this->class.'::DRIGHTS_UID',$dRightsUid);
         } elseif(strlen($sessionDRightsUid)) {
             $this->dRightsUid=$sessionDRightsUid;
         } elseif(defined($this->class.'::DRIGHTS_UID')) {
