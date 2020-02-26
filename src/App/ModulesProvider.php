@@ -30,7 +30,7 @@ class ModulesProvider {
      * @return object Returns the module instance
      * @throws \NETopes\Core\AppException
      */
-    public static function GetModule($name,$base=FALSE) {
+    public static function GetModule(string $name,bool $base=FALSE) {
         $nsPrefix=AppConfig::GetValue('app_root_namespace').'\\'.AppConfig::GetValue('app_modules_namespace_prefix');
         if(class_exists('\\'.trim($name,'\\'))) {
             $mName='\\'.trim($name,'\\');
@@ -56,6 +56,16 @@ class ModulesProvider {
         }//END try
         return $cName::GetInstance($name,$cName,$custom);
     }//END public static function GetModule
+
+    /**
+     * @param string $name
+     * @param bool   $base
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    public static function GetModuleDRightsUid(string $name,bool $base=FALSE): ?string {
+        return static::GetModule($name,$base)->GetDRightsUid();
+    }//END public static function GetModuleDRightsUid
 
     /**
      * Check if module method exists
@@ -94,7 +104,8 @@ class ModulesProvider {
         }
         try {
             $moduleInstance=self::GetModule($module);
-            return $moduleInstance->Exec($method,$params,$dynamicTargetId,$resetSessionParams,$beforeCall);
+            $callerClass=AppHelpers::GetParentCallerModule();
+            return $moduleInstance->Exec($method,$params,$dynamicTargetId,$resetSessionParams,$beforeCall,$callerClass);
         } catch(Error $er) {
             throw AppException::GetInstance($er,'php',-1);
         } catch(AppException $e) {
