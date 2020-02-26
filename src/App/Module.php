@@ -130,6 +130,23 @@ class Module {
     }//END protected function _Init
 
     /**
+     * @param \NETopes\Core\App\Params $params
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessDRightsUid(Params $params) {
+        $dRightsUid=$params->safeGet('_drights_uid',NULL,'?is_string');
+        $sessionDRightsUid=NApp::GetPageParam($this->class.'::DRIGHTS_UID');
+        if(strlen($dRightsUid)) {
+            $this->dRightsUid=$dRightsUid;
+            NApp::SetPageParam($this->class.'::DRIGHTS_UID',$menuUid);
+        } elseif(strlen($sessionDRightsUid)) {
+            $this->dRightsUid=$sessionDRightsUid;
+        } elseif(defined($this->class.'::DRIGHTS_UID')) {
+            $this->dRightsUid=$this::DRIGHTS_UID;
+        }
+    }//END protected function ProcessDRightsUid
+
+    /**
      * Method to be invoked before a standard method call
      *
      * @param \NETopes\Core\App\Params $params Parameters
@@ -137,10 +154,7 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     protected function _BeforeExec(Params $params): bool {
-        $dRightsUid=$params->safeGet('_drights_uid',NULL,'?is_string');
-        if(strlen($dRightsUid)) {
-            $this->dRightsUid=$dRightsUid;
-        }
+        $this->ProcessDRightsUid($params);
         return TRUE;
     }//END protected function _BeforeExec
 
