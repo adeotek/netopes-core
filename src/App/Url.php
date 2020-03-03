@@ -201,20 +201,31 @@ class Url {
      */
     public function GetParamElements($param) {
         $result=NULL;
-        if(strlen($param)) {
+        if(is_array($param)) {
+            foreach($param as $k=>$v) {
+                if(!strlen($k)) {
+                    continue;
+                }
+                if(!is_array($result)) {
+                    $result=[];
+                }//if(!is_array($result))
+                $result[$k]=(is_string($v) ? $v : '');
+            }//END foreach
+        } elseif(is_string($param) && strlen($param)) {
             $param_keys=strpos($param,'~')===FALSE ? $param : substr($param,0,(strpos($param,'~')));
             $param_texts=strpos($param,'~')===FALSE ? '' : substr($param,(strpos($param,'~') + 1));
             $keys=explode(',',$param_keys);
             $texts=strlen($param_texts)>0 ? explode(',',$param_texts) : NULL;
             for($i=0; $i<count($keys); $i++) {
-                if(strlen($keys[$i])>0) {
-                    if(!is_array($result)) {
-                        $result=[];
-                    }//if(!is_array($result))
-                    $result[$keys[$i]]=(is_array($texts) && array_key_exists($i,$texts)) ? $texts[$i] : '';
-                }//if(strlen($keys[$i])>0)
-            }//for($i=0; $i<count($keys); $i++)
-        }//if(strlen($param))
+                if(!strlen($keys[$i])) {
+                    continue;
+                }
+                if(!is_array($result)) {
+                    $result=[];
+                }//if(!is_array($result))
+                $result[$keys[$i]]=(is_array($texts) && array_key_exists($i,$texts)) ? $texts[$i] : '';
+            }//END for
+        }//if(is_string($param) && strlen($param))
         return $result;
     }//END public function GetParamElements
 

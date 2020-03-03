@@ -46,6 +46,10 @@ abstract class AssociationManager {
      */
     public $phash=NULL;
     /**
+     * @var    string|null Denied rights GUID
+     */
+    public $drights_uid=NULL;
+    /**
      * @var    string Control base class
      */
     protected $base_class='';

@@ -136,6 +136,7 @@ class Module {
     protected function ProcessContext(Params $params) {
         $dRightsUid=$params->safeGet('_drights_uid',NULL,'?is_string');
         $callerClass=$params->safeGet('_caller_class',NULL,'?is_string');
+        $targetId=$params->safeGet('_target_id',NULL,'?is_string');
         $routes=NApp::GetPageParam('ROUTES');
         if(!is_array($routes)) {
             $routes=[];
@@ -143,17 +144,17 @@ class Module {
         $sessionDRightsUid=get_array_value($routes,[$this->class,'drights_uid'],NULL,'?is_string');
         if(strlen($dRightsUid)) {
             $this->dRightsUid=$dRightsUid;
-            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass];
+            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass,'target_id'=>$targetId];
         } elseif(strlen($callerClass) && (!defined($this->class.'::DRIGHTS_UID') || !strlen(static::DRIGHTS_UID))) {
             $dRightsUid=get_array_value($routes,[$callerClass,'drights_uid'],NULL,'?is_string');
             $this->dRightsUid=$dRightsUid;
-            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$callerClass,'caller_class'=>$callerClass];
+            $routes[$this->class]=['drights_uid'=>$dRightsUid,'drights_class'=>$callerClass,'caller_class'=>$callerClass,'target_id'=>$targetId];
         } elseif(strlen($sessionDRightsUid)) {
             $this->dRightsUid=$sessionDRightsUid;
-            $routes[$this->class]=['drights_uid'=>$sessionDRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass];
+            $routes[$this->class]=['drights_uid'=>$sessionDRightsUid,'drights_class'=>$this->class,'caller_class'=>$callerClass,'target_id'=>$targetId];
         } elseif(defined($this->class.'::DRIGHTS_UID')) {
             $this->dRightsUid=static::DRIGHTS_UID;
-            $routes[$this->class]=['drights_uid'=>static::DRIGHTS_UID,'drights_class'=>$this->class,'caller_class'=>$callerClass];
+            $routes[$this->class]=['drights_uid'=>static::DRIGHTS_UID,'drights_class'=>$this->class,'caller_class'=>$callerClass,'target_id'=>$targetId];
         }
         NApp::SetPageParam('ROUTES',$routes);
     }//END protected function ProcessContext
