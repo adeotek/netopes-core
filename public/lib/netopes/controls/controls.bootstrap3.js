@@ -74,7 +74,7 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
     if(!callback || (typeof (callback)!='string' && typeof (callback)!='function')) { return false; }
     if(!message || typeof (message)!='string' || message.length<=0) { return false; }
     if(encrypted) { message=GibberishAES.dec(message,'HTML'); }
-    var cfg={
+    let cfg={
         targetid: '',
         title: '',
         ok: '',
@@ -85,7 +85,7 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
     if(typeof (cfg.title)!='string') { cfg.title=''; }
     if(typeof (cfg.ok)!='string' || cfg.ok.length<=0) { cfg.ok='OK'; }
     if(typeof (cfg.cancel)!='string' || cfg.cancel.length<=0) { cfg.cancel='Cancel'; }
-    var lbuttons={};
+    let lbuttons={};
     lbuttons[cfg.ok]=function() {
         $(this).dialog('close');
         if(typeof (callback)=='function') {

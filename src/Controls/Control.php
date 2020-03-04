@@ -380,7 +380,7 @@ abstract class Control {
      * @param bool   $raw
      * @return string Returns the html tag class
      */
-    protected function GetTagClass($extra=NULL,$raw=FALSE) {
+    protected function GetTagClass(?string $extra=NULL,bool $raw=FALSE) {
         $cssClass=(!$this->clear_base_class ? $this->base_class : '');
         if(strlen($this->class)) {
             $cssClass.=' '.$this->class;

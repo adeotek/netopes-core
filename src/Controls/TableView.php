@@ -270,13 +270,13 @@ class TableView extends FilterControl {
         parent::__construct($params);
         $this->items_default_filterable_value=FALSE;
         if($this->persistent_state) {
-            $this->sessionHash=$this->tag_id ? $this->tag_id : $this->drights_uid;
+            $this->sessionHash=$this->tag_id ? $this->tag_id : NULL;
             if(!strlen($this->sessionHash)) {
                 $this->persistent_state=FALSE;
             }
         }//if($this->persistent_state)
         $this->tag_id=$this->tag_id ? $this->tag_id : $this->cHash;
-        if(Module::GetDRights($this->drights_uid,'export')) {
+        if(Module::GetDRights($this->drights_uid,Module::DRIGHT_EXPORT)) {
             $this->exportable=FALSE;
         }
         if(!is_array($this->sortby)) {
