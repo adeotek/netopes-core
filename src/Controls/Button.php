@@ -39,15 +39,14 @@ class Button extends Control {
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $ltooltip='';
-        $ttclass='';
+        $tooltip='';
+        $ttClass='';
         if(strlen($this->tooltip)) {
-            $ltooltip=' title="'.$this->tooltip.'"';
-            $ttclass='clsTitleSToolTip';
+            $tooltip=' title="'.$this->tooltip.'"';
+            $ttClass='clsTitleSToolTip';
         }//if(strlen($this->tooltip))
-        $ttclass.=!strlen($this->value) ? (strlen($ttclass) ? ' ' : '').'io' : '';
-        $licon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
-        $result="\t\t".'<button'.$this->GetTagId().$this->GetTagClass($ttclass).$this->GetTagAttributes().$this->GetTagActions().$ltooltip.'>'.$licon.$this->value.'</button>'."\n";
-        return $result;
+        $ttClass.=!strlen($this->value) ? (strlen($ttClass) ? ' ' : '').'io' : '';
+        $icon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
+        return "\t\t".'<button'.$this->GetTagId().$this->GetTagClass($ttClass).$this->GetTagAttributes().$this->GetTagActions().$tooltip.'>'.$icon.$this->value.'</button>'."\n";
     }//END protected function SetControl
 }//END class Button extends Control

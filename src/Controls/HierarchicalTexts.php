@@ -16,8 +16,6 @@ use Exception;
 use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
-use NETopes\Core\Data\DataSourceHelpers;
-use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
 /**
@@ -27,22 +25,32 @@ use Translate;
  * @package  Hinter\NETopes\Controls
  */
 class HierarchicalTexts extends Control {
+    use TControlDataSource;
+
     /**
      * Text input type Textarea
      */
     const TEXT_INPUT_EDITOR_TEXTAREA='textarea';
+
     /**
      * Text input type CkEditor
      */
     const TEXT_INPUT_EDITOR_CKEDITOR='ckeditor';
+
     /**
      * @var bool
      */
     protected $postable_elements=TRUE;
+
     /**
      * @var array
      */
     public $sections=[];
+
+    /**
+     * @var array
+     */
+    public $sections_data_source=NULL;
 
     /**
      * @var mixed|null
@@ -58,6 +66,11 @@ class HierarchicalTexts extends Control {
      * @var array|string|null
      */
     public $ckeditor_extra_config=NULL;
+
+    /**
+     * @var bool
+     */
+    public $show_empty_sections=FALSE;
 
     /**
      * HierarchicalTextArea constructor.
@@ -122,6 +135,18 @@ class HierarchicalTexts extends Control {
     }//END protected function GetTagClass
 
     /**
+     * @throws \NETopes\Core\AppException
+     */
+    protected function ProcessSections() {
+        if(is_array($this->sections_data_source) && count($this->sections_data_source)) {
+            $this->sections=$this->LoadData($this->sections_data_source);
+        }
+        if(!is_array($this->sections) || !count($this->sections)) {
+            throw new AppException('Invalid HierarchicalTexts sections array!');
+        }
+    }//END protected function ProcessSections
+
+    /**
      * @param mixed $value
      * @return array
      */
@@ -148,8 +173,7 @@ class HierarchicalTexts extends Control {
         $result='';
         foreach($data as $i=>$item) {
             $result.="\t\t\t\t".'<li class="hItem" data-id="'.$id.'">'."\n";
-            // $result.="\t\t\t\t\t".'<input type="hidden" class="postable"
-            $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][]">'.$item['text'].'</div>'."\n";
+            $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][][text]">'.$item['text'].'</div>'."\n";
             $result.="\t\t\t\t\t".'<div class="hItemEditActions">'."\n";
             $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('btn-xxs io hTextsEditButton').'"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>'."\n";
             $result.="\t\t\t\t\t".'</div>'."\n";
@@ -162,31 +186,55 @@ class HierarchicalTexts extends Control {
     }//END protected function RenderData
 
     /**
-     * @param array $items
+     * @param array $sections
+     * @param array $data
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    protected function RenderSections(array $items): ?string {
+    protected function RenderSections(array $sections,array $data): ?string {
+        $sectionsData='';
+        foreach($sections as $item) {
+            $id=get_array_value($item,'id',NULL,'is_integer');
+            if(!$id) {
+                continue;
+            }
+            $required=get_array_value($item,'required',0,'is_integer');
+            $itemData=[];
+            foreach($data as $v) {
+                $vData=get_array_value($v,'data',[],'is_array');
+                if(get_array_value($v,'id',NULL,'is_integer')===$id && count($vData)) {
+                    $itemData=$vData;
+                    break;
+                }
+            }//END foreach
+            if(!$this->show_empty_sections && !$required && !count($itemData)) {
+                continue;
+            }//if(!$this->display_empty_sections && !$required && !count($itemData))
+            $name=get_array_value($item,'name',NULL,'is_string');
+            $code=get_array_value($item,'code',NULL,'is_string');
+            $sectionsData.="\t\t\t\t".'<li class="hItemSection" data-id="'.$id.'" data-required="'.$required.'">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][id]" value="'.$id.'">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][code]" value="'.$code.'">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][name]" value="'.$name.'">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][required]" value="'.$required.'">'."\n";
+            if($required) {
+                $sectionsData.="\t\t\t\t\t".'<span class="hItemTitle clsRequiredField">'.$name.'<span class="clsMarkerRequired"></span></span>'."\n";
+            } else {
+                $sectionsData.="\t\t\t\t\t".'<span class="hItemTitle">'.$name.'</span>'."\n";
+            }
+            $sectionsData.="\t\t\t\t\t".'<ul class="hTexts sortable">'."\n";
+            $sectionsData.=$this->RenderData($itemData,$id);
+            $sectionsData.="\t\t\t\t\t".'</ul>'."\n";
+            $sectionsData.="\t\t\t\t".'</li>'."\n";
+        }//END foreach
         $result="\t\t\t".'<ul class="hSections">'."\n";
-        if(!count($items)) {
+        if(!strlen($sectionsData)) {
             $result.="\t\t\t\t".'<li class="hItemSection empty">'."\n";
             $result.="\t\t\t\t\t\t".'<span class="hItemText">'.Translate::GetLabel('no_data_available').'</span>'."\n";
             $result.="\t\t\t\t".'</li>'."\n";
         } else {
-            foreach($items as $item) {
-                $result.="\t\t\t\t".'<li class="hItemSection" data-id="'.$item['id'].'">'."\n";
-                $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$item['id'].'][id]" value="'.$item['id'].'">'."\n";
-                $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$item['id'].'][code]" value="'.get_array_value($item,'code','','is_string').'">'."\n";
-                $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$item['id'].'][name]" value="'.$item['name'].'">'."\n";
-                $result.="\t\t\t\t\t".'<span class="hItemTitle">'.$item['name'].'</span>'."\n";
-                $result.="\t\t\t\t\t".'<ul class="hTexts sortable">'."\n";
-                if(isset($item['data']) && is_array($item['data'])) {
-                    $result.=$this->RenderData($item['data'],$item['id']);
-                }
-                $result.="\t\t\t\t\t".'</ul>'."\n";
-                $result.="\t\t\t\t".'</li>'."\n";
-            }//END foreach
-        }//if(!count($items))
+            $result.=$sectionsData;
+        }//if(!strlen($sectionsData))
         $result.="\t\t\t".'</ul>'."\n";
         return $result;
     }//END protected function RenderSections
@@ -224,10 +272,12 @@ class HierarchicalTexts extends Control {
                 'class'=>NApp::$theme->GetBtnSpecialDarkClass('hTextsActionButton'),
                 'value'=>get_array_value($item,'name',NULL,'is_string'),
                 'style'=>(strlen($color) ? 'color: '.$color.';' : ''),
-                'extra_tag_params'=>'data-id="'.$item['id'].'" data-code="'.get_array_value($item,'code','','is_string').'"',
+                'extra_tag_params'=>'data-id="'.$item['id'].'" data-required="'.get_array_value($item,'required',0,'is_integer').'" data-code="'.get_array_value($item,'code','','is_string').'"',
             ]);
             $result.=$btn->Show();
         }//END foreach
+        $result.=$this->ProcessCustomActions('control_');
+        $this->custom_actions=NULL;
         return $result;
     }//END protected function GetActions
 
@@ -236,13 +286,11 @@ class HierarchicalTexts extends Control {
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        if(!is_array($this->sections) || !count($this->sections)) {
-            throw new AppException('Invalid HierarchicalTexts sections array!');
-        }
+        $this->ProcessSections();
         $result='<div'.$this->GetTagId(FALSE).$this->GetTagClass().$this->GetTagAttributes().'>'."\n";
         $result.="\t".'<div class="row hTextsData">'."\n";
         $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
-        $result.=$this->RenderSections($this->ProcessItems($this->value));
+        $result.=$this->RenderSections($this->sections,$this->ProcessItems($this->value));
         $result.="\t\t".'</div>'."\n";
         $result.="\t".'</div>'."\n";
         $result.="\t".'<div class="row hTextsInput">'."\n";
@@ -284,13 +332,16 @@ class HierarchicalTexts extends Control {
             tagId: '{$this->tag_id}',
             tagName: '{$this->tag_name}',
             textEditorType: '{$this->text_input_type}',
+            showEmptySections: ".($this->show_empty_sections ? 'true' : 'false').",
             fieldErrorClass: 'clsFieldError',
             editButtonClass: '".NApp::$theme->GetBtnPrimaryClass('btn-xxs io')."',
             deleteButtonClass: '".NApp::$theme->GetBtnDangerClass('btn-xxs io')."',
             deleteConfirmText: '".Translate::GetMessage('confirm_delete')."',
             deleteConfirmTitle: '".Translate::Get('title_confirm')."',
             deleteConfirmOkLabel: '".Translate::Get('button_ok')."',
-            deleteConfirmCancelLabel: '".Translate::Get('button_cancel')."'
+            deleteConfirmCancelLabel: '".Translate::Get('button_cancel')."',
+            requiredSectionClass: 'clsRequiredField',
+            requiredSectionMarker: '<span class=\"clsMarkerRequired\"></span>'
         });";
         NApp::AddJsScript($jsScript);
 

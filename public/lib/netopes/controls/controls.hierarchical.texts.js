@@ -3,19 +3,23 @@
 
     $.fn.NetopesHierarchicalTexts=function(options) {
         // Plugin default options.
-        let config={
+        let defaults={
             tagId: null,
             tagName: null,
             textEditorType: 'textarea', // Options: 'textarea' (default) | 'ckeditor'
+            showEmptySections: false,
             fieldErrorClass: '',
             editButtonClass: 'btn btn-primary',
             deleteButtonClass: 'btn btn-danger',
             deleteConfirmText: 'Are you sure you want to delete item?',
             deleteConfirmTitle: 'Action confirm',
             deleteConfirmOkLabel: 'OK',
-            deleteConfirmCancelLabel: 'Cancel'
+            deleteConfirmCancelLabel: 'Cancel',
+            requiredSectionClass: '',
+            requiredSectionMarker: ''
         };
-        if(typeof options==='object') { $.extend(config,options); }
+
+        let configKey='_NetopesHierarchicalTextsConfig';
 
         let sanitizeString=function(str) {
             return str.replace(/(?:\r\n|\r|\n)/g,'<br>');
@@ -26,6 +30,7 @@
         };
 
         let getTextInputValue=function(obj) {
+            let config=$(obj).data(configKey);
             if(config.textEditorType==='ckeditor') {
                 return GetCkEditorData(config.tagId + '_hValue');
             } else {
@@ -34,6 +39,7 @@
         };
 
         let setTextInputValue=function(obj,value) {
+            let config=$(obj).data(configKey);
             if(config.textEditorType==='ckeditor') {
                 SetCkEditorData(config.tagId + '_hValue',value);
             } else {
@@ -41,22 +47,30 @@
             }
         };
 
-        let getNewSectionElement=function(obj,id,name,code) {
+        let getNewSectionElement=function(obj,id,name,code,required) {
+            let config=$(obj).data(configKey);
             $(obj).find('.hTextsData ul.hSections li.hItemSection.empty').remove();
-            let section=$('<li class="hItemSection" data-id="' + id + '">' +
-                '<span class="hItemTitle">' + name + '</span>' +
-                '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][id]" value="' + id + '">' +
+            let sectionHtml='<li class="hItemSection" data-id="' + id + '" data-required="' + required + '">';
+            if(required==='1') {
+                sectionHtml+='<span class="hItemTitle ' + config.requiredSectionClass + '">' + name + config.requiredSectionMarker + '</span>';
+            } else {
+                sectionHtml+='<span class="hItemTitle">' + name + '</span>';
+            }
+            sectionHtml+='<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][id]" value="' + id + '">' +
                 '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][name]" value="' + name + '">' +
                 '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][code]" value="' + code + '">' +
+                '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][required]" value="' + required + '">' +
                 '<ul class="hTexts sortable"></ul>' +
-                '</li>');
+                '</li>';
+            let section=$(sectionHtml);
             $(obj).find('.hTextsData ul.hSections').append(section);
             return section;
         };
 
         let getNewTextElement=function(obj,id,text) {
+            let config=$(obj).data(configKey);
             let element=$('<li class="hItem" data-id="' + id + '">' +
-                '<div class="hItemData postable" name="' + config.tagName + '[' + id + '][data][]">' + text + '</div>' +
+                '<div class="hItemData postable" name="' + config.tagName + '[' + id + '][data][][text]">' + text + '</div>' +
                 '<div class="hItemEditActions"></div>' +
                 '<div class="hItemDeleteActions"></div>' +
                 '</li>');
@@ -66,6 +80,7 @@
         };
 
         let editTextItem=function(obj,actObj) {
+            let config=$(obj).data(configKey);
             let textElement=$(actObj).parents('li.hItem');
             let textValue=$(textElement).find('.hItemData').first().html();
             $(obj).find('.hTextsInput #' + config.tagId + '_hId').first().val($(textElement).data('id') + '|' + $(textElement).index());
@@ -74,23 +89,26 @@
         };
 
         let deleteTextItem=function(obj,actObj) {
+            let config=$(obj).data(configKey);
             ShowConfirmDialog(config.deleteConfirmText,function() {
                 let section=$(actObj).parents('li.hItemSection');
                 $(actObj).parents('li.hItem').remove();
                 // Remove section if empty
-                if($(section).find('ul.hTexts > li.hItem').length===0) {
+                if($(section).find('ul.hTexts > li.hItem').length===0 && !config.showEmptySections && $(section).data('required')!=='1') {
                     $(section).remove();
                 }
             },false,{title: config.deleteConfirmTitle,ok: config.deleteConfirmOkLabel,cancel: config.deleteConfirmCancelLabel});
         };
 
         let cancelEditTextItem=function(obj,actObj) {
+            let config=$(obj).data(configKey);
             $(obj).find('.hTextsInput #' + config.tagId + '_hId').first().val('');
             setTextInputValue(obj,'');
             $(actObj).parents('.hTextsEditActions').hide();
         };
 
         let saveTextItem=function(obj,actObj) {
+            let config=$(obj).data(configKey);
             let textValue=getTextInputValue(obj);
             $(obj).find('.hTextsInput #' + config.tagId + '_hValue').removeClass(config.fieldErrorClass);
             if(textValue.trim()==='') {
@@ -117,18 +135,29 @@
                 if(section.length===0) {
                     let targetName=$(actObj).text();
                     let targetCode=$(actObj).data('code') || '';
-                    section=getNewSectionElement(obj,targetId,targetName,targetCode);
+                    section=getNewSectionElement(obj,targetId,targetName,targetCode,$(actObj).data('required'));
                 }
                 section.find('ul.hTexts').append(getNewTextElement(obj,targetId,textValue));
             }
             $(obj).find('.hTextsInput #' + config.tagId + '_hId').val('');
             setTextInputValue(obj,'');
             $(actObj).parents('.hTextsEditActions').hide();
+            $(obj).find('.hTextsActions .hTextsActionButton').prop('disabled',false);
         };
 
-        let methods={};
+        let methods={
+            setValueForSection: function(obj,text,sectionId) {
+                setTextInputValue(obj,text);
+                $(obj).find('.hTextsActions .hTextsActionButton').each(function() {
+                    if($(this).data('id')!==sectionId) {
+                        $(this).prop('disabled','disabled');
+                    }
+                });
+            }
+        };
 
-        function init(obj) {
+        function init(obj,options) {
+            $(obj).data(configKey,options);
             $(obj).find('.hTextsActions .hTextsActionButton').on('click',function() { saveTextItem(obj,this); });
             $(obj).find('.hTextsData button.hTextsEditButton').on('click',function() { editTextItem(obj,this); });
             $(obj).find('.hTextsData button.hTextsDeleteButton').on('click',function() { deleteTextItem(obj,this); });
@@ -145,8 +174,9 @@
                 console.log('Invalid or inaccessible method: [' + options + ']!');
             }
         } else {
+            let config=(typeof options==='object' ? $.extend(defaults,options) : defaults);
             // Return jQuery object to maintain chainabillity.
-            return this.each(function() { init(this); });
+            return this.each(function() { init(this,config); });
         }
     };//END $.fn.NetopesHierarchicalTexts
 })(jQuery);

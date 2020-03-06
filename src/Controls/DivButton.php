@@ -15,6 +15,9 @@ namespace NETopes\Core\Controls;
  * ClassName description
  * long_description
  *
+ * @property mixed       tooltip
+ * @property mixed       value
+ * @property string|null icon
  * @package  NETopes\Controls
  */
 class DivButton extends Control {
@@ -22,6 +25,7 @@ class DivButton extends Control {
      * DivButton constructor.
      *
      * @param null $params
+     * @throws \NETopes\Core\AppException
      */
     public function __construct($params=NULL) {
         $this->postable=FALSE;
@@ -32,17 +36,17 @@ class DivButton extends Control {
 
     /**
      * @return string
+     * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $ltooltip='';
-        $ttclass='';
+        $tooltip='';
+        $ttClass='';
         if(strlen($this->tooltip)) {
-            $ltooltip=' title="'.$this->tooltip.'"';
-            $ttclass='clsTitleSToolTip';
+            $tooltip=' title="'.$this->tooltip.'"';
+            $ttClass='clsTitleSToolTip';
         }//if(strlen($this->tooltip))
-        $ttclass.=!strlen($this->value) ? (strlen($ttclass) ? ' ' : '').'io' : '';
-        $licon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
-        $result="\t\t".'<div'.$this->GetTagId().$this->GetTagClass($ttclass).$this->GetTagAttributes().$this->GetTagActions().$ltooltip.'>'.$licon.$this->value.'</div>'."\n";
-        return $result;
+        $ttClass.=!strlen($this->value) ? (strlen($ttClass) ? ' ' : '').'io' : '';
+        $icon=is_string($this->icon) && strlen($this->icon) ? '<i class="'.$this->icon.'" aria-hidden="true"></i>' : '';
+        return "\t\t".'<div'.$this->GetTagId().$this->GetTagClass($ttClass).$this->GetTagAttributes().$this->GetTagActions().$tooltip.'>'.$icon.$this->value.'</div>'."\n";
     }//END protected function SetControl
 }//END class DivButton extends Control
