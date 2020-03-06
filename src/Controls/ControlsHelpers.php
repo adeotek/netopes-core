@@ -150,8 +150,8 @@ class ControlsHelpers {
     /**
      * Check row conditions
      *
-     * @param object $row        Data row object
-     * @param array  $conditions The conditions array
+     * @param IEntity $row        Data row object
+     * @param array   $conditions The conditions array
      * @return bool Returns TRUE when all conditions are verified or FALSE otherwise
      * @throws \NETopes\Core\AppException
      */

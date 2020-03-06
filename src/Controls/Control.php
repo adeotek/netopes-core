@@ -628,8 +628,8 @@ abstract class Control {
         // OnKeyPress
         $onKeyPress=get_array_value($lActions,'onkeypress',NULL,'is_string');
         $lActions['onkeypress']=$this->GetOnKeyPressAction($onKeyPress);
-        $actionsString=implode(' ',$lActions).(strlen($extra) ? ' '.$extra : '');
-        return $actionsString;
+        $actions=trim(implode(' ',$lActions).(strlen($extra) ? ' '.$extra : ''));
+        return (strlen($actions) ? ' '.$actions : '');
     }//END protected function GetTagActions
 
     /**
@@ -820,10 +820,11 @@ abstract class Control {
     /**
      * Convert Ncol width to standard
      *
+     * @param string|null $paramsPrefix
      * @return string Custom actions HTML string
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessCustomActions() {
+    protected function ProcessCustomActions(?string $paramsPrefix=NULL) {
         // NApp::Dlog($this->custom_actions,'$this->custom_actions');
         if(!is_array($this->custom_actions) || !count($this->custom_actions)) {
             return NULL;
@@ -833,10 +834,10 @@ abstract class Control {
             if(!is_array($ca) || !count($ca)) {
                 continue;
             }
-            $caParams=get_array_value($ca,'params',[],'is_array');
+            $caParams=get_array_value($ca,$paramsPrefix.'params',[],'is_array');
             $caParams['theme_type']=$this->theme_type;
             $caParams['size']=$this->size;
-            $caType=get_array_value($ca,'type','DivButton','is_notempty_string');
+            $caType=get_array_value($ca,$paramsPrefix.'type','DivButton','is_notempty_string');
             $caClass='\NETopes\Core\Controls\\'.$caType;
             if(!class_exists($caClass)) {
                 continue;
@@ -882,8 +883,7 @@ abstract class Control {
         $containerClass='NETopes\Core\Controls\Container'.ucfirst($this->theme_type);
         /** @var \NETopes\Core\Controls\IControlContainer $ctrlContainer */
         $ctrlContainer=new $containerClass($this);
-        $result=$ctrlContainer->GetHtml($tag,$cActions);
-        return $result;
+        return $ctrlContainer->GetHtml($tag,$cActions);
     }//END protected function SetContainer
 
     /**
