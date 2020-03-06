@@ -270,7 +270,7 @@ class TableView extends FilterControl {
         parent::__construct($params);
         $this->items_default_filterable_value=FALSE;
         if($this->persistent_state) {
-            $this->sessionHash=$this->tag_id ? $this->tag_id : NULL;
+            $this->sessionHash=$this->tag_id ? $this->tag_id : (strlen($this->target) ? $this->target.'_tview' : NULL);
             if(!strlen($this->sessionHash)) {
                 $this->persistent_state=FALSE;
             }
