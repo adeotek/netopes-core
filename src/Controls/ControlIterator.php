@@ -51,6 +51,10 @@ class ControlIterator extends Control {
      * @var    array Iterator conditions (if TRUE control is shown, else not)
      */
     public $conditions=[];
+    /**
+     * @var    bool Flag indicating if items are loaded or not
+     */
+    protected $itemsLoaded=FALSE;
 
     /**
      * ControlIterator constructor.
@@ -80,7 +84,10 @@ class ControlIterator extends Control {
      * @return array|mixed|\NETopes\Core\Data\DataSet|null
      * @throws \NETopes\Core\AppException
      */
-    protected function GetItems() {
+    protected function LoadItems() {
+        if($this->itemsLoaded) {
+            return $this->items;
+        }
         $items=NULL;
         switch(strtolower($this->iterator_type)) {
             case 'module':
@@ -98,14 +105,14 @@ class ControlIterator extends Control {
             return $this->items;
         }
         return DataSourceHelpers::ConvertArrayToDataSet($items,VirtualEntity::class);
-    }//END protected function GetItems
+    }//END protected function LoadItems
 
     /**
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
     protected function SetControl(): ?string {
-        $this->items=$this->GetItems();
+        $this->items=$this->LoadItems();
         switch($this->theme_type) {
             case 'bootstrap2':
             case 'bootstrap3':
@@ -164,4 +171,21 @@ class ControlIterator extends Control {
         }//END switch
         return $result;
     }//END protected function SetControl
+
+    /**
+     * @return array|mixed|\NETopes\Core\Data\DataSet|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetItems() {
+        return $this->LoadItems();
+    }//END public function GetItems
+
+    /**
+     * @return int
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetItemsCount(): int {
+        $items=$this->LoadItems();
+        return is_countable($items) ? count($items) : 0;
+    }//END public function GetItemsCount
 }//END class ControlIterator extends Control
