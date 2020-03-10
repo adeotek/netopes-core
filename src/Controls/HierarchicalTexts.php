@@ -73,6 +73,16 @@ class HierarchicalTexts extends Control {
     public $show_empty_sections=FALSE;
 
     /**
+     * @var bool
+     */
+    public $sortable_sections=FALSE;
+
+    /**
+     * @var bool
+     */
+    public $sortable_texts=FALSE;
+
+    /**
      * HierarchicalTextArea constructor.
      *
      * @param null $params
@@ -139,7 +149,7 @@ class HierarchicalTexts extends Control {
      */
     protected function ProcessSections() {
         if(is_array($this->sections_data_source) && count($this->sections_data_source)) {
-            $this->sections=$this->LoadData($this->sections_data_source);
+            $this->sections=$this->LoadData($this->sections_data_source,FALSE,TRUE);
         }
         if(!is_array($this->sections) || !count($this->sections)) {
             throw new AppException('Invalid HierarchicalTexts sections array!');
@@ -171,15 +181,18 @@ class HierarchicalTexts extends Control {
      */
     protected function RenderData(array $data,$id): ?string {
         $result='';
+        $buttonsAttributes=$this->disabled_on_render ? ' disabled="disabled"' : '';
         foreach($data as $i=>$item) {
-            $result.="\t\t\t\t".'<li class="hItem" data-id="'.$id.'">'."\n";
+            $result.="\t\t\t\t".'<li class="hItem'.($this->sortable_texts ? ' sortable' : '').'" data-id="'.$id.'">'."\n";
             $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][][text]">'.$item['text'].'</div>'."\n";
-            $result.="\t\t\t\t\t".'<div class="hItemEditActions">'."\n";
-            $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('btn-xxs io hTextsEditButton').'"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>'."\n";
-            $result.="\t\t\t\t\t".'</div>'."\n";
-            $result.="\t\t\t\t\t".'<div class="hItemDeleteActions">'."\n";
-            $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDangerClass('btn-xxs io hTextsDeleteButton').'"><i class="fa fa-trash" aria-hidden="true"></i></button>'."\n";
-            $result.="\t\t\t\t\t".'</div>'."\n";
+            if(!$this->disabled) {
+                $result.="\t\t\t\t\t".'<div class="hItemEditActions">'."\n";
+                $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('btn-xxs io hTextsEditButton').'"'.$buttonsAttributes.'><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>'."\n";
+                $result.="\t\t\t\t\t".'</div>'."\n";
+                $result.="\t\t\t\t\t".'<div class="hItemDeleteActions">'."\n";
+                $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDangerClass('btn-xxs io hTextsDeleteButton').'"'.$buttonsAttributes.'><i class="fa fa-trash" aria-hidden="true"></i></button>'."\n";
+                $result.="\t\t\t\t\t".'</div>'."\n";
+            }//if(!$this->disabled)
             $result.="\t\t\t\t".'</li>'."\n";
         }//END foreach
         return $result;
@@ -212,17 +225,19 @@ class HierarchicalTexts extends Control {
             }//if(!$this->display_empty_sections && !$required && !count($itemData))
             $name=get_array_value($item,'name',NULL,'is_string');
             $code=get_array_value($item,'code',NULL,'is_string');
-            $sectionsData.="\t\t\t\t".'<li class="hItemSection" data-id="'.$id.'" data-required="'.$required.'">'."\n";
+            $position=get_array_value($item,'position',NULL,'is_integer');
+            $sectionsData.="\t\t\t\t".'<li class="hItemSection'.($this->sortable_sections ? ' sortable' : '').'" data-id="'.$id.'" data-required="'.$required.'" data-position="'.$position.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][id]" value="'.$id.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][code]" value="'.$code.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][name]" value="'.$name.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][required]" value="'.$required.'">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][position]" value="'.$position.'">'."\n";
             if($required) {
                 $sectionsData.="\t\t\t\t\t".'<span class="hItemTitle clsRequiredField">'.$name.'<span class="clsMarkerRequired"></span></span>'."\n";
             } else {
                 $sectionsData.="\t\t\t\t\t".'<span class="hItemTitle">'.$name.'</span>'."\n";
             }
-            $sectionsData.="\t\t\t\t\t".'<ul class="hTexts sortable">'."\n";
+            $sectionsData.="\t\t\t\t\t".'<ul class="hTexts">'."\n";
             $sectionsData.=$this->RenderData($itemData,$id);
             $sectionsData.="\t\t\t\t\t".'</ul>'."\n";
             $sectionsData.="\t\t\t\t".'</li>'."\n";
@@ -272,7 +287,8 @@ class HierarchicalTexts extends Control {
                 'class'=>NApp::$theme->GetBtnSpecialDarkClass('hTextsActionButton'),
                 'value'=>get_array_value($item,'name',NULL,'is_string'),
                 'style'=>(strlen($color) ? 'color: '.$color.';' : ''),
-                'extra_tag_params'=>'data-id="'.$item['id'].'" data-required="'.get_array_value($item,'required',0,'is_integer').'" data-code="'.get_array_value($item,'code','','is_string').'"',
+                'extra_tag_params'=>'data-id="'.$item['id'].'" data-required="'.get_array_value($item,'required',0,'is_integer').'" data-code="'.get_array_value($item,'code','','is_string').'" data-position="'.get_array_value($item,'position','','is_integer').'"',
+                'disabled'=>$this->disabled_on_render,
             ]);
             $result.=$btn->Show();
         }//END foreach
@@ -287,64 +303,73 @@ class HierarchicalTexts extends Control {
      */
     protected function SetControl(): ?string {
         $this->ProcessSections();
-        $result='<div'.$this->GetTagId(FALSE).$this->GetTagClass().$this->GetTagAttributes().'>'."\n";
+        $tagAttributes=(bool)$this->disabled_on_render ? ' data-disabled="disabled"' : '';
+        if(strlen($this->extra_tag_params)) {
+            $tagAttributes.=(strlen($tagAttributes) ? ' ' : '').$this->extra_tag_params;
+        }
+        $result='<div'.$this->GetTagId(FALSE).$this->GetTagClass().$tagAttributes.'>'."\n";
         $result.="\t".'<div class="row hTextsData">'."\n";
         $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
         $result.=$this->RenderSections($this->sections,$this->ProcessItems($this->value));
         $result.="\t\t".'</div>'."\n";
         $result.="\t".'</div>'."\n";
-        $result.="\t".'<div class="row hTextsInput">'."\n";
-        $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
-        $style=strlen($this->text_input_height) && $this->text_input_type!==self::TEXT_INPUT_EDITOR_CKEDITOR ? 'style="'.$this->text_input_height.'"' : '';
-        $result.="\t\t\t".'<textarea id="'.$this->tag_id.'_hValue" '.$this->GetElementClass().$style.'></textarea>'."\n";
-        $result.="\t\t\t".'<input type="hidden" id="'.$this->tag_id.'_hId" value="">'."\n";
-        $result.="\t\t".'</div>'."\n";
-        $result.="\t".'</div>'."\n";
-        $result.="\t".'<div class="row hTextsEditActions">'."\n";
-        $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
-        $result.=$this->GetEditActions();
-        $result.="\t\t".'</div>'."\n";
-        $result.="\t".'</div>'."\n";
-        $result.="\t".'<div class="row hTextsActions">'."\n";
-        $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
-        $result.=$this->GetSectionsActions($this->sections);
-        $result.="\t\t".'</div>'."\n";
-        $result.="\t".'</div>'."\n";
+
+        if(!$this->disabled) {
+            $textInputDisabled=(bool)$this->disabled_on_render ? ' disabled="disabled"' : '';
+            $result.="\t".'<div class="row hTextsInput">'."\n";
+            $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
+            $style=strlen($this->text_input_height) && $this->text_input_type!==self::TEXT_INPUT_EDITOR_CKEDITOR ? 'style="'.$this->text_input_height.'"' : '';
+            $result.="\t\t\t".'<textarea id="'.$this->tag_id.'_hValue" '.$this->GetElementClass().$style.$textInputDisabled.'></textarea>'."\n";
+            $result.="\t\t\t".'<input type="hidden" id="'.$this->tag_id.'_hId" value="">'."\n";
+            $result.="\t\t".'</div>'."\n";
+            $result.="\t".'</div>'."\n";
+            $result.="\t".'<div class="row hTextsEditActions">'."\n";
+            $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
+            $result.=$this->GetEditActions();
+            $result.="\t\t".'</div>'."\n";
+            $result.="\t".'</div>'."\n";
+            $result.="\t".'<div class="row hTextsActions">'."\n";
+            $result.="\t\t".'<div class="col-md-12 hContainer">'."\n";
+            $result.=$this->GetSectionsActions($this->sections);
+            $result.="\t\t".'</div>'."\n";
+            $result.="\t".'</div>'."\n";
+
+            if($this->text_input_type===self::TEXT_INPUT_EDITOR_CKEDITOR) {
+                $height=$this->text_input_height ? (is_numeric($this->text_input_height) ? ',undefined,'.$this->text_input_height : ",undefined,'".$this->text_input_height."'") : '';
+                $extraConfig='undefined';
+                if(is_array($this->ckeditor_extra_config)) {
+                    try {
+                        $extraConfig=json_encode($this->ckeditor_extra_config);
+                    } catch(Exception $je) {
+                        NApp::Elog($je);
+                        $extraConfig='undefined';
+                    }//END try
+                } elseif(is_string($this->ckeditor_extra_config) && strlen($this->ckeditor_extra_config)) {
+                    $extraConfig='{'.trim($this->ckeditor_extra_config,'}{').'}';
+                }//if(is_array($this->extra_config))
+                NApp::AddJsScript("CreateCkEditor('{$this->phash}','{$this->tag_id}_hValue',false,".$extraConfig.$height.");");
+            }//if($this->text_input_type===self::TEXT_INPUT_EDITOR_CKEDITOR)
+
+            $jsScript="$('#{$this->tag_id}').NetopesHierarchicalTexts({
+                tagId: '{$this->tag_id}',
+                tagName: '{$this->tag_name}',
+                textEditorType: '{$this->text_input_type}',
+                showEmptySections: ".($this->show_empty_sections ? 'true' : 'false').",
+                sortableSections: ".($this->sortable_sections ? 'true' : 'false').",
+                sortableTexts: ".($this->sortable_texts ? 'true' : 'false').",
+                fieldErrorClass: 'clsFieldError',
+                editButtonClass: '".NApp::$theme->GetBtnPrimaryClass('btn-xxs io')."',
+                deleteButtonClass: '".NApp::$theme->GetBtnDangerClass('btn-xxs io')."',
+                deleteConfirmText: '".Translate::GetMessage('confirm_delete')."',
+                deleteConfirmTitle: '".Translate::Get('title_confirm')."',
+                deleteConfirmOkLabel: '".Translate::Get('button_ok')."',
+                deleteConfirmCancelLabel: '".Translate::Get('button_cancel')."',
+                requiredSectionClass: 'clsRequiredField',
+                requiredSectionMarker: '<span class=\"clsMarkerRequired\"></span>'
+            });";
+            NApp::AddJsScript($jsScript);
+        }
         $result.='</div>'."\n";
-
-        if($this->text_input_type===self::TEXT_INPUT_EDITOR_CKEDITOR) {
-            $height=$this->text_input_height ? (is_numeric($this->text_input_height) ? ',undefined,'.$this->text_input_height : ",undefined,'".$this->text_input_height."'") : '';
-            $extraConfig='undefined';
-            if(is_array($this->ckeditor_extra_config)) {
-                try {
-                    $extraConfig=json_encode($this->ckeditor_extra_config);
-                } catch(Exception $je) {
-                    NApp::Elog($je);
-                    $extraConfig='undefined';
-                }//END try
-            } elseif(is_string($this->ckeditor_extra_config) && strlen($this->ckeditor_extra_config)) {
-                $extraConfig='{'.trim($this->ckeditor_extra_config,'}{').'}';
-            }//if(is_array($this->extra_config))
-            NApp::AddJsScript("CreateCkEditor('{$this->phash}','{$this->tag_id}_hValue',false,".$extraConfig.$height.");");
-        }//if($this->text_input_type===self::TEXT_INPUT_EDITOR_CKEDITOR)
-
-        $jsScript="$('#{$this->tag_id}').NetopesHierarchicalTexts({
-            tagId: '{$this->tag_id}',
-            tagName: '{$this->tag_name}',
-            textEditorType: '{$this->text_input_type}',
-            showEmptySections: ".($this->show_empty_sections ? 'true' : 'false').",
-            fieldErrorClass: 'clsFieldError',
-            editButtonClass: '".NApp::$theme->GetBtnPrimaryClass('btn-xxs io')."',
-            deleteButtonClass: '".NApp::$theme->GetBtnDangerClass('btn-xxs io')."',
-            deleteConfirmText: '".Translate::GetMessage('confirm_delete')."',
-            deleteConfirmTitle: '".Translate::Get('title_confirm')."',
-            deleteConfirmOkLabel: '".Translate::Get('button_ok')."',
-            deleteConfirmCancelLabel: '".Translate::Get('button_cancel')."',
-            requiredSectionClass: 'clsRequiredField',
-            requiredSectionMarker: '<span class=\"clsMarkerRequired\"></span>'
-        });";
-        NApp::AddJsScript($jsScript);
-
         return $result;
     }//END protected function SetControl
 }//END class HierarchicalTexts.php extends Control
