@@ -92,13 +92,14 @@
 }
 
 .clsHierarchicalTexts .hTextsActions .hContainer {
-	margin: 15px 0 10px 0;
+	margin: 5px 0 10px 0;
 }
 
 .clsHierarchicalTexts .hTextsActions .hTextsActionButton {
 	padding-left: 15px;
 	padding-right: 15px;
 	margin-right: 15px;
+	margin-top: 10px;
 }
 
 .clsHierarchicalTexts .hTextsData ul.hSections > .ui-state-highlight {

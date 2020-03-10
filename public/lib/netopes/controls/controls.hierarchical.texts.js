@@ -96,7 +96,7 @@
 
         let getNewTextElement=function(obj,id,text) {
             let element=$('<li class="hItem' + (config.sortableTexts ? ' sortable' : '') + '" data-id="' + id + '">' +
-                '<div class="hItemData postable" name="' + config.tagName + '[' + id + '][data][][text]">' + text + '</div>' +
+                '<div class="hItemData postable" name="' + config.tagName + '[' + id + '][data][]">' + text + '</div>' +
                 '<div class="hItemEditActions"></div>' +
                 '<div class="hItemDeleteActions"></div>' +
                 '</li>');
