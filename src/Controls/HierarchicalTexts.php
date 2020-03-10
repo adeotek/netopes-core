@@ -182,9 +182,9 @@ class HierarchicalTexts extends Control {
     protected function RenderData(array $data,$id): ?string {
         $result='';
         $buttonsAttributes=$this->disabled_on_render ? ' disabled="disabled"' : '';
-        foreach($data as $i=>$item) {
+        foreach($data as $item) {
             $result.="\t\t\t\t".'<li class="hItem'.($this->sortable_texts ? ' sortable' : '').'" data-id="'.$id.'">'."\n";
-            $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][][text]">'.$item['text'].'</div>'."\n";
+            $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][]">'.$item.'</div>'."\n";
             if(!$this->disabled) {
                 $result.="\t\t\t\t\t".'<div class="hItemEditActions">'."\n";
                 $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('btn-xxs io hTextsEditButton').'"'.$buttonsAttributes.'><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>'."\n";
