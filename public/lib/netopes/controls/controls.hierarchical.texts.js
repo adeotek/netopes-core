@@ -8,6 +8,8 @@
             tagName: null,
             textEditorType: 'textarea', // Options: 'textarea' (default) | 'ckeditor'
             showEmptySections: false,
+            sortableSections: false,
+            sortableTexts: false,
             fieldErrorClass: '',
             editButtonClass: 'btn btn-primary',
             deleteButtonClass: 'btn btn-danger',
@@ -20,6 +22,7 @@
         };
 
         let configKey='_NetopesHierarchicalTextsConfig';
+        let config=false;
 
         let sanitizeString=function(str) {
             return str.replace(/(?:\r\n|\r|\n)/g,'<br>');
@@ -30,7 +33,6 @@
         };
 
         let getTextInputValue=function(obj) {
-            let config=$(obj).data(configKey);
             if(config.textEditorType==='ckeditor') {
                 return GetCkEditorData(config.tagId + '_hValue');
             } else {
@@ -39,7 +41,6 @@
         };
 
         let setTextInputValue=function(obj,value) {
-            let config=$(obj).data(configKey);
             if(config.textEditorType==='ckeditor') {
                 SetCkEditorData(config.tagId + '_hValue',value);
             } else {
@@ -47,11 +48,10 @@
             }
         };
 
-        let getNewSectionElement=function(obj,id,name,code,required) {
-            let config=$(obj).data(configKey);
+        let getNewSectionElement=function(obj,id,name,code,required,position) {
             $(obj).find('.hTextsData ul.hSections li.hItemSection.empty').remove();
-            let sectionHtml='<li class="hItemSection" data-id="' + id + '" data-required="' + required + '">';
-            if(required==='1') {
+            let sectionHtml='<li class="hItemSection' + (config.sortableSections ? ' sortable' : '') + '" data-id="' + id + '" data-required="' + required + '" data-position="' + position + '">';
+            if(required.toString()==='1') {
                 sectionHtml+='<span class="hItemTitle ' + config.requiredSectionClass + '">' + name + config.requiredSectionMarker + '</span>';
             } else {
                 sectionHtml+='<span class="hItemTitle">' + name + '</span>';
@@ -60,16 +60,42 @@
                 '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][name]" value="' + name + '">' +
                 '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][code]" value="' + code + '">' +
                 '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][required]" value="' + required + '">' +
-                '<ul class="hTexts sortable"></ul>' +
+                '<input type="hidden" class="postable" name="' + config.tagName + '[' + id + '][position]" value="' + position + '">' +
+                '<ul class="hTexts"></ul>' +
                 '</li>';
             let section=$(sectionHtml);
-            $(obj).find('.hTextsData ul.hSections').append(section);
+            if(isNaN(parseInt(position))) {
+                $(obj).find('.hTextsData ul.hSections').append(section);
+            } else {
+                let appended=false;
+                let count=0;
+                $(obj).find('.hTextsData ul.hSections li.hItemSection').each(function() {
+                    if(isNaN(parseInt($(this).data('position'))) || parseInt(position)<parseInt($(this).data('position'))) {
+                        $(this).before(section);
+                        appended=true;
+                        return false;
+                    }
+                    count++;
+                });
+                if(!appended) {
+                    if(count>0) {
+                        $(obj).find('.hTextsData ul.hSections').append(section);
+                    } else {
+                        $(obj).find('.hTextsData ul.hSections').prepend(section);
+                    }
+                }
+            }
+            if(config.sortableTexts) {
+                $(section).find('ul.hTexts').sortable({
+                    revert: true,
+                    placeholder: 'ui-state-highlight',
+                });
+            }
             return section;
         };
 
         let getNewTextElement=function(obj,id,text) {
-            let config=$(obj).data(configKey);
-            let element=$('<li class="hItem" data-id="' + id + '">' +
+            let element=$('<li class="hItem' + (config.sortableTexts ? ' sortable' : '') + '" data-id="' + id + '">' +
                 '<div class="hItemData postable" name="' + config.tagName + '[' + id + '][data][][text]">' + text + '</div>' +
                 '<div class="hItemEditActions"></div>' +
                 '<div class="hItemDeleteActions"></div>' +
@@ -80,7 +106,6 @@
         };
 
         let editTextItem=function(obj,actObj) {
-            let config=$(obj).data(configKey);
             let textElement=$(actObj).parents('li.hItem');
             let textValue=$(textElement).find('.hItemData').first().html();
             $(obj).find('.hTextsInput #' + config.tagId + '_hId').first().val($(textElement).data('id') + '|' + $(textElement).index());
@@ -89,26 +114,23 @@
         };
 
         let deleteTextItem=function(obj,actObj) {
-            let config=$(obj).data(configKey);
             ShowConfirmDialog(config.deleteConfirmText,function() {
                 let section=$(actObj).parents('li.hItemSection');
                 $(actObj).parents('li.hItem').remove();
                 // Remove section if empty
-                if($(section).find('ul.hTexts > li.hItem').length===0 && !config.showEmptySections && $(section).data('required')!=='1') {
+                if($(section).data('required').toString()!=='1' && !config.showEmptySections && $(section).find('ul.hTexts > li.hItem').length===0) {
                     $(section).remove();
                 }
             },false,{title: config.deleteConfirmTitle,ok: config.deleteConfirmOkLabel,cancel: config.deleteConfirmCancelLabel});
         };
 
         let cancelEditTextItem=function(obj,actObj) {
-            let config=$(obj).data(configKey);
             $(obj).find('.hTextsInput #' + config.tagId + '_hId').first().val('');
             setTextInputValue(obj,'');
             $(actObj).parents('.hTextsEditActions').hide();
         };
 
         let saveTextItem=function(obj,actObj) {
-            let config=$(obj).data(configKey);
             let textValue=getTextInputValue(obj);
             $(obj).find('.hTextsInput #' + config.tagId + '_hValue').removeClass(config.fieldErrorClass);
             if(textValue.trim()==='') {
@@ -135,7 +157,7 @@
                 if(section.length===0) {
                     let targetName=$(actObj).text();
                     let targetCode=$(actObj).data('code') || '';
-                    section=getNewSectionElement(obj,targetId,targetName,targetCode,$(actObj).data('required'));
+                    section=getNewSectionElement(obj,targetId,targetName,targetCode,$(actObj).data('required'),$(actObj).data('position'));
                 }
                 section.find('ul.hTexts').append(getNewTextElement(obj,targetId,textValue));
             }
@@ -153,30 +175,85 @@
                         $(this).prop('disabled','disabled');
                     }
                 });
+            },
+            setDisabled: function(obj,disabled) {
+                if(disabled===true || disabled==='true' || disabled===1 || disabled==='1') {
+                    $(obj).attr('data-disabled','disabled');
+                    $(obj).find('.hTextsActions .hTextsActionButton').prop('disabled','disabled');
+                    $(obj).find('.hTextsData button.hTextsEditButton').prop('disabled','disabled');
+                    $(obj).find('.hTextsData button.hTextsDeleteButton').prop('disabled','disabled');
+                    if(config.textEditorType==='ckeditor') {
+                        SetCkEditorReadonly(config.tagId + '_hValue',true);
+                    } else {
+                        $(obj).find('.hTextsInput #' + config.tagId + '_hValue').prop('disabled','disabled');
+                    }
+                    if(config.sortableTexts) {
+                        $(obj).find('.hTextsData ul.hSections ul.hTexts').sortable('option','disabled',true);
+                    }
+                    if(config.sortableSections) {
+                        $(obj).find('.hTextsData ul.hSections').sortable('option','disabled',true);
+                    }
+                } else if(disabled===false || disabled==='false' || disabled===0 || disabled==='0') {
+                    $(obj).attr('data-disabled','');
+                    $(obj).find('.hTextsActions .hTextsActionButton').prop('disabled',false);
+                    $(obj).find('.hTextsData button.hTextsEditButton').prop('disabled',false);
+                    $(obj).find('.hTextsData button.hTextsDeleteButton').prop('disabled',false);
+                    if(config.textEditorType==='ckeditor') {
+                        SetCkEditorReadonly(config.tagId + '_hValue',false);
+                    } else {
+                        $(obj).find('.hTextsInput #' + config.tagId + '_hValue').prop('disabled',false);
+                    }
+                    if(config.sortableTexts) {
+                        $(obj).find('.hTextsData ul.hSections ul.hTexts').sortable('option','disabled',false);
+                    }
+                    if(config.sortableSections) {
+                        $(obj).find('.hTextsData ul.hSections').sortable('option','disabled',false);
+                    }
+                } else {
+                    console.log('Invalid setDisabled value [' + disabled + ']!');
+                }
             }
         };
 
-        function init(obj,options) {
-            $(obj).data(configKey,options);
+        function _construct(obj,options) {
+            config=options;
+            $(obj).data(configKey,config);
             $(obj).find('.hTextsActions .hTextsActionButton').on('click',function() { saveTextItem(obj,this); });
             $(obj).find('.hTextsData button.hTextsEditButton').on('click',function() { editTextItem(obj,this); });
             $(obj).find('.hTextsData button.hTextsDeleteButton').on('click',function() { deleteTextItem(obj,this); });
             $(obj).find('.hTextsEditActions button.hTextsSaveButton').on('click',function() { saveTextItem(obj,this); });
             $(obj).find('.hTextsEditActions button.hTextsCancelButton').on('click',function() { cancelEditTextItem(obj,this); });
-        }//END function init
+            if(config.sortableTexts) {
+                $(obj).find('.hTextsData ul.hSections ul.hTexts').sortable({
+                    revert: true,
+                    placeholder: 'ui-state-highlight',
+                });
+            }
+            if(config.sortableSections) {
+                $(obj).find('.hTextsData ul.hSections').sortable({
+                    revert: true,
+                    placeholder: 'ui-state-highlight',
+                });
+            }
+        }//END function _construct
 
         if(typeof options==='string') {
             if(methods[options]) {
                 let methodArgs=Array.prototype.slice.call(arguments,1);
                 methodArgs.unshift(this);
-                return methods[options].apply(this,methodArgs);
+                config=$(this).data(configKey);
+                if(!config) {
+                    console.log('Invalid NetopesHierarchicalTexts instance for element [' + $(this).attr('id') + ']!');
+                } else {
+                    return methods[options].apply(this,methodArgs);
+                }
             } else {
                 console.log('Invalid or inaccessible method: [' + options + ']!');
             }
         } else {
-            let config=(typeof options==='object' ? $.extend(defaults,options) : defaults);
+            let instanceConfig=(typeof options==='object' ? $.extend(defaults,options) : defaults);
             // Return jQuery object to maintain chainabillity.
-            return this.each(function() { init(this,config); });
+            return this.each(function() { _construct(this,instanceConfig); });
         }
     };//END $.fn.NetopesHierarchicalTexts
 })(jQuery);

@@ -1,5 +1,6 @@
 .clsHierarchicalTexts {
 	background: #FFFFFF;
+	padding: 6px !important;
 }
 
 .clsHierarchicalTexts .hTextsData .hContainer,
@@ -19,8 +20,9 @@
 	display: block;
 	width: 100%;
 	list-style: none;
-	margin: 5px 0 20px 0;
-	padding: 0;
+	margin: 0 0 12px 0;
+	padding: 6px;
+	border-radius: 3px;
 }
 
 .clsHierarchicalTexts .hTextsData .hItemTitle {
@@ -40,6 +42,7 @@
 	border: 1px solid #e9e9e9;
 	border-radius: 3px;
 	min-height: 30px;
+	background: #FFFFFF;
 }
 
 .clsHierarchicalTexts .hTextsData ul.hTexts li.hItem {
@@ -96,4 +99,24 @@
 	padding-left: 15px;
 	padding-right: 15px;
 	margin-right: 15px;
+}
+
+.clsHierarchicalTexts .hTextsData ul.hSections > .ui-state-highlight {
+	min-height: 75px;
+}
+
+.clsHierarchicalTexts .hTextsData ul.hTexts > .ui-state-highlight {
+	min-height: 35px;
+}
+
+.clsHierarchicalTexts .hTextsData ul li.sortable {
+	cursor: move;
+}
+
+.clsHierarchicalTexts .hTextsData ul.ui-sortable-disabled li.sortable {
+	cursor: auto;
+}
+
+.clsHierarchicalTexts .hTextsData ul.hSections > li.sortable:hover {
+	background: #e9e9e9;
 }

@@ -962,6 +962,14 @@ function SetCkEditorData(e,data) {
     }
 }//function SetCkEditorData
 
+function SetCkEditorReadonly(e,value) {
+    if(typeof (e)==='object') { e=e.getAttribute('id'); }
+    let editor=CKEDITOR.instances[e];
+    if(editor) {
+        editor.setReadOnly(value===true || value==='true' || value===1 || value==='1');
+    }
+}//function SetCkEditorData
+
 function AppendCkEditorData(e,data) {
     if(typeof (e)==='object') { e=e.getAttribute('id'); }
     let editor=CKEDITOR.instances[e];
@@ -970,6 +978,7 @@ function AppendCkEditorData(e,data) {
     }
 }//function AppendCkEditorData
 /*** END For CKEditor ***/
+
 /*** For FileUploader ***/
 function CreateFileUploader(elementid,multi) {
     if(multi===1) {

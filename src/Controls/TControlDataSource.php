@@ -24,10 +24,11 @@ trait TControlDataSource {
      *
      * @param array $params
      * @param bool  $fromModule
+     * @param bool  $asArray
      * @return mixed Returns data
      * @throws \NETopes\Core\AppException
      */
-    protected function LoadData(array $params,bool $fromModule=FALSE) {
+    protected function LoadData(array $params,bool $fromModule=FALSE,bool $asArray=FALSE) {
         if(!is_array($params) || !count($params)) {
             return NULL;
         }
@@ -42,6 +43,9 @@ trait TControlDataSource {
             $ds_params['extra_params']=$ds_eparams;
             return ModulesProvider::Exec($ds_name,$ds_method,$ds_params);
         }//if($fromModule)
+        if($asArray) {
+            return DataProvider::GetArray($ds_name,$ds_method,$ds_params,$ds_eparams);
+        }
         return DataProvider::Get($ds_name,$ds_method,$ds_params,$ds_eparams);
     }//END protected function LoadData
 }//END trait TControlDataSource
