@@ -167,6 +167,14 @@
             $(obj).find('.hTextsActions .hTextsActionButton').prop('disabled',false);
         };
 
+        let addTextItem=function(obj,textValue,sectionId,sectionName,sectionCode,sectionRequired,sectionPosition) {
+            let section=$(obj).find('.hTextsData ul.hSections li.hItemSection[data-id="' + sectionId + '"]').first();
+            if(section.length===0) {
+                section=getNewSectionElement(obj,sectionId,sectionName,sectionCode,sectionRequired,sectionPosition);
+            }
+            section.find('ul.hTexts').append(getNewTextElement(obj,sectionId,textValue));
+        };
+
         let methods={
             setValueForSection: function(obj,text,sectionId) {
                 setTextInputValue(obj,text);
@@ -175,6 +183,20 @@
                         $(this).prop('disabled','disabled');
                     }
                 });
+            },
+            setValue: function(obj,json) {
+                if(typeof json==='string') {
+                    json=JSON.parse(json);
+                }
+                for(let x in json) {
+                    let item=json[x];
+                    for(let i in item.data) {
+                        let value=item.data[i];
+                        if(value) {
+                            addTextItem(obj,value,item.id,item.name,item.code,item.required,item.position);
+                        }
+                    }
+                }
             },
             setDisabled: function(obj,disabled) {
                 if(disabled===true || disabled==='true' || disabled===1 || disabled==='1') {
