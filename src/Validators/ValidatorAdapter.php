@@ -57,7 +57,7 @@ class ValidatorAdapter {
     }//END public static final function Validate
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function Bool(&$value): bool {
@@ -69,7 +69,7 @@ class ValidatorAdapter {
     }//END public static function Bool
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function Isset(&$value): bool {
@@ -77,7 +77,7 @@ class ValidatorAdapter {
     }//END public static function Isset
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsBool(&$value): bool {
@@ -85,7 +85,7 @@ class ValidatorAdapter {
     }//END public static function IsBool
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsBoolean(&$value): bool {
@@ -93,7 +93,7 @@ class ValidatorAdapter {
     }//END public static function IsBoolean
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsObject(&$value): bool {
@@ -101,7 +101,7 @@ class ValidatorAdapter {
     }//END public static function IsObject
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsScalar(&$value): bool {
@@ -109,7 +109,7 @@ class ValidatorAdapter {
     }//END public static function IsScalar
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsString(&$value): bool {
@@ -121,7 +121,7 @@ class ValidatorAdapter {
     }//END public static function IsString
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNotemptyString(&$value): bool {
@@ -133,7 +133,7 @@ class ValidatorAdapter {
     }//END public static function IsNotemptyString
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function TrimIsNotemptyString(&$value): bool {
@@ -145,7 +145,7 @@ class ValidatorAdapter {
     }//END public static function IsNotemptyString
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNumeric(&$value): bool {
@@ -157,7 +157,7 @@ class ValidatorAdapter {
     }//END public static function IsNumeric
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNot0Numeric(&$value): bool {
@@ -169,7 +169,7 @@ class ValidatorAdapter {
     }//END public static function IsNot0Numeric
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsInteger(&$value): bool {
@@ -181,7 +181,7 @@ class ValidatorAdapter {
     }//END public static function IsInteger
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNot0Integer(&$value): bool {
@@ -193,7 +193,7 @@ class ValidatorAdapter {
     }//END public static function IsNot0Integer
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsFloat(&$value): bool {
@@ -205,7 +205,7 @@ class ValidatorAdapter {
     }//END public static function IsFloat
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNot0Float(&$value): bool {
@@ -217,7 +217,7 @@ class ValidatorAdapter {
     }//END public static function IsNot0Float
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsArray(&$value): bool {
@@ -225,7 +225,7 @@ class ValidatorAdapter {
     }//END public static function IsArray
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNotemptyArray(&$value): bool {
@@ -233,7 +233,7 @@ class ValidatorAdapter {
     }//END public static function IsNotemptyArray
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsCollection(&$value): bool {
@@ -241,7 +241,7 @@ class ValidatorAdapter {
     }//END public static function IsCollection
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsNotemptyCollection(&$value): bool {
@@ -252,7 +252,7 @@ class ValidatorAdapter {
     }//END public static function IsNotemptyCollection
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \NETopes\Core\AppException
      */
@@ -262,7 +262,7 @@ class ValidatorAdapter {
     }//END public static function IsDatetime
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \NETopes\Core\AppException
      */
@@ -276,7 +276,7 @@ class ValidatorAdapter {
     }//END public static function IsTime
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \Exception
      */
@@ -286,7 +286,7 @@ class ValidatorAdapter {
     }//END public static function DbDatetime
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \Exception
      */
@@ -296,7 +296,7 @@ class ValidatorAdapter {
     }//END public static function DbDate
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \Exception
      */
@@ -306,7 +306,7 @@ class ValidatorAdapter {
     }//END public static function AppDatetime
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws \Exception
      */
@@ -316,7 +316,7 @@ class ValidatorAdapter {
     }//END public static function AppDate
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsEmail(&$value): bool {
@@ -329,7 +329,7 @@ class ValidatorAdapter {
     }//END public static function IsEmail
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsEmailOrEmpty(&$value): bool {
@@ -345,7 +345,7 @@ class ValidatorAdapter {
     }//END public static function IsEmailOrEmpty
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsPhone(&$value): bool {
@@ -360,7 +360,7 @@ class ValidatorAdapter {
     }//END public static function IsPhone
 
     /**
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public static function IsPhoneOrEmpty(&$value): bool {
@@ -378,7 +378,7 @@ class ValidatorAdapter {
     }//END public static function IsPhoneOrEmpty
 
     /**
-     * @param             $value
+     * @param mixed       $value
      * @param string|null $quoteReplacer
      * @return bool
      */
@@ -402,10 +402,46 @@ class ValidatorAdapter {
     }//END public static function ToJson
 
     /**
-     * @param             $value
+     * @param mixed $value
      * @return bool
      */
     public static function CustomToJson(&$value): bool {
         return static::ToJson($value,'``');
     }//END public static function ToJson
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    public static function IsStringFromCkeditor(&$value): bool {
+        $result=static::IsString($value);
+        if($result && strlen($value)) {
+            $value=str_replace('``','"',$value);
+        }
+        return $result;
+    }//END public static function IsStringFromCkeditor
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    public static function IsNotemptyStringFromCkeditor(&$value): bool {
+        $result=static::IsNotemptyString($value);
+        if($result && strlen($value)) {
+            $value=str_replace('``','"',$value);
+        }
+        return $result;
+    }//END public static function IsNotemptyStringFromCkeditor
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    public static function TrimIsNotemptyStringFromCkeditor(&$value): bool {
+        $result=static::TrimIsNotemptyString($value);
+        if($result && strlen($value)) {
+            $value=str_replace('``','"',$value);
+        }
+        return $result;
+    }//END public static function IsNotemptyStringFromCkeditor
 }//END class ValidatorBaseAdapter
