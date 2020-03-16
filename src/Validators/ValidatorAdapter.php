@@ -124,6 +124,18 @@ class ValidatorAdapter {
      * @param mixed $value
      * @return bool
      */
+    public static function TrimIsString(&$value): bool {
+        if(!is_scalar($value)) {
+            return FALSE;
+        }
+        $value=trim(strval($value));
+        return TRUE;
+    }//END public static function TrimIsString
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
     public static function IsNotemptyString(&$value): bool {
         if(!is_scalar($value)) {
             return FALSE;
@@ -420,6 +432,18 @@ class ValidatorAdapter {
         }
         return $result;
     }//END public static function IsStringFromCkeditor
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    public static function TrimIsStringFromCkeditor(&$value): bool {
+        $result=static::TrimIsString($value);
+        if($result && strlen($value)) {
+            $value=str_replace('``','"',$value);
+        }
+        return $result;
+    }//END public static function TrimIsStringFromCkeditor
 
     /**
      * @param mixed $value
