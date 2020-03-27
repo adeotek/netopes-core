@@ -129,13 +129,17 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
         }
         try {
             $first=TRUE;
-            foreach($this->content as $pageContent) {
+            foreach($this->content as $content) {
                 if($first) {
                     $first=FALSE;
                 } else {
                     $this->AddPage();
                 }
-                $this->writeHTML($pageContent,TRUE,FALSE,FALSE,FALSE,'');
+                $cssStyles=strlen($this->cssStyles) ? '<style>'.$this->cssStyles.'</style>' : '';
+                if(isset($content['page_header']) && strlen($content['page_header'])) {
+                    $this->writeHTML($cssStyles.$content['page_header'],TRUE,FALSE,FALSE,FALSE,'');
+                }
+                $this->writeHTML($cssStyles.$content['content'],TRUE,FALSE,FALSE,FALSE,'');
             }//END foreach
             return $this->Output($currentFileName,$destination);
         } catch(Exception $e) {
@@ -185,9 +189,10 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
                 }//END foreach
                 break;
             case 'html':
+                $cssStyles=strlen($this->cssStyles) ? '<style>'.$this->cssStyles.'</style>' : '';
                 $html=get_array_value($params,'html','','is_notempty_string');
                 // $w=0,$h=0,$x='',$y='',$html,$border=0,$ln=1,$fill=0,$reseth=TRUE,$align='top',$autopadding=TRUE
-                $this->writeHTMLCell(0,0,'','',$html,0,1,0,TRUE,'top',TRUE);
+                $this->writeHTMLCell(0,0,'','',$cssStyles.$html,0,1,0,TRUE,'top',TRUE);
                 break;
             default:
                 break;
@@ -223,9 +228,10 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
                 }//END foreach
                 break;
             case 'html':
+                $cssStyles=strlen($this->cssStyles) ? '<style>'.$this->cssStyles.'</style>' : '';
                 $html=get_array_value($params,'html','','is_notempty_string');
                 // $w=0,$h=0,$x='',$y='',$html,$border=0,$ln=1,$fill=0,$reseth=TRUE,$align='top',$autopadding=TRUE
-                $this->writeHTMLCell(0,0,'','',$html,0,1,0,TRUE,'top',TRUE);
+                $this->writeHTMLCell(0,0,'','',$cssStyles.$html,0,1,0,TRUE,'top',TRUE);
                 break;
             default:
                 break;

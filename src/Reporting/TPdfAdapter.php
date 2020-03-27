@@ -74,6 +74,11 @@ trait TPdfAdapter {
     protected $content=[];
 
     /**
+     * @var    string|null PDF document CSS styles
+     */
+    protected $cssStyles=NULL;
+
+    /**
      * @param array $params
      */
     protected function ProcessInitialParams(array $params=[]): void {
@@ -83,6 +88,33 @@ trait TPdfAdapter {
             }
         }//END foreach
     }//END protected function ProcessInitialParams
+
+    /**
+     * Get CSS styles (CSS data)
+     *
+     * @return string|null Document CSS data
+     */
+    public function GetCssStyles(): ?string {
+        return $this->cssStyles;
+    }//END public function GetContent
+
+    /**
+     * Set CSS styles (CSS data)
+     *
+     * @param string|null $cssStyles Document CSS data
+     */
+    public function SetCssStyles(?string $cssStyles): void {
+        $this->cssStyles=$cssStyles;
+    }//END public function SetCssStyles
+
+    /**
+     * Add CSS styles (CSS data)
+     *
+     * @param string $cssStyles Document CSS data
+     */
+    public function AddCssStyles(string $cssStyles): void {
+        $this->cssStyles.=$cssStyles;
+    }//END public function AddCssStyles
 
     /**
      * Get content elements (HTML data)
@@ -96,15 +128,22 @@ trait TPdfAdapter {
     /**
      * Set content element (HTML data)
      *
-     * @param string   $content
-     * @param int|null $page
+     * @param string      $content
+     * @param int|null    $page
+     * @param string|null $pageHeader
      * @return int Current page
      */
-    public function SetContent(string $content,?int $page=NULL): int {
+    public function SetContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int {
         if(is_integer($page)) {
-            $this->content[$page]=$content;
+            $this->content[$page]=[
+                'content'=>$content,
+                'page_header'=>$pageHeader,
+            ];
         } else {
-            $this->content[]=$content;
+            $this->content[]=[
+                'content'=>$content,
+                'page_header'=>$pageHeader,
+            ];
         }
         return ($page ?? count($this->content) - 1);
     }//END public function SetContent
@@ -112,18 +151,28 @@ trait TPdfAdapter {
     /**
      * Add content element (HTML data)
      *
-     * @param string   $content
-     * @param int|null $page
+     * @param string      $content
+     * @param int|null    $page
+     * @param string|null $pageHeader
      * @return int Current page
      */
-    public function AddContent(string $content,?int $page=NULL): int {
+    public function AddContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int {
         if(is_integer($page)) {
-            if(!isset($this->content[$page])) {
-                $this->content[$page]='';
+            if(!is_array($this->content[$page])) {
+                $this->content[$page]=[
+                    'content'=>'',
+                    'page_header'=>NULL,
+                ];
             }
-            $this->content[$page].=$content;
+            $this->content[$page]['content'].=$content;
+            if(isset($pageHeader)) {
+                $this->content[$page]['page_header'].=strlen($pageHeader) ? $pageHeader : NULL;
+            }
         } else {
-            $this->content[]=$content;
+            $this->content[]=[
+                'content'=>$content,
+                'page_header'=>strlen($pageHeader) ? $pageHeader : NULL,
+            ];
         }
         return ($page ?? count($this->content) - 1);
     }//END public function AddContent
@@ -131,13 +180,14 @@ trait TPdfAdapter {
     /**
      * Set content elements (HTML data)
      *
-     * @param array    $contents
-     * @param int|null $startPage
+     * @param array       $contents
+     * @param int|null    $startPage
+     * @param string|null $pageHeader
      * @return int
      */
-    public function AddContents(array $contents,?int $startPage=NULL): int {
+    public function AddContents(array $contents,?int $startPage=NULL,?string $pageHeader=NULL): int {
         foreach($contents as $k=>$content) {
-            $startPage=$this->AddContent($content,$startPage);
+            $startPage=$this->AddContent($content,$startPage,$pageHeader);
         }//END foreach
         return $startPage;
     }//END public function AddContents

@@ -43,6 +43,11 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     protected $doc_modification_timestamp=NULL;
 
     /**
+     * @var bool Flag indicating if global CSS styles are loaded
+     */
+    protected $cssStylesLoaded=FALSE;
+
+    /**
      * IPdfAdapter constructor.
      *
      * @param array $params
@@ -79,6 +84,19 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
             throw AppException::GetInstance($e);
         }//END try
     }//END public function SetActiveFont
+
+    /**
+     * @return bool
+     * @throws \Mpdf\MpdfException
+     */
+    public function WriteCssStyles(): bool {
+        if($this->cssStylesLoaded || !strlen($this->cssStyles)) {
+            return FALSE;
+        }
+        $this->WriteHTML($this->cssStyles,HTMLParserMode::HEADER_CSS,TRUE,FALSE);
+        $this->cssStylesLoaded=TRUE;
+        return TRUE;
+    }//END public function WriteCssStyles
 
     /**
      * @param string $content
@@ -158,18 +176,29 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
         }
         try {
             $first=TRUE;
-            foreach($this->content as $pageContent) {
+            foreach($this->content as $content) {
                 if($first) {
                     $first=FALSE;
+                    $this->WriteCssStyles();
                 } else {
                     $this->AddPage();
                 }
+                $pageInit=TRUE;
+                if(isset($content['page_header']) && strlen($content['page_header'])) {
+                    // Fix usage of '<br />' or '<br/>'
+                    $pageHeader=preg_replace('/<br\s?\/>/im','<br>',$content['page_header']);
+                    // Fix for error when content is ending with '<br />' or '<br />&nbsp;'
+                    $pageHeader=preg_replace('/(<br\s?\/>)+(\&nbsp;)*$/im','',rtrim($pageHeader));
+                    // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
+                    $this->WriteHTML($pageHeader,HTMLParserMode::HTML_BODY,$pageInit,TRUE);
+                    $pageInit=FALSE;
+                }
                 // Fix usage of '<br />' or '<br/>'
-                $pageContent=preg_replace('/<br\s?\/>/im','<br>',$pageContent);
+                $pageContent=preg_replace('/<br\s?\/>/im','<br>',$content['content']);
                 // Fix for error when content is ending with '<br />' or '<br />&nbsp;'
                 $pageContent=preg_replace('/(<br\s?\/>)+(\&nbsp;)*$/im','',rtrim($pageContent));
                 // string $html [, int $mode [, boolean $initialise [, boolean $close ]]]
-                $this->WriteHTML($pageContent,HTMLParserMode::HTML_BODY,TRUE,TRUE);
+                $this->WriteHTML($pageContent,HTMLParserMode::HTML_BODY,$pageInit,TRUE);
             }//END foreach
             return $this->Output($currentFileName,$destination);
         } catch(MpdfException $e) {
@@ -193,6 +222,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     /**
      * @param array|null $params
      * @return void
+     * @throws \Mpdf\MpdfException
      */
     public function SetCustomHeader(?array $params=NULL) {
         if(is_null($params)) {
@@ -201,6 +231,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
         if(!count($params)) {
             return;
         }
+        $this->WriteCssStyles();
         $write=get_array_value($params,'write',TRUE,'bool');
         $html=get_array_value($params,'html','','is_notempty_string');
         $this->setAutoTopMargin='stretch';
@@ -211,6 +242,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     /**
      * @param array|null $params
      * @return void
+     * @throws \Mpdf\MpdfException
      */
     public function SetCustomFooter(?array $params=NULL) {
         if(is_null($params)) {
@@ -219,6 +251,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
         if(!count($params)) {
             return;
         }
+        $this->WriteCssStyles();
         $html=get_array_value($params,'html','','is_notempty_string');
         $this->setAutoBottomMargin='stretch';
         // string $html [, string $side]

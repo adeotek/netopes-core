@@ -188,6 +188,33 @@ class PdfBuilder {
     }//END public function AddPage
 
     /**
+     * Get CSS styles (CSS data)
+     *
+     * @return string|null Document CSS data
+     */
+    public function GetCssStyles(): ?string {
+        return $this->pdf->GetCssStyles();
+    }//END public function GetContent
+
+    /**
+     * Set CSS styles (CSS data)
+     *
+     * @param string|null $cssStyles Document CSS data
+     */
+    public function SetCssStyles(?string $cssStyles): void {
+        $this->pdf->SetCssStyles($cssStyles);
+    }//END public function SetCssStyles
+
+    /**
+     * Add CSS styles (CSS data)
+     *
+     * @param string $cssStyles Document CSS data
+     */
+    public function AddCssStyles(string $cssStyles): void {
+        $this->pdf->AddCssStyles($cssStyles);
+    }//END public function AddCssStyles
+
+    /**
      * Get content elements (HTML data)
      *
      * @return array Document HTML data
@@ -199,41 +226,44 @@ class PdfBuilder {
     /**
      * Set content element (HTML data)
      *
-     * @param string   $content
-     * @param array    $params
-     * @param int|null $page
+     * @param string      $content
+     * @param array       $params
+     * @param int|null    $page
+     * @param string|null $pageHeader
      * @return int
      */
-    public function SetContent(string $content,array $params=[],?int $page=NULL): int {
+    public function SetContent(string $content,array $params=[],?int $page=NULL,?string $pageHeader=NULL): int {
         $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-        return $this->pdf->SetContent($content,$page);
+        return $this->pdf->SetContent($content,$page,$pageHeader);
     }//END public function setContent
 
     /**
      * Set content element (HTML data)
      *
-     * @param string   $content
-     * @param array    $params
-     * @param int|null $page
+     * @param string      $content
+     * @param array       $params
+     * @param int|null    $page
+     * @param string|null $pageHeader
      * @return int
      */
-    public function AddContent(string $content,array $params=[],?int $page=NULL): int {
+    public function AddContent(string $content,array $params=[],?int $page=NULL,?string $pageHeader=NULL): int {
         $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-        return $this->pdf->AddContent($content,$page);
+        return $this->pdf->AddContent($content,$page,$pageHeader);
     }//END public function AddContent
 
     /**
      * Set content elements (HTML data)
      *
-     * @param array    $contents
-     * @param array    $params
-     * @param int|null $startPage
+     * @param array       $contents
+     * @param array       $params
+     * @param int|null    $startPage
+     * @param string|null $pageHeader
      * @return int|null
      */
-    public function AddContents(array $contents,array $params=[],?int $startPage=NULL): ?int {
+    public function AddContents(array $contents,array $params=[],?int $startPage=NULL,?string $pageHeader=NULL): ?int {
         foreach($contents as $content) {
             $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-            $startPage=$this->pdf->AddContent($content,$startPage) + 1;
+            $startPage=$this->pdf->AddContent($content,$startPage,$pageHeader) + 1;
         }//END foreach
         return $startPage;
     }//END public function AddContents
