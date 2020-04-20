@@ -133,6 +133,17 @@ final class AppException extends Exception {
     }//END public function getExtCode
 
     /**
+     * Sets the exception external code
+     *
+     * @param int|null $code
+     * @return $this
+     */
+    final public function setExtCode(?int $code): AppException {
+        $this->externalCode=$code;
+        return $this;
+    }//END final public function setExtCode
+
+    /**
      * Gets the original exception message
      *
      * @return string Returns original exception message
@@ -146,11 +157,12 @@ final class AppException extends Exception {
      *
      * @param string $message New message to be stored in the
      *                        original message property
-     * @return void
+     * @return $this
      */
-    final public function setOriginalMessage($message) {
+    final public function setOriginalMessage($message): AppException {
         $this->originalMessage=$message;
-    }//END public function setOriginalMessage
+        return $this;
+    }//END final public function setOriginalMessage
 
     /**
      * Gets the full exception message
