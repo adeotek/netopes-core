@@ -506,10 +506,10 @@ class TableView extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function ProcessCustomActions(): string {
-        if(!is_array($this->custom_actions) || !count($this->custom_actions)) {
-            return NULL;
-        }
         $result='';
+        if(!is_array($this->custom_actions) || !count($this->custom_actions)) {
+            return $result;
+        }
         foreach($this->custom_actions as $action) {
             if(is_string($action)) {
                 $result.=$action;
