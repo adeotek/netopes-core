@@ -611,9 +611,9 @@ abstract class FilterControl {
         $isDsParam=intval(strlen(get_array_value($selectedItem,'ds_param','','is_string'))>0);
         $conditionType=$params->safeGet('f_c_type','','is_string');
         if(is_array($onClickActionParams)) {
-            $onClickActionParams['f_field']=get_array_value($selectedItem,'db_field',NULL,'is_notempty_string');
+            $onClickActionParams['f_field']=get_array_value($selectedItem,'filter_field',get_array_value($selectedItem,'db_field',NULL,'is_notempty_string'),'is_notempty_string');
         } else {
-            $onClickActionParams=['f_field'=>get_array_value($selectedItem,'db_field',NULL,'is_notempty_string')];
+            $onClickActionParams=['f_field'=>get_array_value($selectedItem,'filter_field',get_array_value($selectedItem,'db_field',NULL,'is_notempty_string'),'is_notempty_string')];
         }
         if(strlen($filterValueField)) {
             $isFilterValueField=TRUE;
