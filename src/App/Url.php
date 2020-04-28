@@ -170,8 +170,8 @@ class Url {
     /**
      * description
      *
-     * @param object|null $params Parameters object (instance of [Params])
-     * @param bool        $keysonly
+     * @param array|string|null $params Parameters object
+     * @param bool              $keysonly
      * @return string
      */
     public function ParamToString($params,$keysonly=FALSE) {
@@ -439,8 +439,8 @@ class Url {
     /**
      * Create new application URL
      *
-     * @param object|null $params Parameters object (instance of [Params])
-     * @param int         $urlFormat
+     * @param array|null $params Parameters object
+     * @param int        $urlFormat
      * @return string
      * @throws \NETopes\Core\AppException
      */

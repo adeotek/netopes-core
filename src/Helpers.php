@@ -310,7 +310,7 @@ class Helpers {
     /**
      * description
      *
-     * @param object|null $params Parameters object (instance of [Params])
+     * @param array $params Parameters object
      * @return mixed
      */
     public static function asyncCurlCall($params=NULL) {
