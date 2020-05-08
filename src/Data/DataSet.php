@@ -233,13 +233,34 @@ class DataSet implements Collection {
 
     /**
      * @param mixed       $key
-     * @param mixed       $default_value
+     * @param mixed       $defaultValue
      * @param string|null $validation
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public function safeGet($key,$default_value=NULL,$validation=NULL) {
-        return Validator::ValidateArrayValue($this->elements,$key,$default_value,$validation);
+    public function safeGet($key,$defaultValue=NULL,$validation=NULL) {
+        return Validator::ValidateArrayValue($this->elements,$key,$defaultValue,$validation);
+    }
+
+    /**
+     * @param int|string  $key
+     * @param int|string  $property
+     * @param mixed       $defaultValue
+     * @param string|null $validation
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function safeGetProperty($key,$property,$defaultValue=NULL,$validation=NULL) {
+        if(!array_key_exists($key,$this->elements)) {
+            return $defaultValue;
+        }
+        if($this->elements[$key] instanceof IEntity) {
+            return $this->elements[$key]->getProperty($property,$defaultValue,$validation);
+        }
+        if(is_array($this->elements[$key])) {
+            return Validator::ValidateArrayValue($this->elements[$key],$property,$defaultValue,$validation);
+        }
+        return $defaultValue;
     }
 
     /**
