@@ -80,7 +80,7 @@ class PdfReport {
     /**
      * description
      *
-     * @param object|null $params Parameters object (instance of [Params])
+     * @param array|null $params Parameters object
      * @return void
      */
     public function __construct(&$params=[]) {
@@ -163,7 +163,7 @@ class PdfReport {
     /**
      * description
      *
-     * @param object|null $params Parameters object (instance of [Params])
+     * @param array $formats |null Formats array
      * @return void
      */
     protected function SetFormats($formats=[]) {
@@ -177,7 +177,9 @@ class PdfReport {
     /**
      * description
      *
-     * @param object|null $params Parameters object (instance of [Params])
+     * @param $data
+     * @param $column
+     * @param $col
      * @return void
      */
     protected function GetCellValue($data,$column,$col) {
