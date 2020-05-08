@@ -148,9 +148,9 @@ class AppHelpers {
      * @param null $validation
      * @return mixed
      */
-    public function GetRequestParamValue($key,$defaultValue=NULL,$validation=NULL) {
+    public static function GetRequestParamValue($key,$defaultValue=NULL,$validation=NULL) {
         return get_array_value(static::$_globals,['req_params',$key],$defaultValue,$validation);
-    }//END public function GetRequestParamValue
+    }//END public static function GetRequestParamValue
 
     /**
      * description
