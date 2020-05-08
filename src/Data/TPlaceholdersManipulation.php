@@ -53,17 +53,17 @@ trait TPlaceholdersManipulation {
         }
         $paramValue=get_array_value($parameters,$placeholder,NULL,'isset');
         if(is_array($paramValue)) {
-            $value=get_array_param($paramValue,'value',NULL,'?is_string');
+            $value=get_array_value($paramValue,'value',NULL,'?is_string');
             if(!strlen($value)) {
                 return '';
             }
-            $tagType=strtolower(get_array_param($paramValue,'type','','is_notempty_string'));
+            $tagType=strtolower(get_array_value($paramValue,'type','','is_notempty_string'));
             if($skipLabels) {
                 $label=NULL;
             } else {
-                $label=get_array_param($paramValue,'label',NULL,'?is_string');
+                $label=get_array_value($paramValue,'label',NULL,'?is_string');
             }
-            $style=get_array_param($paramValue,'style',NULL,'?is_string');
+            $style=get_array_value($paramValue,'style',NULL,'?is_string');
             switch($tagType) {
                 case 'table':
                     return '<table'.(strlen($style) ? ' style="'.$style.'"' : '').'><tr><td>'.(strlen($label) ? $label.':&nbsp;' : '').$value.'</td></tr></table>';

@@ -37,7 +37,7 @@ header('Content-Language: '.NApp::GetLanguageCode(),TRUE);
 $outputResult=TRUE;
 $result=$fileName=$mimeType=NULL;
 if(isset($_GET['hash'])) {
-    $rHash=get_array_param($_GET,'hash','','is_string');
+    $rHash=get_array_value($_GET,'hash','','is_string');
     if(strlen($rHash)) {
         $rHash=GibberishAES::dec(rawurldecode($rHash),'eUrlHash');
         if(strpos($rHash,'|')===FALSE) {
@@ -45,13 +45,13 @@ if(isset($_GET['hash'])) {
         }
         $rHashArr=explode('|',$rHash);
         //file_name(0)|path(1)|download_name(2)
-        $fileName=get_array_param($rHashArr,0,'','is_string');
-        $path=get_array_param($rHashArr,1,'','is_string');
-        $downloadName=get_array_param($rHashArr,2,'','is_string');
+        $fileName=get_array_value($rHashArr,0,'','is_string');
+        $path=get_array_value($rHashArr,1,'','is_string');
+        $downloadName=get_array_value($rHashArr,2,'','is_string');
     } else {
-        $fileName=get_array_param($_POST,'file_name','','is_string');
-        $path=get_array_param($_POST,'path','','is_string');
-        $downloadName=get_array_param($_POST,'download_name','','is_string');
+        $fileName=get_array_value($_POST,'file_name','','is_string');
+        $path=get_array_value($_POST,'path','','is_string');
+        $downloadName=get_array_value($_POST,'download_name','','is_string');
     }//if(strlen($rHash))
     // vprint(['$rHash'=>$rHash,'$fileName'=>$fileName,'$path'=>$path,'$downloadName'=>$downloadName]);
     if(!$fileName || !$path) {
@@ -71,19 +71,19 @@ if(isset($_GET['hash'])) {
     }
     $result=file_get_contents($sourceFileName);
 } elseif(isset($_GET['shash'])) {
-    $rHash=get_array_param($_GET,'shash','','is_string');
+    $rHash=get_array_value($_GET,'shash','','is_string');
     if(!strlen($rHash)) {
         end_request($debug,'File not found!');
     }
-    $moduleResultType=get_array_param($_GET,'mrt',0,'is_integer');
+    $moduleResultType=get_array_value($_GET,'mrt',0,'is_integer');
     $data=NApp::GetParam($rHash);
-    $module=get_array_param($data,'module','','is_string');
-    $method=get_array_param($data,'method','','is_string');
+    $module=get_array_value($data,'module','','is_string');
+    $method=get_array_value($data,'method','','is_string');
     if(!strlen($module) || !strlen($method) || !ModulesProvider::ModuleMethodExists($module,$method)) {
         end_request($debug,($debug ? 'Invalid request: missing module ['.$module.'] / method ['.$method.']!' : 'Invalid request: missing module/method!'));
     }
-    $params=get_array_param($data,'params',[],'is_array');
-    $uid=get_array_param($_GET,'uid','','is_string');
+    $params=get_array_value($data,'params',[],'is_array');
+    $uid=get_array_value($_GET,'uid','','is_string');
     if(strlen($uid)) {
         $params['uid']=$uid;
     }
@@ -136,7 +136,7 @@ if(isset($_GET['hash'])) {
             break;
     }//END switch
 } elseif(isset($_GET['ehash'])) {
-    $rHash=get_array_param($_GET,'ehash','','is_string');
+    $rHash=get_array_value($_GET,'ehash','','is_string');
     if(!strlen($rHash)) {
         end_request($debug,'Invalid request (hash)!');
     }
@@ -151,9 +151,9 @@ if(isset($_GET['hash'])) {
         NApp::Elog($e);
         end_request($debug,$e->getMessage());
     }
-    $module=convert_to_camel_case(get_array_param($payload,'module',NULL,'is_string'),FALSE,TRUE);
-    $method=convert_to_camel_case(get_array_param($payload,'method',NULL,'is_string'));
-    $params=get_array_param($payload,'params',[],'is_array');
+    $module=convert_to_camel_case(get_array_value($payload,'module',NULL,'is_string'),FALSE,TRUE);
+    $method=convert_to_camel_case(get_array_value($payload,'method',NULL,'is_string'));
+    $params=get_array_value($payload,'params',[],'is_array');
     if(!ModulesProvider::ModuleMethodExists($module,$method)) {
         end_request($debug,'Invalid request (3)!');
     }
@@ -166,8 +166,8 @@ if(isset($_GET['hash'])) {
     }//END try
     $outputResult=is_string($result) && strlen($result);
 } else {
-    $module=get_array_param($_GET,'module',get_array_param($_POST,'module',NULL,'is_string'),'is_string');
-    $method=get_array_param($_GET,'method',get_array_param($_POST,'method',NULL,'is_string'),'is_string');
+    $module=get_array_value($_GET,'module',get_array_value($_POST,'module',NULL,'is_string'),'is_string');
+    $method=get_array_value($_GET,'method',get_array_value($_POST,'method',NULL,'is_string'),'is_string');
     if(isset($module) || isset($method)) {
         $params=array_merge($_POST,$_GET);
         $module=convert_to_camel_case($module,FALSE,TRUE);
@@ -184,7 +184,7 @@ if(isset($_GET['hash'])) {
         }//END try
         $outputResult=is_string($result) && strlen($result);
     } else {
-        $file=get_array_param($_GET,'file',get_array_param($_POST,'file',NULL,'is_notempty_string'),'is_notempty_string');
+        $file=get_array_value($_GET,'file',get_array_value($_POST,'file',NULL,'is_notempty_string'),'is_notempty_string');
         $file=rawurldecode($file);
         if(!file_exists(NApp::GetRepositoryPath().$file)) {
             end_request($debug,'File not found!');

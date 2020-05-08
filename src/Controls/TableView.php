@@ -941,7 +941,7 @@ class TableView extends FilterControl {
      * @throws \NETopes\Core\AppException
      */
     protected function GetRunningTotalHash(&$row,array &$v,string $name): string {
-        $runningTotalOver=get_array_param($v,'running_total_over',[],'is_array');
+        $runningTotalOver=get_array_value($v,'running_total_over',[],'is_array');
         if(!count($runningTotalOver)) {
             return AppSession::GetNewUID($name,'sha1',TRUE);
         }

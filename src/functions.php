@@ -288,24 +288,6 @@ function get_array_value(&$var,$key,$defaultValue=NULL,?string $validation=NULL)
     return validate_param($value,$defaultValue,$validation);
 }//END function get_array_value
 /**
- * Extracts a param value from a params array
- *
- * @param array  $var          Params array
- *                             (parsed as reference)
- * @param string $key          Key of the param to be returned
- * @param mixed  $defaultValue Default value to be returned if param is not validated
- * @param string $validation   Validation type
- *                             (as implemented in validate_param function)
- * @param string $sub_key
- * @return  mixed Returns param value or default value if not validated
- */
-function get_array_param(&$var,$key,$defaultValue=NULL,?string $validation=NULL,$sub_key=NULL) {
-    if(is_string($sub_key) || is_numeric($sub_key)) {
-        $key=[$key,$sub_key];
-    }
-    return get_array_value($var,$key,$defaultValue,$validation);
-}//END function get_array_param
-/**
  * This returns the element from certain level of the backtrace stack.
  *
  * @param integer $step  The backtrace step index to be returned, starting from 0 (default 1)

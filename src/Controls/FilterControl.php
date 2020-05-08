@@ -583,7 +583,7 @@ abstract class FilterControl {
                 $lSelected=$conditionType==$c->getProperty('value') ? ' selected="selected"' : '';
                 $filterOptions.="\t\t\t\t".'<option value="'.$c->getProperty('value').'"'.$lSelected.'>'.$c->getProperty('name').'</option>'."\n";
                 if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><') {
-                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.render',['f_c_type'=>$this->tag_id.'-f-c-type:value','f_v_f_mode'=>$withFilterValueField,'f_d_value'=>get_array_param($selectedItem,'f_d_value_source',NULL,'?is_string')]).'"';
+                    $filterConditionTypeOnChange=' onchange="'.$this->GetActionCommand('filters.render',['f_c_type'=>$this->tag_id.'-f-c-type:value','f_v_f_mode'=>$withFilterValueField,'f_d_value'=>get_array_value($selectedItem,'f_d_value_source',NULL,'?is_string')]).'"';
                 }//if(!strlen($filterConditionTypeOnChange) && $c->getProperty('value')=='><')
             }//END foreach
             $result="\t\t\t".'<select id="'.$this->tag_id.'-f-c-type" class="clsComboBox form-control f-ctrl f-c-type"'.$filterConditionTypeOnChange.'>'."\n";

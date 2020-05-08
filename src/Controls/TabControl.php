@@ -230,7 +230,7 @@ class TabControl {
                 $ctResult.=get_array_value($tab,'content','&nbsp;','is_notempty_string');
                 break;
         }//END switch
-        $tabClass=get_array_param($tab,'class','','is_string');
+        $tabClass=get_array_value($tab,'class','','is_string');
         $result.="\t".'<div id="'.$this->tag_id.'-'.$tab['t_uid'].'"'.$ctData.(strlen($tabClass) ? ' class="'.$tabClass.'"' : '').'>'."\n";
         $result.=$ctResult;
         $result.="\t".'</div>'."\n";
