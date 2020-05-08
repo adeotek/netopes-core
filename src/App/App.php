@@ -633,7 +633,7 @@ abstract class App implements IApp {
      */
     public static function GetJsConstants(): string {
         $jsRootUrl=static::$appBaseUrl.AppConfig::GetValue('app_js_path');
-        $jsThemeBaseUrl=static::$appBaseUrl.AppHelpers::GetSectionPath();
+        $jsThemeBaseUrl=static::$appBaseUrl.AppHelpers::GetSectionPath(AppHelpers::GetRequestParamValue('theme_folder'));
         $appBaseUrl=static::$appBaseUrl;
         $pHash=static::$_pHash;
         $js=<<<HTML
