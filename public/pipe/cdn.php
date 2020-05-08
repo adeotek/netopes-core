@@ -45,7 +45,7 @@ if(isset($_GET['hash'])) {
         }
         $rHashArr=explode('|',$rHash);
         //file_name(0)|path(1)|download_name(2)
-        $sourceFileName=get_array_param($rHashArr,0,'','is_string');
+        $fileName=get_array_param($rHashArr,0,'','is_string');
         $path=get_array_param($rHashArr,1,'','is_string');
         $downloadName=get_array_param($rHashArr,2,'','is_string');
     } else {
@@ -53,10 +53,12 @@ if(isset($_GET['hash'])) {
         $path=get_array_param($_POST,'path','','is_string');
         $downloadName=get_array_param($_POST,'download_name','','is_string');
     }//if(strlen($rHash))
+    // vprint(['$rHash'=>$rHash,'$fileName'=>$fileName,'$path'=>$path,'$downloadName'=>$downloadName]);
     if(!$fileName || !$path) {
         end_request($debug,'Invalid request (3)!');
     }
     $sourceFileName=rtrim($path,'/').'/'.$fileName;
+    // vprint(['$sourceFileName'=>$sourceFileName,'is_file'=>is_file($sourceFileName)]);
     if(!is_file($sourceFileName)) {
         end_request($debug,'File not found!');
     }
