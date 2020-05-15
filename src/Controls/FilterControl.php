@@ -16,7 +16,6 @@ use NApp;
 use NETopes\Core\App\Params;
 use NETopes\Core\AppSession;
 use NETopes\Core\Data\DataProvider;
-use NETopes\Core\Data\VirtualEntity;
 use Translate;
 
 /**

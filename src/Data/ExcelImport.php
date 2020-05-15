@@ -28,6 +28,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
  */
 class ExcelImport {
     use TDateTimeHelpers;
+
     /**
      * @var    bool Sanitize header row
      */

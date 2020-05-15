@@ -317,7 +317,7 @@ class AppSession {
         $cfulldomain=$cdomain.$path;
         $cuseragent=array_key_exists('HTTP_USER_AGENT',$_SERVER) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN USER AGENT';
         $sessionTimeout=AppConfig::GetValue('session_timeout');
-        $logFile=AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('errors_log_file');
+        $logFile=AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('log_file');
         if(!self::$sessionStarted) {
             $dbgData.=self::ConfigAndStartSession($absolutePath,$cdomain,$sessionTimeout,NULL,$logFile);
         }

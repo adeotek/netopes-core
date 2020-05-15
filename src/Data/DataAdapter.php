@@ -32,10 +32,6 @@ abstract class DataAdapter {
      */
     public $debug=FALSE;
     /**
-     * @var    bool If set to TRUE the debug data will be sent to a log file
-     */
-    public $debug2file=FALSE;
-    /**
      * @var    resource Database connection object
      */
     protected $connection=NULL;
@@ -79,7 +75,6 @@ abstract class DataAdapter {
      */
     protected function __construct($connection) {
         $this->debug=AppConfig::GetValue('db_debug');
-        $this->debug2file=AppConfig::GetValue('db_debug2file');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
             throw new AppException('Incorrect database connection',E_ERROR,1);
         }
@@ -136,7 +131,6 @@ abstract class DataAdapter {
      * @param null $label
      * @param null $time
      * @param bool $forced
-     * @throws \NETopes\Core\AppException
      */
     protected function DbDebug($query,$label=NULL,$time=NULL,$forced=FALSE) {
         if(!$this->debug && !$forced) {
@@ -145,8 +139,5 @@ abstract class DataAdapter {
         $lLabel=strlen($label) ? $label : 'DbDebug';
         $lQuery=$query.($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
         NApp::Dlog($lQuery,$lLabel);
-        if($this->debug2file) {
-            NApp::Write2LogFile($lLabel.': '.$lQuery,'debug');
-        }
     }//END protected function DbDebug
 }//END abstract class BaseAdapter

@@ -16,7 +16,9 @@ use NETopes\Ajax\BaseRequest;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
-use Throwable;
+use NETopes\Core\Logging\FileLoggerAdapter;
+use NETopes\Core\Logging\LogEvent;
+use NETopes\Core\Logging\Logger;
 
 /**
  * Class App
@@ -89,9 +91,9 @@ abstract class App implements IApp {
      */
     public static $debug=FALSE;
     /**
-     * @var    \NETopes\Core\App\Debugger Object for debugging
+     * @var    \NETopes\Core\Logging\Logger Application logger instance
      */
-    public static $debugger=NULL;
+    public static $logger=NULL;
     /**
      * @var    bool Flag to indicate if the request should keep the session alive
      */
@@ -251,7 +253,7 @@ abstract class App implements IApp {
                 static::$_pHash=AppSession::GetNewUID();
             }
         }//if(AppConfig::GetValue('split_session_by_page'))
-        static::InitDebugger();
+        static::ConfigureLogger();
         static::StartOutputBuffer();
         static::$_appState=AppSession::WithSession() ? AppSession::GetState() : TRUE;
         static::LoadDomainConfig(FALSE,array_key_exists('vpath',$params) && strlen($params['vpath']) ? $params['vpath'] : NULL);
@@ -472,7 +474,7 @@ abstract class App implements IApp {
      * @throws \NETopes\Core\AppException
      */
     public static function StartOutputBuffer(): bool {
-        if(!static::$_isAjax && !AppConfig::GetValue('buffered_output') && !static::$debugger) {
+        if(!static::$_isAjax && !AppConfig::GetValue('buffered_output') && !static::LoggerRequiresOutputBuffering()) {
             return FALSE;
         }
         ob_start();
@@ -487,8 +489,8 @@ abstract class App implements IApp {
         if(!static::$_appObStarted) {
             return FALSE;
         }
-        if(is_object(static::$debugger)) {
-            static::$debugger->SendData();
+        if(static::$logger instanceof Logger) {
+            static::$logger->FlushLogs();
         }
         if($end===TRUE) {
             ob_end_flush();
@@ -656,22 +658,20 @@ HTML;
     public static function GetJsScripts(): string {
         $jsRootUrl=static::$appBaseUrl.AppConfig::GetValue('app_js_path');
         $js=<<<HTML
-        <script type="text/javascript" src="{$jsRootUrl}/gibberish-aes.min.js?v=1901081"></script>
-        <script type="text/javascript" src="{$jsRootUrl}/main.min.js?v=1901251"></script>
+        <script type="text/javascript" src="{$jsRootUrl}/gibberish-aes.min.js?v=2005151"></script>
+        <script type="text/javascript" src="{$jsRootUrl}/main.min.js?v=2005151"></script>
 HTML;
         if(static::IsValidAjaxRequest()) {
             $js.=static::$_ajaxRequest->GetJsScripts($jsRootUrl);
         }
-        if(is_object(static::$debugger)) {
-            $dbg_scripts=static::$debugger->GetScripts();
-            if(is_array($dbg_scripts) && count($dbg_scripts)) {
-                foreach($dbg_scripts as $dsk=>$ds) {
-                    $js.=<<<HTML
-        <script type="text/javascript" src="{$jsRootUrl}/debug/{$ds}?v=1712011"></script>
+        $loggerScripts=static::$logger->GetScripts();
+        if(is_array($loggerScripts) && count($loggerScripts)) {
+            foreach($loggerScripts as $dsk=>$ds) {
+                $js.=<<<HTML
+        <script type="text/javascript" src="{$jsRootUrl}/debug/{$ds}?v=2005151"></script>
 HTML;
-                }//END foreach
-            }//if(is_array($dbg_scripts) && count($dbg_scripts))
-        }//if(is_object(static::$debugger))
+            }//END foreach
+        }//if(is_array($loggerScripts) && count($loggerScripts))
         return $js;
     }//END public static function GetJsScripts
 
@@ -1040,179 +1040,146 @@ HTML;
     }//END public static function SetInstanceConfigData
 
     /**
-     * Initialize debug environment
+     * Initialize application logger
      *
      * @return bool
-     * @throws \Exception
+     * @throws \NETopes\Core\AppException
      */
-    public static function InitDebugger() {
-        if(AppConfig::GetValue('debug')!==TRUE || !class_exists('\NETopes\Core\App\Debugger')) {
+    public static function ConfigureLogger() {
+        if(!class_exists('\NETopes\Core\Logging\Logger')) {
             return FALSE;
         }
-        if(is_object(static::$debugger)) {
-            return static::$debugger->IsEnabled();
+        if(static::$logger instanceof Logger) {
+            return static::$logger->IsEnabled();
         }
-        $tmpPath=AppConfig::GetValue('debug_console_cache_path');
-        if(strlen($tmpPath)) {
-            $tmpPath=(substr($tmpPath,0,2)==='..' ? _NAPP_ROOT_PATH.'/' : '').$tmpPath;
-        } else {
-            $tmpPath=isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) && strpos(_NAPP_ROOT_PATH,$_SERVER['DOCUMENT_ROOT'])!==FALSE ? _NAPP_ROOT_PATH.'/../tmp' : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp';
-        }
-        static::$debugger=new Debugger(AppConfig::GetValue('debug'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),$tmpPath,AppConfig::GetValue('debug_console_password'));
-        static::$debugger->showExceptionsTrace=AppConfig::GetValue('show_exceptions_trace');
-        static::$debugger->log_file=AppConfig::GetValue('log_file');
-        static::$debugger->errors_log_file=AppConfig::GetValue('errors_log_file');
-        static::$debugger->debug_log_file=AppConfig::GetValue('debug_log_file');
-        return static::$debugger->IsEnabled();
+        $adapters=AppConfig::GetValue('logging_adapters');
+        static::$logger=new Logger(is_array($adapters) ? $adapters : [],_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),AppConfig::GetValue('log_file'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp');
+        return static::$logger->IsEnabled();
     }//END public static function InitDebugger
 
     /**
-     * Get debugger state
+     * Get logger state
      *
-     * @return bool Returns TRUE if debugger is started, FALSE otherwise
+     * @return bool Returns TRUE if logger is started, FALSE otherwise
      */
-    public static function GetDebuggerState() {
-        return is_object(static::$debugger) && static::$debugger->IsEnabled();
-    }//END public static function GetDebuggerState
+    public static function GetLoggerState() {
+        return static::$logger instanceof Logger ? static::$logger->IsEnabled() : FALSE;
+    }//END public static function GetLoggerState
 
     /**
-     * Displays a value in the debugger plug-in as a debug message
+     * Get logger output buffering requirements
      *
-     * @param mixed   $value Value to be displayed by the debug objects
-     * @param string  $label Label assigned to the value to be displayed
-     * @param boolean $file  Output file name
-     * @param boolean $path  Output file path
+     * @return bool Returns TRUE if logger requires output buffering, FALSE otherwise
+     */
+    public static function LoggerRequiresOutputBuffering() {
+        return static::$logger instanceof Logger ? static::$logger->RequiresOutputBuffering() : FALSE;
+    }//END public static function LoggerRequiresOutputBuffering
+
+    /**
+     * Send data to logger active adapters with INFO level
+     *
+     * @param mixed       $data        Log data
+     * @param string|null $label       Main label assigned to the log entry
+     * @param array       $extraLabels Extra labels assigned to the log entry
      * @return void
      */
-    public static function Dlog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
-        if(!is_object(static::$debugger)) {
+    public static function Ilog($data,?string $label=NULL,array $extraLabels=[]) {
+        if(!static::GetLoggerState()) {
             return;
         }
         try {
-            if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
-                $dbg=debug_backtrace();
-                $caller=array_shift($dbg);
-                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
-            }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
-            static::$debugger->Debug($value,$label,Debugger::DBG_DEBUG);
-        } catch(Exception $e) {
-            unset($e);
-        }//END try
-    }//END public static function Dlog
-
-    /**
-     * Displays a value in the debugger plug-in as a warning message
-     *
-     * @param mixed   $value Value to be displayed by the debug objects
-     * @param string  $label Label assigned to the value to be displayed
-     * @param boolean $file  Output file name
-     * @param boolean $path  Output file path
-     * @return void
-     */
-    public static function Wlog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
-        if(!is_object(static::$debugger)) {
-            return;
-        }
-        try {
-            if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
-                $dbg=debug_backtrace();
-                $caller=array_shift($dbg);
-                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
-            }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
-            static::$debugger->Debug($value,$label,Debugger::DBG_WARNING);
-        } catch(Exception $e) {
-            unset($e);
-        }//END try
-    }//END public static function Wlog
-
-    /**
-     * Displays a value in the debugger plug-in as an error message
-     *
-     * @param mixed   $value Value to be displayed by the debug objects
-     * @param string  $label Label assigned to the value to be displayed
-     * @param bool    $showExceptionsTrace
-     * @param boolean $file  Output file name
-     * @param boolean $path  Output file path
-     * @return void
-     */
-    public static function Elog($value,?string $label=NULL,bool $showExceptionsTrace=FALSE,bool $file=FALSE,bool $path=FALSE) {
-        if(!is_object(static::$debugger)) {
-            return;
-        }
-        try {
-            if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
-                $dbg=debug_backtrace();
-                $caller=array_shift($dbg);
-                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').($label ?? ($value instanceof Throwable ? get_class($value) : ''));
-            }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
-            static::$debugger->Elog($value,$label,$showExceptionsTrace,FALSE,FALSE);
-        } catch(Exception $e) {
-            unset($e);
-        }//END try
-    }//END public static function Elog
-
-    /**
-     * Displays a value in the debugger plug-in as an info message
-     *
-     * @param mixed   $value Value to be displayed by the debug objects
-     * @param string  $label Label assigned to the value to be displayed
-     * @param boolean $file  Output file name
-     * @param boolean $path  Output file path
-     * @return void
-     */
-    public static function Ilog($value,?string $label=NULL,bool $file=FALSE,bool $path=FALSE) {
-        if(!is_object(static::$debugger)) {
-            return;
-        }
-        try {
-            if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE) {
-                $dbg=debug_backtrace();
-                $caller=array_shift($dbg);
-                $label=(isset($caller['file']) ? ('['.($path===TRUE ? $caller['file'] : basename($caller['file'])).(isset($caller['line']) ? ':'.$caller['line'] : '').']') : '').$label;
-            }//if(AppConfig::GetValue('console_show_file')===TRUE || $file===TRUE)
-            static::$debugger->Debug($value,$label,Debugger::DBG_INFO);
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_INFO,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Ilog
 
     /**
-     * Add entry to log file
+     * Send data to logger active adapters with DEBUG level
      *
-     * @param string|array $msg        Text to be written to log
-     * @param string|null  $file       Custom log file complete name (path + name)
-     * @param string|null  $scriptName Name of the file that sent the message to log (optional)
-     * @return bool|string Returns TRUE for success or error message on failure
+     * @param mixed       $data        Log data
+     * @param string|null $label       Main label assigned to the log entry
+     * @param array       $extraLabels Extra labels assigned to the log entry
+     * @return void
      */
-    public static function Log2File($msg,?string $file=NULL,?string $scriptName=NULL) {
-        return Debugger::Log2File($msg,$file,$scriptName);
+    public static function Dlog($data,?string $label=NULL,array $extraLabels=[]) {
+        if(!static::GetLoggerState()) {
+            return;
+        }
+        try {
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        } catch(Exception $e) {
+            unset($e);
+        }//END try
+    }//END public static function Dlog
+
+    /**
+     * Send data to logger active adapters with WARNING level
+     *
+     * @param mixed       $data        Log data
+     * @param string|null $label       Main label assigned to the log entry
+     * @param array       $extraLabels Extra labels assigned to the log entry
+     * @return void
+     */
+    public static function Wlog($data,?string $label=NULL,array $extraLabels=[]) {
+        if(!static::GetLoggerState()) {
+            return;
+        }
+        try {
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_WARNING,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        } catch(Exception $e) {
+            unset($e);
+        }//END try
+    }//END public static function Wlog
+
+    /**
+     * Send data to logger active adapters with ERROR level
+     *
+     * @param mixed       $data        Log data
+     * @param string|null $label       Main label assigned to the log entry
+     * @param array       $extraLabels Extra labels assigned to the log entry
+     * @return void
+     */
+    public static function Elog($data,?string $label=NULL,array $extraLabels=[]) {
+        if(!static::GetLoggerState()) {
+            return;
+        }
+        try {
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_ERROR,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        } catch(Exception $e) {
+            unset($e);
+        }//END try
+    }//END public static function Elog
+
+    /**
+     * Writes a message into a log files
+     *
+     * @param mixed       $message    Data to be written to log
+     * @param string|null $file       Custom log file  (optional)
+     * @param string|null $scriptName Name of the file that sent the message to log (optional)
+     * @return bool|AppException
+     */
+    public static function Log2File($message,?string $file=NULL,?string $scriptName=NULL) {
+        return self::LogToFile($message,$scriptName,$file,NULL);
     }//END public static function Log2File
 
     /**
-     * Writes a message in one of the application log files
+     * Writes a message into a log files
      *
-     * @param string      $msg  Text to be written to log
-     * @param string      $type Log type (log, error or debug) (optional)
-     * @param string|null $file Custom log file complete name (path + name) (optional)
-     * @param string|null $path
-     * @return bool|string
-     * @throws \NETopes\Core\AppException
+     * @param mixed       $message    Data to be written to log
+     * @param string|null $scriptName Name of the file that sent the message to log (optional)
+     * @param string|null $file       Custom log file  (optional)
+     * @param string|null $path       Custom logs path (optional)
+     * @return bool|AppException
      */
-    public static function Write2LogFile(string $msg,string $type='log',?string $file=NULL,?string $path=NULL) {
-        if(is_object(static::$debugger)) {
-            return static::$debugger->Write2LogFile($msg,$type,$file,$path);
-        }
-        $lpath=(strlen($path) ? rtrim($path,'/') : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path')).'/';
-        switch(strtolower($type)) {
-            case 'error':
-                return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('errors_log_file')));
-            case 'debug':
-                return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('debugging_log_file')));
-            case 'log':
-            default:
-                return static::Log2File($msg,$lpath.(strlen($file) ? $file : AppConfig::GetValue('log_file')));
-        }//switch(strtolower($type))
-    }//END public static function WriteToLog
+    public static function LogToFile($message,?string $scriptName=NULL,?string $file=NULL,?string $path=NULL) {
+        try {
+            FileLoggerAdapter::LogToFile($message,strlen($file) ? $file : AppConfig::GetValue('log_file'),strlen($path) ? $path : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),$scriptName);
+            return TRUE;
+        } catch(AppException $e) {
+            return $e;
+        }//END try
+    }//END public static function LogToFile
 
     /**
      * Load instance specific configuration options (into protected $instanceConfig property)

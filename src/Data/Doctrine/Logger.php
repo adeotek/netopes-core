@@ -60,9 +60,6 @@ class Logger implements SQLLogger {
             $this->query.='   =>   Duration: '.number_format((microtime(TRUE) - $this->startTime),3,'.','').' sec';
         }
         NApp::Dlog($this->query,'DbDebug');
-        if(AppConfig::GetValue('db_debug2file')) {
-            NApp::Write2LogFile('DbDebug: '.$this->query,'debug');
-        }
         $this->startTime=$this->query=NULL;
     }//END public function stopQuery
 
@@ -98,8 +95,5 @@ class Logger implements SQLLogger {
         }//if(is_object($query))
         $lQuery.=($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
         NApp::Dlog($lQuery,$lLabel);
-        if(AppConfig::GetValue('db_debug2file')) {
-            NApp::Write2LogFile($lLabel.': '.$lQuery,'debug');
-        }
     }//END public static function DbDebug
 }//END class Logger implements SQLLogger

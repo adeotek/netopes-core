@@ -23,6 +23,7 @@ use NApp;
  */
 class DualControl extends Control {
     use TControlConditions;
+
     /**
      * @var    array Main control parameters array
      */

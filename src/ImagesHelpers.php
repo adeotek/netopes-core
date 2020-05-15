@@ -51,7 +51,7 @@ class ImagesHelpers {
      * @return mixed
      */
     public static function cropResizeImage($target_img,$target_width,$target_height,$source_img,$start_x,$start_y,$crop_width,$crop_height,$istransparent=FALSE) {
-        list($imagewidth,$imageheight,$imageType)=getimagesize($source_img);
+        [$imagewidth,$imageheight,$imageType]=getimagesize($source_img);
         $newImageWidth=(!is_numeric($target_width) || $target_width<=0) ? $imagewidth : $target_width;
         $newImageHeight=(!is_numeric($target_height) || $target_height<=0) ? $imageheight : $target_height;
         if($imagewidth<$newImageWidth) {
@@ -139,7 +139,7 @@ class ImagesHelpers {
      * @return mixed
      */
     public static function resizeImage($image_name,$image,$width,$height,$scale) {
-        list($imagewidth,$imageheight,$imageType)=getimagesize($image);
+        [$imagewidth,$imageheight,$imageType]=getimagesize($image);
         $imageType=image_type_to_mime_type($imageType);
         $newImageWidth=ceil($width * $scale);
         $newImageHeight=ceil($height * $scale);
