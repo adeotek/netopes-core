@@ -35,6 +35,13 @@ interface ILoggerAdapter {
     public function GetScripts(): array;
 
     /**
+     * Get output buffering requirement
+     *
+     * @return bool
+     */
+    public function GetRequiresOutputBuffering(): bool;
+
+    /**
      * Add new log event (to buffer if buffered=TRUE or directly to log otherwise)
      *
      * @param \NETopes\Core\Logging\LogEvent $entry

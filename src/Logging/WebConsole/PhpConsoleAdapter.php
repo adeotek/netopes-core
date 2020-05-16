@@ -91,6 +91,15 @@ class PhpConsoleAdapter implements ILoggerAdapter {
     }//END public function GetScripts
 
     /**
+     * Get output buffering requirement
+     *
+     * @return bool
+     */
+    public function GetRequiresOutputBuffering(): bool {
+        return TRUE;
+    }//END public function GetRequiresOutputBuffering
+
+    /**
      * Add new log event
      *
      * @param \NETopes\Core\Logging\LogEvent $entry
@@ -108,7 +117,7 @@ class PhpConsoleAdapter implements ILoggerAdapter {
             }
             $label.=$entry->mainLabel ?? $this->defaultLabel;
             if($entry->isException()) {
-                $label.='#'.get_class($entry->message);
+                $label.=' '.get_class($entry->message);
                 if($this->showExceptionsTrace) {
                     $this->loggerObject->getDebugDispatcher()->dispatchDebug($entry->message->getMessage(),$label.':Message>>');
                     $this->loggerObject->getDebugDispatcher()->dispatchDebug($entry->backtrace,$label.':Trace>>');

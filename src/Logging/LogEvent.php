@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Logging;
 
+use DateTime;
 use Throwable;
 
 /**
@@ -36,6 +37,10 @@ class LogEvent {
      */
     const LEVEL_ERROR=4;
 
+    /**
+     * @var float Event timestamp as micro-time
+     */
+    public $timestamp;
     /**
      * @var int Log level
      */
@@ -77,6 +82,13 @@ class LogEvent {
     }
 
     /**
+     * LogEvent constructor.
+     */
+    public function __construct() {
+        $this->timestamp=microtime(TRUE);
+    }
+
+    /**
      * @return bool
      */
     public function isException(): bool {
@@ -84,10 +96,26 @@ class LogEvent {
     }
 
     /**
-     * @return string Log level string value
+     * @param float $timestamp
+     * @return \NETopes\Core\Logging\LogEvent
      */
-    public function getLevelAsString(): string {
-        return self::GetLogLevelString($this->level);
+    public function setTimestamp(float $timestamp): LogEvent {
+        $this->timestamp=$timestamp;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getTimestamp(): DateTime {
+        return DateTime::createFromFormat('U.u',$this->timestamp);
+    }
+
+    /**
+     * @return int
+     */
+    public function getTsInNs(): int {
+        return (intval(($this->timestamp * 10000)) * 100000);
     }
 
     /**
@@ -97,6 +125,13 @@ class LogEvent {
     public function setLevel(int $level): LogEvent {
         $this->level=$level;
         return $this;
+    }
+
+    /**
+     * @return string Log level string value
+     */
+    public function getLevelAsString(): string {
+        return self::GetLogLevelString($this->level);
     }
 
     /**
@@ -132,6 +167,28 @@ class LogEvent {
     public function setExtraLabels(array $extraLabels): LogEvent {
         $this->extraLabels=$extraLabels;
         return $this;
+    }
+
+    /**
+     * @param array $globalLabels
+     * @return array
+     */
+    public function getAllLabels(array $globalLabels): array {
+        $result=$globalLabels;
+        if(strlen($this->sourceFile)) {
+            $result['sourceFile']=$this->sourceFile;
+        }
+        foreach($this->extraLabels as $k=>$v) {
+            if(!is_string($k) || !is_string($v)) {
+                continue;
+            }
+            $result[$k]=$v;
+        }//END foreach
+        if(strlen($this->mainLabel)) {
+            $result['tag']=$this->mainLabel;
+        }
+        $result['level']=$this->getLevelAsString();
+        return $result;
     }
 
     /**

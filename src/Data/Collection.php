@@ -29,6 +29,8 @@ use function end;
 use function in_array;
 use function key;
 use function ksort;
+use function uasort;
+use function uksort;
 use function next;
 use function reset;
 use function spl_object_hash;
@@ -355,6 +357,26 @@ class Collection implements ICollection {
      */
     public function ksort(int $mode=SORT_NUMERIC) {
         ksort($this->elements,$mode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function uasort(callable $value_compare_func) {
+        if(uasort($this->elements,$value_compare_func)) {
+            return $this->elements;
+        }
+        return FALSE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function uksort(callable $value_compare_func) {
+        if(uksort($this->elements,$value_compare_func)) {
+            return $this->elements;
+        }
+        return FALSE;
     }
 
     /**

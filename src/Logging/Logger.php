@@ -91,6 +91,7 @@ class Logger {
                     'tmp_path'=>$tmpPath,
                 ],$adapterConfig));
                 $this->loggingScripts=array_merge($this->loggingScripts,$adapterInstance->GetScripts());
+                $this->requiresOutputBuffering=$this->requiresOutputBuffering || $adapterInstance->GetRequiresOutputBuffering();
                 $this->loggingObjects[]=clone $adapterInstance;
                 unset($adapterInstance);
             } catch(AppException $e) {
@@ -160,15 +161,19 @@ class Logger {
     /**
      * Send data to browser
      *
+     * @param bool|null $onlyRequiringOutputBuffering
      * @return void
      */
-    public function FlushLogs() {
+    public function FlushLogs(?bool $onlyRequiringOutputBuffering=NULL) {
         if(!$this->enabled || !count($this->loggingObjects)) {
             return;
         }
         /** @var \NETopes\Core\Logging\ILoggerAdapter $lObj */
         foreach($this->loggingObjects as $lObj) {
-            $lObj->FlushEvents();
+            if((($onlyRequiringOutputBuffering ?? TRUE)===TRUE && $lObj->GetRequiresOutputBuffering())
+                || (($onlyRequiringOutputBuffering ?? FALSE)===FALSE && !$lObj->GetRequiresOutputBuffering())) {
+                $lObj->FlushEvents();
+            }
         }//END foreach
     }//END public function FlushLogs
 

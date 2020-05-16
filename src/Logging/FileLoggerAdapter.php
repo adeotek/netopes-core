@@ -66,6 +66,9 @@ class FileLoggerAdapter implements ILoggerAdapter {
         $this->includeExtraLabels=get_array_value($params,'include_extra_labels',$this->includeExtraLabels,'is_bool');
         $this->globalExtraLabels=get_array_value($params,'global_extra_labels',$this->globalExtraLabels,'is_bool');
         $this->buffered=get_array_value($params,'buffered',$this->buffered,'is_bool');
+        if($this->buffered) {
+            $this->logEventsBuffer=new LogEventsCollection();
+        }
     }//END public function __construct
 
     /**
@@ -76,6 +79,15 @@ class FileLoggerAdapter implements ILoggerAdapter {
     public function GetScripts(): array {
         return [];
     }//END public function GetScripts
+
+    /**
+     * Get output buffering requirement
+     *
+     * @return bool
+     */
+    public function GetRequiresOutputBuffering(): bool {
+        return FALSE;
+    }//END public function GetRequiresOutputBuffering
 
     /**
      * Add new log event (to buffer if buffered=TRUE or directly to log otherwise)
@@ -109,7 +121,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
      * Flush log events buffer
      */
     public function FlushEvents(): void {
-        if($this->buffered && !$this->logEventsBuffer instanceof LogEventsCollection || !$this->logEventsBuffer->count()) {
+        if(!$this->logEventsBuffer instanceof LogEventsCollection || !$this->logEventsBuffer->count()) {
             return;
         }
         try {
@@ -140,7 +152,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
      * @return string
      */
     public static function FileLogEntryFormatter(LogEvent $entry,bool $includeExceptionsTrace=TRUE,bool $includeExtraLabels=TRUE,array $globalExtraLabels=[]): string {
-        $data='#'.date('Y-m-d H:i:s.u').'# ['.strtoupper($entry->getLevelAsString()).(strlen($entry->mainLabel) ? '|'.$entry->mainLabel : '').'] ';
+        $data='#'.$entry->getTimestamp()->format('Y-m-d H:i:s.u').'# ['.strtoupper($entry->getLevelAsString()).(strlen($entry->mainLabel) ? '|'.$entry->mainLabel : '').'] ';
         $data.='<'.$entry->sourceFile.($entry->sourceLine ? ':'.$entry->sourceLine : '').'> ';
         if($entry->isException()) {
             $data.=$entry->message->getMessage();

@@ -228,6 +228,7 @@ abstract class App implements IApp {
             static::LoadDomainConfig(TRUE);
             static::$guiLoaded=FALSE;
             static::$debug=AppConfig::GetValue('debug');
+            ErrorHandler::SetExecuteOnShutdown([static::class,'OnShutdown']);
             return;
         }//if($isCli)
         if($sessionInit) {
@@ -272,7 +273,17 @@ abstract class App implements IApp {
             AppConfig::SetValue('debug',FALSE);
         }
         static::$debug=AppConfig::GetValue('debug');
+        ErrorHandler::SetExecuteOnShutdown([static::class,'OnShutdown']);
     }//END public static function Start
+
+    /**
+     * On application shutdown
+     */
+    public static function OnShutdown() {
+        if(static::$logger instanceof Logger) {
+            static::$logger->FlushLogs(FALSE);
+        }
+    }//END public static function OnShutdown
 
     /**
      * Gets application state
@@ -490,7 +501,7 @@ abstract class App implements IApp {
             return FALSE;
         }
         if(static::$logger instanceof Logger) {
-            static::$logger->FlushLogs();
+            static::$logger->FlushLogs(TRUE);
         }
         if($end===TRUE) {
             ob_end_flush();
@@ -951,7 +962,8 @@ HTML;
             return AppConfig::GetValue('app_multi_language');
         }
         $namespace=$namespace ? $namespace : static::$currentNamespace;
-        return get_array_value(AppConfig::GetValue('app_multi_language'),$namespace,TRUE,'bool');
+        $appMultiLanguage=AppConfig::GetValue('app_multi_language');
+        return get_array_value($appMultiLanguage,$namespace,TRUE,'bool');
     }//END public static function IsMultiLanguage
 
     /**
@@ -1103,7 +1115,7 @@ HTML;
      * @return void
      */
     public static function Dlog($data,?string $label=NULL,array $extraLabels=[]) {
-        if(!static::GetLoggerState()) {
+        if(!static::$debug || !static::GetLoggerState()) {
             return;
         }
         try {

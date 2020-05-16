@@ -10,7 +10,9 @@
  * @filesource
  */
 namespace NETopes\Core\Logging\WebConsole;
+use Exception;
 use NETopes\Core\AppException;
+use NETopes\Core\Logging\FileLoggerAdapter;
 use NETopes\Core\Logging\ILoggerAdapter;
 use NETopes\Core\Logging\LogEvent;
 use QuantumPHP;
@@ -77,34 +79,51 @@ class QuantumPhpAdapter implements ILoggerAdapter {
     }//END public function GetScripts
 
     /**
+     * Get output buffering requirement
+     *
+     * @return bool
+     */
+    public function GetRequiresOutputBuffering(): bool {
+        return TRUE;
+    }//END public function GetRequiresOutputBuffering
+
+    /**
      * Add new log event to buffer
      *
      * @param \NETopes\Core\Logging\LogEvent $entry
      */
     public function AddEvent(LogEvent $entry): void {
-        $level=$entry->getLevelAsString();
-        if($this->showSourceFile && strlen($entry->sourceFile)) {
-            $label='['.basename($entry->sourceFile).($entry->sourceLine ? ':'.$entry->sourceLine : '').']';
-        } else {
-            $label='';
-        }
-        $label.=$entry->mainLabel ?? $this->defaultLabel;
-        if($entry->isException()) {
-            $label=(strlen($label) ? $label.':' : '').get_class($entry->message);
-            QuantumPHP::add($label,($level!=='debug' ? $level : 'status'),$entry->message);
-        } else {
-            if(is_null($entry->message)) {
-                $isFunction=FALSE;
-                $value=(is_string($label) ? $label.': ' : '').'[NULL]';
-            } elseif(is_scalar($entry->message)) {
-                $isFunction=FALSE;
-                $value=(is_string($label) ? $label.': ' : '').$entry->message;
+        try {
+            $level=$entry->getLevelAsString();
+            if($this->showSourceFile && strlen($entry->sourceFile)) {
+                $label='['.basename($entry->sourceFile).($entry->sourceLine ? ':'.$entry->sourceLine : '').']';
             } else {
-                $isFunction=TRUE;
-                $value=$entry->message;
+                $label='';
             }
-            QuantumPHP::add($value,($level!=='debug' ? $level : 'status'),FALSE,FALSE,FALSE,FALSE,$isFunction);
-        }//if($entry->isException())
+            $label.=$entry->mainLabel ?? $this->defaultLabel;
+            if($entry->isException()) {
+                $label=(strlen($label) ? $label.':' : '').get_class($entry->message);
+                QuantumPHP::add($label,($level!=='debug' ? $level : 'status'),$entry->message);
+            } else {
+                if(is_null($entry->message)) {
+                    $isFunction=FALSE;
+                    $value=(is_string($label) ? $label.': ' : '').'[NULL]';
+                } elseif(is_scalar($entry->message)) {
+                    $isFunction=FALSE;
+                    $value=(is_string($label) ? $label.': ' : '').$entry->message;
+                } else {
+                    $isFunction=TRUE;
+                    $value=$entry->message;
+                }
+                QuantumPHP::add($value,($level!=='debug' ? $level : 'status'),FALSE,FALSE,FALSE,FALSE,$isFunction);
+            }//if($entry->isException())
+        } catch(Exception $e) {
+            try {
+                FileLoggerAdapter::LogToFile($e,NULL,NULL,__FILE__,__LINE__,LogEvent::LEVEL_ERROR);
+            } catch(AppException $e) {
+                unset($e);
+            }//END try
+        }//END try
     }//END public function AddEvent
 
     public function FlushEvents(): void {
