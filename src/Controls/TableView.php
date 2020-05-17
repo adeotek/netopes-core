@@ -2257,7 +2257,7 @@ class TableView extends FilterControl {
             return;
         }
         $export_all=get_array_value($params,'exportall',FALSE,'bool');
-        //\NETopes\Core\App\Debugger::StartTimeTrack('TableViewExportData');
+        //\NETopes\Core\Logging\Logger::StartTimeTrack('TableViewExportData');
         $cacheFile=AppHelpers::GetCachePath().'datagrid/'.$chash.($export_all ? '_all' : '').'.tmpexp';
         try {
             if(!file_exists($cacheFile)) {
@@ -2266,12 +2266,12 @@ class TableView extends FilterControl {
             }//if(!file_exists($cacheFile))
             $exportData=unserialize(file_get_contents($cacheFile));
             // NApp::Log2File(print_r($export_data,TRUE),NApp::$appPath.AppConfig::GetValue('logs_path').'/test.log');
-            // NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
+            // NApp::Dlog(\NETopes\Core\Logging\Logger::ShowTimeTrack('TableViewExportData',FALSE),'BP:0');
             if(!is_array($exportData) || !count($exportData)) {
                 return;
             }
             $excel=new ExcelExport($exportData);
-            // NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('TableViewExportData'),'BP:END');
+            // NApp::Dlog(\NETopes\Core\Logging\Logger::ShowTimeTrack('TableViewExportData'),'BP:END');
         } catch(AppException $e) {
             NApp::Elog($e);
             throw $e;

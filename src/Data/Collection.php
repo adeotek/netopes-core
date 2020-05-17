@@ -29,11 +29,11 @@ use function end;
 use function in_array;
 use function key;
 use function ksort;
-use function uasort;
-use function uksort;
 use function next;
 use function reset;
 use function spl_object_hash;
+use function uasort;
+use function uksort;
 
 /**
  * Class Collection

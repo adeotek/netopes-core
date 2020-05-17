@@ -46,11 +46,11 @@ class MySqlAdapter extends SqlDataAdapter {
     protected function Init($connection) {
         $db_port=(array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
         try {
-            //\NETopes\Core\App\Debugger::StartTimeTrack('mysqli_connect');
+            //\NETopes\Core\Logging\Logger::StartTimeTrack('mysqli_connect');
             if(!($this->connection=new mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbName))) {
                 throw new Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR);
             }
-            // NApp::Dlog(\NETopes\Core\App\Debugger::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+            // NApp::Dlog(\NETopes\Core\Logging\Logger::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
             if(!$this->connection->set_charset("utf8")) {
                 throw new Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR);
             }

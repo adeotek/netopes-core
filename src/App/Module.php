@@ -703,13 +703,13 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     public function GetViewFile(string $name,?string $subDir=NULL,?string $themeDir=NULL) {
-        // \NETopes\Core\App\Debugger::StartTimeTrack('MGetViewFile');
+        // \NETopes\Core\Logging\Logger::StartTimeTrack('MGetViewFile');
         try {
             $result=$this->ViewFileProvider($name,$subDir,$themeDir);
         } catch(ReflectionException $re) {
             throw AppException::GetInstance($re,'reflection',0);
         }//END try
-        // NApp::Dlog(number_format(\NETopes\Core\App\Debugger::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
+        // NApp::Dlog(number_format(\NETopes\Core\Logging\Logger::ShowTimeTrack('MGetViewFile'),3,'.','').' sec.','GetViewFile::'.$name);
         // NApp::Dlog($result,'GetViewFile::'.$name);
         return $result;
     }//END public function GetViewFile
@@ -726,13 +726,13 @@ class Module {
      * @throws \NETopes\Core\AppException
      */
     public function GetResourceFile(string $name,string $ext,?string $subDir=NULL,?string $themeDir=NULL) {
-        // \NETopes\Core\App\Debugger::StartTimeTrack('MGetResourceFile');
+        // \NETopes\Core\Logging\Logger::StartTimeTrack('MGetResourceFile');
         try {
             $result=$this->ViewFileProvider($name,$subDir,$themeDir,$ext);
         } catch(ReflectionException $re) {
             throw AppException::GetInstance($re,'reflection',0);
         }//END try
-        // NApp::Dlog(number_format(\NETopes\Core\App\Debugger::ShowTimeTrack('MGetResourceFile'),3,'.','').' sec.','GetResourceFile::'.$name);
+        // NApp::Dlog(number_format(\NETopes\Core\Logging\Logger::ShowTimeTrack('MGetResourceFile'),3,'.','').' sec.','GetResourceFile::'.$name);
         // NApp::Dlog($result,'GetResourceFile::'.$name);
         return $result;
     }//END public function GetResourceFile

@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.3.2.0
+ * @version    3.4.1.0
  * @filesource
  */
 namespace NETopes\Core\Logging;
@@ -152,10 +152,10 @@ class Logger {
      * @param int         $level
      * @param string|null $label
      * @param array       $extraLabels
-     * @param string|null $adapterType
+     * @param array       $adapterTypes
      * @param array|null  $debugBacktrace
      */
-    public function AddLogEntry($message,int $level=LogEvent::LEVEL_DEBUG,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL,?array $debugBacktrace=NULL) {
+    public function AddLogEntry($message,int $level=LogEvent::LEVEL_DEBUG,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[],?array $debugBacktrace=NULL) {
         if(!$this->enabled || !count($this->loggingObjects)) {
             return;
         }
@@ -172,7 +172,7 @@ class Logger {
         }
         /** @var \NETopes\Core\Logging\ILoggerAdapter $lObj */
         foreach($this->loggingObjects as $lObj) {
-            if(isset($adapterType) || $adapterType!==$lObj->GetType()) {
+            if(count($adapterTypes) && !in_array($lObj->GetType(),$adapterTypes)) {
                 continue;
             }
             $lObj->AddEvent(clone $entry);

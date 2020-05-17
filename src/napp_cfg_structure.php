@@ -183,7 +183,7 @@ $_NAPP_CONFIG_STRUCTURE=[
     // Debug mode on/off
     'debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
     // Database debug mode on/off
-    'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
+    'db_debug'=>['access'=>'public','default'=>[],'validation'=>'is_array'],
     // Relative path to the logs folder
     'logs_path'=>['access'=>'readonly','default'=>'/.logs','validation'=>'is_notempty_string'],
     // Name of the main log file

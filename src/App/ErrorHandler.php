@@ -7,11 +7,12 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.3.2.0
+ * @version    3.4.1.0
  * @filesource
  */
 use NETopes\Core\App\IErrorHandler;
 use NETopes\Core\AppException;
+use NETopes\Core\Logging\FileLoggerAdapter;
 
 /**
  * Class ErrorHandler
@@ -310,7 +311,7 @@ class ErrorHandler implements IErrorHandler {
             }//if(strpos($errMessage,' deadlock ')!==FALSE)
             self::$errorsStack=NULL;
             if(class_exists('NApp')) {
-                NApp::LogToFile(['level'=>'error','message'=>$errMessage,'file'=>$errFile,'line'=>$errLine],__FILE__,self::$errorLogPath.self::$errorLogFile);
+                FileLoggerAdapter::LogToFile(['level'=>'error','message'=>$errMessage,'file'=>$errFile,'line'=>$errLine],self::$errorLogFile,self::$errorLogPath,__FILE__,__LINE__,4);
             }
             self::DisplayError($errMessage,$errNo,$errFile,$errLine);
             return;
@@ -335,7 +336,7 @@ class ErrorHandler implements IErrorHandler {
         }//END foreach
         self::$errorsStack=NULL;
         if(class_exists('NApp')) {
-            NApp::LogToFile(['level'=>'error','message'=>$errMessage],__FILE__,self::$errorLogPath.self::$errorLogFile);
+            FileLoggerAdapter::LogToFile(['level'=>'error','message'=>$errMessage],self::$errorLogFile,self::$errorLogPath,__FILE__,__LINE__,4);
         }
         self::DisplayError($errMessage);
     }//END public static function ShowErrors

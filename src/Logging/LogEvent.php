@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.3.2.0
+ * @version    3.4.1.0
  * @filesource
  */
 namespace NETopes\Core\Logging;
@@ -176,7 +176,7 @@ class LogEvent {
     public function getAllLabels(array $globalLabels): array {
         $result=$globalLabels;
         if(strlen($this->sourceFile)) {
-            $result['sourceFile']=$this->sourceFile;
+            $result['SourceFile']=$this->sourceFile;
         }
         foreach($this->extraLabels as $k=>$v) {
             if(!is_string($k) || !is_string($v)) {

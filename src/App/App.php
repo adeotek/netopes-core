@@ -903,7 +903,7 @@ HTML;
     /**
      * Get user login status
      *
-     * @return boolean UserSession login status
+     * @return bool UserSession login status
      */
     public static function GetLoginStatus(): bool {
         return UserSession::$loginStatus;
@@ -1065,7 +1065,7 @@ HTML;
             return static::$logger->IsEnabled();
         }
         $adapters=AppConfig::GetValue('logging_adapters');
-        static::$logger=new Logger(is_array($adapters) ? $adapters : [],AppConfig::GetValue('logs_path'),AppConfig::GetValue('log_file'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp');
+        static::$logger=new Logger(is_array($adapters) ? $adapters : [],AppConfig::GetLogsPath(),AppConfig::GetValue('log_file'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp');
         return static::$logger->IsEnabled();
     }//END public static function InitDebugger
 
@@ -1088,40 +1088,76 @@ HTML;
     }//END public static function LoggerRequiresOutputBuffering
 
     /**
+     * Get database debug state
+     *
+     * @return bool Returns TRUE if database debug is active, FALSE otherwise
+     */
+    public static function GetDbDebugState() {
+        try {
+            return count(AppConfig::GetValue('db_debug'));
+        } catch(AppException $e) {
+            self::Elog($e);
+            return FALSE;
+        }//END try
+    }//END public static function GetDbDebugState
+
+    /**
      * Send data to logger active adapters with DEBUG level
      *
-     * @param mixed       $data        Log data
-     * @param string|null $label       Main label assigned to the log entry
-     * @param array       $extraLabels Extra labels assigned to the log entry
-     * @param string|null $adapterType Optional adapter type filter
+     * @param mixed       $data         Log data
+     * @param string|null $label        Main label assigned to the log entry
+     * @param array       $extraLabels  Extra labels assigned to the log entry
+     * @param array       $adapterTypes Optional adapter types filter array
      * @return void
      */
-    public static function Dlog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
+    public static function Dlog($data,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[]) {
         if(!static::$debug || !static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,$adapterTypes,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Dlog
 
     /**
+     * Send db debug data to logger filtered adapters
+     *
+     * @param mixed       $data         Log data
+     * @param string|null $label        Main label assigned to the log entry
+     * @param array       $extraLabels  Extra labels assigned to the log entry
+     * @param array       $adapterTypes Optional adapter types filter array
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public static function DbDebug($data,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[]) {
+        $configDebugMode=AppConfig::GetValue('db_debug');
+        if((!count($configDebugMode) && !count($adapterTypes)) || !static::GetLoggerState()) {
+            return;
+        }
+        try {
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,count($adapterTypes) ? $adapterTypes : $configDebugMode,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        } catch(Exception $e) {
+            unset($e);
+        }//END try
+    }//END public static function DbDebug
+
+    /**
      * Send data to logger active adapters with INFO level
      *
-     * @param mixed       $data        Log data
-     * @param string|null $label       Main label assigned to the log entry
-     * @param array       $extraLabels Extra labels assigned to the log entry
-     * @param string|null $adapterType Optional adapter type filter
+     * @param mixed       $data         Log data
+     * @param string|null $label        Main label assigned to the log entry
+     * @param array       $extraLabels  Extra labels assigned to the log entry
+     * @param array       $adapterTypes Optional adapter types filter array
      * @return void
      */
-    public static function Ilog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
+    public static function Ilog($data,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[]) {
         if(!static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_INFO,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_INFO,$label,$extraLabels,$adapterTypes,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
@@ -1130,18 +1166,18 @@ HTML;
     /**
      * Send data to logger active adapters with WARNING level
      *
-     * @param mixed       $data        Log data
-     * @param string|null $label       Main label assigned to the log entry
-     * @param array       $extraLabels Extra labels assigned to the log entry
-     * @param string|null $adapterType Optional adapter type filter
+     * @param mixed       $data         Log data
+     * @param string|null $label        Main label assigned to the log entry
+     * @param array       $extraLabels  Extra labels assigned to the log entry
+     * @param array       $adapterTypes Optional adapter types filter array
      * @return void
      */
-    public static function Wlog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
+    public static function Wlog($data,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[]) {
         if(!static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_WARNING,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_WARNING,$label,$extraLabels,$adapterTypes,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
@@ -1150,18 +1186,18 @@ HTML;
     /**
      * Send data to logger active adapters with ERROR level
      *
-     * @param mixed       $data        Log data
-     * @param string|null $label       Main label assigned to the log entry
-     * @param array       $extraLabels Extra labels assigned to the log entry
-     * @param string|null $adapterType Optional adapter type filter
+     * @param mixed       $data         Log data
+     * @param string|null $label        Main label assigned to the log entry
+     * @param array       $extraLabels  Extra labels assigned to the log entry
+     * @param array       $adapterTypes Optional adapter types filter array
      * @return void
      */
-    public static function Elog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
+    public static function Elog($data,?string $label=NULL,array $extraLabels=[],array $adapterTypes=[]) {
         if(!static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_ERROR,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_ERROR,$label,$extraLabels,$adapterTypes,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
@@ -1193,12 +1229,12 @@ HTML;
      */
     public static function LogToFile($message,?string $scriptName=NULL,?int $scriptLine=NULL,int $level=NULL,?string $file=NULL,?string $path=NULL) {
         try {
-            if(strlen($file) && preg_match('/^\/|[a-zA-Z]:\\/',$file)) {
+            if(is_absolute_path($file)) {
                 $logFile=$file;
                 $logPath=NULL;
             } else {
                 $logFile=strlen($file) ? $file : AppConfig::GetValue('log_file');
-                $logPath=strlen($path) ? $path : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path');
+                $logPath=is_absolute_path($path) ? $path : (strlen($path) ? _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/'.trim($path,'\\/').'/' : AppConfig::GetLogsPath());
             }
             FileLoggerAdapter::LogToFile($message,$logFile,$logPath,$scriptName,$scriptLine,$level);
             return TRUE;

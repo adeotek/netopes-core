@@ -13,7 +13,6 @@
 /** @noinspection PhpMissingParentConstructorInspection */
 namespace NETopes\Core\Data;
 use Exception;
-use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use PDO;
 use PdoException;
@@ -33,7 +32,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @throws \NETopes\Core\AppException
      */
     protected function __construct($connection) {
-        $this->debug=AppConfig::GetValue('db_debug');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
             throw new AppException('Incorrect database connection',E_ERROR,1);
         }
@@ -189,7 +187,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @return array|bool Returns database request result
      */
     public function ExecuteQuery($query,$params=[],&$extraParams=[]) {
-        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
         $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
         $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
         $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
@@ -223,7 +220,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @return array|bool Returns database request result
      */
     public function ExecuteProcedure($procedure,$params=[],&$extraParams=[]) {
-        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
         $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
         $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
         $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
@@ -258,7 +254,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      * @return mixed Returns database method result
      */
     public function ExecuteMethod($method,$property=NULL,$params=[],$extraParams=[]) {
-        $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
         $log=get_array_value($extraParams,'log',FALSE,'bool');
         $cmethod=$this->dbType.str_replace(__CLASS__.'::','',__METHOD__);
         return $this::$cmethod($method,$property,$params,$extraParams,$log);
@@ -372,7 +367,6 @@ abstract class SqlDataAdapter extends DataAdapter {
             }
             throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode());
         }//try
-        //if($this->debug==1) {echo " #Duration: ".number_format((microtime(TRUE)-$time),3,'.','')." sec#<br/>";}
         return change_array_keys_case($final_result,TRUE);
     }//END public function PdoExecuteQuery
 
@@ -419,7 +413,6 @@ abstract class SqlDataAdapter extends DataAdapter {
             }//if($trans)
             throw new AppException($e->getMessage(),E_ERROR,1,$e->getFile(),$e->getLine(),'pdo',$e->getCode(),$e->errorInfo);
         }//END try
-        //if($this->debug==1) {echo " #Duration: ".number_format((microtime(TRUE)-$time),3,'.','')." sec#<br/>";}
         return change_array_keys_case($final_result,TRUE);
     }//END public function PdoExecuteProcedure
 }//END abstract class SqlDataAdapter extends DataAdapter

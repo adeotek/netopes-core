@@ -16,6 +16,7 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\DataHelpers;
+use NETopes\Core\Logging\LogEvent;
 
 /**
  * Class Translation
@@ -142,7 +143,7 @@ class Translation {
                     NApp::Elog($e);
                 }//END try
             } else {
-                NApp::LogToFile("|Module[{$lModule}]|Method[{$lMethod}]|Key[{$lKey}]",NULL,NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
+                NApp::LogToFile("|Module[{$lModule}]|Method[{$lMethod}]|Key[{$lKey}]",NULL,NULL,LogEvent::LEVEL_WARNING,NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
             }//if(AppConfig::GetValue('auto_insert_missing_translations'))
             return "[{$lKey}]";
         }//if(...

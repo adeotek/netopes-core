@@ -6,11 +6,12 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.3.2.0
+ * @version    3.4.1.0
  * @filesource
  */
 namespace NETopes\Core\Logging\WebConsole;
 use Exception;
+use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Logging\FileLoggerAdapter;
 use NETopes\Core\Logging\ILoggerAdapter;
@@ -129,9 +130,10 @@ class QuantumPhpAdapter implements ILoggerAdapter {
             }//if($entry->isException())
         } catch(Exception $e) {
             try {
-                FileLoggerAdapter::LogToFile($e,NULL,NULL,__FILE__,__LINE__,LogEvent::LEVEL_ERROR);
-            } catch(AppException $e) {
+                FileLoggerAdapter::LogToFile($e,AppConfig::GetLogFile());
+            } catch(AppException $se) {
                 unset($e);
+                unset($se);
             }//END try
         }//END try
     }//END public function AddEvent

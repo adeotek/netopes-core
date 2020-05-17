@@ -6,7 +6,7 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.3.2.0
+ * @version    3.4.1.0
  * @filesource
  */
 namespace NETopes\Core\Logging;
@@ -102,7 +102,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
      * @return string
      */
     public function GetLogFile(?string $rootPath=NULL): string {
-        if(strlen($this->logsPath) && preg_match('/^\/|[a-zA-Z]:\\/',$this->logsPath)) {
+        if(is_absolute_path($this->logsPath)) {
             return rtrim($this->logsPath,'/').'/'.$this->logFile;
         }
         return rtrim((strlen($rootPath) ? $rootPath : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH),'/').(strlen($this->logsPath) ? trim($this->logsPath,'/') : '').'/'.$this->logFile;
@@ -172,18 +172,21 @@ class FileLoggerAdapter implements ILoggerAdapter {
         $data.='<'.$entry->sourceFile.($entry->sourceLine ? ':'.$entry->sourceLine : '').'> ';
         if($entry->isException()) {
             $data.=$entry->message->getMessage();
-            if($includeExceptionsTrace) {
+            if($includeExceptionsTrace && count($entry->backtrace)) {
                 $data.=PHP_EOL.'<<<STACK TRACE:';
                 $data.=PHP_EOL.print_r($entry->backtrace,1);
                 $data.=PHP_EOL.'STACK TRACE>>> ';
-            }//if($includeExceptionsTrace)
+            }//if($includeExceptionsTrace && count($entry->backtrace))
         } else {
             $data.=is_null($entry->message) || is_scalar($entry->message) ? $entry->message ?? 'NULL' : PHP_EOL.print_r($entry->message,1);
         }//if($entry->isException())
         if($includeExtraLabels) {
-            $data.=PHP_EOL.'<<<LABELS:';
-            $data.=PHP_EOL.json_encode(array_merge($globalExtraLabels,$entry->extraLabels));
-            $data.=PHP_EOL.'LABELS>>>';
+            $labels=array_merge($globalExtraLabels,$entry->extraLabels);
+            if(count($labels)) {
+                $data.=PHP_EOL.'<<<LABELS:';
+                $data.=PHP_EOL.json_encode($labels);
+                $data.=PHP_EOL.'LABELS>>>';
+            }
         }//if($includeExtraLabels)
         $data.=PHP_EOL;
         return $data;

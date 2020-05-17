@@ -57,9 +57,9 @@ class AppHelpers {
      * @throws \NETopes\Core\AppException
      */
     public static function GetRepositoryPath() {
-        $repositoryPath=AppConfig::GetValue('repository_path');
-        if(is_string($repositoryPath) && strlen($repositoryPath) && file_exists($repositoryPath)) {
-            return rtrim($repositoryPath,'/\\').'/';
+        $repositoryPath=rtrim(AppConfig::GetValue('repository_path'),'\\/');
+        if(is_absolute_path($repositoryPath) && file_exists($repositoryPath)) {
+            return $repositoryPath.'/';
         }
         return NApp::$appPath.'/repository/';
     }//END public static function GetRepositoryPath

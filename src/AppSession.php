@@ -13,7 +13,8 @@
 namespace NETopes\Core;
 use ErrorHandler;
 use Exception;
-use NETopes\Core\App\Debugger;
+use NETopes\Core\Logging\FileLoggerAdapter;
+use NETopes\Core\Logging\LogEvent;
 
 /**
  * Class AppSession
@@ -148,15 +149,14 @@ class AppSession {
     /**
      * Set session configuration
      *
-     * @param      $absolutePath
-     * @param      $domain
-     * @param      $sessionTimeout
-     * @param null $sessionId
-     * @param null $logFile
+     * @param string      $absolutePath
+     * @param string      $domain
+     * @param int         $sessionTimeout
+     * @param string|null $sessionId
      * @return string
      * @throws \NETopes\Core\AppException
      */
-    public static function ConfigAndStartSession($absolutePath,$domain,$sessionTimeout,$sessionId=NULL,$logFile=NULL) {
+    public static function ConfigAndStartSession(string $absolutePath,string $domain,int $sessionTimeout,?string $sessionId=NULL) {
         self::$sessionStarted=FALSE;
         if(class_exists('\ErrorHandler')) {
             ErrorHandler::$silentMode=TRUE;
@@ -192,9 +192,7 @@ class AppSession {
                     }//if(class_exists('\ErrorHandler') && \ErrorHandler::HasErrors())
                     if(count($errors)>0) {
                         self::$sessionStarted=FALSE;
-                        if($logFile) {
-                            Debugger::Log2File(print_r($errors,1),$absolutePath.$logFile);
-                        }
+                        FileLoggerAdapter::LogToFile(['level'=>LogEvent::LEVEL_ERROR,'message'=>$errors,'file'=>__FILE__,'line'=>__LINE__],AppConfig::GetLogFile());
                         $dbgData.='Session start [handler: Redis] errors: '.print_r($errors,1)."\n";
                     } else {
                         self::$sessionStarted=TRUE;
@@ -227,9 +225,7 @@ class AppSession {
                     }//if(class_exists('\ErrorHandler') && \ErrorHandler::HasErrors())
                     if(count($errors)>0) {
                         self::$sessionStarted=FALSE;
-                        if($logFile) {
-                            Debugger::Log2File(print_r($errors,1),$absolutePath.$logFile);
-                        }
+                        FileLoggerAdapter::LogToFile(['level'=>LogEvent::LEVEL_ERROR,'message'=>$errors,'file'=>__FILE__,'line'=>__LINE__],AppConfig::GetLogFile());
                         $dbgData.='Session start [handler: Memcached] errors: '.print_r($errors,1)."\n";
                     } else {
                         self::$sessionStarted=TRUE;
@@ -258,9 +254,7 @@ class AppSession {
                     }//if(class_exists('\ErrorHandler') && \ErrorHandler::HasErrors())
                     if(count($errors)>0) {
                         self::$sessionStarted=FALSE;
-                        if($logFile) {
-                            Debugger::Log2File(print_r($errors,1),$absolutePath.$logFile);
-                        }
+                        FileLoggerAdapter::LogToFile(['level'=>LogEvent::LEVEL_ERROR,'message'=>$errors,'file'=>__FILE__,'line'=>__LINE__],AppConfig::GetLogFile());
                         $dbgData.='Session start [handler: Memcache] errors: '.print_r($errors,1)."\n";
                     } else {
                         self::$sessionStarted=TRUE;
@@ -317,9 +311,8 @@ class AppSession {
         $cfulldomain=$cdomain.$path;
         $cuseragent=array_key_exists('HTTP_USER_AGENT',$_SERVER) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN USER AGENT';
         $sessionTimeout=AppConfig::GetValue('session_timeout');
-        $logFile=AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('log_file');
         if(!self::$sessionStarted) {
-            $dbgData.=self::ConfigAndStartSession($absolutePath,$cdomain,$sessionTimeout,NULL,$logFile);
+            $dbgData.=self::ConfigAndStartSession($absolutePath,$cdomain,$sessionTimeout,NULL);
         }
         $dbgData.='Session ID: '.session_id()."\n";
         $dbgData.='Session age: '.(isset($_SESSION['X_SCAT']) ? (time() - $_SESSION['X_SCAT']) : 'N/A')."\n";
@@ -337,7 +330,7 @@ class AppSession {
             ini_set('session.gc_maxlifetime',$sessionTimeout);
             ini_set('session.cache_expire',$sessionTimeout / 60);
             $new_session_id=self::GetNewUID($cfulldomain.$cuseragent.$cremoteaddress,'sha256');
-            $dbgData.=self::ConfigAndStartSession($absolutePath,$cdomain,$sessionTimeout,$new_session_id,$logFile);
+            $dbgData.=self::ConfigAndStartSession($absolutePath,$cdomain,$sessionTimeout,$new_session_id);
             $_SESSION['X_SCAT']=time();
             $_SESSION['SESSION_ID']=session_id();
             $dbgData.='Session ID (new): '.session_id()."\n";
@@ -349,7 +342,7 @@ class AppSession {
             $_SESSION['X_SEXT']=time();
         }
         // vprint($dbgData);
-        // self::Log2File($dbgData,$absolutePath.AppConfig::GetValue('logs_path').'/'.AppConfig::GetValue('debugging_log_file'));
+        // FileLoggerAdapter::LogToFile(['level'=>LogEvent::LEVEL_DEBUG,'message'=>$dbgData,'file'=>__FILE__,'line'=>__LINE__],AppConfig::GetLogFile());
         self::$data=$_SESSION;
         self::$initialData=self::$data;
         if(AppConfig::GetValue('async_session') && $ajax) {
