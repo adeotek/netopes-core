@@ -181,26 +181,21 @@ $_NAPP_CONFIG_STRUCTURE=[
     // Developer mode on/off
     'developer_mode'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
     // Debug mode on/off
-    'debug'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
+    'debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
     // Database debug mode on/off
-    'db_debug'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
-    // Database debug to file on/off
-    'db_debug2file'=>['access'=>'public','default'=>FALSE,'validation'=>'bool'],
-    // Show exception trace data
-    'show_exceptions_trace'=>['access'=>'readonly','default'=>FALSE,'validation'=>'bool'],
-    // Show debug invocation source file name and path in browser console on/off
-    'console_show_file'=>['access'=>'public','default'=>TRUE,'validation'=>'bool'],
-    // Javascript php console password
-    'debug_console_password'=>['access'=>'readonly','default'=>'112233','validation'=>'is_string'],
-    // PHPConsole cache file location
-    'debug_console_cache_path'=>['access'=>'readonly','default'=>'','validation'=>'is_string'],
+    'db_debug'=>['access'=>'public','default'=>[],'validation'=>'is_array'],
     // Relative path to the logs folder
     'logs_path'=>['access'=>'readonly','default'=>'/.logs','validation'=>'is_notempty_string'],
     // Name of the main log file
-    'log_file'=>['access'=>'readonly','default'=>'app.log','validation'=>'is_notempty_string'],
-    // Name of the errors log file
-    'errors_log_file'=>['access'=>'readonly','default'=>'errors.log','validation'=>'is_notempty_string'],
-    // Name of the debugging log file
-    'debug_log_file'=>['access'=>'readonly','default'=>'debugging.log','validation'=>'is_notempty_string'],
+    'log_file'=>['access'=>'readonly','default'=>'application.log','validation'=>'is_notempty_string'],
+    // Logger auto-add caller data
+    'logger_auto_add_caller'=>['access'=>'readonly','default'=>TRUE,'bool'],
+    // Logging adapters
+    'logging_adapters'=>['access'=>'readonly','default'=>[
+        [
+            'class'=>'\NETopes\Core\Logging\FileLoggerAdapter',
+            'config'=>['buffered'=>TRUE,'min_log_level'=>3,'include_exceptions_trace'=>TRUE,'include_extra_labels'=>TRUE],
+        ],
+    ],'validation'=>'is_array'],
     //END START Logs & errors reporting
 ];

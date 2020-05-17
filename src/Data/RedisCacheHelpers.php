@@ -155,6 +155,7 @@ class RedisCacheHelpers {
             $lkey=$key;
         }//if(is_string($tag) && strlen($tag))
         $handled=FALSE;
+        $result=FALSE;
         if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
             try {
                 $redis=static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
@@ -169,9 +170,7 @@ class RedisCacheHelpers {
                         $result=$redis->set($lkey,@serialize($data));
                         // NApp::Dlog($key,'Cache set');
                     }//if(is_null($data))
-                    if(AppConfig::GetValue('db_debug')) {
-                        NApp::Dlog('Cache data stored to REDIS for: '.$lkey,'SetCacheData');
-                    }//if(AppConfig::GetValue('db_debug'))
+                    NApp::DbDebug('Cache data stored to REDIS for: '.$lkey,'SetCacheData');
                     $handled=TRUE;
                 } catch(Exception $e) {
                     $result=NULL;
@@ -197,9 +196,7 @@ class RedisCacheHelpers {
                 }//if(!file_exists(AppHelpers::GetCachePath().static::$fallbackDir))
                 $result=file_put_contents(AppHelpers::GetCachePath().static::$fallbackDir.DIRECTORY_SEPARATOR.$fName,serialize($data));
             }//if(is_null($data))
-            if(AppConfig::GetValue('db_debug')) {
-                NApp::Dlog('Cache data stored to FILES for: '.$lkey,'SetCacheData');
-            }//if(AppConfig::GetValue('db_debug'))
+            NApp::DbDebug('Cache data stored to FILES for: '.$lkey,'SetCacheData');
         }//if(!$handled && static::$useFilesFallback)
         return ($result!==0 && $result!==FALSE);
     }//public static function SetCacheData
@@ -218,6 +215,7 @@ class RedisCacheHelpers {
             return FALSE;
         }
         $handled=FALSE;
+        $result=FALSE;
         if(AppConfig::GetValue('app_cache_redis') && class_exists('\Redis',FALSE)) {
             try {
                 $redis=static::GetRedisInstance('REDIS_CACHE_DB_CONNECTION');
@@ -232,9 +230,7 @@ class RedisCacheHelpers {
                         $result=$redis->delete($redis->keys($tag.':*'));
                     }//if(strlen($key))
                     $handled=TRUE;
-                    if(AppConfig::GetValue('db_debug')) {
-                        NApp::Dlog('Cache data deleted ['.print_r($result,1).'] for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-                    }//if(AppConfig::GetValue('db_debug'))
+                    NApp::DbDebug('Cache data deleted ['.print_r($result,1).'] for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
                 } catch(Exception $e) {
                     $result=NULL;
                 }//END try
@@ -251,9 +247,7 @@ class RedisCacheHelpers {
                 $filter=$key.']['.(strlen($tag) ? $tag : '*').'.cache';
                 array_map('unlink',glob(AppHelpers::GetCachePath().static::$fallbackDir.DIRECTORY_SEPARATOR.$filter));
             }//if(file_exists(AppHelpers::GetCachePath().static::$fallbackDir))
-            if(AppConfig::GetValue('db_debug')) {
-                NApp::Dlog('Cache data deleted for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
-            }//if(AppConfig::GetValue('db_debug'))
+            NApp::DbDebug('Cache data deleted for: '.$tag.(strlen($key) ? ':'.$key : ''),'UnsetCacheData');
             $result=TRUE;
         }//if(!$handled && static::$useFilesFallback)
         return ($result!==0 && $result!==FALSE);

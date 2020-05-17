@@ -11,7 +11,6 @@
  * @filesource
  */
 namespace NETopes\Core\Controls;
-use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataSourceHelpers;
 use NETopes\Core\Data\VirtualEntity;

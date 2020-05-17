@@ -12,7 +12,6 @@
  */
 namespace NETopes\Core\Data;
 use NApp;
-use NETopes\Core\AppConfig;
 use NETopes\Core\AppSession;
 
 /**
@@ -114,9 +113,7 @@ class DataSource {
             $lTag=is_string($tag) && strlen($tag) ? $tag : $procedure;
             $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
-                if(AppConfig::GetValue('db_debug')) {
-                    NApp::Dlog('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
-                }//if(AppConfig::GetValue('db_debug'))
+                NApp::DbDebug('Cache loaded data for procedure: '.$procedure,'GetCountAndData');
                 return $result;
             }//if($result!==FALSE)
         }//if($cache && NApp::CacheDbCall())
@@ -200,9 +197,7 @@ class DataSource {
             $lTag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
             $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
-                if(AppConfig::GetValue('db_debug')) {
-                    NApp::Dlog('Cache loaded data for query: '.$query,'GetCountAndData');
-                }//if(AppConfig::GetValue('db_debug'))
+                NApp::DbDebug('Cache loaded data for query: '.$query,'GetCountAndData');
                 return $result;
             }//if($result!==FALSE)
         }//if($cache && NApp::CacheDbCall())
@@ -264,9 +259,7 @@ class DataSource {
             $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             // NApp::Dlog($result,$procedure.':'.$key);
             if($result!==FALSE) {
-                if(AppConfig::GetValue('db_debug')) {
-                    NApp::Dlog('Cache loaded data for procedure: '.$procedure,'GetProcedureData');
-                }//if(AppConfig::GetValue('db_debug'))
+                NApp::DbDebug('Cache loaded data for procedure: '.$procedure,'GetProcedureData');
                 return $result;
             }//if($result!==FALSE)
             $result=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
@@ -308,9 +301,7 @@ class DataSource {
             $lTag=is_string($tag) && strlen($tag) ? $tag : AppSession::GetNewUID($query,'sha1',TRUE);
             $result=RedisCacheHelpers::GetCacheData($key,$lTag);
             if($result!==FALSE) {
-                if(AppConfig::GetValue('db_debug')) {
-                    NApp::Dlog('Cache loaded data for query: '.$query,'GetQueryData');
-                }//if(AppConfig::GetValue('db_debug'))
+                NApp::DbDebug('Cache loaded data for query: '.$query,'GetQueryData');
                 return $result;
             }//if($result!==FALSE)
             $result=$this->adapter->ExecuteQuery($query,$params,$extraParams);

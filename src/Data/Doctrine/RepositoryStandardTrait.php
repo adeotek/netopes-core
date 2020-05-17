@@ -5,7 +5,6 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
-use NApp;
 use NETopes\Core\AppException;
 
 /**

@@ -166,4 +166,28 @@ class AppConfig {
         }
         return get_array_value($options,$contextId,$defValue,$validation);
     }//END public static function GetInstanceOption
+
+    /**
+     * Get application logs absolute path
+     *
+     * @return string Application logs absolute path
+     * @throws \NETopes\Core\AppException
+     */
+    public static function GetLogsPath(): string {
+        $path=rtrim(self::GetValue('logs_path'),'\\/');
+        if(is_absolute_path($path)) {
+            return $path.'/';
+        }
+        return _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/'.$path.'/';
+    }//END public static function GetLogFile
+
+    /**
+     * Get application main log file
+     *
+     * @return string Application main log file (with full path)
+     * @throws \NETopes\Core\AppException
+     */
+    public static function GetLogFile(): string {
+        return self::GetLogsPath().self::GetValue('log_file');
+    }//END public static function GetLogFile
 }//END class AppConfig

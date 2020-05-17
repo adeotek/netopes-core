@@ -32,6 +32,7 @@ use Translate;
  */
 class GroupCheckBox extends Control {
     use TControlDataSource;
+
     const MULTI_VALUE_SEPARATOR='|';
     /**
      * @var    array Elements data source

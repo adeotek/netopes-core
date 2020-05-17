@@ -21,6 +21,7 @@ use NETopes\Core\AppException;
  */
 class ConditionalControl extends Control {
     use TControlConditions;
+
     /**
      * @var    array Controls parameters array
      */

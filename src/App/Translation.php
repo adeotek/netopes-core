@@ -16,6 +16,7 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\DataProvider;
 use NETopes\Core\DataHelpers;
+use NETopes\Core\Logging\LogEvent;
 
 /**
  * Class Translation
@@ -103,7 +104,7 @@ class Translation {
     public static function Get($key,?string $langCode=NULL,bool $echo=FALSE): string {
         if(is_array($key)) {
             if(!array_key_exists('key',$key) || strlen($key['key'])==0) {
-                return NULL;
+                return '';
             }
             $lKey=$key['key'];
             $lModule=(array_key_exists('module',$key) && strlen($key['module'])>0) ? $key['module'] : '';
@@ -140,10 +141,9 @@ class Translation {
                     ]);
                 } catch(AppException $e) {
                     NApp::Elog($e);
-                    NApp::Write2LogFile($e->getFullMessage(),'error');
                 }//END try
             } else {
-                NApp::Write2LogFile("|Module[{$lModule}]|Method[{$lMethod}]|Key[{$lKey}]",'debug',NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
+                NApp::LogToFile("|Module[{$lModule}]|Method[{$lMethod}]|Key[{$lKey}]",NULL,NULL,LogEvent::LEVEL_WARNING,NApp::$appPath.AppConfig::GetValue('logs_path')."/missing_translations_".NApp::$currentNamespace."_{$llang_code}.log");
             }//if(AppConfig::GetValue('auto_insert_missing_translations'))
             return "[{$lKey}]";
         }//if(...

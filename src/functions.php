@@ -6,9 +6,19 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.4.1.0
  * @filesource
  */
+
+/**
+ * Check if path is absolute
+ *
+ * @param string Path to be checked
+ * @return bool TRUE if path is absolute, FALSE otherwise
+ */
+function is_absolute_path(?string $path): bool {
+    return strlen($path) && preg_match('/^\/|[a-zA-Z]:\\\\/',$path);
+}//END function is_absolute_path
 /**
  * Get short class name (without namespace)
  *

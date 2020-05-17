@@ -1,223 +1,427 @@
 <?php
+/**
+ * Collection class file
+ * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
+ * to be used for data manipulation (principally for data fetched from databases)
+ *
+ * @package    NETopes\Core\Data
+ * @author     George Benjamin-Schonberger
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
+ * @license    LICENSE.md
+ * @version    3.1.0.0
+ * @filesource
+ */
 namespace NETopes\Core\Data;
-use ArrayAccess;
+use ArrayIterator;
 use Closure;
-use Countable;
-use IteratorAggregate;
-use JsonSerializable;
-use Traversable;
+use function array_filter;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_reverse;
+use function array_search;
+use function array_slice;
+use function array_values;
+use function asort;
+use function count;
+use function current;
+use function end;
+use function in_array;
+use function key;
+use function ksort;
+use function next;
+use function reset;
+use function spl_object_hash;
+use function uasort;
+use function uksort;
 
 /**
- * Interface Collection
+ * Class Collection
+ * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
+ * to be used for data manipulation (principally for data fetched from databases)
  *
- * @package NETopes\Core\Data
+ * @package  NETopes\Core\Data
  */
-interface Collection extends Traversable,Countable,JsonSerializable,IteratorAggregate,ArrayAccess {
+class Collection implements ICollection {
     /**
-     * Adds an element at the end of the collection.
+     * An array containing the entries of this collection.
      *
-     * @param mixed $element The element to add.
-     * @return bool Always TRUE.
+     * @var array
      */
-    public function add($element);
+    protected $elements;
 
     /**
-     * Clears the collection, removing all elements.
+     * Initializes a new Collection.
      *
-     * @return void
+     * @param array $elements
      */
-    public function clear();
+    public function __construct(?array $elements=[]) {
+        $this->elements=$elements ?? [];
+    }
 
     /**
-     * Checks whether an element is contained in the collection.
-     * This is an O(n) operation, where n is the size of the collection.
+     * Creates a new instance from the specified elements.
+     * This method is provided for derived classes to specify how a new
+     * instance should be created when constructor semantics have changed.
      *
-     * @param mixed $element The element to search for.
-     * @return bool TRUE if the collection contains the element, FALSE otherwise.
+     * @param array $elements Elements.
+     * @return static
      */
-    public function contains($element);
+    protected function createFrom(array $elements) {
+        return new static($elements);
+    }
 
     /**
-     * Checks whether the collection is empty (contains no elements).
-     *
-     * @return bool TRUE if the collection is empty, FALSE otherwise.
+     * {@inheritDoc}
      */
-    public function isEmpty();
+    public function toArray(bool $recursive=FALSE): array {
+        if(!$recursive) {
+            return $this->elements;
+        }
+        $result=[];
+        foreach($this->elements as $k=>$v) {
+            if(is_object($v) && method_exists($v,'toArray')) {
+                $result[$k]=$v->toArray($recursive);
+            } else {
+                $result[$k]=$v;
+            }//if(is_object($v) && method_exists($v,'toArray'))
+        }//END foreach
+        return $result;
+    }
 
     /**
-     * Removes the element at the specified index from the collection.
-     *
-     * @param string|int $key The kex/index of the element to remove.
-     * @return mixed The removed element or NULL, if the collection did not contain the element.
+     * {@inheritDoc}
      */
-    public function remove($key);
+    public function first() {
+        return reset($this->elements);
+    }
 
     /**
-     * Removes the specified element from the collection, if it is found.
-     *
-     * @param mixed $element The element to remove.
-     * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
+     * {@inheritDoc}
      */
-    public function removeElement($element);
+    public function last() {
+        return end($this->elements);
+    }
 
     /**
-     * Checks whether the collection contains an element with the specified key/index.
-     *
-     * @param string|int $key The key/index to check for.
-     * @return bool TRUE if the collection contains an element with the specified key/index,
-     *                        FALSE otherwise.
+     * {@inheritDoc}
      */
-    public function containsKey($key);
+    public function key() {
+        return key($this->elements);
+    }
 
     /**
-     * Gets the element at the specified key/index.
-     *
-     * @param string|int $key The key/index of the element to retrieve.
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function get($key);
+    public function next() {
+        return next($this->elements);
+    }
 
     /**
-     * Gets all keys/indices of the collection.
-     *
-     * @return array The keys/indices of the collection, in the order of the corresponding
-     *               elements in the collection.
+     * {@inheritDoc}
      */
-    public function getKeys();
+    public function current() {
+        return current($this->elements);
+    }
 
     /**
-     * Gets all values of the collection.
-     *
-     * @return array The values of all elements in the collection, in the order they
-     *               appear in the collection.
+     * {@inheritDoc}
      */
-    public function getValues();
+    public function remove($key) {
+        if(!isset($this->elements[$key]) && !array_key_exists($key,$this->elements)) {
+            return NULL;
+        }
+        $removed=$this->elements[$key];
+        unset($this->elements[$key]);
+        return $removed;
+    }
 
     /**
-     * Sets an element in the collection at the specified key/index.
-     *
-     * @param string|int $key   The key/index of the element to set.
-     * @param mixed      $value The element to set.
-     * @return void
+     * {@inheritDoc}
      */
-    public function set($key,$value);
+    public function removeElement($element) {
+        $key=array_search($element,$this->elements,TRUE);
+        if($key===FALSE) {
+            return FALSE;
+        }
+        unset($this->elements[$key]);
+        return TRUE;
+    }
 
     /**
-     * Gets a native PHP array representation of the collection.
-     *
-     * @return array
+     * Required by interface ArrayAccess.
+     * {@inheritDoc}
      */
-    public function toArray();
+    public function offsetExists($offset) {
+        return $this->containsKey($offset);
+    }
 
     /**
-     * Sets the internal iterator to the first element in the collection and returns this element.
-     *
-     * @return mixed
+     * Required by interface ArrayAccess.
+     * {@inheritDoc}
      */
-    public function first();
+    public function offsetGet($offset) {
+        return $this->get($offset);
+    }
 
     /**
-     * Sets the internal iterator to the last element in the collection and returns this element.
-     *
-     * @return mixed
+     * Required by interface ArrayAccess.
+     * {@inheritDoc}
      */
-    public function last();
+    public function offsetSet($offset,$value) {
+        if(!isset($offset)) {
+            $this->add($value);
+            return;
+        }
+        $this->set($offset,$value);
+    }
 
     /**
-     * Gets the key/index of the element at the current iterator position.
-     *
-     * @return int|string
+     * Required by interface ArrayAccess.
+     * {@inheritDoc}
      */
-    public function key();
+    public function offsetUnset($offset) {
+        $this->remove($offset);
+    }
 
     /**
-     * Gets the element of the collection at the current iterator position.
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function current();
+    public function containsKey($key) {
+        return isset($this->elements[$key]) || array_key_exists($key,$this->elements);
+    }
 
     /**
-     * Moves the internal iterator position to the next element and returns this element.
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function next();
+    public function contains($element) {
+        return in_array($element,$this->elements,TRUE);
+    }
 
     /**
-     * Tests for the existence of an element that satisfies the given predicate.
-     *
-     * @param Closure $p The predicate.
-     * @return bool TRUE if the predicate is TRUE for at least one element, FALSE otherwise.
+     * {@inheritDoc}
      */
-    public function exists(Closure $p);
+    public function exists(Closure $p) {
+        foreach($this->elements as $key=>$element) {
+            if($p($key,$element)) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
 
     /**
-     * Returns all the elements of this collection that satisfy the predicate p.
-     * The order of the elements is preserved.
-     *
-     * @param Closure $p The predicate used for filtering.
-     * @return Collection A collection with the results of the filter operation.
+     * {@inheritDoc}
      */
-    public function filter(Closure $p);
+    public function indexOf($element) {
+        return array_search($element,$this->elements,TRUE);
+    }
 
     /**
-     * Tests whether the given predicate p holds for all elements of this collection.
-     *
-     * @param Closure $p The predicate.
-     * @return bool TRUE, if the predicate yields TRUE for all elements, FALSE otherwise.
+     * {@inheritDoc}
      */
-    public function forAll(Closure $p);
+    public function get($key) {
+        return $this->elements[$key] ?? NULL;
+    }
 
     /**
-     * Applies the given function to each element in the collection and returns
-     * a new collection with the elements returned by the function.
-     *
-     * @param Closure $func
-     * @return Collection
+     * {@inheritDoc}
      */
-    public function map(Closure $func);
+    public function getKeys() {
+        return array_keys($this->elements);
+    }
 
     /**
-     * Partitions this collection in two collections according to a predicate.
-     * Keys are preserved in the resulting collections.
-     *
-     * @param Closure $p    The predicate on which to partition.
-     * @return Collection[] An array with two elements. The first element contains the collection
-     *                      of elements where the predicate returned TRUE, the second element
-     *                      contains the collection of elements where the predicate returned FALSE.
+     * {@inheritDoc}
      */
-    public function partition(Closure $p);
+    public function getValues() {
+        return array_values($this->elements);
+    }
 
     /**
-     * Gets the index/key of a given element. The comparison of two elements is strict,
-     * that means not only the value but also the type must match.
-     * For objects this means reference equality.
-     *
-     * @param mixed $element The element to search for.
-     * @return int|string|bool The key/index of the element or FALSE if the element was not found.
+     * {@inheritDoc}
      */
-    public function indexOf($element);
+    public function count() {
+        return count($this->elements);
+    }
 
     /**
-     * Extracts a slice of $length elements starting at position $offset from the Collection.
-     * If $length is null it returns all elements from $offset to the end of the Collection.
-     * Keys have to be preserved by this method. Calling this method will only return the
-     * selected slice and NOT change the elements contained in the collection slice is called on.
-     *
-     * @param int      $offset The offset to start from.
-     * @param int|null $length The maximum number of elements to return, or null for no limit.
-     * @return array
+     * {@inheritDoc}
      */
-    public function slice($offset,$length=NULL);
+    public function set($key,$value) {
+        $this->elements[$key]=$value;
+    }
 
     /**
-     * Specify data which should be serialized to JSON
-     *
-     * @link  http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
+     * {@inheritDoc}
      */
-    public function jsonSerialize();
-}//END interface Collection extends Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess
+    public function add($element,bool $first=FALSE): bool {
+        if($first) {
+            array_unshift($this->elements,$element);
+        } else {
+            $this->elements[]=$element;
+        }//if($first)
+        return TRUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isEmpty() {
+        return empty($this->elements);
+    }
+
+    /**
+     * Required by interface IteratorAggregate.
+     * {@inheritDoc}
+     */
+    public function getIterator() {
+        return new ArrayIterator($this->elements);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return static
+     */
+    public function map(Closure $func) {
+        return $this->createFrom(array_map($func,$this->elements));
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return static
+     */
+    public function filter(Closure $p) {
+        return $this->createFrom(array_filter($this->elements,$p));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function forAll(Closure $p) {
+        foreach($this->elements as $key=>$element) {
+            if(!$p($key,$element)) {
+                return FALSE;
+            }
+        }
+        return TRUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function partition(Closure $p) {
+        $matches=$noMatches=[];
+        foreach($this->elements as $key=>$element) {
+            if($p($key,$element)) {
+                $matches[$key]=$element;
+            } else {
+                $noMatches[$key]=$element;
+            }
+        }
+        return [$this->createFrom($matches),$this->createFrom($noMatches)];
+    }
+
+    /**
+     * Returns a string representation of this object.
+     *
+     * @return string
+     */
+    public function __toString() {
+        return __CLASS__.'@'.spl_object_hash($this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clear() {
+        $this->elements=[];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function slice($offset,$length=NULL) {
+        return array_slice($this->elements,$offset,$length,TRUE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function asort(int $mode=SORT_REGULAR) {
+        asort($this->elements,$mode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function ksort(int $mode=SORT_NUMERIC) {
+        ksort($this->elements,$mode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function uasort(callable $value_compare_func) {
+        if(uasort($this->elements,$value_compare_func)) {
+            return $this->elements;
+        }
+        return FALSE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function uksort(callable $value_compare_func) {
+        if(uksort($this->elements,$value_compare_func)) {
+            return $this->elements;
+        }
+        return FALSE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function reverse(bool $preserveKeys=FALSE) {
+        array_reverse($this->elements,$preserveKeys);
+    }
+
+    /**
+     * @return false|mixed|string
+     */
+    public function jsonSerialize() {
+        return json_encode($this->elements);
+    }
+
+    /**
+     * Merge an array or a VirtualEntity instance to current instance
+     *
+     * @param array|object $data The data to be merged into this instance
+     * @param bool         $recursive
+     * @return bool Returns TRUE on success, FALSE otherwise
+     */
+    public function merge($data,bool $recursive=FALSE) {
+        if(is_object($data) && count($data)) {
+            if(!is_array($this->elements)) {
+                $this->elements=[];
+            }
+            if($recursive) {
+                $this->elements=array_merge_recursive($this->elements,$data->toArray());
+            } else {
+                $this->elements=array_merge($this->elements,$data->toArray());
+            }//if($recursive)
+        } elseif(is_array($data) && count($data)) {
+            if(!is_array($this->elements)) {
+                $this->elements=[];
+            }
+            if($recursive) {
+                $this->elements=array_merge_recursive($this->elements,$data);
+            } else {
+                $this->elements=array_merge($this->elements,$data);
+            }//if($recursive)
+        } else {
+            return FALSE;
+        }//if(is_object($data) && count($data))
+        return TRUE;
+    }//END public function merge
+}//END class DataSet implements ICollection

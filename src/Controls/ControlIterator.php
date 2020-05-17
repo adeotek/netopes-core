@@ -23,6 +23,7 @@ use NETopes\Core\Data\VirtualEntity;
  */
 class ControlIterator extends Control {
     use TControlDataSource;
+
     /**
      * @var    string Iterator type (array/DataSource/Module)
      */

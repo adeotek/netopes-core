@@ -12,8 +12,6 @@
  * @filesource
  */
 namespace NETopes\Core\App;
-use ArrayIterator;
-use Closure;
 use Exception;
 use NApp;
 use NETopes\Core\AppException;
@@ -28,13 +26,7 @@ use NETopes\Core\Validators\Validator;
  *
  * @package  NETopes\Core\App
  */
-class Params implements Collection {
-    /**
-     * An array containing the entries of this collection.
-     *
-     * @var array
-     */
-    protected $elements;
+class Params extends Collection {
 
     /**
      * Converts a string (custom or json) to array
@@ -76,31 +68,20 @@ class Params implements Collection {
      */
     public function __construct($params=NULL) {
         if(is_null($params)) {
+            parent::__construct([]);
             $this->elements=[];
         } elseif(is_array($params)) {
-            $this->elements=$params;
+            parent::__construct($params);
         } elseif(is_string($params)) {
-            $this->elements=self::ConvertStringToArray($params);
+            parent::__construct(self::ConvertStringToArray($params));
         }//if(is_null($params))
     }//END public function __construct
 
     /**
-     * Creates a new instance from the specified elements.
-     * This method is provided for derived classes to specify how a new
-     * instance should be created when constructor semantics have changed.
-     *
-     * @param array $elements Elements.
-     * @return static
-     * @throws \NETopes\Core\AppException
+     * @param int|null $keysCase
+     * @return array|null
      */
-    protected function createFrom(array $elements) {
-        return new static($elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function toArray(?int $keysCase=NULL): ?array {
+    public function asArray(?int $keysCase=NULL): ?array {
         if(!is_array($this->elements)) {
             return NULL;
         }
@@ -108,141 +89,6 @@ class Params implements Collection {
             return $this->elements;
         }
         return DataHelpers::changeArrayValuesCase($this->elements,TRUE,$keysCase);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function first() {
-        return reset($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function last() {
-        return end($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function key() {
-        return key($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function next() {
-        return next($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function current() {
-        return current($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function remove($key) {
-        if(!isset($this->elements[$key]) && !array_key_exists($key,$this->elements)) {
-            return NULL;
-        }
-        $removed=$this->elements[$key];
-        unset($this->elements[$key]);
-        return $removed;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function removeElement($element) {
-        $key=array_search($element,$this->elements,TRUE);
-        if($key===FALSE) {
-            return FALSE;
-        }
-        unset($this->elements[$key]);
-        return TRUE;
-    }
-
-    /**
-     * Required by interface ArrayAccess.
-     * {@inheritDoc}
-     */
-    public function offsetExists($offset) {
-        return $this->containsKey($offset);
-    }
-
-    /**
-     * Required by interface ArrayAccess.
-     * {@inheritDoc}
-     */
-    public function offsetGet($offset) {
-        return $this->get($offset);
-    }
-
-    /**
-     * Required by interface ArrayAccess.
-     * {@inheritDoc}
-     */
-    public function offsetSet($offset,$value) {
-        if(!isset($offset)) {
-            $this->add($value);
-            return;
-        }
-        $this->set($offset,$value);
-    }
-
-    /**
-     * Required by interface ArrayAccess.
-     * {@inheritDoc}
-     */
-    public function offsetUnset($offset) {
-        $this->remove($offset);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function containsKey($key) {
-        return isset($this->elements[$key]) || array_key_exists($key,$this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function contains($element) {
-        return in_array($element,$this->elements,TRUE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function exists(Closure $p) {
-        foreach($this->elements as $key=>$element) {
-            if($p($key,$element)) {
-                return TRUE;
-            }
-        }
-        return FALSE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function indexOf($element) {
-        return array_search($element,$this->elements,TRUE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function get($key) {
-        return $this->elements[$key] ?? NULL;
     }
 
     /**
@@ -322,160 +168,4 @@ class Params implements Collection {
         }
         return get_array_value($this->elements,$key,$defaultValue,$validation);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getKeys() {
-        return array_keys($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getValues() {
-        return array_values($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function count() {
-        return count($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function set($key,$value) {
-        $this->elements[$key]=$value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function add($element) {
-        $this->elements[]=$element;
-        return TRUE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function isEmpty() {
-        return empty($this->elements);
-    }
-
-    /**
-     * Required by interface IteratorAggregate.
-     * {@inheritDoc}
-     */
-    public function getIterator() {
-        return new ArrayIterator($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return static
-     * @throws \NETopes\Core\AppException
-     */
-    public function map(Closure $func) {
-        return $this->createFrom(array_map($func,$this->elements));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return static
-     * @throws \NETopes\Core\AppException
-     */
-    public function filter(Closure $p) {
-        return $this->createFrom(array_filter($this->elements,$p));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function forAll(Closure $p) {
-        foreach($this->elements as $key=>$element) {
-            if(!$p($key,$element)) {
-                return FALSE;
-            }
-        }
-        return TRUE;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws \NETopes\Core\AppException
-     */
-    public function partition(Closure $p) {
-        $matches=$noMatches=[];
-        foreach($this->elements as $key=>$element) {
-            if($p($key,$element)) {
-                $matches[$key]=$element;
-            } else {
-                $noMatches[$key]=$element;
-            }
-        }
-        return [$this->createFrom($matches),$this->createFrom($noMatches)];
-    }
-
-    /**
-     * Returns a string representation of this object.
-     *
-     * @return string
-     */
-    public function __toString() {
-        return __CLASS__.'@'.spl_object_hash($this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function clear() {
-        $this->elements=[];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function slice($offset,$length=NULL) {
-        return array_slice($this->elements,$offset,$length,TRUE);
-    }
-
-    public function jsonSerialize() {
-        return json_encode($this->elements);
-    }
-
-    /**
-     * Merge an array or a Param instance to current instance
-     *
-     * @param array|object $data The data to be merged into this instance
-     * @param bool         $recursive
-     * @return bool Returns TRUE on success, FALSE otherwise
-     */
-    public function merge($data,bool $recursive=FALSE) {
-        if(is_object($data) && count($data)) {
-            if(!is_array($this->elements)) {
-                $this->elements=[];
-            }
-            if($recursive) {
-                $this->elements=array_merge_recursive($this->elements,$data->toArray());
-            } else {
-                $this->elements=array_merge($this->elements,$data->toArray());
-            }//if($recursive)
-        } elseif(is_array($data) && count($data)) {
-            if(!is_array($this->elements)) {
-                $this->elements=[];
-            }
-            if($recursive) {
-                $this->elements=array_merge_recursive($this->elements,$data);
-            } else {
-                $this->elements=array_merge($this->elements,$data);
-            }//if($recursive)
-        } else {
-            return FALSE;
-        }//if(is_object($data) && count($data))
-        return TRUE;
-    }//END public function merge
-}//class Params  implements Collection
+}//class Params  implements ICollection

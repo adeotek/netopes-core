@@ -12,7 +12,6 @@
  */
 namespace NETopes\Core\Data;
 use NApp;
-use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
 
@@ -27,14 +26,6 @@ abstract class DataAdapter {
      * @var    array Databases instances array
      */
     protected static $_dbAdapterInstances=[];
-    /**
-     * @var    bool Debug flag for database calls TRUE - with debug and FALSE - no debug
-     */
-    public $debug=FALSE;
-    /**
-     * @var    bool If set to TRUE the debug data will be sent to a log file
-     */
-    public $debug2file=FALSE;
     /**
      * @var    resource Database connection object
      */
@@ -78,8 +69,6 @@ abstract class DataAdapter {
      * @throws \NETopes\Core\AppException
      */
     protected function __construct($connection) {
-        $this->debug=AppConfig::GetValue('db_debug');
-        $this->debug2file=AppConfig::GetValue('db_debug2file');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
             throw new AppException('Incorrect database connection',E_ERROR,1);
         }
@@ -132,21 +121,18 @@ abstract class DataAdapter {
     }//END public function GetConnection
 
     /**
-     * @param      $query
-     * @param null $label
-     * @param null $time
-     * @param bool $forced
-     * @throws \NETopes\Core\AppException
+     * @param string      $query
+     * @param string|null $label
+     * @param float|null  $time
+     * @param array       $debugMode
      */
-    protected function DbDebug($query,$label=NULL,$time=NULL,$forced=FALSE) {
-        if(!$this->debug && !$forced) {
-            return;
-        }
-        $lLabel=strlen($label) ? $label : 'DbDebug';
-        $lQuery=$query.($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
-        NApp::Dlog($lQuery,$lLabel);
-        if($this->debug2file) {
-            NApp::Write2LogFile($lLabel.': '.$lQuery,'debug');
-        }
+    protected function DbDebug(string $query,?string $label=NULL,?float $time=NULL,array $debugMode=[]) {
+        try {
+            $lLabel=strlen($label) ? $label : 'DbDebug';
+            $lQuery=$query.($time ? '   =>   Duration: '.number_format((microtime(TRUE) - $time),3,'.','').' sec' : '');
+            NApp::DbDebug($lQuery,$lLabel,[],$debugMode);
+        } catch(AppException $e) {
+            NApp::Elog($e);
+        }//END try
     }//END protected function DbDebug
 }//END abstract class BaseAdapter

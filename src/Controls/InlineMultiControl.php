@@ -22,6 +22,7 @@ use NApp;
  */
 class InlineMultiControl extends Control {
     use TControlConditions;
+
     /**
      * @var    array Controls parameters array
      */
