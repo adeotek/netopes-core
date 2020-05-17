@@ -35,6 +35,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  */
 class ExcelExport {
     use TDateTimeHelpers;
+
     /**
      * @var    array PHP Spreadsheet accepted file types
      */

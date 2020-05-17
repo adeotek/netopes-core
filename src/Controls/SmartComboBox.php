@@ -50,6 +50,7 @@ use NETopes\Core\Data\VirtualEntity;
 class SmartComboBox extends Control {
     use TControlDataSource;
     use TControlFields;
+
     /**
      * @var null|string
      */

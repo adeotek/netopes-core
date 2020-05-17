@@ -34,7 +34,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      */
     protected function __construct($connection) {
         $this->debug=AppConfig::GetValue('db_debug');
-        $this->debug2file=AppConfig::GetValue('db_debug2file');
         if(!is_array($connection) || count($connection)==0 || !array_key_exists('db_server',$connection) || !$connection['db_server'] || !array_key_exists('db_user',$connection) || !$connection['db_user'] || !array_key_exists('db_name',$connection) || !$connection['db_name']) {
             throw new AppException('Incorrect database connection',E_ERROR,1);
         }
@@ -191,7 +190,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      */
     public function ExecuteQuery($query,$params=[],&$extraParams=[]) {
         $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
         $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
         $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
         $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
@@ -226,7 +224,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      */
     public function ExecuteProcedure($procedure,$params=[],&$extraParams=[]) {
         $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
         $tranName=get_array_value($extraParams,'transaction',NULL,'is_notempty_string');
         $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
         $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
@@ -262,7 +259,6 @@ abstract class SqlDataAdapter extends DataAdapter {
      */
     public function ExecuteMethod($method,$property=NULL,$params=[],$extraParams=[]) {
         $this->debug=get_array_value($extraParams,'debug',$this->debug,'bool');
-        $this->debug2file=get_array_value($extraParams,'debug2file',$this->debug2file,'bool');
         $log=get_array_value($extraParams,'log',FALSE,'bool');
         $cmethod=$this->dbType.str_replace(__CLASS__.'::','',__METHOD__);
         return $this::$cmethod($method,$property,$params,$extraParams,$log);

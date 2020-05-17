@@ -16,14 +16,14 @@ try {
 $custom_error_handler=AppConfig::GetValue('error_handler_class');
 if(strlen($custom_error_handler) && class_exists($custom_error_handler) && array_key_exists('NETopes\Core\App\IErrorHandler',class_implements($custom_error_handler))) {
     /** @var \NETopes\Core\App\IErrorHandler $custom_error_handler */
-    $custom_error_handler::SetErrorLogFile(AppConfig::GetValue('errors_log_file'));
+    $custom_error_handler::SetErrorLogFile(AppConfig::GetValue('log_file'));
     $custom_error_handler::SetErrorLogPath(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path').'/');
     set_error_handler([$custom_error_handler,'ErrorHandlerFunction']);
     set_exception_handler([$custom_error_handler,'ExceptionHandlerFunction']);
     register_shutdown_function([$custom_error_handler,'ShutDownHandlerFunction']);
 } else {
     require_once(__DIR__.'/App/ErrorHandler.php');
-    ErrorHandler::SetErrorLogFile(AppConfig::GetValue('errors_log_file'));
+    ErrorHandler::SetErrorLogFile(AppConfig::GetValue('log_file'));
     ErrorHandler::SetErrorLogPath(_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path').'/');
     set_error_handler(['ErrorHandler','ErrorHandlerFunction']);
     set_exception_handler(['ErrorHandler','ExceptionHandlerFunction']);

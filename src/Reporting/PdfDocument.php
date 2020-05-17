@@ -560,7 +560,6 @@ class PdfDocument {
                 $this->pdf->IncludeJS('print(true);');
             }
         } catch(Exception $e) {
-            NApp::Write2LogFile($e->getMessage(),'error');
             NApp::Elog($e);
             echo $e->getMessage();
             return FALSE;

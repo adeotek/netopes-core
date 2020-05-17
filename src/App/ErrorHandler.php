@@ -7,9 +7,10 @@
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
+ * @version    3.3.2.0
  * @filesource
  */
+use NETopes\Core\App\IErrorHandler;
 use NETopes\Core\AppException;
 
 /**
@@ -18,7 +19,7 @@ use NETopes\Core\AppException;
  *
  * @package  NETopes\Base
  */
-class ErrorHandler implements NETopes\Core\App\IErrorHandler {
+class ErrorHandler implements IErrorHandler {
     /**
      * @var    string Error log file path
      */
@@ -39,6 +40,10 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
      * @var    bool Flag for backtrace activation/inactivation
      */
     protected static $backtrace=FALSE;
+    /**
+     * @var    callable|null Optional hook for the shutdown function
+     */
+    protected static $executeOnShutdown=NULL;
     /**
      * @var    bool Silent mode on/off
      * If on all warnings/notices/uncaught exceptions are dropped
@@ -76,6 +81,16 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
     public static function SetErrorLogPath(string $errorLogPath) {
         self::$errorLogPath=$errorLogPath;
     }//END public static function SetErrorLogPath
+
+    /**
+     * Sets on shutdown callable hook
+     *
+     * @param callable $onShutdown
+     * @return void
+     */
+    public static function SetExecuteOnShutdown(callable $onShutdown) {
+        self::$executeOnShutdown=$onShutdown;
+    }//END public static function SetExecuteOnShutdown
 
     /**
      * Gets error reporting mode
@@ -122,12 +137,12 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
             self::$errorsStack=[];
         }
         self::$errorsStack[]=['errMessage'=>$e->getMessage(),'errNo'=>$e->getCode(),'errFile'=>$errFile,'errLine'=>$e->getLine()];
-        if(class_exists('NApp') && NApp::GetDebuggerState()) {
-            NApp::Elog($e,'Error['.$e->getCode().'] in file '.$errFile.' at line '.$e->getLine());
+        if(class_exists('NApp') && NApp::GetLoggerState()) {
+            NApp::Elog($e,'ErrorHandler');
             if(self::$backtrace) {
                 NApp::Elog(debug_backtrace(),'Backtrace');
             }
-        }//if(class_exists('NApp') && NApp::GetDebuggerState())
+        }//if(class_exists('NApp') && NApp::GetLoggerState())
     }//END public static function AddError
 
     /**
@@ -174,13 +189,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
                         self::$errorsStack=[];
                     }
                     self::$errorsStack[]=['errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine];
-                    if(class_exists('NApp') && NApp::GetDebuggerState()) {
+                    if(class_exists('NApp') && NApp::GetLoggerState()) {
                         $errException=new AppException($errMessage,$errNo,0,$errFile,$errLine);
-                        NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+                        NApp::Elog($errException,'ErrorHandler');
                         if(self::$backtrace) {
                             NApp::Elog(debug_backtrace(),'BACKTRACE>>');
                         }
-                    }//if(class_exists('NApp') && NApp::GetDebuggerState())
+                    }//if(class_exists('NApp') && NApp::GetLoggerState())
                 } else {
                     throw new AppException($errMessage,$errNo,0,$errFile,$errLine);
                 }//if(self::IsSilent() || self::$rethrow_notices!==TRUE)
@@ -198,13 +213,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
                         self::$errorsStack=[];
                     }
                     self::$errorsStack[]=['errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine];
-                    if(class_exists('NApp') && NApp::GetDebuggerState()) {
+                    if(class_exists('NApp') && NApp::GetLoggerState()) {
                         $errException=new AppException($errMessage,$errNo,0,$errFile,$errLine);
-                        NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+                        NApp::Elog($errException,'ErrorHandler');
                         if(self::$backtrace) {
                             NApp::Elog(debug_backtrace(),'BACKTRACE>>');
                         }
-                    }//if(class_exists('NApp') && NApp::GetDebuggerState())
+                    }//if(class_exists('NApp') && NApp::GetLoggerState())
                 } else {
                     throw new AppException($errMessage,$errNo,0,$errFile,$errLine);
                 }//if(!$ibase_error && (self::IsSilent() || self::$rethrow_warnings!==TRUE))
@@ -215,13 +230,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
                         self::$errorsStack=[];
                     }
                     self::$errorsStack[]=['errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine];
-                    if(class_exists('NApp') && NApp::GetDebuggerState()) {
+                    if(class_exists('NApp') && NApp::GetLoggerState()) {
                         $errException=new AppException($errMessage,$errNo,0,$errFile,$errLine);
-                        NApp::Elog($errException,'Error['.$errNo.'] in file '.$errFile.' at line '.$errLine);
+                        NApp::Elog($errException,'ErrorHandler');
                         if(self::$backtrace) {
                             NApp::Elog(debug_backtrace(),'BACKTRACE>>');
                         }
-                    }//if(class_exists('NApp') && NApp::GetDebuggerState())
+                    }//if(class_exists('NApp') && NApp::GetLoggerState())
                 } else {
                     throw new AppException($errMessage,$errNo,1,$errFile,$errLine);
                 }//if(self::IsSilent())
@@ -237,6 +252,13 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
      * @throws AppException
      */
     public static function ShutDownHandlerFunction(bool $output=TRUE) {
+        if(is_callable(self::$executeOnShutdown)) {
+            try {
+                call_user_func(self::$executeOnShutdown);
+            } catch(Exception $e) {
+                self::AddError(AppException::GetInstance($e));
+            }//END try
+        }
         if(!$output) {
             return;
         }
@@ -288,7 +310,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
             }//if(strpos($errMessage,' deadlock ')!==FALSE)
             self::$errorsStack=NULL;
             if(class_exists('NApp')) {
-                NApp::Log2File(['type'=>'error','message'=>$errMessage.' >>> ','no'=>$errNo,'file'=>$errFile,'line'=>$errLine],self::$errorLogPath.self::$errorLogFile);
+                NApp::LogToFile(['level'=>'error','message'=>$errMessage,'file'=>$errFile,'line'=>$errLine],__FILE__,self::$errorLogPath.self::$errorLogFile);
             }
             self::DisplayError($errMessage,$errNo,$errFile,$errLine);
             return;
@@ -313,7 +335,7 @@ class ErrorHandler implements NETopes\Core\App\IErrorHandler {
         }//END foreach
         self::$errorsStack=NULL;
         if(class_exists('NApp')) {
-            NApp::Log2File(['type'=>'error','message'=>$errMessage],self::$errorLogPath.self::$errorLogFile);
+            NApp::LogToFile(['level'=>'error','message'=>$errMessage],__FILE__,self::$errorLogPath.self::$errorLogFile);
         }
         self::DisplayError($errMessage);
     }//END public static function ShowErrors

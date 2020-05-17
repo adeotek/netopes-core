@@ -36,6 +36,7 @@ use Translate;
  */
 class TableView extends FilterControl {
     use TControlFields;
+
     /**
      * @var    string Control instance session hash
      */

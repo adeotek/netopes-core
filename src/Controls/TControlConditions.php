@@ -12,7 +12,6 @@
 namespace NETopes\Core\Controls;
 use NApp;
 use NETopes\Core\AppException;
-use Translate;
 
 /**
  * Trait TControlConditions

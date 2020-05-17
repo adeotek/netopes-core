@@ -502,7 +502,6 @@ class OracleSqlAdapter extends SqlDataAdapter {
         $sql_params4dbg=$sql_params ? '>>Param: '.print_r($sql_params,TRUE) : '';
         $out_params['__raw_sql_qry']=$raw_query;
         $out_params['__sql_qry']=$query;
-        //if($this->debug2file) { NApp::Write2LogFile('Query: '.$query,'debug'); }
         if(strlen($tran_name)) {
             if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
                 $transaction=$tran_name;
