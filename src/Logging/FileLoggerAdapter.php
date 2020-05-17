@@ -11,7 +11,6 @@
  */
 namespace NETopes\Core\Logging;
 use Exception;
-use NETopes\Core\App\Params;
 use NETopes\Core\AppException;
 
 /**
@@ -25,13 +24,13 @@ class FileLoggerAdapter implements ILoggerAdapter {
      */
     protected $minLogLevel=LogEvent::LEVEL_INFO;
     /**
-     * @var string Relative path to the logs folder
+     * @var string|null Relative path to the logs folder
      */
-    protected $logsPath='.logs';
+    protected $logsPath;
     /**
-     * @var string Name of the main log file
+     * @var string|null Name of the main log file
      */
-    protected $logFile='application.log';
+    protected $logFile;
     /**
      * @var bool Include exceptions stack trace into the log message
      */
@@ -60,8 +59,8 @@ class FileLoggerAdapter implements ILoggerAdapter {
      */
     public function __construct(array $params) {
         $this->minLogLevel=get_array_value($params,'min_log_level',$this->minLogLevel,'is_integer');
-        $this->logFile=get_array_value($params,'log_file',$this->logFile,'is_notempty_string');
-        $this->logsPath=get_array_value($params,'logs_path',$this->logsPath,'is_notempty_string');
+        $this->logFile=get_array_value($params,'log_file',NULL,'is_string');
+        $this->logsPath=get_array_value($params,'logs_path',NULL,'is_string');
         $this->includeExceptionsTrace=get_array_value($params,'include_exceptions_trace',$this->includeExceptionsTrace,'is_bool');
         $this->includeExtraLabels=get_array_value($params,'include_extra_labels',$this->includeExtraLabels,'is_bool');
         $this->globalExtraLabels=get_array_value($params,'global_extra_labels',$this->globalExtraLabels,'is_bool');
@@ -70,6 +69,15 @@ class FileLoggerAdapter implements ILoggerAdapter {
             $this->logEventsBuffer=new LogEventsCollection();
         }
     }//END public function __construct
+
+    /**
+     * Get adapter type
+     *
+     * @return string
+     */
+    public function GetType(): string {
+        return Logger::FILE_ADAPTER;
+    }//END public function GetType
 
     /**
      * Get javascript dependencies list
@@ -90,6 +98,17 @@ class FileLoggerAdapter implements ILoggerAdapter {
     }//END public function GetRequiresOutputBuffering
 
     /**
+     * @param string|null $rootPath
+     * @return string
+     */
+    public function GetLogFile(?string $rootPath=NULL): string {
+        if(strlen($this->logsPath) && preg_match('/^\/|[a-zA-Z]:\\/',$this->logsPath)) {
+            return rtrim($this->logsPath,'/').'/'.$this->logFile;
+        }
+        return rtrim((strlen($rootPath) ? $rootPath : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH),'/').(strlen($this->logsPath) ? trim($this->logsPath,'/') : '').'/'.$this->logFile;
+    }//END public function GetLogFile
+
+    /**
      * Add new log event (to buffer if buffered=TRUE or directly to log otherwise)
      *
      * @param \NETopes\Core\Logging\LogEvent $entry
@@ -100,18 +119,15 @@ class FileLoggerAdapter implements ILoggerAdapter {
                 return;
             }
             if($this->buffered) {
-                if(!$this->logEventsBuffer instanceof LogEventsCollection) {
-                    $this->logEventsBuffer=new LogEventsCollection();
-                }
                 $this->logEventsBuffer->add($entry);
                 return;
             }//if($this->buffered)
             $data=self::FileLogEntryFormatter($entry,$this->includeExceptionsTrace,$this->includeExtraLabels,$this->globalExtraLabels);
         } catch(Exception $e) {
-            $data=self::FileLogFormatter($e,LogEvent::LEVEL_ERROR,__FILE__);
+            $data=self::FileLogFormatter($e,LogEvent::LEVEL_ERROR,__FILE__,__LINE__);
         }//END try
         try {
-            self::WriteToFile($data,$this->logFile,$this->logsPath);
+            self::WriteToFile($data,$this->GetLogFile());
         } catch(AppException $e) {
             unset($e);
         }//END try
@@ -132,10 +148,10 @@ class FileLoggerAdapter implements ILoggerAdapter {
             $clear=TRUE;
         } catch(AppException $e) {
             $clear=FALSE;
-            $data=self::FileLogFormatter($e,LogEvent::LEVEL_ERROR,__FILE__);
+            $data=self::FileLogFormatter($e,LogEvent::LEVEL_ERROR,__FILE__,__LINE__);
         }//END try
         try {
-            self::WriteToFile($data,$this->logFile,$this->logsPath);
+            self::WriteToFile($data,$this->GetLogFile());
             if($clear) {
                 $this->logEventsBuffer->clear();
             }
@@ -202,8 +218,8 @@ class FileLoggerAdapter implements ILoggerAdapter {
      * Add entry to log file
      *
      * @param mixed       $message    Data to be written to log
-     * @param string      $file       Log file
-     * @param string|null $path       Log file path (optional)
+     * @param string      $file       Log file (containing full path if $path is not provided)
+     * @param string|null $path       Log file absolute path (not required if $file contains full path)
      * @param string|null $scriptName Source script file (optional)
      * @param int|null    $scriptLine Source script line (optional)
      * @param int         $level      Log level (optional)
@@ -211,7 +227,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
      * @throws \NETopes\Core\AppException
      */
     public static function LogToFile($message,string $file,?string $path=NULL,?string $scriptName=NULL,?int $scriptLine=NULL,int $level=LogEvent::LEVEL_INFO) {
-        self::WriteToFile(self::FileLogFormatter($message,$level,$scriptName),$file,$path);
+        self::WriteToFile(self::FileLogFormatter($message,$level ?? LogEvent::LEVEL_INFO,$scriptName,$scriptLine),$file,$path);
     }//END public static function LogToFile
 
     /**

@@ -15,6 +15,7 @@ use NETopes\Core\AppException;
 use NETopes\Core\Logging\FileLoggerAdapter;
 use NETopes\Core\Logging\ILoggerAdapter;
 use NETopes\Core\Logging\LogEvent;
+use NETopes\Core\Logging\Logger;
 use QuantumPHP;
 
 /**
@@ -68,6 +69,15 @@ class QuantumPhpAdapter implements ILoggerAdapter {
         $this->showSourceFile=get_array_value($params,'show_source_file',$this->showSourceFile,'is_string');
         $this->showExceptionsTrace=get_array_value($params,'show_exceptions_trace',$this->showExceptionsTrace,'is_string');
     }//END public function __construct
+
+    /**
+     * Get adapter type
+     *
+     * @return string
+     */
+    public function GetType(): string {
+        return Logger::WEB_CONSOLE_ADAPTER;
+    }//END public function GetType
 
     /**
      * Get javascript dependencies list

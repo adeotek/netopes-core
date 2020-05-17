@@ -15,6 +15,7 @@ use NETopes\Core\AppException;
 use NETopes\Core\Logging\FileLoggerAdapter;
 use NETopes\Core\Logging\ILoggerAdapter;
 use NETopes\Core\Logging\LogEvent;
+use NETopes\Core\Logging\Logger;
 use PhpConsole\Connector;
 use PhpConsole\Storage\File;
 
@@ -80,6 +81,15 @@ class PhpConsoleAdapter implements ILoggerAdapter {
             throw AppException::GetInstance($e);
         }//END try
     }//END public function __construct
+
+    /**
+     * Get adapter type
+     *
+     * @return string
+     */
+    public function GetType(): string {
+        return Logger::WEB_CONSOLE_ADAPTER;
+    }//END public function GetType
 
     /**
      * Get javascript dependencies list

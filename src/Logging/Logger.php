@@ -20,6 +20,23 @@ use NETopes\Core\AppException;
  */
 class Logger {
     /**
+     * FILE_ADAPTER constant definition
+     */
+    const FILE_ADAPTER='file';
+    /**
+     * WEB_CONSOLE_ADAPTER constant definition
+     */
+    const WEB_CONSOLE_ADAPTER='web_console';
+    /**
+     * REMOTE_ADAPTER constant definition
+     */
+    const REMOTE_ADAPTER='remote';
+    /**
+     * CUSTOM_ADAPTER constant definition
+     */
+    const CUSTOM_ADAPTER='custom';
+
+    /**
      * @var array Array containing started debug timers.
      */
     protected static $debugTimers=[];
@@ -135,9 +152,10 @@ class Logger {
      * @param int         $level
      * @param string|null $label
      * @param array       $extraLabels
+     * @param string|null $adapterType
      * @param array|null  $debugBacktrace
      */
-    public function AddLogEntry($message,int $level=LogEvent::LEVEL_DEBUG,?string $label=NULL,array $extraLabels=[],?array $debugBacktrace=NULL) {
+    public function AddLogEntry($message,int $level=LogEvent::LEVEL_DEBUG,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL,?array $debugBacktrace=NULL) {
         if(!$this->enabled || !count($this->loggingObjects)) {
             return;
         }
@@ -154,6 +172,9 @@ class Logger {
         }
         /** @var \NETopes\Core\Logging\ILoggerAdapter $lObj */
         foreach($this->loggingObjects as $lObj) {
+            if(isset($adapterType) || $adapterType!==$lObj->GetType()) {
+                continue;
+            }
             $lObj->AddEvent(clone $entry);
         }//END foreach
     }//END public function AddLogEntry

@@ -16,6 +16,7 @@ use NETopes\Core\Logging\FileLoggerAdapter;
 use NETopes\Core\Logging\ILoggerAdapter;
 use NETopes\Core\Logging\LogEvent;
 use NETopes\Core\Logging\LogEventsCollection;
+use NETopes\Core\Logging\Logger;
 
 /**
  * Class LokiAdapter
@@ -79,6 +80,15 @@ class LokiAdapter implements ILoggerAdapter {
         $this->buffered=get_array_value($params,'buffered',$this->buffered,'is_bool');
         $this->logEventsBuffer=new LogEventsCollection();
     }//END public function __construct
+
+    /**
+     * Get adapter type
+     *
+     * @return string
+     */
+    public function GetType(): string {
+        return Logger::REMOTE_ADAPTER;
+    }//END public function GetType
 
     /**
      * Get javascript dependencies list

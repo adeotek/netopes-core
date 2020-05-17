@@ -28,6 +28,13 @@ interface ILoggerAdapter {
     public function __construct(array $params);
 
     /**
+     * Get adapter type
+     *
+     * @return string
+     */
+    public function GetType(): string;
+
+    /**
      * Get javascript dependencies list
      *
      * @return array

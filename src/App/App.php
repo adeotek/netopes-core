@@ -1065,7 +1065,7 @@ HTML;
             return static::$logger->IsEnabled();
         }
         $adapters=AppConfig::GetValue('logging_adapters');
-        static::$logger=new Logger(is_array($adapters) ? $adapters : [],_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),AppConfig::GetValue('log_file'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp');
+        static::$logger=new Logger(is_array($adapters) ? $adapters : [],AppConfig::GetValue('logs_path'),AppConfig::GetValue('log_file'),_NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/tmp');
         return static::$logger->IsEnabled();
     }//END public static function InitDebugger
 
@@ -1088,42 +1088,44 @@ HTML;
     }//END public static function LoggerRequiresOutputBuffering
 
     /**
-     * Send data to logger active adapters with INFO level
-     *
-     * @param mixed       $data        Log data
-     * @param string|null $label       Main label assigned to the log entry
-     * @param array       $extraLabels Extra labels assigned to the log entry
-     * @return void
-     */
-    public static function Ilog($data,?string $label=NULL,array $extraLabels=[]) {
-        if(!static::GetLoggerState()) {
-            return;
-        }
-        try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_INFO,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-        } catch(Exception $e) {
-            unset($e);
-        }//END try
-    }//END public static function Ilog
-
-    /**
      * Send data to logger active adapters with DEBUG level
      *
      * @param mixed       $data        Log data
      * @param string|null $label       Main label assigned to the log entry
      * @param array       $extraLabels Extra labels assigned to the log entry
+     * @param string|null $adapterType Optional adapter type filter
      * @return void
      */
-    public static function Dlog($data,?string $label=NULL,array $extraLabels=[]) {
+    public static function Dlog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
         if(!static::$debug || !static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_DEBUG,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
     }//END public static function Dlog
+
+    /**
+     * Send data to logger active adapters with INFO level
+     *
+     * @param mixed       $data        Log data
+     * @param string|null $label       Main label assigned to the log entry
+     * @param array       $extraLabels Extra labels assigned to the log entry
+     * @param string|null $adapterType Optional adapter type filter
+     * @return void
+     */
+    public static function Ilog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
+        if(!static::GetLoggerState()) {
+            return;
+        }
+        try {
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_INFO,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        } catch(Exception $e) {
+            unset($e);
+        }//END try
+    }//END public static function Ilog
 
     /**
      * Send data to logger active adapters with WARNING level
@@ -1131,14 +1133,15 @@ HTML;
      * @param mixed       $data        Log data
      * @param string|null $label       Main label assigned to the log entry
      * @param array       $extraLabels Extra labels assigned to the log entry
+     * @param string|null $adapterType Optional adapter type filter
      * @return void
      */
-    public static function Wlog($data,?string $label=NULL,array $extraLabels=[]) {
+    public static function Wlog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
         if(!static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_WARNING,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_WARNING,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
@@ -1150,14 +1153,15 @@ HTML;
      * @param mixed       $data        Log data
      * @param string|null $label       Main label assigned to the log entry
      * @param array       $extraLabels Extra labels assigned to the log entry
+     * @param string|null $adapterType Optional adapter type filter
      * @return void
      */
-    public static function Elog($data,?string $label=NULL,array $extraLabels=[]) {
+    public static function Elog($data,?string $label=NULL,array $extraLabels=[],?string $adapterType=NULL) {
         if(!static::GetLoggerState()) {
             return;
         }
         try {
-            static::$logger->AddLogEntry($data,LogEvent::LEVEL_ERROR,$label,$extraLabels,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            static::$logger->AddLogEntry($data,LogEvent::LEVEL_ERROR,$label,$extraLabels,$adapterType,debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         } catch(Exception $e) {
             unset($e);
         }//END try
@@ -1169,10 +1173,11 @@ HTML;
      * @param mixed       $message    Data to be written to log
      * @param string|null $file       Custom log file  (optional)
      * @param string|null $scriptName Name of the file that sent the message to log (optional)
+     * @param int|null    $scriptLine Line of the file that sent the message to log (optional)
      * @return bool|AppException
      */
-    public static function Log2File($message,?string $file=NULL,?string $scriptName=NULL) {
-        return self::LogToFile($message,$scriptName,$file,NULL);
+    public static function Log2File($message,?string $file=NULL,?string $scriptName=NULL,?int $scriptLine=NULL) {
+        return self::LogToFile($message,$scriptName,$scriptLine,NULL,$file,NULL);
     }//END public static function Log2File
 
     /**
@@ -1180,13 +1185,22 @@ HTML;
      *
      * @param mixed       $message    Data to be written to log
      * @param string|null $scriptName Name of the file that sent the message to log (optional)
+     * @param int|null    $scriptLine Line of the file that sent the message to log (optional)
+     * @param int|null    $level      Log level (optional)
      * @param string|null $file       Custom log file  (optional)
      * @param string|null $path       Custom logs path (optional)
      * @return bool|AppException
      */
-    public static function LogToFile($message,?string $scriptName=NULL,?string $file=NULL,?string $path=NULL) {
+    public static function LogToFile($message,?string $scriptName=NULL,?int $scriptLine=NULL,int $level=NULL,?string $file=NULL,?string $path=NULL) {
         try {
-            FileLoggerAdapter::LogToFile($message,strlen($file) ? $file : AppConfig::GetValue('log_file'),strlen($path) ? $path : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path'),$scriptName);
+            if(strlen($file) && preg_match('/^\/|[a-zA-Z]:\\/',$file)) {
+                $logFile=$file;
+                $logPath=NULL;
+            } else {
+                $logFile=strlen($file) ? $file : AppConfig::GetValue('log_file');
+                $logPath=strlen($path) ? $path : _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.AppConfig::GetValue('logs_path');
+            }
+            FileLoggerAdapter::LogToFile($message,$logFile,$logPath,$scriptName,$scriptLine,$level);
             return TRUE;
         } catch(AppException $e) {
             return $e;
