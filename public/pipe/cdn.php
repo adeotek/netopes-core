@@ -90,7 +90,6 @@ if(isset($_GET['hash'])) {
     try {
         $result=ModulesProvider::ExecUnsafe($module,$method,$params);
     } catch(AppException $e) {
-        NApp::Write2LogFile($e->getMessage(),'error');
         NApp::Elog($e);
         end_request($debug,$e->getMessage());
     }//END try
@@ -147,7 +146,6 @@ if(isset($_GET['hash'])) {
     try {
         $payload=json_decode($rHash,TRUE);
     } catch(Exception $e) {
-        NApp::Write2LogFile($e->getMessage(),'error');
         NApp::Elog($e);
         end_request($debug,$e->getMessage());
     }
@@ -160,7 +158,6 @@ if(isset($_GET['hash'])) {
     try {
         $result=ModulesProvider::Exec($module,$method,$params);
     } catch(AppException $e) {
-        NApp::Write2LogFile($e->getMessage(),'error');
         NApp::Elog($e);
         end_request($debug,$e->getMessage());
     }//END try
@@ -178,7 +175,6 @@ if(isset($_GET['hash'])) {
         try {
             $result=ModulesProvider::Exec($module,$method,$params);
         } catch(AppException $e) {
-            NApp::Write2LogFile($e->getMessage(),'error');
             NApp::Elog($e);
             end_request($debug,$e->getMessage());
         }//END try

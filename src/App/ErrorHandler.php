@@ -276,7 +276,7 @@ class ErrorHandler implements IErrorHandler {
     }//END public static function ShutDownHandlerFunction
 
     /**
-     * Processes the errors stack (optionaly adding a last error)
+     * Processes the errors stack (optionally adding a last error)
      * and sends errors to be displayed or logged
      *
      * @param AppException $exception The last exception to be added to the stack

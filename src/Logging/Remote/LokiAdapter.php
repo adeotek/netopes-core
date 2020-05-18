@@ -65,7 +65,7 @@ class LokiAdapter implements ILoggerAdapter {
     /**
      * @var int API request timeout
      */
-    protected $timeout=300;
+    protected $timeout=100;
     /**
      * @var bool Debug mode
      */
@@ -221,7 +221,6 @@ class LokiAdapter implements ILoggerAdapter {
             curl_setopt($cUrl,CURLOPT_RETURNTRANSFER,TRUE);
             curl_setopt($cUrl,CURLOPT_FOLLOWLOCATION,1);
             curl_setopt($cUrl,CURLOPT_POST,1);
-            curl_setopt($cUrl,CURLOPT_FOLLOWLOCATION,TRUE);
             if(strlen($this->user)) {
                 curl_setopt($cUrl,CURLOPT_USERPWD,$this->user.':'.$this->password);
                 curl_setopt($cUrl,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
