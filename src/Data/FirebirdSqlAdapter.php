@@ -185,8 +185,8 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             $tran_params=[IBASE_WRITE,IBASE_COMMITTED,IBASE_REC_NO_VERSION,IBASE_WAIT];
         }//if(is_array($customTranParams) && count($customTranParams))
         $this->transactions[$name]=call_user_func_array('ibase_trans',$tran_params);
-        // $this->DbDebug($name.' => TRANSACTION STARTED >>'.print_r($tran_params,1),'BeginTran',NULL,$log);
-        $this->DbDebug($name.' => TRANSACTION STARTED','BeginTran',NULL,$log);
+        // $this->DbDebug($name.' => TRANSACTION STARTED >>'.print_r($tran_params,1),'BeginTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
+        $this->DbDebug($name.' => TRANSACTION STARTED','BeginTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return $this->transactions[$name];
     }//END public function FirebirdSqlBeginTran
 
@@ -202,12 +202,12 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $result=FALSE;
         if(is_null($name)) {
             $result=ibase_rollback($this->connection);
-            $this->DbDebug('!DEFAULT! => ROLLBACK','RollbackTran',NULL,$log);
+            $this->DbDebug('!DEFAULT! => ROLLBACK','RollbackTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         } elseif(is_string($name) && array_key_exists($name,$this->transactions)) {
             if(is_resource($this->transactions[$name])) {
                 $result=ibase_rollback($this->transactions[$name]);
                 unset($this->transactions[$name]);
-                $this->DbDebug($name.' => ROLLBACK','RollbackTran',NULL,$log);
+                $this->DbDebug($name.' => ROLLBACK','RollbackTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
             }//if(is_resource($this->transactions[$name]))
         }//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
         return $result;
@@ -227,22 +227,22 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(is_null($name)) {
             if($preserve) {
                 $result=ibase_commit_ret($this->connection);
-                $this->DbDebug('!DEFAULT! => COMMIT (retain)','CommitTran',NULL,$log);
+                $this->DbDebug('!DEFAULT! => COMMIT (retain)','CommitTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
             } else {
                 $result=ibase_commit($this->connection);
                 if($log) {
-                    $this->DbDebug('!DEFAULT! => COMMIT','CommitTran',NULL,$log);
+                    $this->DbDebug('!DEFAULT! => COMMIT','CommitTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
                 }
             }//if($preserve)
         } elseif(is_string($name) && array_key_exists($name,$this->transactions)) {
             if(is_resource($this->transactions[$name])) {
                 if($preserve) {
                     $result=ibase_commit_ret($this->transactions[$name]);
-                    $this->DbDebug($name.' => COMMIT (retain)','CommitTran',NULL,$log);
+                    $this->DbDebug($name.' => COMMIT (retain)','CommitTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
                 } else {
                     $result=ibase_commit($this->transactions[$name]);
                     unset($this->transactions[$name]);
-                    $this->DbDebug($name.' => COMMIT','CommitTran',NULL,$log);
+                    $this->DbDebug($name.' => COMMIT','CommitTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
                 }//if($preserve)
             }//if(is_resource($this->transactions[$name]))
         }//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
@@ -597,7 +597,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(is_null($tranName)) {
             $this->FirebirdSqlCommitTran(NULL,FALSE);
         }
-        $this->DbDebug($query,'Query',$time,$log);
+        $this->DbDebug($query,'Query',$time,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function FirebirdSqlExecuteQuery
 
@@ -769,7 +769,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(is_null($tranName)) {
             $this->FirebirdSqlCommitTran(NULL,FALSE);
         }
-        $this->DbDebug($query,'Query',$time,$log);
+        $this->DbDebug($query,'Query',$time,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
     }//END public function FirebirdSqlExecuteProcedure
 
