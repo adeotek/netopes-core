@@ -69,6 +69,8 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
                 if($cacheDriverName=='RedisCache') {
                     $redis=RedisCacheHelpers::GetRedisInstance('REDIS_DOCTRINE_CACHE_CONNECTION');
                     if($redis) {
+                        /** @var \Doctrine\Common\Cache\RedisCache $cacheDriver */
+                        $cacheDriver->setNamespace('DOCTRINE_DATA_PROXIES');
                         $cacheDriver->setRedis($redis);
                         $persistentCache=TRUE;
                     } else {
@@ -81,9 +83,9 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
             }
             // Create a simple "default" Doctrine ORM configuration for Annotations
             $config=Setup::createAnnotationMetadataConfiguration([$entities_path],AppConfig::GetValue('doctrine_develop_mode'),$proxy_dir,$cacheDriver);
-            $anno_reader=new AnnotationReader();
-            $anno_driver=new AnnotationDriver($anno_reader,[$entities_path]);
-            $config->setMetadataDriverImpl($anno_driver);
+            $annotationReader=new AnnotationReader();
+            $annotationDriver=new AnnotationDriver($annotationReader,[$entities_path]);
+            $config->setMetadataDriverImpl($annotationDriver);
             $config->setProxyNamespace(AppConfig::GetValue('doctrine_proxies_namespace'));
             $config->setAutoGenerateProxyClasses(AppConfig::GetValue('doctrine_develop_mode'));
             if($persistentCache) {
