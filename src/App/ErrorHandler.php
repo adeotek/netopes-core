@@ -139,9 +139,16 @@ class ErrorHandler implements IErrorHandler {
         }
         self::$errorsStack[]=['errMessage'=>$e->getMessage(),'errNo'=>$e->getCode(),'errFile'=>$errFile,'errLine'=>$e->getLine()];
         if(class_exists('NApp') && NApp::GetLoggerState()) {
-            NApp::Elog($e,'ErrorHandler');
-            if(self::$backtrace) {
-                NApp::Elog(debug_backtrace(),'Backtrace');
+            if($e instanceof AppException && $e->getSeverity()==0) {
+                NApp::Wlog($e,'ErrorHandler');
+                if(self::$backtrace) {
+                    NApp::Wlog(debug_backtrace(),'Backtrace');
+                }
+            } else {
+                NApp::Elog($e,'ErrorHandler');
+                if(self::$backtrace) {
+                    NApp::Elog(debug_backtrace(),'Backtrace');
+                }
             }
         }//if(class_exists('NApp') && NApp::GetLoggerState())
     }//END public static function AddError
@@ -192,9 +199,9 @@ class ErrorHandler implements IErrorHandler {
                     self::$errorsStack[]=['errMessage'=>$errMessage,'errNo'=>$errNo,'errFile'=>$errFile,'errLine'=>$errLine];
                     if(class_exists('NApp') && NApp::GetLoggerState()) {
                         $errException=new AppException($errMessage,$errNo,0,$errFile,$errLine);
-                        NApp::Elog($errException,'ErrorHandler');
+                        NApp::Wlog($errException,'ErrorHandler');
                         if(self::$backtrace) {
-                            NApp::Elog(debug_backtrace(),'BACKTRACE>>');
+                            NApp::Wlog(debug_backtrace(),'BACKTRACE>>');
                         }
                     }//if(class_exists('NApp') && NApp::GetLoggerState())
                 } else {
