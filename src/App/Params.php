@@ -109,10 +109,11 @@ class Params extends Collection {
      * @param string|int  $key
      * @param string|null $validation
      * @param string|null $failMessage
+     * @param int         $severity
      * @return mixed
      * @throws \NETopes\Core\AppException
      */
-    public function getOrFail($key,?string $validation=NULL,?string $failMessage=NULL) {
+    public function getOrFail($key,?string $validation=NULL,?string $failMessage=NULL,int $severity=1) {
         if(is_null($validation)) {
             $result=isset($this->elements[$key]) ? $this->elements[$key] : NULL;
         } else {
@@ -120,7 +121,7 @@ class Params extends Collection {
         }//if(is_null($validation))
         if(is_null($result)) {
             $dbgTrace=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,1);
-            throw new AppException($failMessage ?? 'Invalid value for: '.print_r($key),-1,1,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
+            throw new AppException($failMessage ?? 'Invalid value for: '.print_r($key),-1,$severity,get_array_value($dbgTrace,[0,'file'],__FILE__,'is_string'),get_array_value($dbgTrace,[0,'line'],__LINE__,'is_string'));
         }//if(is_null($result))
         return $result;
     }
@@ -155,7 +156,7 @@ class Params extends Collection {
      * @return mixed
      */
     public function safeGetValue($key,$defaultValue=NULL,$format=NULL,$validation=NULL,$sub_key=NULL) {
-        NApp::Wlog('Deprecated method [Params::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
+        NApp::Wlog('Deprecated method ['.self::class.'::safeGetValue] usage: '.print_r(call_back_trace(1,NULL),1));
         if(!strlen($validation)) {
             if(strlen($format)) {
                 $validation=in_array(substr($format,0,2),['is','bo']) ? $format : 'is_'.$format;
