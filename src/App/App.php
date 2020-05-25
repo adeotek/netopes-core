@@ -1227,7 +1227,7 @@ HTML;
      * @param string|null $path       Custom logs path (optional)
      * @return bool|AppException
      */
-    public static function LogToFile($message,?string $scriptName=NULL,?int $scriptLine=NULL,int $level=NULL,?string $file=NULL,?string $path=NULL) {
+    public static function LogToFile($message,?string $scriptName=NULL,?int $scriptLine=NULL,?int $level=NULL,?string $file=NULL,?string $path=NULL) {
         try {
             if(is_absolute_path($file)) {
                 $logFile=$file;
@@ -1236,7 +1236,7 @@ HTML;
                 $logFile=strlen($file) ? $file : AppConfig::GetValue('log_file');
                 $logPath=is_absolute_path($path) ? $path : (strlen($path) ? _NAPP_ROOT_PATH._NAPP_APPLICATION_PATH.'/'.trim($path,'\\/').'/' : AppConfig::GetLogsPath());
             }
-            FileLoggerAdapter::LogToFile($message,$logFile,$logPath,$scriptName,$scriptLine,$level);
+            FileLoggerAdapter::LogToFile($message,$logFile,$logPath,$scriptName,$scriptLine,$level ?? LogEvent::LEVEL_INFO);
             return TRUE;
         } catch(AppException $e) {
             return $e;
