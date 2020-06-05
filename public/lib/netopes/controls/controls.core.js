@@ -555,7 +555,12 @@ function SmartCBOInitialize() {
                 }
                 // console.log('oParams:');
                 // console.log(oParams);
-                $(obj).select2(oParams);
+                new Promise((resolve,reject) => {
+                    $(obj).select2(oParams);
+                    resolve();
+                }).then(function() {
+                    $(obj).trigger('select2-loaded');
+                });
             }//if(tagId && params_str)
         }//if(!$(obj).hasClass("select2-hidden-accessible"))
     });//$('select.SmartCBO').each(function(i,obj)

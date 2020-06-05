@@ -177,22 +177,23 @@ class HierarchicalTexts extends Control {
     /**
      * @param array $data
      * @param       $id
+     * @param bool  $readonly
      * @return string|null
      */
-    protected function RenderData(array $data,$id): ?string {
+    protected function RenderData(array $data,$id,bool $readonly=FALSE): ?string {
         $result='';
         $buttonsAttributes=$this->disabled_on_render ? ' disabled="disabled"' : '';
         foreach($data as $item) {
             $result.="\t\t\t\t".'<li class="hItem'.($this->sortable_texts ? ' sortable' : '').'" data-id="'.$id.'">'."\n";
             $result.="\t\t\t\t\t".'<div class="hItemData postable" name="'.$this->tag_name.'['.$id.'][data][]">'.$item.'</div>'."\n";
-            if(!$this->disabled) {
+            if(!$this->disabled && !$readonly) {
                 $result.="\t\t\t\t\t".'<div class="hItemEditActions">'."\n";
                 $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnPrimaryClass('btn-xxs io hTextsEditButton').'"'.$buttonsAttributes.'><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>'."\n";
                 $result.="\t\t\t\t\t".'</div>'."\n";
                 $result.="\t\t\t\t\t".'<div class="hItemDeleteActions">'."\n";
                 $result.="\t\t\t\t\t\t".'<button class="'.NApp::$theme->GetBtnDangerClass('btn-xxs io hTextsDeleteButton').'"'.$buttonsAttributes.'><i class="fa fa-trash" aria-hidden="true"></i></button>'."\n";
                 $result.="\t\t\t\t\t".'</div>'."\n";
-            }//if(!$this->disabled)
+            }//if(!$this->disabled && !$readonly)
             $result.="\t\t\t\t".'</li>'."\n";
         }//END foreach
         return $result;
@@ -226,6 +227,7 @@ class HierarchicalTexts extends Control {
             $name=get_array_value($item,'name',NULL,'is_string');
             $code=get_array_value($item,'code',NULL,'is_string');
             $position=get_array_value($item,'position',NULL,'is_integer');
+            $readonly=get_array_value($item,'readonly',FALSE,'bool');
             $sectionsData.="\t\t\t\t".'<li class="hItemSection'.($this->sortable_sections ? ' sortable' : '').'" data-id="'.$id.'" data-required="'.$required.'" data-position="'.$position.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][id]" value="'.$id.'">'."\n";
             $sectionsData.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][code]" value="'.$code.'">'."\n";
@@ -238,7 +240,7 @@ class HierarchicalTexts extends Control {
                 $sectionsData.="\t\t\t\t\t".'<span class="hItemTitle">'.$name.'</span>'."\n";
             }
             $sectionsData.="\t\t\t\t\t".'<ul class="hTexts">'."\n";
-            $sectionsData.=$this->RenderData($itemData,$id);
+            $sectionsData.=$this->RenderData($itemData,$id,$readonly);
             $sectionsData.="\t\t\t\t\t".'</ul>'."\n";
             $sectionsData.="\t\t\t\t".'</li>'."\n";
         }//END foreach
@@ -282,6 +284,9 @@ class HierarchicalTexts extends Control {
     protected function GetSectionsActions(array &$sections): ?string {
         $result='';
         foreach($sections as $item) {
+            if(get_array_value($item,'readonly',FALSE,'bool')) {
+                continue;
+            }
             $color=get_array_value($item,'color',NULL,'is_string');
             $btn=new Button([
                 'class'=>NApp::$theme->GetBtnSpecialDarkClass('hTextsActionButton'),
