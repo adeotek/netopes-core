@@ -13,7 +13,11 @@ namespace NETopes\Core\App;
 use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
+use NETopes\Core\Controls\BasicForm;
 use NETopes\Core\Controls\ControlsHelpers;
+use NETopes\Core\Controls\FilterBox;
+use NETopes\Core\Controls\TabControl;
+use NETopes\Core\Controls\TableView;
 use NETopes\Core\Logging\Logger;
 
 /**
@@ -472,14 +476,15 @@ class AppView {
      * @param array|null   $extraParams
      * @param string|null  $varName
      * @param array|null   $args
+     * @param string|null  $class
      * @return void
      */
-    public function AddFilterBox($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
+    public function AddFilterBox($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL,?string $class=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\FilterBox','var_name'=>$varName,'args'=>$args]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$class ?? FilterBox::class,'var_name'=>$varName,'args'=>$args]);
     }//END public function AddFilterBox
 
     /**
@@ -487,42 +492,45 @@ class AppView {
      * @param array|null   $extraParams
      * @param string|null  $varName
      * @param array|null   $args
+     * @param string|null  $class
      * @return void
      */
-    public function AddTableView($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL): void {
+    public function AddTableView($config,?array $extraParams=NULL,?string $varName=NULL,?array $args=NULL,?string $class=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TableView','var_name'=>$varName,'args'=>$args]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$class ?? TableView::class,'var_name'=>$varName,'args'=>$args]);
     }//END public function AddTableView
 
     /**
      * @param string|array $config
      * @param array|null   $extraParams
      * @param string|null  $varName
+     * @param string|null  $class
      * @return void
      */
-    public function AddBasicForm($config,?array $extraParams=NULL,?string $varName=NULL): void {
+    public function AddBasicForm($config,?array $extraParams=NULL,?string $varName=NULL,?string $class=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\BasicForm','var_name'=>$varName]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$class ?? BasicForm::class,'var_name'=>$varName]);
     }//END public function AddBasicForm
 
     /**
      * @param string|array $config
      * @param array|null   $extraParams
      * @param string|null  $varName
+     * @param string|null  $class
      * @return void
      */
-    public function AddTabControl($config,?array $extraParams=NULL,?string $varName=NULL): void {
+    public function AddTabControl($config,?array $extraParams=NULL,?string $varName=NULL,?string $class=NULL): void {
         $tag=get_array_value($extraParams,'tag','','is_string');
         if(strlen($tag)) {
             $this->_placeholders[$tag]=NULL;
         }
-        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>'\NETopes\Core\Controls\TabControl','var_name'=>$varName]);
+        $this->_content[]=array_merge($extraParams ?? [],['type'=>self::CONTROL_CONTENT,'value'=>$config,'class'=>$class ?? TabControl::class,'var_name'=>$varName]);
     }//END public function AddTabControl
 
     /**
