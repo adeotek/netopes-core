@@ -466,7 +466,7 @@ class TableView extends FilterControl {
             $extra_params['last_row']=$lastRow;
         }//if($this->with_pagination && !$this->export_only)
         if($this->tree) {
-            $extra_params['sort']['LVL']='ASC';
+            $extra_params['sort']=is_array($this->sortby) && count($this->sortby) ? $this->sortby : ['LVL'=>'ASC'];
         } else {
             $extra_params['sort']=$this->sortby;
         }
@@ -1609,7 +1609,7 @@ class TableView extends FilterControl {
             if(strlen($this->row_color_field)) {
                 $r_color=$row->getProperty($this->row_color_field,'','is_string');
             }
-            $rLvl=$row->safeGetLvl(1,'is_integer');
+            $rLvl=$row->getProperty('lvl',1,'is_integer');
             $rTreeState=get_array_value($this->tree,'opened',FALSE,'bool');
             if($this->tree && $rLvl>$this->tree_top_lvl) {
                 if(strlen($r_color)) {
@@ -1619,8 +1619,8 @@ class TableView extends FilterControl {
                     $r_style.=' display: none;';
                 }
                 $r_style=strlen($r_style) ? ' style="'.$r_style.'"' : '';
-                $rcClass.=(strlen($rcClass) ? ' ' : '').'clsTreeGridChildOf'.$row->safeGetIdParent(NULL,'is_integer');
-                $rTData=$row->safeGetHasChild(0,'is_integer') ? ' data-id="'.$row->safeGetId(NULL,'is_integer').'"' : '';
+                $rcClass.=(strlen($rcClass) ? ' ' : '').'clsTreeGridChildOf'.$row->getProperty('id_parent',NULL,'is_integer');
+                $rTData=$row->getProperty('has_child',0,'is_integer') ? ' data-id="'.$row->getProperty('id',NULL,'is_integer').'"' : '';
             } else {
                 if(strlen($r_color)) {
                     $r_style=' style="background-color: '.$r_color.';"';
@@ -1633,7 +1633,7 @@ class TableView extends FilterControl {
             $r_cc_class=get_array_value($this->row_conditional_class,'class','','is_string');
             $r_cc_cond=get_array_value($this->row_conditional_class,'conditions',NULL,'is_array');
             if(strlen($r_cc_class) && ControlsHelpers::CheckRowConditions($row,$r_cc_cond)) {
-                $rcClass=($rcClass ? ' ' : '').$r_cc_class;
+                $rcClass.=($rcClass ? ' ' : '').$r_cc_class;
                 $r_cc=TRUE;
             }//if(strlen($r_cc_class) && Control::CheckRowConditions($row,$r_cc_cond))
             if(strlen($this->row_class_field)) {
