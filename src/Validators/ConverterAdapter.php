@@ -80,11 +80,16 @@ class ConverterAdapter {
                 if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/',$date)) {
                     $sourceFormat='Y-m-d H:i:s';
                     $date.=' 00:00:00';
-                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s|T)[0-9]{2}:[0-9]{2}$/',$date)) {
+                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s)[0-9]{2}:[0-9]{2}$/',$date)) {
                     $sourceFormat='Y-m-d H:i:s';
                     $date.=':00';
-                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s|T)[0-9]{2}:[0-9]{2}:[0-9]{2}$/',$date)) {
+                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(\s)[0-9]{2}:[0-9]{2}:[0-9]{2}$/',$date)) {
                     $sourceFormat='Y-m-d H:i:s';
+                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(T)[0-9]{2}:[0-9]{2}$/',$date)) {
+                    $sourceFormat='Y-m-d\TH:i:s';
+                    $date.=':00';
+                } elseif(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}(T)[0-9]{2}:[0-9]{2}:[0-9]{2}$/',$date)) {
+                    $sourceFormat='Y-m-d\TH:i:s';
                 } else {
                     $sourceFormat=NApp::GetDateTimeFormat(TRUE);
                     if(strpos($date,' ')===FALSE && strpos($date,'T')===FALSE) {
