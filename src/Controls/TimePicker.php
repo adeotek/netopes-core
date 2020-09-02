@@ -39,6 +39,7 @@ class TimePicker extends Control {
      */
     public function __construct($params=NULL) {
         $this->button=TRUE;
+        $this->fixed_width=200;
         $this->width_offset=is_object(NApp::$theme) ? NApp::$theme->GetControlsActionWidth() : 20;
         $this->plugin_type=is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsType() : '';
         $this->plugin=is_object(NApp::$theme) ? NApp::$theme->GetDateTimePickerControlsPlugin() : '';
@@ -76,8 +77,8 @@ class TimePicker extends Control {
         switch(strtolower($this->plugin_type)) {
             case 'bootstrap3':
                 return $this->SetBootstrap3Control();
-            case 'bootstrap4':
-                return $this->SetBootstrap3Control();
+            // case 'bootstrap4':
+            //     return $this->SetBootstrap3Control();
             case 'jqueryui':
             default:
                 return $this->SetJQueryUIControl();
@@ -151,8 +152,9 @@ class TimePicker extends Control {
                 $this->onchange_str=NULL;
             }//if(!$this->readonly && !$this->disabled)
             $groupAddonClass=strlen($this->size) ? ' input-'.$this->size : '';
-            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control">'."\n";
-            $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes().$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
+            $groupWithStyle=$this->GetTagWidthStyle();
+            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control"'.(strlen(trim($groupWithStyle)) ? ' style="'.trim($groupWithStyle).'"' : '').'>'."\n";
+            $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(TRUE,NULL,FALSE).$this->GetTagActions().' value="'.$this->value.'" autocomplete="off">'."\n";
             $result.="\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
             $result.="\t\t\t\t".'<span class="glyphicon glyphicon-time"></span>'."\n";
             $result.="\t\t\t".'</span>'."\n";
