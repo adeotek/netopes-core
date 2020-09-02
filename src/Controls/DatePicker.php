@@ -212,7 +212,7 @@ class DatePicker extends Control {
             }//if(!$this->readonly && !$this->disabled)
             $groupAddonClass=strlen($this->size) ? ' input-'.$this->size : '';
             $groupWithStyle=$this->GetTagWidthStyle();
-            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control"'.(strlen($groupWithStyle) ? ' style="'.$groupWithStyle.'"' : '').'>'."\n";
+            $result="\t\t".'<div class="input-group date" id="'.$this->tag_id.'_control"'.(strlen(trim($groupWithStyle)) ? ' style="'.trim($groupWithStyle).'"' : '').'>'."\n";
             $result.="\t\t\t".'<input type="text" '.$this->GetTagId(TRUE).$this->GetTagClass().$this->GetTagAttributes(TRUE,NULL,FALSE).$this->GetTagActions().$ldata.' value="'.$this->value.'" autocomplete="off">'."\n";
             $result.="\t\t\t".'<span class="input-group-addon'.$groupAddonClass.'">'."\n";
             $result.="\t\t\t\t".'<span class="glyphicon glyphicon-calendar"></span>'."\n";
