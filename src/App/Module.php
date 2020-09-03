@@ -33,6 +33,7 @@ use Translate;
  * @method static DeleteDRights(?string $uid=NULL): ?bool
  * @method static PrintDRights(?string $uid=NULL): ?bool
  * @method static ValidateDRights(?string $uid=NULL): ?bool
+ * @method static CancelDRights(?string $uid=NULL): ?bool
  * @method static ExportDRights(?string $uid=NULL): ?bool
  * @method static ImportDRights(?string $uid=NULL): ?bool
  */
@@ -69,6 +70,10 @@ class Module {
      * Deny validate right
      */
     const DRIGHT_VALIDATE='validate';
+    /**
+     * Deny cancel right
+     */
+    const DRIGHT_CANCEL='cancel';
     /**
      * Deny export right
      */
