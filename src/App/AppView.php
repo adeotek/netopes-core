@@ -286,7 +286,7 @@ class AppView {
         } else {
             $this->_jsScripts[]=$jsScript;
         }//if($first)
-    }//END public function GetJsScripts
+    }//END public function AddJsScript
 
     /**
      * @return void
