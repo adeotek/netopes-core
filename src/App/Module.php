@@ -407,12 +407,14 @@ class Module {
     /**
      * Add JavaScript code to execution queue
      *
-     * @param string $script
-     * @param bool   $fromFile
+     * @param string     $script
+     * @param bool       $fromFile
+     * @param array|null $jsParams
+     * @param bool       $dynamic
      * @return void
      */
-    public function AddJsScript(string $script,bool $fromFile=FALSE): void {
-        AppHelpers::AddJsScript($script,$fromFile);
+    public function AddJsScript(string $script,bool $fromFile=FALSE,?array $jsParams=NULL,bool $dynamic=FALSE): void {
+        AppHelpers::AddJsScript($script,$fromFile,$jsParams,$dynamic);
     }//END public function AddJsScript
 
     /**
