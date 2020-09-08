@@ -680,7 +680,7 @@ $(document).on('keydown','.clsOnEnterActionButton',function(e) {
 /**
  * @return {boolean}
  */
-function SetFieldErrorClass(obj,reset,errClass) {
+function SetFieldErrorClass(obj,reset,errClass,skipValueValidation) {
     if(!obj) {
         return false;
     }
@@ -689,6 +689,8 @@ function SetFieldErrorClass(obj,reset,errClass) {
     let validValue=false;
     if(reset) {
         validValue=true;
+    } else if(skipValueValidation) {
+        validValue=false;
     } else {
         if($obj.hasClass('clsNumericTextBox')) {
             validValue=GetNumericTextBoxValue($obj)!==0;
@@ -721,25 +723,25 @@ function SetFieldErrorClass(obj,reset,errClass) {
     return true;
 }//END function SetFieldErrorClass
 
-function AddClassOnErrorByParent(parentId,reset,errClass) {
+function AddClassOnErrorByParent(parentId,reset,errClass,skipValueValidation) {
     $('#' + parentId + ' .clsRequiredField').each(function() {
         if($(this).hasClass('select2-selection')) {
             return;
         }
-        SetFieldErrorClass(this,reset,errClass);
+        SetFieldErrorClass(this,reset,errClass,skipValueValidation);
     });
 }//END function AddClassOnErrorByParent
 
-function AddClassOnError(elementId,reset,errClass) {
-    SetFieldErrorClass($('#' + elementId),reset,errClass);
+function AddClassOnError(elementId,reset,errClass,skipValueValidation) {
+    SetFieldErrorClass($('#' + elementId),reset,errClass,skipValueValidation);
 }//function AddClassOnError
 
-function AddClassOnErrorByName(formId,elementName,reset,errClass) {
+function AddClassOnErrorByName(formId,elementName,reset,errClass,skipValueValidation) {
     $('#' + formId + ' [name="' + elementName + '"]').each(function() {
         if($(this).hasClass('select2-selection')) {
             return;
         }
-        SetFieldErrorClass(this,reset,errClass);
+        SetFieldErrorClass(this,reset,errClass,skipValueValidation);
     });
 }//function AddClassOnErrorByName
 /*** END For Actions ***/
