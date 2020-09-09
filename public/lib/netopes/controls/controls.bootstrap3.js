@@ -151,12 +151,14 @@ function ShowModalForm(width,title,close_callback,targetid) {
     // console.log('targetid: '+targetid);
     // console.log($('#'+targetid));
     if(!$('#' + targetid).length) { $('body').append('<div id="' + targetid + '" class="ui-modal" style="display: none;"></div>'); }
-    var lwidth=0;
+    let lwidth;
     if(is_numeric(width)) {
         lwidth=Number(width) + 30;
         if(lwidth>$(window).width()) { lwidth=($(window).width() - 30); }
-    } else {
+    } else if(width.includes('%')) {
         lwidth=$(window).width() * Number(width.replace('%','')) / 100;
+    } else {
+        lwidth='auto';
     }//if(is_numeric(width))
     $('#' + targetid).dialog({
         title: title,
