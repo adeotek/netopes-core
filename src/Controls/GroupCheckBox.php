@@ -66,7 +66,7 @@ class GroupCheckBox extends Control {
     /**
      * Control class constructor
      *
-     * @param array $params An array of params
+     * @param array|null $params An array of params
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -137,11 +137,12 @@ class GroupCheckBox extends Control {
                 }//if($this->disabled || $this->readonly)
                 if($this->multiple && $this->multiResult) {
                     $itemTagId=' id="'.$this->tag_id.'_'.$iValue.'"';
+                    $labelFor=' for="'.$this->tag_id.'_'.$iValue.'"';
                     $itemTagName=' name="'.(strlen($this->tag_name) ? $this->tag_name : $this->tag_id).'['.$iValue.']"';
                 } else {
-                    $itemTagId=$itemTagName='';
+                    $labelFor=$itemTagId=$itemTagName='';
                 }
-                $result.="\t\t".'<li><input type="image"'.$itemTagId.$itemTagName.' class="clsGCKBItem'.($this->multiple && $this->multiResult ? ' postable' : '').($iActive ? ' active' : ' disabled').'" data-id="'.$this->tag_id.$hiddenTagSufix.'" data-val="'.$iValue.'" data-multiple="'.((int)$this->multiple).'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$iVal.'"><label class="clsGCKBLabel">'.$iLabel.'</label></li>'."\n";
+                $result.="\t\t".'<li><input type="image"'.$itemTagId.$itemTagName.' class="clsGCKBItem'.($this->multiple && $this->multiResult ? ' postable' : '').($iActive ? ' active' : ' disabled').'" data-id="'.$this->tag_id.$hiddenTagSufix.'" data-val="'.$iValue.'" data-multiple="'.((int)$this->multiple).'" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent.gif" value="'.$iVal.'"><label class="clsGCKBLabel"'.$labelFor.'>'.$iLabel.'</label></li>'."\n";
             }//END foreach
         } else {
             $result.="\t\t<li><span class=\"clsGCKBBlank\">".Translate::GetLabel('no_elements')."</span></li>\n";
