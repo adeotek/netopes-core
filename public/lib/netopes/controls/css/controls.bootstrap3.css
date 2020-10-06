@@ -822,7 +822,7 @@ select.input-sm {
 	box-sizing: border-box;
 	display: block;
 	width: 100%;
-	padding: 8px 5px;
+	padding: 8px 0;
 }
 
 .clsGroupCheckBox > ul.clsGCKBList {
@@ -837,7 +837,7 @@ select.input-sm {
 	display: inline-block;
 	width: auto;
 	line-height: 20px;
-	margin-right: 10px;
+	margin-right: 15px;
 }
 
 .clsGroupCheckBox > ul.clsGCKBList.oVertical > li {
@@ -848,7 +848,7 @@ select.input-sm {
 
 .clsGroupCheckBox > ul.clsGCKBList > li > .clsGCKBItem {
 	display: inline-block;
-	margin: 0 8px 2px;
+	margin: 0 8px 2px 0;
 	line-height: 20px;
 	vertical-align: middle;
 }

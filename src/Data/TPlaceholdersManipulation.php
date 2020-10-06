@@ -1,5 +1,6 @@
 <?php
 namespace NETopes\Core\Data;
+
 /**
  * Trait TPlaceholdersManipulation
  */
@@ -49,7 +50,7 @@ trait TPlaceholdersManipulation {
      */
     public function GetPlaceholderValue(string $placeholder,array $parameters,bool $skipLabels=FALSE): ?string {
         if(!array_key_exists($placeholder,$parameters)) {
-            return NULL;
+            return substr($placeholder,0,10)==='src_image-' ? get_array_value($parameters,'_default_image_src',NULL,'is_string') : NULL;
         }
         $paramValue=get_array_value($parameters,$placeholder,NULL,'isset');
         if(is_array($paramValue)) {
