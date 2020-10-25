@@ -181,6 +181,8 @@
                 $(obj).find('.hTextsActions .hTextsActionButton').each(function() {
                     if($(this).data('id')!==sectionId) {
                         $(this).prop('disabled','disabled');
+                    } else {
+                        $(this).prop('disabled',false);
                     }
                 });
             },
