@@ -38,7 +38,7 @@ class ContainerBootstrap3 implements IControlContainer {
      * @return string
      */
     public function GetHtml(string $content,?string $secondaryContent=NULL) {
-        if(!$this->control->container && $this->control->no_label) {
+        if(!$this->control->container && $this->control->no_label && !$this->control->input_group) {
             $result=$content.$secondaryContent;
         } else {
             $result='';
@@ -85,10 +85,7 @@ class ContainerBootstrap3 implements IControlContainer {
             } else {
                 $content="\t\t\t".$content."\n";
             }//if($this->control->hasActions())
-            $result.=$content;
-            if($secondaryContent) {
-                $result.="\t\t".'<div class="col-md-12">'.$secondaryContent.'</div>'."\n";
-            }
+            $result.=$content.$secondaryContent;
             if(is_string($this->control->field_hint) && strlen($this->control->field_hint)) {
                 $result.="\t\t\t".'<p'.(strlen($this->control->tag_id) ? ' id="'.$this->control->tag_id.'_hint"' : '').' class="help-block">'.$this->control->field_hint.'</p>'."\n";
             }//if(is_string($this->control->field_hint) && strlen($this->control->field_hint))
