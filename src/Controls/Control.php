@@ -72,6 +72,7 @@ use Translate;
  * @property mixed        onkeypress_target_id
  * @property mixed        disabled_on_render
  * @property bool         multi_field_require
+ * @property bool|null    input_group
  */
 abstract class Control {
     /**
@@ -107,17 +108,21 @@ abstract class Control {
      */
     public $theme_type=NULL;
     /**
-     * @var    boolean Output container
+     * @var    bool Output container
      */
     public $container=TRUE;
     /**
-     * @var    boolean Inline rendering
+     * @var    bool Inline rendering
      */
     public $inline=FALSE;
     /**
-     * @var    boolean Flag for no label
+     * @var    bool Flag for no label
      */
     public $no_label=FALSE;
+    /**
+     * @var    bool|null Is input group
+     */
+    public $input_group=NULL;
     /**
      * @var    string Tag style base value
      */
@@ -142,7 +147,7 @@ abstract class Control {
      * @param string $name The name o the property
      * @return mixed Returns the value of the property
      */
-    public function __get($name) {
+    public function __get(string $name) {
         return (is_array($this->pdata) && array_key_exists($name,$this->pdata)) ? $this->pdata[$name] : NULL;
     }//END public function __get
 
@@ -153,7 +158,7 @@ abstract class Control {
      * @param mixed  $value The value to be set
      * @return void
      */
-    public function __set($name,$value) {
+    public function __set(string $name,$value) {
         if(!is_array($this->pdata)) {
             $this->pdata=[];
         }
@@ -163,7 +168,7 @@ abstract class Control {
     /**
      * Control class constructor
      *
-     * @param array $params An array of params
+     * @param array|null $params An array of params
      * @return void
      * @throws \NETopes\Core\AppException
      */
@@ -249,6 +254,9 @@ abstract class Control {
                 $this->ProcessWidth(FALSE);
                 break;
         }//END switch
+        if(is_null($this->input_group)) {
+            $this->input_group=is_array($this->actions) && count($this->actions);
+        }
         if($this->buffered) {
             $this->output_buffer=$this->SetContainer($this->SetControl());
         }
@@ -327,7 +335,7 @@ abstract class Control {
             return NULL;
         }
         $result='';
-        if($this->container) {
+        if($this->input_group) {
             $result.="\t\t\t\t".'<span class="input-group-btn">'."\n";
         }
         if(strlen($this->dynamic_target)) {
@@ -347,7 +355,7 @@ abstract class Control {
             $actButton->ClearBaseClass();
             $result.=$actButton->Show();
         }//END foreach
-        if($this->container) {
+        if($this->input_group) {
             $result.="\t\t\t\t".'</span>'."\n";
         }
         return $result;
@@ -376,8 +384,8 @@ abstract class Control {
     /**
      * Gets the html tag class string (' class="..."')
      *
-     * @param string $extra Other html classes to be included
-     * @param bool   $raw
+     * @param string|null $extra Other html classes to be included
+     * @param bool        $raw
      * @return string Returns the html tag class
      */
     protected function GetTagClass(?string $extra=NULL,bool $raw=FALSE) {
@@ -499,7 +507,7 @@ abstract class Control {
                     }//if(is_numeric($f_width))
                 }//if(isset($f_width) && strlen($f_width))
                 if(!$fwidth) {
-                    if($this->container) {
+                    if($this->container || $this->input_group) {
                         $lstyle.=' '.$this->tag_base_style;
                     } else {
                         $wo=is_numeric($this->width_offset) ? $this->width_offset : 0;
@@ -531,12 +539,12 @@ abstract class Control {
     /**
      * Gets the html tag style attribute string (' style="...")
      *
-     * @param mixed  $width  Custom css width
-     * @param bool   $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
-     * @param string $extra  Other css attributes to be included
+     * @param mixed       $width  Custom css width
+     * @param bool        $halign Include the tag text-align css attribute TRUE/FALSE (default TRUE)
+     * @param string|null $extra  Other css attributes to be included
      * @return string Returns the html tag style attribute
      */
-    protected function GetTagStyle($width=NULL,$halign=TRUE,$extra=NULL) {
+    protected function GetTagStyle($width=NULL,$halign=TRUE,$extra=NULL): string {
         if($width!==FALSE) {
             $lstyle=$this->GetTagWidthStyle($width);
         } else {
@@ -561,9 +569,9 @@ abstract class Control {
     /**
      * Gets the html tag attributes string (' placeholder="..." disabled="..." ...')
      *
-     * @param bool   $style Include the tag style attribute TRUE/FALSE (default TRUE)
-     * @param string $extra Other html attributes to be included
-     * @param bool   $widthStyle
+     * @param bool        $style Include the tag style attribute TRUE/FALSE (default TRUE)
+     * @param string|null $extra Other html attributes to be included
+     * @param bool        $widthStyle
      * @return string Returns the html tag attributes
      */
     protected function GetTagAttributes($style=TRUE,$extra=NULL,bool $widthStyle=TRUE) {
