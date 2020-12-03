@@ -86,7 +86,7 @@ class TreeComboBox extends Control {
         if($this->disabled || $this->readonly) {
             $result='<div class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
             $result.="\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$cssClass.($this->postable ? ' postable' : '').'">'."\n";
-            $result.="\t".'<input type="text" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$tabindex.$extraTagParams.'>'."\n";
+            $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.($this->disabled ? ' disabled="disabled"' : ' readonly="readonly"').$tabindex.$extraTagParams.'>'."\n";
             $result.="\t".'<div class="'.$dropdownBtnClass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
             $result.='</div>'."\n";
             return $result;
@@ -98,7 +98,7 @@ class TreeComboBox extends Control {
         $dropdownContainerClass=$this->base_class.' ctrl-dropdown';
         $result='<div class="'.$containerClass.'"'.$containerCssStyle.'>'."\n";
         $result.="\t".'<input type="hidden"'.$this->GetTagId(TRUE).' value="'.$this->selected_value.'" class="'.$cssClass.($this->postable ? ' postable' : '').'"'.$onChange.'>'."\n";
-        $result.="\t".'<input type="text" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.' readonly="readonly"'.$tabindex.$extraTagParams.' data-value="'.$this->selected_value.'">'."\n";
+        $result.="\t".'<input type="text" id="'.$this->tag_id.'-cbo" value="'.$this->selected_text.'" class="'.$cssClass.'"'.$cssStyle.$placeholder.' readonly="readonly"'.$tabindex.$extraTagParams.' data-value="'.$this->selected_value.'">'."\n";
         $result.="\t".'<div class="'.$dropdownBtnClass.'"><i class="fa fa-caret-down" aria-hidden="true"></i></div>'."\n";
         $result.="\t".'<div class="'.$clearBtnClass.'"></div>'."\n";
         $result.="\t".'<div class="'.$dropdownContainerClass.'"'.$dropdownCssStyle.'>';

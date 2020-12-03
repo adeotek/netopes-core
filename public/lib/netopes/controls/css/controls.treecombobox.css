@@ -38,50 +38,50 @@ div.clsTreeComboBox.ctrl-container.tall > .clsTreeComboBox.ctrl-dd-btn {
 }
 
 div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dd-i-btn {
-	position: relative;
-	float: right;
-	background: transparent;
-	cursor: pointer;
-	width: 18px;
-	height: 36px;
-	line-height: 36px;
-	padding: 0;
-	margin: -36px 1px 0 0 !important;
-	text-align: center;
-	z-index: 10;
+    position: relative;
+    float: right;
+    background: transparent;
+    cursor: pointer;
+    width: 18px;
+    height: 33px;
+    line-height: 33px;
+    padding: 0;
+    margin: -33px 2px 0 0 !important;
+    text-align: center;
+    z-index: 10;
 }
 
 div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-clear {
-	display: none;
-	position: relative;
-	float: right;
-	width: 10px;
-	height: 36px;
-	line-height: 36px;
-	margin: -36px 24px 0 0 !important;
-	background: transparent url("../images/x_button_small.png") no-repeat center center;
-	cursor: pointer;
-	z-index: 12;
+    display: block;
+    position: relative;
+    float: right;
+    width: 10px;
+    height: 33px;
+    line-height: 33px;
+    margin: -33px 24px 0 0 !important;
+    background: transparent url("../images/x_button_small.png") no-repeat center center;
+    cursor: pointer;
+    z-index: 12;
 }
 
-div.clsTreeComboBox.ctrl-container:hover > .clsTreeComboBox.ctrl-clear {
-	display: block;
-}
+/*div.clsTreeComboBox.ctrl-container:hover > .clsTreeComboBox.ctrl-clear {*/
+/*	display: block;*/
+/*}*/
 
 div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
-	display: block;
-	position: absolute;
-	top: 18px;
-	left: 0;
-	overflow: auto;
-	box-sizing: border-box;
-	background-color: #ffffff;
-	border: 1px solid #dddddd;
-	border-radius: 3px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	padding: 5px;
-	z-index: 12;
+    display: block;
+    position: absolute;
+    top: 18px;
+    left: 0;
+    overflow: auto;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    padding: 5px;
+    z-index: 12;
 }
 
 div.clsTreeComboBox.ctrl-container > .clsTreeComboBox.ctrl-dropdown {
