@@ -916,7 +916,8 @@ div.clsGridComboBox.ctrl-container > .clsGridComboBox.ctrl-dd-i-btn {
 	height: 36px;
 	line-height: 36px;
 	padding: 0;
-	margin: -36px 1px 0 0 !important;
+	/*margin: -36px 1px 0 0 !important;*/
+	margin: -33px 8px 0 0 !important;
 	text-align: center;
 	z-index: 10;
 }
@@ -1524,6 +1525,19 @@ div.clsTableView div.clsTableViewActions div.tw-filters .f-ctrl {
 	font-size: 12px !important;
 	border-radius: 2px;
 	vertical-align: middle;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters .clsTreeComboBox.f-ctrl.form-control {
+	width: 100%;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters .clsTreeComboBox.f-ctrl.ctrl-dd-i-btn {
+	margin: -33px 8px 0 0 !important;
+}
+
+div.clsTableView div.clsTableViewActions div.tw-filters .clsTreeComboBox.f-ctrl.ctrl-clear {
+	width: 10px;
+	margin: -33px 26px 0 0 !important;
 }
 
 div.clsTableView div.clsTableViewActions div.tw-filters > .btn {
