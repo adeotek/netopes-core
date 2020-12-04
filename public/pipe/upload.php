@@ -31,25 +31,25 @@ if(!NApp::GetLoginStatus() && (!array_key_exists('rpa',$_GET) || $_GET['rpa']!=1
 $uType=(array_key_exists('utype',$_GET) && $_GET['utype']) ? $_GET['utype'] : 0;
 switch($uType) {
     case 1:
-        $fFilter='/\.(gif|jpe?g|png)$/i';
+        $fFilter='/\.(gif|jpg|jpeg|png)$/i';
         break;
     case 2:
         $fFilter='/\.(avi|mp4|ogg|wmv)$/i';
         break;
     case 3:
-        $fFilter='/\.(gif|jpe?g|png|pdf|doc?x|xls?x|ppt?x|pps?x|ods|odt)$/i';
+        $fFilter='/\.(gif|jpg|jpeg|png|pdf|doc|docx|xls|xlsx|ppt|pptx|pps|ppsx|ods|odt|avi|mp4|ogg|wmv)$/i';
         break;
     case 4:
-        $fFilter='/\.(xls?x|ods)$/i';
+        $fFilter='/\.(xls|xlsx|ods)$/i';
         break;
     case 12:
-        $fFilter='/\.(gif|jpe?g|png|avi|mp4|ogg|wmv)$/i';
+        $fFilter='/\.(gif|jpg|jpeg|png|avi|mp4|ogg|wmv)$/i';
         break;
     case 13:
         $fFilter='/\.apk$/i';
         break;
     case 40:
-        $fFilter='/\.(xls?x|ods|csv|txt|xml)$/i';
+        $fFilter='/\.(xls|xlsx|ods|csv|txt|xml)$/i';
         break;
     default:
         $fFilter='/.+$/i';
