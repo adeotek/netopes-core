@@ -17,6 +17,7 @@ use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\Doctrine\DataAdapter as DoctrineAdapter;
 use NETopes\Core\Data\Doctrine\DataSource as DoctrineDataSource;
+use NETopes\Core\Helpers;
 
 /**
  * DataProvider prepares and makes the data requests
@@ -343,4 +344,13 @@ class DataProvider {
         self::$entityManagers[$emKey]=DoctrineAdapter::GetEntityManager(NApp::$appPath,$conn,$platform);
         return self::$entityManagers[$emKey];
     }//END public static function GetEntityManager
+
+    /**
+     * Generate new UUID (version 4, RFC4122) MSSQL UNIQUEIDENTIFIER compatible
+     *
+     * @return string
+     */
+    public static function NewUuid(): string {
+        return Helpers::new_uuid();
+    }//END public static function NewGuid
 }//END class DataProvider

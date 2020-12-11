@@ -46,10 +46,10 @@ class AppSession {
     /**
      * GetNewUID method generates a new unique ID
      *
-     * @param string $salt      A string to be added as salt to the generated unique ID (NULL and empty string means no salt will be used)
-     * @param string $algorithm The name of the algorithm used for unique ID generation (possible values are those in hash_algos() array - see: http://www.php.net/manual/en/function.hash-algos.php)
-     * @param bool   $notime    Flag for salting with current micro-time
-     * @param bool   $raw       Sets return type: hexits for FALSE (default) or raw binary for TRUE
+     * @param string|null $salt      A string to be added as salt to the generated unique ID (NULL and empty string means no salt will be used)
+     * @param string      $algorithm The name of the algorithm used for unique ID generation (possible values are those in hash_algos() array - see: http://www.php.net/manual/en/function.hash-algos.php)
+     * @param bool        $notime    Flag for salting with current micro-time
+     * @param bool        $raw       Sets return type: hexits for FALSE (default) or raw binary for TRUE
      * @return     string Returns an unique ID as lowercase hex or raw binary representation if $raw is set to TRUE.
      */
     public static function GetNewUID(?string $salt=NULL,string $algorithm='sha1',bool $notime=FALSE,bool $raw=FALSE): string {
