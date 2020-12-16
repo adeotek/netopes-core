@@ -10,8 +10,10 @@
  * @filesource
  */
 namespace NETopes\Core\Logging;
+use Doctrine\DBAL\Driver\PDOException;
 use Exception;
 use NETopes\Core\AppException;
+use NETopes\Core\Data\Doctrine\BaseEntity;
 
 /**
  * Class FileLoggerAdapter
@@ -174,7 +176,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
             $data.=$entry->message->getMessage();
             if($includeExceptionsTrace && count($entry->backtrace)) {
                 $data.=PHP_EOL.'<<<STACK TRACE:';
-                $data.=PHP_EOL.print_r($entry->backtrace,1);
+                $data.=PHP_EOL.static::BacktraceToString($entry->backtrace);
                 $data.=PHP_EOL.'STACK TRACE>>> ';
             }//if($includeExceptionsTrace && count($entry->backtrace))
         } else {
@@ -251,4 +253,35 @@ class FileLoggerAdapter implements ILoggerAdapter {
         fwrite($fileHandler,$message);
         fclose($fileHandler);
     }//END public static function WriteToFile
+
+    /**
+     * @param array|null $input
+     * @param int        $depth
+     * @param int        $level
+     * @return string|null
+     */
+    public static function BacktraceToString(?array $input,int $depth=128,int $level=0): ?string {
+        if(!is_array($input)) {
+            return NULL;
+        }
+        $result='Array('.PHP_EOL;
+        foreach($input as $k=>$v) {
+            $result.=str_repeat('    ',$level + 1).$k.'=>';
+            if(is_array($v)) {
+                if($level>=$depth) {
+                    $result.='[Max depth reached!]'.PHP_EOL;
+                } else {
+                    $result.=static::BacktraceToString($v,$depth,++$level).PHP_EOL;
+                }//if($level>$depth)
+            } elseif($v instanceof PDOException || $v instanceof \Doctrine\DBAL\Driver\Exception) {
+                $result.='\Doctrine\DBAL\Driver\Exception: '.$v->getMessage().PHP_EOL;
+            } elseif($v instanceof BaseEntity) {
+                $result.='[Instance of \NETopes\Core\Data\Doctrine\BaseEntity]'.PHP_EOL;
+            } else {
+                $result.=print_r($v,1).PHP_EOL;
+            }//if(is_array($v))
+        }//END foreach
+        $result.=')';
+        return $result;
+    }//END public static function BacktraceToString
 }//END class PhpConsoleAdapter implements ILoggerAdapter
