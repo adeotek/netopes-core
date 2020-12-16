@@ -620,6 +620,7 @@ class ExcelExport {
         $file=(strlen($file_name) ? $file_name : date('YmdHis')).'.'.$file_type;
         $this->obj->setActiveSheetIndex(0);
         $writer=IOFactory::createWriter($this->obj,$this->file_types[$file_type]);
+        $writer->setPreCalculateFormulas(FALSE);
         if(strlen($path)) {
             $writer->save($path.$file);
             return TRUE;
@@ -677,4 +678,3 @@ class ExcelExport {
         return NULL;
     }//END protected function FormatDateTimeValue
 }//END class ExcelExport
-?>
