@@ -45,6 +45,7 @@ use NETopes\Core\Data\VirtualEntity;
  * @property bool|null   multiple
  * @property mixed       value
  * @property string|null no_items_found_message
+ * @property array|null  extra_config
  * @package  NETopes\Controls
  */
 class SmartComboBox extends Control {
@@ -144,6 +145,11 @@ class SmartComboBox extends Control {
         if(strlen($this->fixed_width)) {
             $jsScripts[]="\t\t\twidth: '{$this->fixed_width}'";
         }
+        if(is_array($this->extra_config) && count($this->extra_config)) {
+            foreach($this->extra_config as $ck=>$cv) {
+                $jsScripts[]="\t\t\t{$ck}: {$cv}";
+            }//END foreach
+        }//if(is_array($this->extra_config) && count($this->extra_config))
         if($this->load_type=='ajax' || $this->allow_clear) {
             $jsScripts[]="\t\t\tallowClear: true";
         }
