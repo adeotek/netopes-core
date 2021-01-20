@@ -18,7 +18,7 @@ class BaseRepository extends EntityRepository {
      */
     public function findRecord($id) {
         if(!is_scalar($id)) {
-            throw new AppException('Invalid PK search value!');
+            throw new AppException('Invalid PK search value for ['.$this->_entityName.']: '.print_r($id,1));
         }
         $entity=$this->find($id);
         if(!$entity instanceof $this->_entityName) {
