@@ -420,8 +420,9 @@ class TableView extends FilterControl {
                 $params[$dsParam]=get_array_value($filter,'value',NULL,'isset');
             } else {
                 $fField=get_array_value($filter,'field',NULL,'is_notempty_string');
+                $processField=get_array_value($this->columns,[$fType,'filter_process_field'],FALSE,'bool');
                 // NApp::Dlog($fField,'$fField[0]');
-                if(is_null($fField)) {
+                if(is_null($fField) || $processField) {
                     $fField=get_array_value($this->columns,[$fType,'entity_property'],NULL,'is_notempty_string');
                     if(is_null($fField)) {
                         $fField=get_array_value($this->columns,[$fType,'db_field'],$fType,'is_notempty_string');
@@ -1134,9 +1135,8 @@ class TableView extends FilterControl {
                     $result=NULL;
                     break;
                 }//if(is_array($conditions) && !Control::CheckRowConditions($row,$conditions))
-                $cellValue=$result=isset($row->__rowno) ? $row->__rowno : NULL;
+                $cellValue=$result=$row->getProperty('__rowNo',NULL,'is_integer');
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool')) {
-                    $cFormat=ControlsHelpers::ReplaceDynamicParams(get_array_value($v,'format','','is_string'),$row);
                     $this->export_data['data'][$row->getProperty('__rowId')][$name]=$cellValue;
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool'))
                 break;
@@ -1431,17 +1431,17 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell html
      *
-     * @param object $row
-     * @param        $v
-     * @param        $name
-     * @param null   $hasChild
-     * @param null   $rLvl
-     * @param null   $rTreeState
-     * @param bool   $isIterator
+     * @param IEntity $row
+     * @param         $v
+     * @param         $name
+     * @param null    $hasChild
+     * @param null    $rLvl
+     * @param null    $rTreeState
+     * @param bool    $isIterator
      * @return string Returns the table cell html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetCell(&$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE) {
+    protected function SetCell(IEntity &$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE) {
         $cell_type=strtolower(get_array_value($v,'type','','is_string'));
         $result='';
         $c_style='';

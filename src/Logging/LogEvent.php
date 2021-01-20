@@ -108,7 +108,8 @@ class LogEvent {
      * @return \DateTime
      */
     public function getTimestamp(): DateTime {
-        return DateTime::createFromFormat('U.u',$this->timestamp);
+        $dt=is_float($this->timestamp) ? DateTime::createFromFormat('U.u',$this->timestamp) : NULL;
+        return $dt instanceof DateTime ? $dt : new DateTime();
     }
 
     /**
