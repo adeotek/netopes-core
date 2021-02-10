@@ -20,6 +20,11 @@ use NETopes\Core\AppSession;
  * @package NETopes\Core\Data
  */
 class DataSource {
+    const SP_COUNT_EXPLICIT=0;
+    const SP_COUNT_IN_PROC_WITH_OUTPUT=1;
+    const SP_COUNT_IN_PROC_RESULTS=2;
+    const SP_COUNT_IN_PROC_RESULTS_WITH_LIMIT=3;
+
     /**
      * @var    array A static array containing all data adapters instances
      * @access private
@@ -98,12 +103,13 @@ class DataSource {
      *                             - 'out_params' = an array of output params
      * @param bool   $cache        Flag indicating if the cache should be used or not
      * @param string $tag          Cache key tag
-     * @param bool   $spCount      Flag indicating if the count is done inside the stored procedure
-     *                             or in the procedure call (default value is FALSE)
+     * @param int    $spCount      Flag indicating how the count is done:
+     *                             inside the stored procedure or in the procedure call
+     *                             (default value is 0=NONE)
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetCountAndData($procedure,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL,$spCount=FALSE) {
+    public function GetCountAndData(string $procedure,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL,int $spCount=self::SP_COUNT_EXPLICIT) {
         $key=$lTag=NULL;
         if($cache && NApp::CacheDbCall()) {
             $paramsSalt=$procedure;
@@ -121,7 +127,7 @@ class DataSource {
         $countSelect=strtolower(get_array_value($extraParams,'type','','is_string'))=='count-select';
         if($countSelect) {
             switch(intval($spCount)) {
-                case 1:
+                case self::SP_COUNT_IN_PROC_WITH_OUTPUT:
                     $extraParams['type']='select';
                     $lExtraParams=$extraParams;
                     $lExtraParams['first_row']=NULL;
@@ -134,7 +140,7 @@ class DataSource {
                     $extraParams['out_params']=$outParams;
                     $result['data']=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
                     break;
-                case 2:
+                case self::SP_COUNT_IN_PROC_RESULTS:
                     $extraParams['type']='select';
                     $params['with_count']=1;
                     $lResult=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
@@ -144,6 +150,21 @@ class DataSource {
                         $result=['count'=>0,'data'=>[]];
                     }//if(is_array($lResult) && count($lResult))
                     break;
+                case self::SP_COUNT_IN_PROC_RESULTS_WITH_LIMIT:
+                    $extraParams['type']='select';
+                    $params['with_count']=1;
+                    $params['first_row']=$extraParams['first_row'];
+                    $params['last_row']=$extraParams['last_row'];
+                    $extraParams['first_row']=NULL;
+                    $extraParams['last_row']=NULL;
+                    $lResult=$this->adapter->ExecuteProcedure($procedure,$params,$extraParams);
+                    if(is_array($lResult) && count($lResult)) {
+                        $result=['count'=>$lResult[0]['rcount'],'data'=>$lResult];
+                    } else {
+                        $result=['count'=>0,'data'=>[]];
+                    }//if(is_array($lResult) && count($lResult))
+                    break;
+                case self::SP_COUNT_EXPLICIT:
                 default:
                     $extraParams['type']='count';
                     $result=change_array_keys_case($this->adapter->ExecuteProcedure($procedure,$params,$extraParams),TRUE,CASE_LOWER);
@@ -187,7 +208,7 @@ class DataSource {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function GetQueryCountAndData($query,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL) {
+    public function GetQueryCountAndData(string $query,$params=[],&$extraParams=[],$cache=FALSE,$tag=NULL) {
         $key=$lTag=NULL;
         if($cache && NApp::CacheDbCall()) {
             $paramsSalt=AppSession::GetNewUID($query,'md5',TRUE);

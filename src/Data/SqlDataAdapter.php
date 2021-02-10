@@ -191,7 +191,7 @@ abstract class SqlDataAdapter extends DataAdapter {
         $type=strtolower(get_array_value($extraParams,'type','','is_notempty_string'));
         $firstRow=get_array_value($extraParams,'first_row',NULL,'is_not0_numeric');
         $lastRow=get_array_value($extraParams,'last_row',NULL,'is_not0_numeric');
-        $sort=get_array_value($extraParams,'sort',NULL,'is_notempty_array');
+        $sort=get_array_value($extraParams,'sort',NULL,'isset');
         $filters=get_array_value($extraParams,'filters',NULL,'is_notempty_array');
         $outParams=get_array_value($extraParams,'out_params',[],'is_array');
         $log=get_array_value($extraParams,'log',FALSE,'bool');
