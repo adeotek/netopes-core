@@ -252,7 +252,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             }
             $result=strlen(trim($result)) ? ' ORDER BY'.$result.' ' : '';
         } elseif(strlen($sort)) {
-            $result=" ORDER BY {$sort} ASC ";
+            $result=" ORDER BY {$sort} ";
         }//if(is_array($sort))
         return $result;
     }//END private function GetOrderBy
