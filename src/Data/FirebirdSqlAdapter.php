@@ -406,7 +406,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         if(!$filterValue) {
             return '';
         }
-        $result=' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
+        if(get_array_value($condition,'escape_field_name',TRUE,'bool')) {
+            $result=' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
+        } else {
+            $result=' '.strtoupper($field);
+        }
         $result.=' '.$filterValue;
         return $result;
     }//END private function GetFilterCondition
