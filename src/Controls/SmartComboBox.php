@@ -324,10 +324,10 @@ class SmartComboBox extends Control {
                     break;
                 }//if($lValue==$lsVal && !(($lsVal===NULL && $lValue!==NULL) || ($lsVal!==NULL && $lValue===NULL)))
             }//END foreach
-            if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1) {
+            if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,FALSE,'bool')) {
                 $def_record=TRUE;
                 $lSelected=' selected="selected"';
-            }//if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,0,'is_numeric')==1)
+            }//if(!$selectedValues->count() && !$def_record && !strlen($lSelected) && strlen($this->default_value_field) && $item->getProperty($this->default_value_field,FALSE,'bool'))
             $o_data=(is_string($this->state_field) && strlen($this->state_field) && $item->getProperty($this->state_field,1,'is_numeric')<=0) ? ' disabled="disabled"' : '';
             foreach($this->option_data as $od) {
                 $o_data.=' data-'.$od.'="'.$item->getProperty($od,'','is_string').'"';
