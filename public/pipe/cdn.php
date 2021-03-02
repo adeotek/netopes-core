@@ -179,6 +179,10 @@ if(isset($_GET['hash'])) {
             end_request($debug,$e->getMessage());
         }//END try
         $outputResult=is_string($result) && strlen($result);
+        if($outputResult) {
+            $fileName=get_array_value($_GET,'file_name',get_array_value($_POST,'file_name',NULL,'is_string'),'is_string');
+            $mimeType=isset($fileName) ? Helpers::getFileMimeTypeByExtension($fileName) : NULL;
+        }
     } else {
         $file=get_array_value($_GET,'file',get_array_value($_POST,'file',NULL,'is_notempty_string'),'is_notempty_string');
         $file=rawurldecode($file);
