@@ -404,6 +404,14 @@ class AppView {
     }//END public function SetParam
 
     /**
+     * @return void
+     */
+    public function ClearContent(): void {
+        $this->_placeholders=[];
+        $this->_content=[];
+    }//END public function ClearContent
+
+    /**
      * @param array $content
      * @return void
      */
