@@ -99,12 +99,13 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
     }//END public function WriteCssStyles
 
     /**
-     * @param string $content
-     * @param string $name
-     * @param string $dest
+     * @param string      $content
+     * @param string|null $name
+     * @param string      $dest
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function OutputContent(string $content,?string $name=NULL,string $dest='I') {
+    public function OutputContent(string $content,?string $name=NULL,string $dest='I'): ?string {
         if(!strlen($content)) {
             throw new AppException('Invalid PDF content!');
         }
@@ -155,12 +156,15 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
                     header('Content-Disposition: attachment; filename="'.$name.'"');
                     echo $content;
                     break;
+                case Destination::STRING_RETURN:
+                    return $content;
                 default:
                     throw new MpdfException(sprintf('Incorrect output destination %s',$dest));
             }
         } catch(MpdfException $e) {
             throw AppException::GetInstance($e);
         }//END try
+        return NULL;
     }//END public function OutputContent
 
     /**
@@ -181,7 +185,7 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
                     $first=FALSE;
                     $this->WriteCssStyles();
                 } else {
-                    $this->AddPage();
+                    $this->AddPage(get_array_value($content,'orientation','','is_string'));
                 }
                 $pageInit=TRUE;
                 if(isset($content['page_header']) && strlen($content['page_header'])) {
@@ -208,15 +212,15 @@ class MpdfAdapter extends mPDF implements IPdfAdapter {
 
     /**
      * @param array|null $params
-     * @return void
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function Render(?array $params=NULL) {
+    public function Render(?array $params=NULL): ?string {
         if(!is_array($params)) {
             $params=[];
         }
-        $params['destination']='I';
-        $this->GetOutput($params);
+        $params['destination']=get_array_value($params,'destination','I','?is_string');
+        return $this->GetOutput($params);
     }//END public function Render
 
     /**

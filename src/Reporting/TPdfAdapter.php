@@ -131,18 +131,21 @@ trait TPdfAdapter {
      * @param string      $content
      * @param int|null    $page
      * @param string|null $pageHeader
+     * @param string|null $orientation
      * @return int Current page
      */
-    public function SetContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int {
+    public function SetContent(string $content,?int $page=NULL,?string $pageHeader=NULL,?string $orientation=NULL): int {
         if(is_integer($page)) {
             $this->content[$page]=[
                 'content'=>$content,
                 'page_header'=>$pageHeader,
+                'orientation'=>$orientation,
             ];
         } else {
             $this->content[]=[
                 'content'=>$content,
                 'page_header'=>$pageHeader,
+                'orientation'=>$orientation,
             ];
         }
         return ($page ?? count($this->content) - 1);
@@ -154,24 +157,28 @@ trait TPdfAdapter {
      * @param string      $content
      * @param int|null    $page
      * @param string|null $pageHeader
+     * @param string|null $orientation
      * @return int Current page
      */
-    public function AddContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int {
+    public function AddContent(string $content,?int $page=NULL,?string $pageHeader=NULL,?string $orientation=NULL): int {
         if(is_integer($page)) {
             if(!is_array($this->content[$page])) {
                 $this->content[$page]=[
                     'content'=>'',
                     'page_header'=>NULL,
+                    'orientation'=>NULL,
                 ];
             }
             $this->content[$page]['content'].=$content;
             if(isset($pageHeader)) {
                 $this->content[$page]['page_header'].=strlen($pageHeader) ? $pageHeader : NULL;
             }
+            $this->content[$page]['orientation']=$orientation;
         } else {
             $this->content[]=[
                 'content'=>$content,
                 'page_header'=>strlen($pageHeader) ? $pageHeader : NULL,
+                'orientation'=>$orientation,
             ];
         }
         return ($page ?? count($this->content) - 1);

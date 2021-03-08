@@ -62,12 +62,13 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
     }//END public function SetActiveFont
 
     /**
-     * @param string $content
-     * @param string $name
-     * @param string $dest
+     * @param string      $content
+     * @param string|null $name
+     * @param string      $dest
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function OutputContent(string $content,?string $name=NULL,string $dest='I') {
+    public function OutputContent(string $content,?string $name=NULL,string $dest='I'): ?string {
         if(!strlen($content)) {
             throw new AppException('Invalid PDF content!');
         }
@@ -107,6 +108,8 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
                     header('Content-Disposition: attachment; filename="'.basename($name).'"');
                     header('Content-Transfer-Encoding: binary');
                     break;
+                case 'S':
+                    return $content;
                 default:
                     throw new AppException('Incorrect output destination: '.$dest);
             }
@@ -114,6 +117,7 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
         }//END try
+        return NULL;
     }//END public function OutputContent
 
     /**
@@ -133,7 +137,7 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
                 if($first) {
                     $first=FALSE;
                 } else {
-                    $this->AddPage();
+                    $this->AddPage(get_array_value($content,'orientation','','is_string'));
                 }
                 $cssStyles=strlen($this->cssStyles) ? '<style>'.$this->cssStyles.'</style>' : '';
                 if(isset($content['page_header']) && strlen($content['page_header'])) {

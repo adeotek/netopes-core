@@ -33,9 +33,9 @@ interface IPdfAdapter {
 
     /**
      * @param array|null $params
-     * @return void
+     * @return string|null
      */
-    public function Render(?array $params=NULL);
+    public function Render(?array $params=NULL): ?string;
 
     /**
      * @param array|null $params
@@ -91,9 +91,10 @@ interface IPdfAdapter {
      * @param string      $content
      * @param int|null    $page
      * @param string|null $pageHeader
+     * @param string|null $orientation
      * @return int
      */
-    public function SetContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int;
+    public function SetContent(string $content,?int $page=NULL,?string $pageHeader=NULL,?string $orientation=NULL): int;
 
     /**
      * Add content element (HTML data)
@@ -101,9 +102,10 @@ interface IPdfAdapter {
      * @param string      $content
      * @param int|null    $page
      * @param string|null $pageHeader
+     * @param string|null $orientation
      * @return int
      */
-    public function AddContent(string $content,?int $page=NULL,?string $pageHeader=NULL): int;
+    public function AddContent(string $content,?int $page=NULL,?string $pageHeader=NULL,?string $orientation=NULL): int;
 
     /**
      * Set content elements (HTML data)
@@ -171,4 +173,13 @@ interface IPdfAdapter {
      * @param float $height
      */
     public function SetCustomPageSize(float $width,float $height): void;
+
+    /**
+     * @param string      $content
+     * @param string|null $name
+     * @param string      $dest
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function OutputContent(string $content,?string $name=NULL,string $dest='I'): ?string;
 }//END interface IPdfAdapter
