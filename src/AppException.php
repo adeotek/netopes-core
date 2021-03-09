@@ -59,8 +59,15 @@ final class AppException extends Exception {
         if(!($e instanceof Throwable)) {
             return new AppException('Unknown exception!');
         }
+        if(!is_integer($e->getCode())) {
+            $code=-1;
+            $externalCode=$e->getCode();
+        } else {
+            $code=$e->getCode();
+            $externalCode=NULL;
+        }
         $type=isset($type) ? $type : ($e instanceof Error ? 'php' : 'other');
-        return new AppException($e->getMessage(),$e->getCode(),$severity,$e->getFile(),$e->getLine(),$type,NULL,[],$e->getPrevious());
+        return new AppException($e->getMessage(),$code,$severity,$e->getFile(),$e->getLine(),$type,$externalCode,[],$e->getPrevious());
     }//END public static function GetInstance
 
     /**
