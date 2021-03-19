@@ -153,15 +153,15 @@ class TcpdfAdapter extends TCPDF implements IPdfAdapter {
 
     /**
      * @param array|null $params
-     * @return void
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function Render(?array $params=NULL) {
+    public function Render(?array $params=NULL): ?string {
         if(!is_array($params)) {
             $params=[];
         }
         $params['destination']='I';
-        $this->GetOutput($params);
+        return $this->GetOutput($params);
     }//END public function Render
 
     /**
