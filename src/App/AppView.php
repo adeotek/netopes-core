@@ -404,6 +404,25 @@ class AppView {
     }//END public function SetParam
 
     /**
+     * Remove pass-trough parameter value
+     *
+     * @param string $name
+     * @return void
+     */
+    public function RemoveParam(string $name): void {
+        unset($this->_params[$name]);
+    }//END public function SetParam
+
+    /**
+     * Clear pass-trough parameters
+     *
+     * @return void
+     */
+    public function ClearParams(): void {
+        $this->_params=[];
+    }//END public function SetParam
+
+    /**
      * @return void
      */
     public function ClearContent(): void {
