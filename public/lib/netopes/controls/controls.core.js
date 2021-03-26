@@ -132,7 +132,7 @@ $(document).on('focus','.clsJqDatePicker',function(e) {
     let langcode=GetCurrentLanguageCode();
     $.datepicker.setDefaults($.datepicker.regional[langcode]);
     if($(this).attr('data-jqdpparams').length) {
-        eval('$(this).datepicker({' + $(this).attr('data-jqdpparams') + '});');
+        eval('$(this).datepicker({' + $(this).attr('data-jqdpparams') + '})');
     } else {
         $(this).datepicker();
     }//if($(this).attr('data-jqdpparams').length)
@@ -143,7 +143,7 @@ $(document).on('focus','.clsJqDateTimePicker',function(e) {
     $.datepicker.setDefaults($.datepicker.regional[langcode]);
     //$.timepicker.setDefaults($.timepicker.regional[langcode]);
     if($(this).attr('data-jqdpparams').length) {
-        eval('$(this).datetimepicker({' + $(this).attr('data-jqdpparams') + '});');
+        eval('$(this).datetimepicker({' + $(this).attr('data-jqdpparams') + '})');
     } else {
         $(this).datetimepicker();
     }//if($(this).attr('data-jqdpparams').length)
@@ -153,7 +153,7 @@ $(document).on('focus','.clsJqTimePicker',function(e) {
     let langcode=GetCurrentLanguageCode();
     //$.timepicker.setDefaults($.timepicker.regional[langcode]);
     if($(this).attr('data-jqdpparams').length) {
-        eval('$(this).timepicker({' + $(this).attr('data-jqdpparams') + '});');
+        eval('$(this).timepicker({' + $(this).attr('data-jqdpparams') + '})');
     } else {
         $(this).timepicker();
     }//if($(this).attr('data-jqdpparams').length)
@@ -966,6 +966,14 @@ function SetCkEditorData(e,data) {
     let editor=CKEDITOR.instances[e];
     if(editor) {
         editor.setData(data);
+    }
+}//function SetCkEditorData
+
+function InsertCkEditorData(e,data) {
+    if(typeof (e)==='object') { e=e.getAttribute('id'); }
+    let editor=CKEDITOR.instances[e];
+    if(editor) {
+        editor.insertHtml(data);
     }
 }//function SetCkEditorData
 
