@@ -527,10 +527,10 @@ class TableView extends FilterControl {
     /**
      * Gets the actions bar controls html (except controls for filters)
      *
-     * @return string Returns the actions bar controls html
+     * @return string|null Returns the actions bar controls html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionsBarControls() {
+    protected function GetActionsBarControls(): ?string {
         //NApp::Dlog($params,'GetActionsBarControls>>$params');
         if(is_array($this->custom_actions) && count($this->custom_actions)) {
             $actions=$this->ProcessCustomActions();
@@ -595,11 +595,11 @@ class TableView extends FilterControl {
     /**
      * Gets the filter box html
      *
-     * @param \NETopes\Core\App\Params $params
+     * @param \NETopes\Core\App\Params|null $params
      * @return string|null Returns the filter box html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetActionsBox(Params $params=NULL): ?string {
+    protected function GetActionsBox(?Params $params=NULL): ?string {
         if(is_null($params)) {
             $params=new Params();
         }
@@ -631,7 +631,7 @@ class TableView extends FilterControl {
      * @return string Returns the pagination box html
      * @throws \NETopes\Core\AppException
      */
-    protected function GetPaginationBox($items): ?string {
+    protected function GetPaginationBox(DataSet $items): ?string {
         if(method_exists($items,'getTotalCount')) {
             $records_no=$items->getTotalCount();
         } else {
@@ -661,7 +661,7 @@ class TableView extends FilterControl {
      * @return string Returns the header row(s) HTML as string
      * @throws \NETopes\Core\AppException
      */
-    protected function GetTableHeader(&$t_c_width) {
+    protected function GetTableHeader(&$t_c_width): string {
         $t_c_width=0;
         $result="\t\t".'<thead>'."\n";
         $th_result=[];
@@ -686,7 +686,6 @@ class TableView extends FilterControl {
                 }//if(is_null($ac_width) && is_object(NApp::$theme))
                 $ch_width=is_numeric($ch_width) && $ch_width>0 ? $ch_width.'px' : $ch_width;
                 $ch_style.=$ch_width ? ($ch_style ? '' : ' style="').'width: '.$ch_width.';' : '';
-                $ch_style.=$ch_style ? '"' : '';
             } else {
                 if(strlen($ch_width)) {
                     if(strpos($ch_width,'%')!==FALSE) {
@@ -707,8 +706,8 @@ class TableView extends FilterControl {
                         }//if(is_numeric($ch_n_width) && $ch_n_width)
                     }//if(strpos($ch_width,'%')!==FALSE)
                 }//if(strlen($ch_width))
-                $ch_style.=$ch_style ? '"' : '';
             }//if(strtolower(get_array_value($v,'type','','is_string'))=='actions')
+            $ch_style.=$ch_style ? '"' : '';
             $ch_sort_act='';
             $ch_sort_icon='';
             $ch_sclass='';
@@ -729,8 +728,8 @@ class TableView extends FilterControl {
             $ch_class=get_array_value($v,'class','','is_notempty_string');
             $ch_class=strlen(trim($ch_class.' '.$ch_sclass))>0 ? ' class="'.trim($ch_class.' '.$ch_sclass).'"' : '';
             $iterator=get_array_value($v,'iterator',[],'is_array');
+            $ch_label_arr=get_array_value($v,'label',NULL,'is_notempty_array');
             if(count($iterator)) {
-                $ch_label_arr=get_array_value($v,'label',NULL,'is_notempty_array');
                 foreach($iterator as $it) {
                     if(is_array($ch_label_arr)) {
                         foreach($ch_label_arr as $lk=>$lv) {
@@ -746,7 +745,7 @@ class TableView extends FilterControl {
                         }//END foreach
                         $ch_label=get_array_value($ch_label_arr,[$this->th_rows_no - 1,'text'],NULL,'is_notempty_string');
                     } else {
-                        $ch_label=get_array_value($v,'label',NULL,'is_notempty_string');
+                        $ch_label=get_array_value($v,'iterator_label',get_array_value($v,'label',NULL,'is_notempty_string'),'is_notempty_string');
                     }//if(is_array($ch_label_arr))
                     $ch_label=get_array_value($it,$ch_label,'&nbsp;','is_notempty_string');
                     $ch_rowspan_no=0;
@@ -782,7 +781,6 @@ class TableView extends FilterControl {
                     $th_result[$ch_lvl].="\t\t\t\t".'<th'.$ch_rowspan.$ch_style.$ch_class.$ch_sort_act.'><label>'.$ch_label.'</label>'.$ch_sort_icon.'</th>'."\n";
                 }//END foreach
             } else {
-                $ch_label_arr=get_array_value($v,'label',NULL,'is_notempty_array');
                 if(is_array($ch_label_arr)) {
                     foreach($ch_label_arr as $lk=>$lv) {
                         $ch_colspan=get_array_value($lv,'colspan',0,'is_numeric');
@@ -958,12 +956,12 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell value (un-formatted)
      *
-     * @param IEntity $row
-     * @param array   $v
-     * @param string  $name
-     * @param string  $type
-     * @param bool    $isIterator
-     * @param string  $cClass
+     * @param IEntity     $row
+     * @param array       $v
+     * @param string      $name
+     * @param string      $type
+     * @param bool        $isIterator
+     * @param string|null $cClass
      * @return mixed Returns the table cell value
      * @throws \NETopes\Core\AppException
      */
@@ -1348,12 +1346,12 @@ class TableView extends FilterControl {
     /**
      * Gets the table row/cell tooltip html string
      *
-     * @param object $row
-     * @param string $class
-     * @param array  $tooltip
-     * @return string Returns the table row tooltip string
+     * @param mixed       $row
+     * @param string|null $class
+     * @param array|null  $tooltip
+     * @return string|null Returns the table row tooltip string
      */
-    protected function GetToolTip(&$row,&$class,$tooltip) {
+    protected function GetToolTip(&$row,?string &$class,?array $tooltip): ?string {
         if(!$tooltip) {
             return NULL;
         }
@@ -1431,17 +1429,18 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell html
      *
-     * @param IEntity $row
-     * @param         $v
-     * @param         $name
-     * @param null    $hasChild
-     * @param null    $rLvl
-     * @param null    $rTreeState
-     * @param bool    $isIterator
+     * @param IEntity     $row
+     * @param             $v
+     * @param             $name
+     * @param null        $hasChild
+     * @param null        $rLvl
+     * @param null        $rTreeState
+     * @param bool        $isIterator
+     * @param string|null $iteratorLabel
      * @return string Returns the table cell html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetCell(IEntity &$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE) {
+    protected function SetCell(IEntity &$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE,?string $iteratorLabel=NULL): string {
         $cell_type=strtolower(get_array_value($v,'type','','is_string'));
         $result='';
         $c_style='';
@@ -1498,14 +1497,18 @@ class TableView extends FilterControl {
             case 'value':
                 $c_class=$c_class ? ' class="'.$c_class.'"' : '';
                 if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns'])) {
-                    $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
+                    if($isIterator) {
+                        $this->export_data['columns'][$name]=array_merge($v,['name'=>$name,'label'=>$iteratorLabel]);
+                    } else {
+                        $this->export_data['columns'][$name]=array_merge($v,['name'=>$name]);
+                    }
                 }//if($this->exportable && get_array_value($v,'export',TRUE,'bool') && !array_key_exists($name,$this->export_data['columns']))
                 $t_value='';
                 if($this->tree && $v['db_field']==get_array_value($this->tree,'main_field','name','is_notempty_string')) {
                     $t_value.=($rLvl>1 ? str_pad('',strlen($this->tree_ident) * ($rLvl - 1),$this->tree_ident) : '');
                     if($hasChild) {
                         $t_s_val=$rTreeState ? 1 : 0;
-                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->safeGetId().',\''.($this->tag_id ? $this->tag_id : $this->cHash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
+                        $t_value.='<input type="image" value="'.$t_s_val.'" class="clsTreeGridBtn" onclick="TreeGridViewAction(this,'.$row->getProperty('id').',\''.($this->tag_id ? $this->tag_id : $this->cHash).'_table\')" src="'.NApp::$appBaseUrl.AppConfig::GetValue('app_js_path').'/controls/images/transparent12.gif">';
                     } else {
                         $t_value.='<span class="clsTreeGridBtnNoChild"></span>';
                     }//if($hasChild)
@@ -1598,19 +1601,19 @@ class TableView extends FilterControl {
      * @return string Returns the table row html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetRow(IEntity $row,?string $rcClass=NULL,bool $hasChild=FALSE) {
+    protected function SetRow(IEntity $row,?string $rcClass=NULL,bool $hasChild=FALSE): string {
         $result='';
         $r_style='';
         $rTData='';
         $col_no=0;
         $this->row_embedded_form=[];
+        $rLvl=$row->getProperty('lvl',1,'is_integer');
+        $rTreeState=get_array_value($this->tree,'opened',FALSE,'bool');
         if(!$this->export_only) {
             $r_color='';
             if(strlen($this->row_color_field)) {
                 $r_color=$row->getProperty($this->row_color_field,'','is_string');
             }
-            $rLvl=$row->getProperty('lvl',1,'is_integer');
-            $rTreeState=get_array_value($this->tree,'opened',FALSE,'bool');
             if($this->tree && $rLvl>$this->tree_top_lvl) {
                 if(strlen($r_color)) {
                     $r_style.=' background-color: '.$r_color.';';
@@ -1702,15 +1705,17 @@ class TableView extends FilterControl {
                     $i_v=$v;
                     $i_v['db_field']='__it_value';
                     $i_v['db_key']='__it_id';
+                    $iteratorColumnName=$k.'-'.$it[$ik];
+                    $iteratorLabel=get_array_value($it,get_array_value($v,'iterator_label','name','is_notempty_string'),NULL,'is_string');
                     if($this->export_only) {
                         if(get_array_value($v,'export',TRUE,'bool')) {
                             if(!array_key_exists($k,$this->export_data['columns'])) {
-                                $this->export_data['columns'][$k]=array_merge($v,['name'=>$k]);
+                                $this->export_data['columns'][$iteratorColumnName]=array_merge($v,['name'=>$iteratorColumnName,'label'=>$iteratorLabel]);
                             }
-                            $this->GetCellValue($i_row,$i_v,$k.'-'.$it[$ik],$c_type);
+                            $this->GetCellValue($i_row,$i_v,$iteratorColumnName,$c_type);
                         }//if(get_array_value($v,'export',TRUE,'bool'))
                     } else {
-                        $result.=$this->SetCell($i_row,$i_v,$k.'-'.$it[$ik],$hasChild,$rLvl,$rTreeState,TRUE);
+                        $result.=$this->SetCell($i_row,$i_v,$iteratorColumnName,$hasChild,$rLvl,$rTreeState,TRUE,$iteratorLabel);
                         $col_no++;
                     }//if($this->export_only)
                 }//END foreach
@@ -1821,17 +1826,17 @@ class TableView extends FilterControl {
     /**
      * Gets the table html iterating data array
      *
-     * @param DataSet                  $data
+     * @param DataSet|null             $data
      * @param \NETopes\Core\App\Params $params
      * @param string|null              $rcClass
      * @param int|null                 $lvl
      * @param int|null                 $id_parent
-     * @return string Returns the table html
+     * @return string|null Returns the table html
      * @throws \NETopes\Core\AppException
      */
-    protected function IterateData($data,Params $params,?string $rcClass=NULL,?int $lvl=NULL,?int $id_parent=NULL) {
+    protected function IterateData(?DataSet $data,Params $params,?string $rcClass=NULL,?int $lvl=NULL,?int $id_parent=NULL): ?string {
         // NApp::Dlog(array('params'=>$params,'lvl'=>$lvl,'id_parent'=>$id_parent,'r_cclass'=>$rcClass),'IterateData');
-        if(!is_object($data) || !count($data)) {
+        if(!isset($data) || !count($data)) {
             return NULL;
         }
         $result='';
@@ -1858,7 +1863,7 @@ class TableView extends FilterControl {
                     if($row->getProperty('has_child',0,'is_integer')==1) {
                         $children=$this->IterateData($data,$params,$rcClass,$lvl + 1,$row->safeGetId(NULL,'is_integer'));
                     }//if($row->getProperty('has_child',0,'is_integer')==1)
-                    $result.=$this->SetRow($row,$rcClass,strlen($children) ? TRUE : FALSE);
+                    $result.=$this->SetRow($row,$rcClass,(bool)strlen($children));
                     $result.=$children;
                 }//if($this->export_only)
             }//END foreach
@@ -1915,7 +1920,7 @@ class TableView extends FilterControl {
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    protected function LoadState(Params $params=NULL) {
+    protected function LoadState(Params $params) {
         // NApp::Dlog($params,'LoadState>>$params');
         // NApp::Dlog($this->sessionHash,'$this->sessionHash');
         if($this->persistent_state) {
@@ -2191,7 +2196,7 @@ class TableView extends FilterControl {
      * @return void
      * @throws \NETopes\Core\AppException
      */
-    public function ExportAll(Params $params=NULL) {
+    public function ExportAll(Params $params) {
         // NApp::Dlog($params,'ExportAll');
         $phash=$params->safeGet('phash',NULL,'is_notempty_string');
         $output=$params->safeGet('output',FALSE,'bool');
