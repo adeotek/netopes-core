@@ -1429,7 +1429,7 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell html
      *
-     * @param IEntity     $row
+     * @param mixed       $row
      * @param             $v
      * @param             $name
      * @param null        $hasChild
@@ -1440,7 +1440,7 @@ class TableView extends FilterControl {
      * @return string Returns the table cell html
      * @throws \NETopes\Core\AppException
      */
-    protected function SetCell(IEntity &$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE,?string $iteratorLabel=NULL): string {
+    protected function SetCell(&$row,&$v,$name,$hasChild=NULL,$rLvl=NULL,$rTreeState=NULL,$isIterator=FALSE,?string $iteratorLabel=NULL): string {
         $cell_type=strtolower(get_array_value($v,'type','','is_string'));
         $result='';
         $c_style='';
