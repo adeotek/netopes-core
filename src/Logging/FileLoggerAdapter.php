@@ -11,6 +11,7 @@
  */
 namespace NETopes\Core\Logging;
 use Doctrine\DBAL\Driver\PDOException;
+use Error;
 use Exception;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\Doctrine\BaseEntity;
@@ -273,10 +274,16 @@ class FileLoggerAdapter implements ILoggerAdapter {
                 } else {
                     $result.=static::BacktraceToString($v,$depth,++$level).PHP_EOL;
                 }//if($level>$depth)
+            } elseif(is_scalar($v)) {
+                $result.=$v.PHP_EOL;
+            } elseif($v instanceof Exception) {
+                $result.='EXCEPTION: ['.$v->getCode().'] '.$v->getMessage().' in '.$v->getFile().':'.$v->getLine().PHP_EOL;
             } elseif($v instanceof PDOException || $v instanceof \Doctrine\DBAL\Driver\Exception) {
-                $result.='\Doctrine\DBAL\Driver\Exception: '.$v->getMessage().PHP_EOL;
+                $result.='\Doctrine\DBAL\Driver\Exception: ['.$v->getCode().'] '.$v->getMessage().' in '.$v->getFile().':'.$v->getLine().PHP_EOL;
             } elseif($v instanceof BaseEntity) {
                 $result.='[Instance of \NETopes\Core\Data\Doctrine\BaseEntity]'.PHP_EOL;
+            } elseif($v instanceof Error) {
+                $result.='ERROR: ['.$v->getCode().'] '.$v->getMessage().' in '.$v->getFile().':'.$v->getLine().PHP_EOL;
             } else {
                 $result.=print_r($v,1).PHP_EOL;
             }//if(is_array($v))
