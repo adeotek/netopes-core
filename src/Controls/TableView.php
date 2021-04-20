@@ -885,13 +885,12 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell raw value
      *
-     * @param \NETopes\Core\Data\IEntity $row
-     * @param array                      $v
-     * @param string|null                $fieldName
+     * @param mixed       $row
+     * @param array       $v
+     * @param string|null $fieldName
      * @return mixed Returns the table cell raw value
-     * @throws \NETopes\Core\AppException
      */
-    protected function GetCellData(IEntity &$row,array &$v,?string $fieldName=NULL) {
+    protected function GetCellData(&$row,array &$v,?string $fieldName=NULL) {
         $cellValue=NULL;
         $fieldName=$fieldName ?? $v['db_field'];
         $valueSource=get_array_value($v,'value_source',NULL,'?is_string');
@@ -934,11 +933,10 @@ class TableView extends FilterControl {
     }//END protected function GetCellData
 
     /**
-     * @param IEntity $row
-     * @param array   $v
-     * @param string  $name
+     * @param mixed  $row
+     * @param array  $v
+     * @param string $name
      * @return string
-     * @throws \NETopes\Core\AppException
      */
     protected function GetRunningTotalHash(&$row,array &$v,string $name): string {
         $runningTotalOver=get_array_value($v,'running_total_over',[],'is_array');
@@ -956,7 +954,7 @@ class TableView extends FilterControl {
     /**
      * Gets the table cell value (un-formatted)
      *
-     * @param IEntity     $row
+     * @param mixed       $row
      * @param array       $v
      * @param string      $name
      * @param string      $type
@@ -965,7 +963,7 @@ class TableView extends FilterControl {
      * @return mixed Returns the table cell value
      * @throws \NETopes\Core\AppException
      */
-    protected function GetCellValue(IEntity &$row,array &$v,string $name,string $type,bool $isIterator=FALSE,?string &$cClass=NULL) {
+    protected function GetCellValue(&$row,array &$v,string $name,string $type,bool $isIterator=FALSE,?string &$cClass=NULL) {
         $result=NULL;
         switch($type) {
             case 'actions':
