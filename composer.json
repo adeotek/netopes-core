@@ -19,7 +19,7 @@
       "url": "https://github.com/adeotek/php-console.git"
     }
   ],
-  "minimum-stability": "stable",
+  "minimum-stability": "RC",
   "require": {
     "php": "^7.2 || ^8.0",
     "ext-json": "*",
