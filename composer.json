@@ -2,7 +2,7 @@
   "name": "netopes/core",
   "description": "NETopes Framework Core",
   "type": "library",
-  "license": "MIT License",
+  "license": "MIT",
   "authors": [
     {
       "name": "George Benjamin-Schonberger",
