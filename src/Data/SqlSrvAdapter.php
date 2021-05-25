@@ -143,7 +143,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             'MultipleActiveResultSets'=>get_array_value($connection,'MultipleActiveResultSets',FALSE,'bool'),
             'TransactionIsolation'=>get_array_value($connection,'TransactionIsolation',SQLSRV_TXN_READ_COMMITTED,'is_numeric'),
         ];
-        $db_port=(array_key_exists('db_port',$connection) && $connection['db_port']) ? (strtoupper(substr(PHP_OS,0,3))==='WIN' ? ', ' : ':').$connection['db_port'] : '';
+        $db_port=(array_key_exists('db_port',$connection) && strlen($connection['db_port'])) ? ', '.$connection['db_port'] : '';
         try {
             //NApp::TimerStart('sqlsrv_connect');
             $this->connection=sqlsrv_connect($connection['db_server'].$db_port,$dbconnect_options);
