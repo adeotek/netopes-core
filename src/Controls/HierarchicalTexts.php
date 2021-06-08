@@ -38,6 +38,16 @@ class HierarchicalTexts extends Control {
     const TEXT_INPUT_EDITOR_CKEDITOR='ckeditor';
 
     /**
+     * Text input type Textarea
+     */
+    const DISPLAY_INDIVIDUAL_FIELDS='individual_fields';
+
+    /**
+     * Text input type CkEditor
+     */
+    const DISPLAY_STANDARD='standard';
+
+    /**
      * @var bool
      */
     protected $postable_elements=TRUE;
@@ -61,6 +71,11 @@ class HierarchicalTexts extends Control {
      * @var string
      */
     public $text_input_type=self::TEXT_INPUT_EDITOR_TEXTAREA;
+
+    /**
+     * @var string
+     */
+    public $display_type=self::DISPLAY_STANDARD;
 
     /**
      * @var array|string|null
@@ -167,12 +182,61 @@ class HierarchicalTexts extends Control {
         } elseif(is_string($value) && strlen($value)) {
             try {
                 $items=json_decode($value,TRUE);
+                if(json_last_error()!==JSON_ERROR_NONE) {
+                    throw new Exception('JSON decode error: '.json_last_error());
+                }
             } catch(Exception $e) {
                 NApp::Elog($e);
             }
         }
         return $items;
     }//END protected function ProcessItems
+
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetEditActions(): ?string {
+        $btn=new Button([
+            'class'=>NApp::$theme->GetBtnPrimaryClass('hTextsSaveButton'),
+            'value'=>Translate::GetButton('save'),
+            'icon'=>'fa fa-save',
+        ]);
+        $result=$btn->Show();
+        $btn=new Button([
+            'class'=>NApp::$theme->GetBtnDefaultClass('hTextsCancelButton'),
+            'value'=>Translate::GetButton('cancel'),
+            'icon'=>'fa fa-ban',
+        ]);
+        $result.=$btn->Show();
+        return $result;
+    }//END protected function GetEditActions
+
+    /**
+     * @param array $sections
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetSectionsActions(array &$sections): ?string {
+        $result='';
+        foreach($sections as $item) {
+            if(get_array_value($item,'readonly',FALSE,'bool')) {
+                continue;
+            }
+            $color=get_array_value($item,'color',NULL,'is_string');
+            $btn=new Button([
+                'class'=>NApp::$theme->GetBtnSpecialDarkClass('hTextsActionButton'),
+                'value'=>get_array_value($item,'name',NULL,'is_string'),
+                'style'=>(strlen($color) ? 'color: '.$color.';' : ''),
+                'extra_tag_params'=>'data-id="'.$item['id'].'" data-required="'.get_array_value($item,'required',0,'is_integer').'" data-code="'.get_array_value($item,'code','','is_string').'" data-position="'.get_array_value($item,'position','','is_integer').'"',
+                'disabled'=>$this->disabled_on_render,
+            ]);
+            $result.=$btn->Show();
+        }//END foreach
+        $result.=$this->ProcessCustomActions('control_');
+        $this->custom_actions=NULL;
+        return $result;
+    }//END protected function GetSectionsActions
 
     /**
      * @param array $data
@@ -260,54 +324,7 @@ class HierarchicalTexts extends Control {
      * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    protected function GetEditActions(): ?string {
-        $btn=new Button([
-            'class'=>NApp::$theme->GetBtnPrimaryClass('hTextsSaveButton'),
-            'value'=>Translate::GetButton('save'),
-            'icon'=>'fa fa-save',
-        ]);
-        $result=$btn->Show();
-        $btn=new Button([
-            'class'=>NApp::$theme->GetBtnDefaultClass('hTextsCancelButton'),
-            'value'=>Translate::GetButton('cancel'),
-            'icon'=>'fa fa-ban',
-        ]);
-        $result.=$btn->Show();
-        return $result;
-    }//END protected function GetEditActions
-
-    /**
-     * @param array $sections
-     * @return string|null
-     * @throws \NETopes\Core\AppException
-     */
-    protected function GetSectionsActions(array &$sections): ?string {
-        $result='';
-        foreach($sections as $item) {
-            if(get_array_value($item,'readonly',FALSE,'bool')) {
-                continue;
-            }
-            $color=get_array_value($item,'color',NULL,'is_string');
-            $btn=new Button([
-                'class'=>NApp::$theme->GetBtnSpecialDarkClass('hTextsActionButton'),
-                'value'=>get_array_value($item,'name',NULL,'is_string'),
-                'style'=>(strlen($color) ? 'color: '.$color.';' : ''),
-                'extra_tag_params'=>'data-id="'.$item['id'].'" data-required="'.get_array_value($item,'required',0,'is_integer').'" data-code="'.get_array_value($item,'code','','is_string').'" data-position="'.get_array_value($item,'position','','is_integer').'"',
-                'disabled'=>$this->disabled_on_render,
-            ]);
-            $result.=$btn->Show();
-        }//END foreach
-        $result.=$this->ProcessCustomActions('control_');
-        $this->custom_actions=NULL;
-        return $result;
-    }//END protected function GetActions
-
-    /**
-     * @return string|null
-     * @throws \NETopes\Core\AppException
-     */
-    protected function SetControl(): ?string {
-        $this->ProcessSections();
+    protected function SetStandardControl(): ?string {
         $tagAttributes=(bool)$this->disabled_on_render ? ' data-disabled="disabled"' : '';
         if(strlen($this->extra_tag_params)) {
             $tagAttributes.=(strlen($tagAttributes) ? ' ' : '').$this->extra_tag_params;
@@ -376,5 +393,115 @@ class HierarchicalTexts extends Control {
         }
         $result.='</div>'."\n";
         return $result;
+    }//END protected function SetStandardControl
+
+    /**
+     * @param array $data
+     * @param       $id
+     * @param bool  $readonly
+     * @return string|null
+     */
+    protected function RenderIndividualFieldsData(array $data,$id,string $fieldName,string $name,bool $required,bool $readonly=FALSE): ?string {
+        $result='';
+        $fieldId=$this->tag_id.'-'.$id;
+        $fieldValue=implode("\n",$data);
+        $height=isset($this->text_input_height) ? $this->text_input_height : $this->height;
+        if($this->text_input_type===static::TEXT_INPUT_EDITOR_CKEDITOR) {
+            $sectionControl=new CkEditor([
+                'tag_id'=>$fieldId,
+                'label'=>$name,
+                'paf_property'=>'function:GetCkEditorData',
+                'tag_name'=>$this->tag_name.'['.$id.'][data][]',
+                'required'=>$required,
+                'value'=>$fieldValue,
+                'height'=>$height,
+                'label_position'=>$this->label_position,
+                'disabled'=>$this->disabled || $readonly,
+                'extra_config'=>$this->ckeditor_extra_config,
+            ]);
+        } else {
+            $sectionControl=new EditBox([
+                'tag_id'=>$fieldId,
+                'label'=>$name,
+                'tag_name'=>$this->tag_name.'['.$id.'][data][]',
+                'required'=>$required,
+                'value'=>$fieldValue,
+                'height'=>$height,
+                'label_position'=>$this->label_position,
+                'disabled'=>$this->disabled || $readonly,
+            ]);
+        }
+        $result.=$sectionControl->Show();
+        if(!$this->disabled && !$readonly) {
+            $result.="\t<div>\n";
+            $result.=$this->ProcessCustomActions('control_',['field_name'=>$fieldName,'field_tag_id'=>$fieldId]);
+            $result.="</div>\n";
+        }//if(!$this->disabled && !$readonly)
+        return $result;
+    }//END protected function RenderIndividualFieldsData
+
+    /**
+     * @param array $sections
+     * @param array $data
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function RenderIndividualFieldsSections(array $sections,array $data): ?string {
+        $result='';
+        foreach($sections as $item) {
+            $id=get_array_value($item,'id',NULL,'is_integer');
+            if(!$id) {
+                continue;
+            }
+            $itemData=[];
+            foreach($data as $v) {
+                $vData=get_array_value($v,'data',[],'is_array');
+                if(get_array_value($v,'id',NULL,'is_integer')===$id && count($vData)) {
+                    $itemData=$vData;
+                    break;
+                }
+            }//END foreach
+            $fieldName=get_array_value($item,'field_name',NULL,'is_string');
+            $name=get_array_value($item,'name',NULL,'is_string');
+            $code=get_array_value($item,'code',NULL,'is_string');
+            $position=get_array_value($item,'position',NULL,'is_integer');
+            $required=get_array_value($item,'required',FALSE,'bool');
+            $readonly=get_array_value($item,'readonly',FALSE,'bool');
+            $result.=$this->RenderIndividualFieldsData($itemData,$id,$fieldName,$name,$required,$readonly);
+            $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][id]" value="'.$id.'">'."\n";
+            $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][code]" value="'.$code.'">'."\n";
+            $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][name]" value="'.$name.'">'."\n";
+            $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][required]" value="'.intval($required).'">'."\n";
+            $result.="\t\t\t\t\t".'<input type="hidden" class="postable" name="'.$this->tag_name.'['.$id.'][position]" value="'.$position.'">'."\n";
+        }//END foreach
+        return $result;
+    }//END protected function RenderIndividualFieldsSections
+
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    public function SetIndividualFieldsControl(): ?string {
+        $tagAttributes=(bool)$this->disabled_on_render ? ' data-disabled="disabled"' : '';
+        if(strlen($this->extra_tag_params)) {
+            $tagAttributes.=(strlen($tagAttributes) ? ' ' : '').$this->extra_tag_params;
+        }
+        $cssClass=(!$this->clear_base_class ? ' class="'.$this->base_class.'"' : '');
+        $result='<div'.$this->GetTagId(FALSE).$cssClass.$tagAttributes.'>'."\n";
+        $result.=$this->RenderIndividualFieldsSections($this->sections,$this->ProcessItems($this->value));
+        $result.='</div>'."\n";
+        return $result;
+    }//END public function SetIndividualFieldsControl
+
+    /**
+     * @return string|null
+     * @throws \NETopes\Core\AppException
+     */
+    protected function SetControl(): ?string {
+        $this->ProcessSections();
+        if($this->display_type===self::DISPLAY_INDIVIDUAL_FIELDS) {
+            return $this->SetIndividualFieldsControl();
+        }
+        return $this->SetStandardControl();
     }//END protected function SetControl
 }//END class HierarchicalTexts.php extends Control

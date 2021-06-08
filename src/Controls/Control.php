@@ -829,10 +829,11 @@ abstract class Control {
      * Convert Ncol width to standard
      *
      * @param string|null $paramsPrefix
-     * @return string Custom actions HTML string
+     * @param array|null  $dynamicParams
+     * @return string|null Custom actions HTML string
      * @throws \NETopes\Core\AppException
      */
-    protected function ProcessCustomActions(?string $paramsPrefix=NULL) {
+    protected function ProcessCustomActions(?string $paramsPrefix=NULL,?array $dynamicParams=NULL): ?string {
         // NApp::Dlog($this->custom_actions,'$this->custom_actions');
         if(!is_array($this->custom_actions) || !count($this->custom_actions)) {
             return NULL;
@@ -866,7 +867,8 @@ abstract class Control {
                 }
             }//if(!$ajaxCommand)
             if($ajaxCommand) {
-                $ajaxCommand=ControlsHelpers::ReplaceDynamicParams($ajaxCommand,$ca,TRUE,NULL,'is_scalar');
+                $dparams=is_array($dynamicParams) ? array_merge($ca,$dynamicParams) : $ca;
+                $ajaxCommand=ControlsHelpers::ReplaceDynamicParams($ajaxCommand,$dparams,TRUE,NULL,'is_scalar');
                 $caParams['onclick']=NApp::Ajax()->Prepare($ajaxCommand,$targetId,NULL,$this->loader);
             }//if($ajaxCommand)
             $caCtrl=new $caClass($caParams);
