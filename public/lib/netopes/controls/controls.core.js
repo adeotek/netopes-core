@@ -336,6 +336,23 @@ function UnselectGroupCheckBoxes(grouptag,obj,valuetag) {
         $('#' + valuetag).val('');
     }//if(notselected===true)
 }//function UnselectGroupCheckBoxes
+
+function SetGroupCheckBoxValue(tag,value) {
+    let obj=false;
+    if(typeof tag==='object') {
+        obj=$(tag);
+    } else if(typeof tag==='string') {
+        obj=$('#' + tag);
+    }
+    if(obj && obj.length) {
+        let containerObj=$('#' + $(obj).attr('id') + '-container');
+        $(containerObj).find('input[type=image].clsGCKBItem').val('0');
+        $(obj).val(value ? value : '');
+        if(value) {
+            $(containerObj).find('input[type=image].clsGCKBItem[data-val=' + value + ']').val('1');
+        }
+    }
+}//END function SetGroupCheckBoxValue
 /*** END For GroupCheckBox control ***/
 /*** For ComboBox ***/
 function AppendComboBoxItem(elementid,val,text,selected) {
