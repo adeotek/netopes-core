@@ -2188,7 +2188,7 @@ class TableView extends FilterControl {
     }//END public function ClearActions
 
     /**
-     * Sets new value for base class property
+     * Export all data to excel
      *
      * @param \NETopes\Core\App\Params $params
      * @return void
@@ -2202,6 +2202,10 @@ class TableView extends FilterControl {
             $this->phash=$phash;
         }
         $this->export_only=TRUE;
+        $filters=$params->safeGet('filters',NULL,'?is_array');
+        if(is_array($filters)) {
+            $this->filters=$filters;
+        }
         $items=$this->GetData();
         if(!is_object($items) || !count($items)) {
             throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1);
@@ -2244,6 +2248,49 @@ class TableView extends FilterControl {
         $url=NApp::$appBaseUrl.'/pipe/download.php?namespace='.NApp::$currentNamespace.'&dtype=datagridexcelexport&exportall=1&chash='.$this->cHash;
         NApp::Ajax()->ExecuteJs("OpenUrl('{$url}',true)");
     }//END public function ExportAll
+
+    /**
+     * Generate excel with all data
+     *
+     * @param \NETopes\Core\App\Params $params
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function GenerateExcelFile(Params $params) {
+        // NApp::Dlog($params,'GenerateExcelFile');
+        $savePath=$params->safeGet('save_path',NULL,'?is_string');
+        $fileName=$params->safeGet('file_name',NULL,'?is_string');
+        $this->export_only=TRUE;
+        $filters=$params->safeGet('filters',NULL,'?is_array');
+        if(is_array($filters)) {
+            $this->filters=$filters;
+        }
+        $items=$this->GetData();
+        if(!is_object($items) || !count($items)) {
+            throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1);
+        }
+        $tmp_export_data=$this->export_data;
+        $this->export_data=['columns'=>[],'data'=>[]];
+        $tmpParams=new Params();
+        $this->IterateData($items,$tmpParams);
+        if(!$this->export_data) {
+            throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1);
+        }
+        $this->export_data['with_borders']=TRUE;
+        $this->export_data['freeze_pane']=TRUE;
+        $this->export_data['default_width']=150;
+        $exportParams=[
+            'pre_processed_data'=>TRUE,
+            'output'=>TRUE,
+            'save_path'=>$savePath,
+            'file_name'=>$fileName,
+            'layouts'=>[$this->export_data],
+            'summarize'=>$this->with_totals,
+        ];
+        $this->export_data=$tmp_export_data;
+        $this->export_only=FALSE;
+        $excel=new ExcelExport($exportParams);
+    }//END public function GenerateExcelFile
 
     /**
      * Get export data

@@ -183,7 +183,7 @@ class HierarchicalTexts extends Control {
             try {
                 $items=json_decode($value,TRUE);
                 if(json_last_error()!==JSON_ERROR_NONE) {
-                    throw new Exception('JSON decode error: '.json_last_error());
+                    throw new Exception('JSON decode error ['.json_last_error().']: '.json_last_error_msg());
                 }
             } catch(Exception $e) {
                 NApp::Elog($e);
