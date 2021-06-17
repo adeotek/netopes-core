@@ -11,6 +11,7 @@
  * @filesource
  */
 namespace NETopes\Core\Data\Doctrine;
+use DateTime;
 use Exception;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\IEntity;
@@ -194,7 +195,13 @@ abstract class BaseEntity implements IEntity {
         }
         $result=[];
         foreach($properties as $k=>$v) {
-            $result[convert_from_camel_case($k,FALSE)]=$v;
+            if($v instanceof BaseEntity) {
+                $result[convert_from_camel_case($k,FALSE)]=$v->getProperty('id');
+            } elseif(is_object($v)) {
+                $result[convert_from_camel_case($k,FALSE)]=$v instanceof DateTime ? $v : 'object('.get_class($v).')';
+            } else {
+                $result[convert_from_camel_case($k,FALSE)]=$v;
+            }
         }
         return $result;
     }//END public function toArray

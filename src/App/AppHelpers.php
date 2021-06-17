@@ -76,7 +76,7 @@ class AppHelpers {
             return rtrim($cachePath,'/\\').'/';
         }
         if(!file_exists(NApp::$appPath.'/.cache')) {
-            mkdir(NApp::$appPath.'/.cache',755);
+            mkdir(NApp::$appPath.'/.cache',0755);
         }//if(!file_exists(NApp::$appPath.'/.cache'))
         return NApp::$appPath.'/.cache/';
     }//END public static function GetCachePath

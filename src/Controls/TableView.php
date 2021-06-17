@@ -2027,7 +2027,7 @@ class TableView extends FilterControl {
                 //NApp::Dlog($cachefile,'$cachefile');
                 try {
                     if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
-                        mkdir(AppHelpers::GetCachePath().'datagrid',755);
+                        mkdir(AppHelpers::GetCachePath().'datagrid',0755);
                     }//if(!file_exists(AppHelpers::GetCachePath().'datagrid'))
                     if(file_exists($cachefile)) {
                         unlink($cachefile);
@@ -2230,7 +2230,7 @@ class TableView extends FilterControl {
         // NApp::Dlog($cacheFile,'$cacheFile');
         try {
             if(!file_exists(AppHelpers::GetCachePath().'datagrid')) {
-                mkdir(AppHelpers::GetCachePath().'datagrid',755);
+                mkdir(AppHelpers::GetCachePath().'datagrid',0755);
             }
             if(file_exists($cacheFile)) {
                 unlink($cacheFile);
@@ -2253,10 +2253,10 @@ class TableView extends FilterControl {
      * Generate excel with all data
      *
      * @param \NETopes\Core\App\Params $params
-     * @return void
+     * @return string|null
      * @throws \NETopes\Core\AppException
      */
-    public function GenerateExcelFile(Params $params) {
+    public function GenerateExcelFile(Params $params): ?string {
         // NApp::Dlog($params,'GenerateExcelFile');
         $savePath=$params->safeGet('save_path',NULL,'?is_string');
         $fileName=$params->safeGet('file_name',NULL,'?is_string');
@@ -2267,14 +2267,14 @@ class TableView extends FilterControl {
         }
         $items=$this->GetData();
         if(!is_object($items) || !count($items)) {
-            throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1);
+            return Translate::Get('msg_no_data_to_export');
         }
         $tmp_export_data=$this->export_data;
         $this->export_data=['columns'=>[],'data'=>[]];
         $tmpParams=new Params();
         $this->IterateData($items,$tmpParams);
         if(!$this->export_data) {
-            throw new AppException(Translate::Get('msg_no_data_to_export'),E_ERROR,1);
+            return Translate::Get('msg_no_data_to_export');
         }
         $this->export_data['with_borders']=TRUE;
         $this->export_data['freeze_pane']=TRUE;
@@ -2290,6 +2290,7 @@ class TableView extends FilterControl {
         $this->export_data=$tmp_export_data;
         $this->export_only=FALSE;
         $excel=new ExcelExport($exportParams);
+        return NULL;
     }//END public function GenerateExcelFile
 
     /**

@@ -281,7 +281,7 @@ class FileLoggerAdapter implements ILoggerAdapter {
             } elseif($v instanceof PDOException || $v instanceof \Doctrine\DBAL\Driver\Exception) {
                 $result.='\Doctrine\DBAL\Driver\Exception: ['.$v->getCode().'] '.$v->getMessage().' in '.$v->getFile().':'.$v->getLine().PHP_EOL;
             } elseif($v instanceof BaseEntity) {
-                $result.='[Instance of \NETopes\Core\Data\Doctrine\BaseEntity]'.PHP_EOL;
+                $result.=print_r($v->toArray(),1).PHP_EOL;
             } elseif($v instanceof Error) {
                 $result.='ERROR: ['.$v->getCode().'] '.$v->getMessage().' in '.$v->getFile().':'.$v->getLine().PHP_EOL;
             } else {
