@@ -127,11 +127,11 @@ class Params extends Collection {
     }
 
     /**
-     * @param string|int  $key
-     * @param mixed       $defaultValue
-     * @param string|null $validation
-     * @param string|null $sourceFormat
-     * @param bool        $isValid
+     * @param string|int|array $key
+     * @param mixed            $defaultValue
+     * @param string|null      $validation
+     * @param string|null      $sourceFormat
+     * @param bool             $isValid
      * @return mixed
      * @throws \NETopes\Core\AppException
      */

@@ -622,7 +622,7 @@ class ExcelExport {
         $writer=IOFactory::createWriter($this->obj,$this->file_types[$file_type]);
         $writer->setPreCalculateFormulas(FALSE);
         if(strlen($path)) {
-            $writer->save($path.$file);
+            $writer->save(rtrim($path,'/').'/'.$file);
             return TRUE;
         }//if(strlen($path))
         header('Content-Description: File Transfer');

@@ -593,12 +593,29 @@ class AppView {
     }//END public function AddControlBuilderContent
 
     /**
+     * @param string|null $viewFile
+     * @param string|null $varName
+     * @param array|null  $extraPasstroughParams
+     * @return mixed|null
+     */
+    public function GetViewVariable(?string $viewFile,?string $varName=NULL,?array $extraPasstroughParams=NULL) {
+        if(!strlen($viewFile) || !file_exists($viewFile) || $varName=='') {
+            return NULL;
+        }
+        return $this->GetVariableFromFile($viewFile,$extraPasstroughParams,$varName);
+    }//END public function GetViewVariable
+
+    /**
      * @param array      $_c_config Control configuration array
      * @param string     $_c_class  Control class fully qualified name
      * @param array|null $args
+     * @param array|null $extra_ctrl_params
      * @return string
      */
-    protected function GetControlContent(array $_c_config,string $_c_class,?array $args=NULL): string {
+    protected function GetControlContent(array $_c_config,string $_c_class,?array $args=NULL,?array $extra_ctrl_params=NULL): string {
+        if(is_array($extra_ctrl_params) && count($extra_ctrl_params)) {
+            $_c_config=array_merge($_c_config,$extra_ctrl_params);
+        }//if(is_array($extra_ctrl_params) && count($extra_ctrl_params))
         $_control=new $_c_class($_c_config);
         if(is_array($args) && count($args)) {
             $result=$_control->Show(...$args);
@@ -619,15 +636,13 @@ class AppView {
     }//END protected function GetControlContentFromFile
 
     /**
-     * @param string      $_v_file  File full name (including absolute path)
-     * @param string      $_c_class Control class fully qualified name
-     * @param array|null  $args
+     * @param string      $_v_file File full name (including absolute path)
      * @param array|null  $params
      * @param string|null $_var_name
-     * @return string
+     * @return mixed|null
      * @throws \NETopes\Core\AppException
      */
-    protected function GetControlContentFromFile(string $_v_file,string $_c_class,?array $args=NULL,?array $params=NULL,?string $_var_name=NULL): string {
+    protected function GetVariableFromFile(string $_v_file,?array $params=NULL,?string $_var_name=NULL) {
         $_var_name=$_var_name ?? 'ctrl_params';
         $passTroughParams=array_merge($this->_params,$params ?? []);
         if(count($passTroughParams)) {
@@ -635,9 +650,27 @@ class AppView {
         }
         require($_v_file);
         if(!isset($$_var_name)) {
+            return NULL;
+        }
+        return $$_var_name;
+    }//END protected function GetVariableFromFile
+
+    /**
+     * @param string      $_v_file  File full name (including absolute path)
+     * @param string      $_c_class Control class fully qualified name
+     * @param array|null  $args
+     * @param array|null  $params
+     * @param string|null $_var_name
+     * @param array|null  $extra_ctrl_params
+     * @return string
+     * @throws \NETopes\Core\AppException
+     */
+    protected function GetControlContentFromFile(string $_v_file,string $_c_class,?array $args=NULL,?array $params=NULL,?string $_var_name=NULL,?array $extra_ctrl_params=NULL): string {
+        $ctrl_params=$this->GetVariableFromFile($_v_file,$params,$_var_name);
+        if(!is_array($ctrl_params)) {
             throw new AppException('Undefined control parameters variable [$ctrl_params:'.$_v_file.']!');
         }
-        return $this->GetControlContent($$_var_name,$_c_class,$args);
+        return $this->GetControlContent($ctrl_params,$_c_class,$args,$extra_ctrl_params);
     }//END protected function GetControlContentFromFile
 
     /**
@@ -848,11 +881,13 @@ class AppView {
                     $config=get_array_value($c,'value',NULL,'isset');
 
                     if(is_array($config)) {
-                        $cContent=$this->GetControlContent($config,$class,$args);
+                        $extraCtrlParams=get_array_value($c,'extra_ctrl_params',NULL,'?is_array');
+                        $cContent=$this->GetControlContent($config,$class,$args,$extraCtrlParams);
                     } elseif(is_string($config) && strlen($config)) {
                         $customParams=get_array_value($c,'params',NULL,'?is_array');
                         $varName=get_array_value($c,'var_name',NULL,'?is_string');
-                        $cContent=$this->GetControlContentFromFile($config,$class,$args,$customParams,$varName);
+                        $extraCtrlParams=get_array_value($c,'extra_ctrl_params',NULL,'?is_array');
+                        $cContent=$this->GetControlContentFromFile($config,$class,$args,$customParams,$varName,$extraCtrlParams);
                     } else {
                         if($this->_debug) {
                             NApp::Wlog('Invalid content value [control:index:'.$k.']!');

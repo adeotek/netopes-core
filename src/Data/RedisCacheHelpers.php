@@ -192,7 +192,7 @@ class RedisCacheHelpers {
                 $result=TRUE;
             } else {
                 if(!file_exists(AppHelpers::GetCachePath().static::$fallbackDir)) {
-                    @mkdir(AppHelpers::GetCachePath().static::$fallbackDir,755);
+                    @mkdir(AppHelpers::GetCachePath().static::$fallbackDir,0755);
                 }//if(!file_exists(AppHelpers::GetCachePath().static::$fallbackDir))
                 $result=file_put_contents(AppHelpers::GetCachePath().static::$fallbackDir.DIRECTORY_SEPARATOR.$fName,serialize($data));
             }//if(is_null($data))
