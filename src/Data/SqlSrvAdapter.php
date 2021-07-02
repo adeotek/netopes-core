@@ -25,6 +25,10 @@ use NETopes\Core\Validators\Validator;
  */
 class SqlSrvAdapter extends SqlDataAdapter {
     /**
+     * @const string Objects property accessor symbol
+     */
+    const PROPERTY_ACCESSOR='.';
+    /**
      * @const string Objects names enclosing start symbol
      */
     const ENCLOSING_START_SYMBOL='[';
@@ -275,6 +279,18 @@ class SqlSrvAdapter extends SqlDataAdapter {
     }//END private function GetOffsetAndLimit
 
     /**
+     * @param string $field
+     * @return string
+     */
+    public function GetFieldName(string $field): string {
+        $result='';
+        foreach(explode(self::PROPERTY_ACCESSOR,$field) as $f) {
+            $result.=(strlen($result) ? self::PROPERTY_ACCESSOR : '').self::ENCLOSING_START_SYMBOL.strtoupper($f).self::ENCLOSING_END_SYMBOL;
+        }//END foreach
+        return $result;
+    }//END public function GetFieldName
+
+    /**
      * @param array $condition
      * @return string
      * @throws \Exception
@@ -369,7 +385,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
             return '';
         }
         if(get_array_value($condition,'escape_field_name',TRUE,'bool')) {
-            $result=' '.self::ENCLOSING_START_SYMBOL.strtoupper($field).self::ENCLOSING_END_SYMBOL;
+            $result=' '.$this->GetFieldName($field);
         } else {
             $result=' '.strtoupper($field);
         }
@@ -410,6 +426,25 @@ class SqlSrvAdapter extends SqlDataAdapter {
         }//END foreach
         return $result;
     }//END private function GetFiltersCondition
+
+    /**
+     * Prepares query filters string
+     *
+     * @param array|string_null $filters An array of condition to be applied in WHERE clause
+     * @return string|null
+     * @throws \Exception
+     */
+    public function SqlSrvPrepareFilters($filters,&$logicalOperator=NULL): ?string {
+        $filterCondition=NULL;
+        if(is_array($filters)) {
+            $groupedFilters=array_group_by_hierarchical(static::FILTERS_GROUP_KEY,$filters,TRUE,'_','_99');
+            $filterCondition=$this->GetFiltersCondition($groupedFilters,$logicalOperator);
+            $filterCondition=strlen(trim($filterCondition)) ? ' ('.$filterCondition.') ' : '';
+        } elseif(is_string($filters) && strlen($filters)) {
+            $filterCondition=" {$filters} ";
+        }//if(is_array($filters))
+        return $filterCondition;
+    }//public function SqlSrvPrepareFilters
 
     /**
      * Prepares the query string for execution
