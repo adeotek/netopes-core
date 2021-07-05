@@ -285,7 +285,7 @@ class SqlSrvAdapter extends SqlDataAdapter {
     public function GetFieldName(string $field): string {
         $result='';
         foreach(explode(self::PROPERTY_ACCESSOR,$field) as $f) {
-            $result.=(strlen($result) ? self::PROPERTY_ACCESSOR : '').self::ENCLOSING_START_SYMBOL.strtoupper($f).self::ENCLOSING_END_SYMBOL;
+            $result.=(strlen($result) ? self::PROPERTY_ACCESSOR : '').self::ENCLOSING_START_SYMBOL.strtoupper(trim($f,self::ENCLOSING_START_SYMBOL.self::ENCLOSING_END_SYMBOL)).self::ENCLOSING_END_SYMBOL;
         }//END foreach
         return $result;
     }//END public function GetFieldName
