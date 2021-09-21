@@ -146,6 +146,10 @@ class TableView extends FilterControl {
      */
     public $sortby=[];
     /**
+     * @var    array|null Base sort by (column=>direction)
+     */
+    public $base_sort_by=NULL;
+    /**
      * @var    bool Switch filter box on/off
      */
     public $with_filter=TRUE;
@@ -466,10 +470,14 @@ class TableView extends FilterControl {
             $extra_params['first_row']=$firstRow;
             $extra_params['last_row']=$lastRow;
         }//if($this->with_pagination && !$this->export_only)
+        $sortBy=is_array($this->sortby) && count($this->sortby) ? $this->sortby : [];
+        if(is_array($this->base_sort_by) && count($this->base_sort_by)) {
+            $sortBy=array_merge($sortBy,$this->base_sort_by);
+        }
         if($this->tree) {
-            $extra_params['sort']=is_array($this->sortby) && count($this->sortby) ? $this->sortby : ['LVL'=>'ASC'];
+            $extra_params['sort']=count($sortBy) ? $sortBy : ['LVL'=>'ASC'];
         } else {
-            $extra_params['sort']=$this->sortby;
+            $extra_params['sort']=$sortBy;
         }
     }//END protected function ProcessDataCallParams
 

@@ -97,8 +97,8 @@ class DataSource extends \NETopes\Core\Data\DataSource {
             foreach($params as $pn=>$pv) {
                 switch($pn) {
                     case 'for_text':
-                        $fieldsList=get_array_value($extra_params,'qs_fields',[],'is_array');
                         if(is_string($pv) && strlen($pv)) {
+                            $fieldsList=get_array_value($extra_params,'qs_fields',[],'is_array');
                             $extra_params['filters'][]=['field'=>(count($fieldsList) ? $fieldsList : ['name']),'condition_type'=>'like','value'=>$pv];
                         }
                         break;
