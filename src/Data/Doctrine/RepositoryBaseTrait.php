@@ -171,7 +171,7 @@ trait RepositoryBaseTrait {
                 if(is_null($expr)) {
                     continue;
                 }
-                $result.=(strlen($result) && strlen($lSeparator) ? ' '.strtoupper($lSeparator).' ' : '').(string)$expr;
+                $result.=(strlen($result) && strlen($lSeparator) ? ' '.strtoupper($lSeparator).' ' : '').' ('.(string)$expr.')';
             }//if(substr($k,0,1)=='_')
             if(is_null($logicalSeparator)) {
                 $logicalSeparator=strtoupper($lSeparator);

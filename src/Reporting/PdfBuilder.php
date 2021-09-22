@@ -245,12 +245,12 @@ class PdfBuilder {
      * @param array       $params
      * @param int|null    $page
      * @param string|null $pageHeader
-     * @param string|null $oriantation
+     * @param string|null $orientation
      * @return int
      */
-    public function AddContent(string $content,array $params=[],?int $page=NULL,?string $pageHeader=NULL,?string $oriantation=NULL): int {
+    public function AddContent(string $content,array $params=[],?int $page=NULL,?string $pageHeader=NULL,?string $orientation=NULL): int {
         $content=$this->ReplacePlaceholders($content,$params,TRUE,$this->skipLabels);
-        return $this->pdf->AddContent($content,$page,$pageHeader,$oriantation);
+        return $this->pdf->AddContent($content,$page,$pageHeader,$orientation);
     }//END public function AddContent
 
     /**
