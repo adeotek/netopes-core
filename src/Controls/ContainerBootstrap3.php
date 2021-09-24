@@ -78,7 +78,11 @@ class ContainerBootstrap3 implements IControlContainer {
                 $result.=$labelTag;
             }
             if($this->control->inline!==TRUE) {
-                $result.="\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
+                if(get_class($this->control)==CheckBox::class && strlen($this->control->align)) {
+                    $result.="\t\t".'<div class="col-md-'.$c_cols.'" style="text-align: '.$this->control->align.';">'."\n";
+                } else {
+                    $result.="\t\t".'<div class="col-md-'.$c_cols.'">'."\n";
+                }
             }
             if($this->control->hasActions()) {
                 $content="\t\t\t".'<div class="input-group">'."\n\t\t\t\t".$content."\n\t\t\t".'</div>';
