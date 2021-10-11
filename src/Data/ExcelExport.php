@@ -374,13 +374,19 @@ class ExcelExport {
             $v_dtype=is_numeric($col_value) ? 'numeric' : 'string';
             $data_type=get_array_value($column,'data_type',$v_dtype,'is_notempty_string');
             if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj') {
-                $dt_value=static::datetimeToExcelTimestamp(Validator::ConvertDateTimeToObject($col_value,NULL,$this->timezone),$this->timezone);
-                if($dt_value) {
-                    $col_value=$dt_value;
-                    $data_type='datetime';
-                } else {
+                $dtObject=Validator::ConvertDateTimeToObject($col_value,NULL,$this->timezone);
+                if(get_array_value($column,'format',NULL,'is_string')==='time') {
                     $data_type='string';
-                }//if($dt_value)
+                    $col_value=$dtObject->format(NApp::GetTimeFormat(TRUE));
+                } else {
+                    $dt_value=static::datetimeToExcelTimestamp($dtObject,$this->timezone);
+                    if($dt_value) {
+                        $col_value=$dt_value;
+                        $data_type='datetime';
+                    } else {
+                        $data_type='string';
+                    }//if($dt_value)
+                }
             } elseif($data_type=='numeric' && $v_dtype=='string') {
                 $data_type='string';
             }//if($data_type=='date' || $data_type=='datetime' || $data_type=='date_obj' || $data_type=='datetime_obj')

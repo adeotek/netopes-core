@@ -68,42 +68,54 @@ function ShowErrorDialog(errstr,encrypted,targetid,title) {
 }//END function ShowErrorDialog
 /* END For Errors Popup */
 /*** For modal dialogs ***/
-function ShowConfirmDialog(message,callback,encrypted,options) {
-	if(!callback || (typeof(callback)!='string' && typeof(callback)!='function')) { return false; }
-	if(!message || typeof(message)!='string' || message.length<=0) { return false; }
-	if(encrypted) { message = GibberishAES.dec(message,'HTML'); }
-	var cfg = {
-		targetid: '',
-		title: '',
-		ok: '',
-		cancel: ''
-	};
-	if(options && typeof(options)=='object') { $.extend(cfg,options); }
+function ShowConfirmDialog(message,callback,encrypted,options,cancelCallback) {
+    if(!callback || (typeof (callback)!='string' && typeof (callback)!='function')) { return false; }
+    if(!message || typeof (message)!='string' || message.length<=0) { return false; }
+    if(encrypted) { message=GibberishAES.dec(message,'HTML'); }
+    var cfg={
+        targetid: '',
+        title: '',
+        ok: '',
+        cancel: ''
+    };
+    if(options && typeof (options)=='object') { $.extend(cfg,options); }
 	if(typeof(cfg.targetid)!='string' || cfg.targetid.length<=0) { cfg.targetid = getUid(); }
 	if(typeof(cfg.title)!='string') { cfg.title = ''; }
 	if(typeof(cfg.ok)!='string' || cfg.ok.length<=0) { cfg.ok = 'OK'; }
 	if(typeof(cfg.cancel)!='string' || cfg.cancel.length<=0) { cfg.cancel = 'Cancel'; }
-	var lbuttons = {};
-	lbuttons[cfg.ok] = function() {
-		$(this).dialog('close');
-		if(typeof(callback)=='function') {
-			callback();
-		} else {
-			if(encrypted) { callback = GibberishAES.dec(callback,'HTML'); }
-			eval(callback);
-		}//if(typeof(callback)=='function')
-	};
-	lbuttons[cfg.cancel] = function() { $(this).dialog('close'); };
-	if(!$('#'+cfg.targetid).length) { $('body').append('<div id="'+cfg.targetid+'" style="display: none;"></div>'); }
-	$('#'+cfg.targetid).html(message);
-	var minWidth = $(window).width()>500 ? 500 : ($(window).width() - 20);
-	var maxWidth = $(window).width()>600 ? ($(window).width() - 80) : ($(window).width() - 20);
-	$('#'+cfg.targetid).dialog({
-		title: cfg.title,
-		dialogClass: 'ui-alert-dlg',
-		minWidth: minWidth,
-		maxWidth: maxWidth,
-		minHeight: 'auto',
+    var lbuttons={};
+    lbuttons[cfg.ok]=function() {
+        $(this).dialog('close');
+        if(typeof (callback)=='function') {
+            callback();
+        } else {
+            if(encrypted) { callback=GibberishAES.dec(callback,'HTML'); }
+            eval(callback);
+        }//if(typeof(callback)=='function')
+    };
+    if(cancelCallback) {
+        lbuttons[cfg.cancel]=function() {
+            $(this).dialog('close');
+            if(typeof (cancelCallback)=='function') {
+                cancelCallback();
+            } else {
+                if(encrypted) { callback=GibberishAES.dec(cancelCallback,'HTML'); }
+                eval(cancelCallback);
+            }//if(typeof(cancelCallback)=='function')
+        };
+    } else {
+        lbuttons[cfg.cancel]=function() { $(this).dialog('close'); };
+    }//if(cancelCallback)
+    if(!$('#' + cfg.targetid).length) { $('body').append('<div id="' + cfg.targetid + '" style="display: none;"></div>'); }
+    $('#' + cfg.targetid).html(message);
+    var minWidth=$(window).width()>500 ? 500 : ($(window).width() - 20);
+    var maxWidth=$(window).width()>600 ? ($(window).width() - 80) : ($(window).width() - 20);
+    $('#' + cfg.targetid).dialog({
+        title: cfg.title,
+        dialogClass: 'ui-alert-dlg',
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        minHeight: 'auto',
 		resizable: false,
 		modal: true,
 		autoOpen: true,
