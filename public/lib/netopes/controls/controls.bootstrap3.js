@@ -70,7 +70,7 @@ function ShowErrorDialog(errstr,encrypted,targetid,title) {
 }//END function ShowErrorDialog
 /* END For Errors Popup */
 /*** For modal dialogs ***/
-function ShowConfirmDialog(message,callback,encrypted,options) {
+function ShowConfirmDialog(message,callback,encrypted,options,cancelCallback) {
     if(!callback || (typeof (callback)!='string' && typeof (callback)!='function')) { return false; }
     if(!message || typeof (message)!='string' || message.length<=0) { return false; }
     if(encrypted) { message=GibberishAES.dec(message,'HTML'); }
@@ -95,7 +95,19 @@ function ShowConfirmDialog(message,callback,encrypted,options) {
             eval(callback);
         }//if(typeof(callback)=='function')
     };
-    lbuttons[cfg.cancel]=function() { $(this).dialog('close'); };
+    if(cancelCallback) {
+        lbuttons[cfg.cancel]=function() {
+            $(this).dialog('close');
+            if(typeof (cancelCallback)=='function') {
+                cancelCallback();
+            } else {
+                if(encrypted) { callback=GibberishAES.dec(cancelCallback,'HTML'); }
+                eval(cancelCallback);
+            }//if(typeof(cancelCallback)=='function')
+        };
+    } else {
+        lbuttons[cfg.cancel]=function() { $(this).dialog('close'); };
+    }//if(cancelCallback)
     if(!$('#' + cfg.targetid).length) { $('body').append('<div id="' + cfg.targetid + '" style="display: none;"></div>'); }
     $('#' + cfg.targetid).html(message);
     var minWidth=$(window).width()>500 ? 500 : ($(window).width() - 20);
