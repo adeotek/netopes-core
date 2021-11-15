@@ -254,6 +254,16 @@ class Module {
     }//END protected function ProcessRedirects
 
     /**
+     * @param string|null $separator
+     * @return string
+     */
+    public function GetName(?string $separator=NULL): string {
+        return is_null($separator)
+            ? $this->name
+            : str_replace('\\',$separator,$this->name);
+    }//END public function GetName
+
+    /**
      * @return string|null
      * @throws \NETopes\Core\AppException
      */

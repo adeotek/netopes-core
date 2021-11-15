@@ -298,10 +298,11 @@ class AppView {
     /**
      * Get module current method
      *
+     * @param int|null $backSteps
      * @return string
      */
-    public function GetCurrentMethod(): string {
-        return call_back_trace(4);
+    public function GetCurrentMethod(?int $backSteps=NULL): string {
+        return call_back_trace($backSteps ?? 5);
     }//END public function GetCurrentMethod
 
     /**
