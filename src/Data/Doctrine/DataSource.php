@@ -55,9 +55,28 @@ class DataSource extends \NETopes\Core\Data\DataSource {
         if(!strlen($method) || !method_exists($repository,$method)) {
             throw new AppException('Invalid repository name ['.$method.'] for entity ['.$this->entityName.']!');
         }//if(!strlen($method) || !method_exists($repository,$method))
-        $result=$repository->$method(...$params);
-        return $result;
-    }//END public function CreateItem
+        return $repository->$method(...$params);
+    }//END public function ExecRepositoryMethod
+
+    /**
+     * Execute a repository method and get returned data
+     *
+     * @param array $params
+     * @param array $extra_params
+     * @return
+     * @throws \NETopes\Core\AppException
+     */
+    public function GetFromRepositoryMethod($params=[],$extra_params=[]) {
+        if(!strlen($this->entityName) || !class_exists($this->entityName)) {
+            throw new AppException('Invalid entity ['.$this->entityName.']!');
+        }
+        $method=get_array_value($extra_params,'method','','is_string');
+        $repository=$this->adapter->em->getRepository($this->entityName);
+        if(!strlen($method) || !method_exists($repository,$method)) {
+            throw new AppException('Invalid repository name ['.$method.'] for entity ['.$this->entityName.']!');
+        }//if(!strlen($method) || !method_exists($repository,$method))
+        return $repository->$method($params,$extra_params);
+    }//END public function GetFromRepositoryMethod
 
     /**
      * Gets new project blank object
@@ -110,8 +129,7 @@ class DataSource extends \NETopes\Core\Data\DataSource {
                 }//END switch
             }//END foreach
         }//if(is_array($params) && count($params))
-        $result=$this->adapter->em->getRepository($this->entityName)->findFiltered($extra_params);
-        return $result;
+        return $this->adapter->em->getRepository($this->entityName)->findFiltered($extra_params);
     }//END public function GetItems
 
     /**
