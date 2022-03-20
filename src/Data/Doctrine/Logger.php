@@ -1,14 +1,14 @@
 <?php
 /**
- * Doctrine Logger class file
+ * Doctrine Logger class
+ * A SQL logger that logs to PHP console.
  *
- * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.3.1
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data\Doctrine;
 use DateTime;
 use Doctrine\DBAL\Logging\SQLLogger;
@@ -17,7 +17,7 @@ use NApp;
 use NETopes\Core\AppException;
 
 /**
- * A SQL logger that logs to PHP console.
+ * Logger class
  */
 class Logger implements SQLLogger {
     /**

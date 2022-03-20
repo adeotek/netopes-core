@@ -4,13 +4,12 @@
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use NETopes\Core\Validators\Validator;
 use function array_key_exists;
@@ -18,10 +17,6 @@ use function count;
 
 /**
  * DataSet class
- * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
- * to be used for data manipulation (principally for data fetched from databases)
- *
- * @package  NETopes\Core\Data
  */
 class DataSet extends Collection {
     /**
@@ -75,13 +70,6 @@ class DataSet extends Collection {
     }
 
     /**
-     * @var int|null Elements total count
-     */
-    public function setTotalCount($value) {
-        $this->total_count=$value;
-    }
-
-    /**
      * @param bool $safe
      * @return int|null Elements total count
      */
@@ -90,5 +78,12 @@ class DataSet extends Collection {
             return $this->total_count;
         }
         return is_numeric($this->total_count) && $this->total_count>0 ? $this->total_count : count($this->elements);
+    }
+
+    /**
+     * @var int|null Elements total count
+     */
+    public function setTotalCount($value) {
+        $this->total_count=$value;
     }
 }//END class DataSet extends Collection

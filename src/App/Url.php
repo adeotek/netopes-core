@@ -3,23 +3,19 @@
  * Class Url file.
  * Application URL interaction class.
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 use NETopes\Core\AppConfig;
 use NETopes\Core\DataHelpers;
 use NETopes\Core\Helpers;
 
 /**
- * Class Url
- * Application URL interaction class.
- *
- * @package NETopes\Core\App
+ * Url class
  */
 class Url {
     /**

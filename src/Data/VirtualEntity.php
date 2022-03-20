@@ -3,22 +3,18 @@
  * VirtualEntity class file
  * Generic implementation for entities with no predefined structure (properties)
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use NETopes\Core\AppException;
 use NETopes\Core\Validators\Validator;
 
 /**
  * VirtualEntity class
- * Generic implementation for entities with no predefined structure (properties)
- *
- * @package  NETopes\Core\App
  */
 class VirtualEntity implements IEntity {
     /**
@@ -112,6 +108,26 @@ class VirtualEntity implements IEntity {
     }//END public function __call
 
     /**
+     * VirtualEntity dynamic setter method
+     *
+     * @param string $name The name of the property
+     * @param mixed  $value
+     * @param bool   $strict
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
+        $key=$this->convertPropertyName($name);
+        if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
+            throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
+        }//if(is_array($this->data) && array_key_exists($key,$this->data))
+        if(!is_array($this->data)) {
+            $this->data=[];
+        }
+        $this->data[$key]=$value;
+    }//END protected function convertPropertyName
+
+    /**
      * @param string|null $name
      * @param bool|null   $special
      * @return string|null
@@ -123,28 +139,7 @@ class VirtualEntity implements IEntity {
         $key=$this->namingMode===self::CAMELCASE_NAME ? convert_from_camel_case($name,FALSE) : $name;
         $special=(strlen($name) - strlen(ltrim($name,'_')))>0;
         return $key;
-    }//END protected function convertPropertyName
-
-    /**
-     * {@inheritDoc}
-     */
-    public function set($key,$value): void {
-        $this->data[$key]=$value;
     }//END public function set
-
-    /**
-     * Get property value by name
-     *
-     * @param string|null $name
-     * @param mixed|null  $defaultValue
-     * @param string|null $validation
-     * @param bool        $strict
-     * @return mixed
-     * @throws \NETopes\Core\AppException
-     */
-    public function getProperty(?string $name,$defaultValue=NULL,?string $validation=NULL,bool $strict=FALSE) {
-        return $this->GetPropertyValue($name,$strict,$defaultValue,$validation);
-    }//END public function getProperty
 
     /**
      * VirtualEntity dynamic getter method
@@ -168,7 +163,28 @@ class VirtualEntity implements IEntity {
             return $defaultValue;
         }//if(is_null($validation))
         return Validator::ValidateArrayValue($this->data,$key,$defaultValue,$validation);
+    }//END public function getProperty
+
+    /**
+     * {@inheritDoc}
+     */
+    public function set($key,$value): void {
+        $this->data[$key]=$value;
     }//END protected function GetPropertyValue
+
+    /**
+     * Get property value by name
+     *
+     * @param string|null $name
+     * @param mixed|null  $defaultValue
+     * @param string|null $validation
+     * @param bool        $strict
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function getProperty(?string $name,$defaultValue=NULL,?string $validation=NULL,bool $strict=FALSE) {
+        return $this->GetPropertyValue($name,$strict,$defaultValue,$validation);
+    }//END public function setProperty
 
     /**
      * Set property value by name
@@ -181,26 +197,6 @@ class VirtualEntity implements IEntity {
      */
     public function setProperty(string $name,$value,bool $strict=FALSE): void {
         $this->SetPropertyValue($name,$value,$strict);
-    }//END public function setProperty
-
-    /**
-     * VirtualEntity dynamic setter method
-     *
-     * @param string $name The name of the property
-     * @param mixed  $value
-     * @param bool   $strict
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    protected function SetPropertyValue(string $name,$value,bool $strict=FALSE): void {
-        $key=$this->convertPropertyName($name);
-        if($strict && (!is_array($this->data) || !array_key_exists($key,$this->data))) {
-            throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
-        }//if(is_array($this->data) && array_key_exists($key,$this->data))
-        if(!is_array($this->data)) {
-            $this->data=[];
-        }
-        $this->data[$key]=$value;
     }//END protected function SetPropertyValue
 
     /**

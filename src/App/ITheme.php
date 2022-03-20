@@ -2,18 +2,15 @@
 /**
  * Application Theme interface file
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 /**
- * Application Theme interface
- *
- * @package    NETopes\Core\App
+ * ITheme interface
  */
 interface ITheme {
     /**
@@ -21,9 +18,9 @@ interface ITheme {
      * Values:
      * - native/NULL -> custom HTML+CSS
      * - jqueryui -> jQuery UI
-     * - bootstrap2 -> Tweeter Bootstrap 2
      * - bootstrap3 -> Tweeter Bootstrap 3
      * - bootstrap4 -> Tweeter Bootstrap 4
+     * - bootstrap5 -> Tweeter Bootstrap 5
      *
      * @return string
      */

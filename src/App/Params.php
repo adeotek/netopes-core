@@ -4,13 +4,12 @@
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for passing variable number of parameters
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 use Exception;
 use NApp;
@@ -21,10 +20,6 @@ use NETopes\Core\Validators\Validator;
 
 /**
  * Params class
- * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
- * to be used for passing variable number of parameters
- *
- * @package  NETopes\Core\App
  */
 class Params extends Collection {
 

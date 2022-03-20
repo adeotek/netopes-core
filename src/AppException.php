@@ -1,15 +1,13 @@
 <?php
 /**
  * NETopes AppException class file
- * Definition of the custom exception class
  *
- * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core;
 use Error;
 use Exception;
@@ -97,6 +95,7 @@ final class AppException extends Exception {
             case 'firebird':
                 $this->externalCode=is_numeric($this->externalCode) ? $this->externalCode * (-1) : $this->externalCode;
                 break;
+            case 'postgres':
             case 'mysql':
             case 'mongodb':
             case 'sqlite':

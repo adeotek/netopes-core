@@ -1,7 +1,7 @@
 <?php
 /**
- * FirebirdSql database adapter class
- * This file contains the adapter class for FirebirdSQL database.
+ * PostgreSqlAdapter database adapter class
+ * This file contains the adapter class for PostgreSQL database.
  *
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
@@ -18,9 +18,9 @@ use NETopes\Core\AppSession;
 use NETopes\Core\Validators\Validator;
 
 /**
- * FirebirdSqlAdapter class
+ * PostgreSqlAdapter class
  */
-class FirebirdSqlAdapter extends SqlDataAdapter {
+class PostgreSqlAdapter extends SqlDataAdapter {
     /**
      * @const string Objects names enclosing start symbol
      */
@@ -41,7 +41,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return bool  Returns TRUE on success or FALSE otherwise
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlSetGlobalVariables(?array $params=NULL): bool {
+    public function PostgreSqlSetGlobalVariables(?array $params=NULL): bool {
         if(!is_array($params) || !count($params)) {
             return TRUE;
         }
@@ -49,19 +49,19 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $query=self::GetStartUpQuery($params);
         $transaction=NULL;
         try {
-            $this->FirebirdSqlBeginTran($transaction);
+            $this->PostgreSqlBeginTran($transaction);
             $result=ibase_query($this->transactions[$transaction],$query);
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($transaction);
+            $this->PostgreSqlRollbackTran($transaction);
             throw new AppException("FAILED EXECUTE SET GLOBALS QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(ibase_errmsg() || $result===FALSE) {
             $ibError=ibase_errmsg();
             $ibErrorCode=ibase_errcode();
-            $this->FirebirdSqlRollbackTran($transaction);
+            $this->PostgreSqlRollbackTran($transaction);
             throw new AppException("FAILED EXECUTE SET GLOBALS QUERY: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(ibase_errmsg() || $result===FALSE)
-        $this->FirebirdSqlCommitTran($transaction);
+        $this->PostgreSqlCommitTran($transaction);
         $this->DbDebug($query,'Query',$time);
         return ($result!==FALSE);
     }//public static function GetStartUpQuery
@@ -77,12 +77,12 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             return NULL;
         }
         $query='EXECUTE BLOCK AS DECLARE VARIABLE TVAR INT; BEGIN ';
-        foreach(self::FirebirdSqlEscapeString($params) as $k=>$v) {
+        foreach(self::PostgreSqlEscapeString($params) as $k=>$v) {
             $query.="\n\t".'SELECT "RDB$SET_CONTEXT"(\'USER_SESSION\',\''.strtoupper($k).'\',\''.$v.'\') FROM "RDB$DATABASE" INTO :TVAR;';
         }//END foreach
         $query.=' END';
         return $query;
-    }//END public function FirebirdSqlSetGlobalVariables
+    }//END public function PostgreSqlSetGlobalVariables
 
     /**
      * Escapes single quote character from a string
@@ -91,11 +91,11 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      *                            an array of strings
      * @return string|array Returns the escaped string or array
      */
-    public static function FirebirdSqlEscapeString($param) {
+    public static function PostgreSqlEscapeString($param) {
         if(is_array($param)) {
             $result=[];
             foreach($param as $k=>$v) {
-                $result[$k]=static::FirebirdSqlEscapeString($v);
+                $result[$k]=static::PostgreSqlEscapeString($v);
             }
             return $result;
         }//if(is_array($param))
@@ -116,7 +116,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return object Returns the transaction instance
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlBeginTran(&$name,$log=FALSE,$overwrite=TRUE,$tran_params=NULL) {
+    public function PostgreSqlBeginTran(&$name,$log=FALSE,$overwrite=TRUE,$tran_params=NULL) {
         if(!is_string($name) || !strlen($name)) {
             $name=AppSession::GetNewUID(chr(rand(48,57)).chr(rand(48,57)));
         } else {
@@ -133,7 +133,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         // $this->DbDebug($name.' => TRANSACTION STARTED >>'.print_r($tran_params,1),'BeginTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         $this->DbDebug($name.' => TRANSACTION STARTED','BeginTran',NULL,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return $this->transactions[$name];
-    }//END protected function FirebirdSqlCloseConnection
+    }//END protected function PostgreSqlCloseConnection
 
     /**
      * Rolls back a firebird transaction
@@ -143,7 +143,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return bool Returns TRUE on success or FALSE otherwise
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlRollbackTran($name,$log=FALSE) {
+    public function PostgreSqlRollbackTran($name,$log=FALSE) {
         $result=FALSE;
         if(is_null($name)) {
             $result=ibase_rollback($this->connection);
@@ -156,7 +156,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             }//if(is_resource($this->transactions[$name]))
         }//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
         return $result;
-    }//END public function FirebirdSqlGetTran
+    }//END public function PostgreSqlGetTran
 
     /**
      * Commits a firebird transaction
@@ -167,7 +167,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return bool Returns TRUE on success or FALSE otherwise
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlCommitTran($name,$log=FALSE,$preserve=FALSE) {
+    public function PostgreSqlCommitTran($name,$log=FALSE,$preserve=FALSE) {
         $result=FALSE;
         if(is_null($name)) {
             if($preserve) {
@@ -192,7 +192,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             }//if(is_resource($this->transactions[$name]))
         }//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
         return $result;
-    }//END public function FirebirdSqlBeginTran
+    }//END public function PostgreSqlBeginTran
 
     /**
      * Executes a query against the database
@@ -215,12 +215,12 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlExecuteQuery($query,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
+    public function PostgreSqlExecuteQuery($query,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
         $transaction=NULL;
         if(is_string($tranName) && strlen($tranName)) {
             try {
-                $transaction=$this->FirebirdSqlGetTran($tranName,$log,FALSE,$customTranParams);
+                $transaction=$this->PostgreSqlGetTran($tranName,$log,FALSE,$customTranParams);
                 if(is_null($transaction)) {
                     throw new AppException('Invalid transaction: '.$tranName);
                 }
@@ -232,7 +232,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         }//if(is_string($tranName) && strlen($tranName))
         $rawQuery=NULL;
         $bindParams=NULL;
-        $this->FirebirdSqlPrepareQuery($query,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
+        $this->PostgreSqlPrepareQuery($query,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
         if(!is_array($outParams)) {
             $outParams=[];
         }
@@ -252,13 +252,13 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 $result=call_user_func_array('ibase_execute',$bindParams);
             }//if(!is_array($bindParams) || !count($bindParams))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(strlen(ibase_errmsg())) { // || $result===FALSE
             $ibError=ibase_errmsg();
             $ibErrorCode=ibase_errcode();
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED QUERY: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(strlen(ibase_errmsg()))
         try {
@@ -271,15 +271,15 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE QUERY: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(is_null($tranName)) {
-            $this->FirebirdSqlCommitTran(NULL,FALSE);
+            $this->PostgreSqlCommitTran(NULL,FALSE);
         }
         $this->DbDebug($query,'Query',$time,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
-    }//END public function FirebirdSqlRollbackTran
+    }//END public function PostgreSqlRollbackTran
 
     /**
      * Get a firebird transaction
@@ -292,18 +292,18 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return object Returns the transaction instance
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlGetTran($name,$log=FALSE,$start=TRUE,$tran_params=NULL) {
+    public function PostgreSqlGetTran($name,$log=FALSE,$start=TRUE,$tran_params=NULL) {
         if(!is_string($name) || !strlen($name)) {
             return NULL;
         }
         if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name])) {
             return $this->transactions[$name];
         } elseif($start) {
-            return $this->FirebirdSqlBeginTran($name,$log,FALSE,$tran_params);
+            return $this->PostgreSqlBeginTran($name,$log,FALSE,$tran_params);
         } else {
             return NULL;
         }//if(array_key_exists($name,$this->transactions) && is_resource($this->transactions[$name]))
-    }//END public function FirebirdSqlCommitTran
+    }//END public function PostgreSqlCommitTran
 
     /**
      * Prepares the query string for execution
@@ -326,7 +326,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    public function FirebirdSqlPrepareQuery(&$query,$params=[],$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
+    public function PostgreSqlPrepareQuery(&$query,$params=[],$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
         if(is_array($params) && count($params)) {
             foreach($params as $k=>$p) {
                 if($p instanceof DateTime) {
@@ -382,7 +382,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return string|array Returns the escaped string or array
      */
     public function EscapeString($param) {
-        return static::FirebirdSqlEscapeString($param);
+        return static::PostgreSqlEscapeString($param);
     }//END private function GetOrderBy
 
     /**
@@ -566,7 +566,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             $result=" ORDER BY {$sort} ASC ";
         }//if(is_array($sort))
         return $result;
-    }//END public function FirebirdSqlPrepareQuery
+    }//END public function PostgreSqlPrepareQuery
 
     /**
      * @param $firstRow
@@ -583,7 +583,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
             }//if(is_numeric($lastRow) && $lastRow>0)
         }//if(is_numeric($firstRow) && $firstRow>0)
         return $result;
-    }//END public function FirebirdSqlExecuteQuery
+    }//END public function PostgreSqlExecuteQuery
 
     /**
      * Executes a stored procedure against the database
@@ -606,12 +606,12 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return array|bool Returns database request result
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlExecuteProcedure($procedure,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
+    public function PostgreSqlExecuteProcedure($procedure,$params=[],&$outParams=[],$tranName=NULL,$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$resultsKeysCase=NULL,$customTranParams=NULL) {
         $time=microtime(TRUE);
         $transaction=NULL;
         if(is_string($tranName) && strlen($tranName)) {
             try {
-                $transaction=$this->FirebirdSqlGetTran($tranName,$log,FALSE,$customTranParams);
+                $transaction=$this->PostgreSqlGetTran($tranName,$log,FALSE,$customTranParams);
                 if(is_null($transaction)) {
                     throw new AppException('Invalid transaction: '.$tranName);
                 }
@@ -627,7 +627,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         $sql_params=NULL;
         $rawQuery=NULL;
         $bindParams=NULL;
-        $query=$this->FirebirdSqlPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
+        $query=$this->PostgreSqlPrepareProcedureStatement($procedure,$params,$outParams,$type,$firstRow,$lastRow,$sort,$filters,$rawQuery,$bindParams,$transaction);
         $outParams['__raw_sql_qry']=$rawQuery;
         $outParams['__sql_qry']=$query;
         $finalResult=NULL;
@@ -644,13 +644,13 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 $result=call_user_func_array('ibase_execute',$bindParams);
             }//if(!is_array($bindParams) || !count($bindParams))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(strlen(ibase_errmsg())) { //|| $result===FALSE) {
             $ibError=ibase_errmsg();
             $ibErrorCode=ibase_errcode();
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE PROCEDURE: #ErrorCode:{$ibErrorCode}# {$ibError} in statement: {$query}",E_ERROR,1,__FILE__,__LINE__,'firebird',$ibErrorCode);
         }//if(strlen(ibase_errmsg()))
         try {
@@ -663,15 +663,15 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 $finalResult=$result;
             }//if(is_resource($result))
         } catch(Exception $e) {
-            $this->FirebirdSqlRollbackTran($tranName,$log);
+            $this->PostgreSqlRollbackTran($tranName,$log);
             throw new AppException("FAILED EXECUTE PROCEDURE: ".$e->getMessage()." in statement: $query",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
         if(is_null($tranName)) {
-            $this->FirebirdSqlCommitTran(NULL,FALSE);
+            $this->PostgreSqlCommitTran(NULL,FALSE);
         }
         $this->DbDebug($query,'Query',$time,$log ? [Logger::WEB_CONSOLE_ADAPTER] : []);
         return change_array_keys_case($finalResult,TRUE,(isset($resultsKeysCase) ? $resultsKeysCase : $this->resultsKeysCase));
-    }//END protected function FirebirdSqlPrepareProcedureStatement
+    }//END protected function PostgreSqlPrepareProcedureStatement
 
     /**
      * Prepares the command string to be executed
@@ -694,7 +694,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @throws \NETopes\Core\AppException
      * @throws \Exception
      */
-    protected function FirebirdSqlPrepareProcedureStatement($procedure,$params=[],&$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
+    protected function PostgreSqlPrepareProcedureStatement($procedure,$params=[],&$outParams=[],$type='',$firstRow=NULL,$lastRow=NULL,$sort=NULL,$filters=NULL,&$rawQuery=NULL,&$bindParams=NULL,$transaction=NULL) {
         if(is_array($params)) {
             if(count($params)) {
                 $parameters='';
@@ -755,7 +755,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
                 break;
         }//END switch
         return $query;
-    }//END public function FirebirdSqlExecuteProcedure
+    }//END public function PostgreSqlExecuteProcedure
 
     /**
      * Executes a method of the database object or of one of its sub-objects
@@ -770,9 +770,9 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return void   return description
      * @throws \NETopes\Core\AppException
      */
-    public function FirebirdSqlExecuteMethod($method,$property=NULL,$params=[],$extra_params=[],$log=TRUE) {
-        throw new AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for FirebirdSQL !!! in statement: ".$method.trim('->'.$property,'->'),E_ERROR,1,__FILE__,__LINE__,'firebird',0);
-    }//END public function FirebirdSqlExecuteMethod
+    public function PostgreSqlExecuteMethod($method,$property=NULL,$params=[],$extra_params=[],$log=TRUE) {
+        throw new AppException("FAILED EXECUTE METHOD: #ErrorCode:N/A# Execute method not implemented for PostgreSQL !!! in statement: ".$method.trim('->'.$property,'->'),E_ERROR,1,__FILE__,__LINE__,'firebird',0);
+    }//END public function PostgreSqlExecuteMethod
 
     /**
      * Class initialization abstract method
@@ -797,7 +797,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         } catch(Exception $e) {
             throw new AppException("FAILED TO CONNECT TO DATABASE: {$this->dbName} (".$e->getMessage().")",E_ERROR,1,__FILE__,__LINE__,'firebird',0);
         }//END try
-    }//END public static function FirebirdSqlEscapeString
+    }//END public static function PostgreSqlEscapeString
 
     /**
      * Close current database connection
@@ -805,7 +805,7 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
      * @return bool
      * @throws \NETopes\Core\AppException
      */
-    protected function FirebirdSqlCloseConnection(): bool {
+    protected function PostgreSqlCloseConnection(): bool {
         if(!is_resource($this->connection)) {
             $this->connection=NULL;
             return TRUE;
@@ -821,4 +821,4 @@ class FirebirdSqlAdapter extends SqlDataAdapter {
         }//END try
         return $result;
     }//END public function EscapeString
-}//END class FirebirdSqlDbAdapter extends SqlDataAdapter
+}//END class PostgreSqlDbAdapter extends SqlDataAdapter

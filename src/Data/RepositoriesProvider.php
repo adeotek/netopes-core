@@ -1,22 +1,21 @@
 <?php
 /**
- * Data provider file
- * All data request are made using the DataProvider class static methods.
+ * Repositories provider class
+ * All data request are made using the Repository class static methods.
  *
- * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use Exception;
 use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\AppException;
 use NETopes\Core\Data\Doctrine\DataAdapter as DoctrineAdapter;
-use NETopes\Core\Data\Doctrine\DataSource as DoctrineDataSource;
+use NETopes\Core\Data\Doctrine\GlobalRepository as DoctrineGlobalRepository;
 use NETopes\Core\Helpers;
 
 /**
@@ -25,7 +24,7 @@ use NETopes\Core\Helpers;
  *
  * @package  NETopes\Database
  */
-class DataProvider {
+class RepositoriesProvider {
     /**
      * @var    array An array containing the used connections arrays
      * @access private
@@ -38,44 +37,41 @@ class DataProvider {
     private static $entityManagers=[];
 
     /**
-     * Gets the connection array by name from the connections.inc file
+     * Check if data adapter method exists
      *
-     * @param string $name Connection name
-     *                     (name of the array in the connection.inc file)
-     * @return array|bool Connection array
-     * @access private
+     * @param string      $name   Data adapter name
+     * @param string      $method Method to be searched
+     * @param null|string $mode
+     * @return bool Returns TRUE if the method exist of FALSE otherwise
+     * @throws \NETopes\Core\AppException
      */
-    private static function GetConnectionArray(string $name) {
-        if(is_array(self::$connectionsArrays) && array_key_exists($name,self::$connectionsArrays) && is_array(self::$connectionsArrays[$name])) {
-            return self::$connectionsArrays[$name];
-        }//if(is_array(self::$connectionsArrays) && array_key_exists($name,self::$connectionsArrays) && is_array(self::$connectionsArrays[$name]))
-        try {
-            global $$name;
-            if(!isset($$name)) {
-                return FALSE;
-            }
-        } catch(Exception $e) {
+    public static function MethodExists(string $name,string $method,?string $mode=NULL): bool {
+        if(!strlen($name) || !strlen($method)) {
             return FALSE;
-        }//END try
-        self::$connectionsArrays[$name]=$$name;
-        return self::$connectionsArrays[$name];
+        }
+        $da=self::GetInstance($name,NULL,$mode);
+        return method_exists($da,$method);
     }//END private static function GetConnectionArray
 
     /**
-     * description
-     *
-     * @param string            $dsName
+     * @param string $dsName
+     */
+    public static function Exists(string $name): bool {
+    }//END public static function Exists
+
+    /**
+     * @param string            $name
      * @param array|string|null $connection
      * @param string|null       $mode
      * @param bool              $existing_only
      * @return object Adapter instance
      * @throws \NETopes\Core\AppException
      */
-    public static function GetDataSource(string $dsName,$connection=NULL,?string $mode=NULL,bool $existing_only=FALSE) {
+    public static function GetInstance(string $name,$connection=NULL,?string $mode=NULL,bool $existing_only=FALSE) {
         $ns_prefix=AppConfig::GetValue('app_root_namespace').'\\'.AppConfig::GetValue('app_data_sources_namespace_prefix');
-        $ds_arr=explode('\\',trim($dsName,'\\'));
+        $ds_arr=explode('\\',trim($name,'\\'));
         $ds_type=array_shift($ds_arr);
-        $ds_class=trim($dsName,'\\');
+        $ds_class=trim($name,'\\');
         if($ds_type=='_Custom') {
             $dbmode='_Custom';
             $conn=NULL;
@@ -106,7 +102,7 @@ class DataProvider {
                 $entity='\\'.trim(AppConfig::GetValue('doctrine_entities_namespace'),'\\').'\\'.$ds_class;
                 if(class_exists($entity)) {
                     if(!$entity::$isCustomDS) {
-                        $ds_full_name=DoctrineDataSource::class;
+                        $ds_full_name=DoctrineGlobalRepository::class;
                     }
                 }//if(class_exists($entity))
             } else {
@@ -117,24 +113,50 @@ class DataProvider {
             }
         }//if($ds_type=='_Custom')
         return $ds_full_name::GetInstance($dbmode,$conn,$existing_only,$entity);
-    }//END public static function GetDataSource
+    }//END public static function GetInstance
 
     /**
-     * Check if data adapter method exists
+     * Gets the connection array by name from the connections.inc file
      *
-     * @param string      $name   Data adapter name
-     * @param string      $method Method to be searched
-     * @param null|string $mode
-     * @return bool Returns TRUE if the method exist of FALSE otherwise
+     * @param string $name Connection name
+     *                     (name of the array in the connection.inc file)
+     * @return array|bool Connection array
+     * @access private
+     */
+    private static function GetConnectionArray(string $name) {
+        if(is_array(self::$connectionsArrays) && array_key_exists($name,self::$connectionsArrays) && is_array(self::$connectionsArrays[$name])) {
+            return self::$connectionsArrays[$name];
+        }//if(is_array(self::$connectionsArrays) && array_key_exists($name,self::$connectionsArrays) && is_array(self::$connectionsArrays[$name]))
+        try {
+            global $$name;
+            if(!isset($$name)) {
+                return FALSE;
+            }
+        } catch(Exception $e) {
+            return FALSE;
+        }//END try
+        self::$connectionsArrays[$name]=$$name;
+        return self::$connectionsArrays[$name];
+    }//END public static function MethodExists
+
+    /**
+     * Get data from data source method
+     *
+     * @param string $dsName      Data adapter name
+     * @param string $dsMethod    Data adapter method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
+     * @return mixed Returns the data adapter method response
      * @throws \NETopes\Core\AppException
      */
-    public static function MethodExists(string $name,string $method,?string $mode=NULL): bool {
-        if(!strlen($name) || !strlen($method)) {
-            return FALSE;
-        }
-        $da=self::GetDataSource($name,NULL,$mode);
-        return method_exists($da,$method);
-    }//END public static function MethodExists
+    public static function Get(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
+        $entity=get_array_value($extraParams,'entity_class',VirtualEntity::class,'is_notempty_string');
+        unset($extraParams['entity_class']);
+        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
+        return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
+    }//END public static function GetArray
 
     /**
      * Get data from data source method
@@ -159,7 +181,7 @@ class DataProvider {
         $orgDebug=FALSE;
         $mode=get_array_value($extraParams,'mode','','is_string');
         try {
-            $dataSource=self::GetDataSource($dsName,$connection,$mode);
+            $dataSource=self::GetInstance($dsName,$connection,$mode);
             if($debug===TRUE) {
                 $orgDebug=$dataSource->adapter->debug;
                 $dataSource->adapter->debug=TRUE;
@@ -173,46 +195,7 @@ class DataProvider {
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
         }//END try
-    }//END public static function GetArray
-
-    /**
-     * Call a data source method and return a key-value array
-     * (one column values as keys for the rows array)
-     *
-     * @param string $dsName      Data source name
-     * @param string $dsMethod    Data source method
-     * @param array  $params      An array of parameters to be passed to the method
-     * @param array  $extraParams An array of extra parameters to be passed to the method
-     * @param bool   $debug       Flag debug activation/deactivation on this method
-     * @param array  $outParams   An array passed by reference for the output parameters
-     * @return array|bool Returns the data source method response
-     * @throws \NETopes\Core\AppException
-     */
-    public static function GetKeyValueArray(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
-        $keyfield=get_array_value($extraParams,'keyfield','id','is_notempty_string');
-        unset($extraParams['keyfield']);
-        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
-        return DataSourceHelpers::ConvertResultsToKeyValue($result,$keyfield);
     }//END public static function GetKeyValueArray
-
-    /**
-     * Get data from data source method
-     *
-     * @param string $dsName      Data adapter name
-     * @param string $dsMethod    Data adapter method
-     * @param array  $params      An array of parameters to be passed to the method
-     * @param array  $extraParams An array of extra parameters to be passed to the method
-     * @param bool   $debug       Flag debug activation/deactivation on this method
-     * @param array  $outParams   An array passed by reference for the output parameters
-     * @return mixed Returns the data adapter method response
-     * @throws \NETopes\Core\AppException
-     */
-    public static function Get(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
-        $entity=get_array_value($extraParams,'entity_class',VirtualEntity::class,'is_notempty_string');
-        unset($extraParams['entity_class']);
-        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
-        return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
-    }//END public static function Get
 
     /**
      * Call a data source method and return a key-value DataSet
@@ -232,6 +215,26 @@ class DataProvider {
         unset($extraParams['entity_class']);
         $result=self::GetKeyValueArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
         return DataSourceHelpers::ConvertResultsToDataSet($result,$entity);
+    }//END public static function Get
+
+    /**
+     * Call a data source method and return a key-value array
+     * (one column values as keys for the rows array)
+     *
+     * @param string $dsName      Data source name
+     * @param string $dsMethod    Data source method
+     * @param array  $params      An array of parameters to be passed to the method
+     * @param array  $extraParams An array of extra parameters to be passed to the method
+     * @param bool   $debug       Flag debug activation/deactivation on this method
+     * @param array  $outParams   An array passed by reference for the output parameters
+     * @return array|bool Returns the data source method response
+     * @throws \NETopes\Core\AppException
+     */
+    public static function GetKeyValueArray(string $dsName,string $dsMethod,$params=[],$extraParams=[],bool $debug=FALSE,&$outParams=[]) {
+        $keyfield=get_array_value($extraParams,'keyfield','id','is_notempty_string');
+        unset($extraParams['keyfield']);
+        $result=self::GetArray($dsName,$dsMethod,$params,$extraParams,$debug,$outParams);
+        return DataSourceHelpers::ConvertResultsToKeyValue($result,$keyfield);
     }//END public static function GetKeyValue
 
     /**
@@ -244,7 +247,7 @@ class DataProvider {
      */
     public static function SetGlobalVariables($params=[],$connection=[]) {
         try {
-            $dataSource=self::GetDataSource('System\System',$connection);
+            $dataSource=self::GetInstance('System\System',$connection);
             return $dataSource->adapter->SetGlobalVariables($params);
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
@@ -262,7 +265,7 @@ class DataProvider {
     public static function CloseConnection($da_name,$connection=[]) {
         $result=FALSE;
         try {
-            $dataSource=self::GetDataSource($da_name,$connection,NULL,TRUE);
+            $dataSource=self::GetInstance($da_name,$connection,NULL,TRUE);
             if(is_object($dataSource)) {
                 $result=$dataSource->adapter->CloseConnection();
             }
@@ -286,7 +289,7 @@ class DataProvider {
      */
     public static function StartTransaction($da_name,&$transaction=NULL,$connection=[],$log=FALSE,$overwrite=TRUE,$custom_tran_params=NULL) {
         try {
-            $dataSource=self::GetDataSource($da_name,$connection);
+            $dataSource=self::GetInstance($da_name,$connection);
             return $dataSource->adapter->BeginTran($transaction,$log,$overwrite,$custom_tran_params);
         } catch(Exception $e) {
             throw AppException::GetInstance($e);
@@ -306,7 +309,7 @@ class DataProvider {
      */
     public static function CloseTransaction($da_name,$transaction=NULL,$error=FALSE,$connection=[],$log=FALSE) {
         try {
-            $dataSource=self::GetDataSource($da_name,$connection);
+            $dataSource=self::GetInstance($da_name,$connection);
             if($error===TRUE || $error===1) {
                 return $dataSource->adapter->RollbackTran($transaction,$log);
             } else {

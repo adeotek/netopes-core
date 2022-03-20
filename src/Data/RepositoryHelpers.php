@@ -1,21 +1,18 @@
 <?php
 /**
- * NETopes data source helpers class file
+ * NETopes repositories helpers class
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 /**
- * Class DataSourceHelpers
- *
- * @package NETopes\Core\Data
+ * RepositoryHelpers class
  */
-class DataSourceHelpers {
+class RepositoryHelpers {
     /**
      * Replaces the keys (first level only) of the $results array
      * with the values of a specified key in the second level of the array
@@ -60,6 +57,32 @@ class DataSourceHelpers {
         }//if(is_object($results))
         return $tempResults;
     }//END public static function ConvertResultsToKeyValue
+
+    /**
+     * Convert results array to a DataSet of entities or row arrays
+     *
+     * @param array       $results     The array to be converted
+     * @param string|null $entityClass Name of the entity class
+     * @return mixed Returns the DataSet or unprocessed data if input is not an array
+     */
+    public static function ConvertResultsToDataSet($results=[],$entityClass=NULL) {
+        if(!is_array($results)) {
+            return $results;
+        }
+        if(array_key_exists('data',$results)) {
+            if(!is_array($results['data'])) {
+                $result=self::ConvertArrayToDataSet([],$entityClass);
+            } else {
+                $result=self::ConvertArrayToDataSet($results['data'],$entityClass);
+            }//if(!is_array($results['data']))
+            if(isset($results['count']) && $results['count']>=0) {
+                $result->setTotalCount($results['count']);
+            }
+        } else {
+            $result=self::ConvertArrayToDataSet($results,$entityClass);
+        }//if(isset($results['data']) && is_array($results['data']))
+        return $result;
+    }//END public static function ConvertArrayToDataSet
 
     /**
      * Convert array to a DataSet of entities or row arrays
@@ -107,32 +130,6 @@ class DataSourceHelpers {
                 $result=new DataSet([]);
             }//if(count($data))
         }//if(!is_string($entityClass) || !strlen($entityClass) || !class_exists($entityClass))
-        return $result;
-    }//END public static function ConvertArrayToDataSet
-
-    /**
-     * Convert results array to a DataSet of entities or row arrays
-     *
-     * @param array       $results     The array to be converted
-     * @param string|null $entityClass Name of the entity class
-     * @return mixed Returns the DataSet or unprocessed data if input is not an array
-     */
-    public static function ConvertResultsToDataSet($results=[],$entityClass=NULL) {
-        if(!is_array($results)) {
-            return $results;
-        }
-        if(array_key_exists('data',$results)) {
-            if(!is_array($results['data'])) {
-                $result=self::ConvertArrayToDataSet([],$entityClass);
-            } else {
-                $result=self::ConvertArrayToDataSet($results['data'],$entityClass);
-            }//if(!is_array($results['data']))
-            if(isset($results['count']) && $results['count']>=0) {
-                $result->setTotalCount($results['count']);
-            }
-        } else {
-            $result=self::ConvertArrayToDataSet($results,$entityClass);
-        }//if(isset($results['data']) && is_array($results['data']))
         return $result;
     }//END public static function ConvertResultsToDataSet
 }//END class DataSourceHelpers

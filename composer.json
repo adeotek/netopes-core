@@ -11,15 +11,12 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": "^7.2 || ^8.0",
+    "php": "^7.4 || ^8.0",
     "ext-json": "*",
     "ext-curl": "*",
     "ext-mbstring": "*",
     "adeotek/gibberish-aes-php": "^1.3.5",
-    "adeotek/php-console": "^3.2",
-    "frankforte/quantumphp": "^1.0.11",
-    "phpoffice/phpspreadsheet": "1.17.*",
-    "swiftmailer/swiftmailer": "^6.0"
+    "adeotek/php-console": "^3.2"
   },
   "autoload": {
     "psr-4": {

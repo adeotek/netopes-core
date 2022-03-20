@@ -1,15 +1,14 @@
 <?php
 /**
- * ExcelImport class file
+ * ExcelImport class
  * Class used for reading data from excel files
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use Exception;
 use NApp;
@@ -22,13 +21,26 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 
 /**
  * ExcelImport class
- * Class used for reading data from excel files
- *
- * @package  NETopes\Core\Data
  */
 class ExcelImport {
     use TDateTimeHelpers;
 
+    /**
+     * @var    string Data adapter name
+     */
+    public $ds_name=NULL;
+    /**
+     * @var    string Data adapter method
+     */
+    public $ds_method=NULL;
+    /**
+     * @var    array Data adapter parameters array
+     */
+    public $ds_params=NULL;
+    /**
+     * @var    array An array containing data read from the import file
+     */
+    public $data=NULL;
     /**
      * @var    bool Sanitize header row
      */
@@ -61,22 +73,6 @@ class ExcelImport {
      * @var    bool Flag indicating if read data should be send to a data adapter
      */
     protected $send_to_db=FALSE;
-    /**
-     * @var    string Data adapter name
-     */
-    public $ds_name=NULL;
-    /**
-     * @var    string Data adapter method
-     */
-    public $ds_method=NULL;
-    /**
-     * @var    array Data adapter parameters array
-     */
-    public $ds_params=NULL;
-    /**
-     * @var    array An array containing data read from the import file
-     */
-    public $data=NULL;
 
     /**
      * description

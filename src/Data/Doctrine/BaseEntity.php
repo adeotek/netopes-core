@@ -3,13 +3,12 @@
  * BaseEntity class file
  * Base for all entities implementations
  *
- * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data\Doctrine;
 use DateTime;
 use Exception;
@@ -18,9 +17,6 @@ use NETopes\Core\Data\IEntity;
 
 /**
  * BaseEntity class
- * Base for all entities implementations
- *
- * @package  NETopes\Core\App
  */
 abstract class BaseEntity implements IEntity {
     /**
@@ -49,41 +45,6 @@ abstract class BaseEntity implements IEntity {
     }//END public function __call
 
     /**
-     * @param string|null $name
-     * @param bool|null   $special
-     * @return string|null
-     */
-    protected function convertPropertyName(?string $name,?bool &$special=NULL): ?string {
-        if(is_null($name)) {
-            return NULL;
-        }
-        $mainKey=ltrim($name,'_');
-        $keyPrefixCount=strlen($name) - strlen($mainKey);
-        $key=convert_to_camel_case(rtrim($mainKey,'_'),TRUE);
-        if($keyPrefixCount>0) {
-            $key=str_repeat('_',$keyPrefixCount).$key;
-            $special=TRUE;
-        } else {
-            $special=FALSE;
-        }//if(count($keyComponents))
-        return $key;
-    }//END protected function convertPropertyName
-
-    /**
-     * Get property value by name
-     *
-     * @param string|null $name
-     * @param null        $default_value
-     * @param string|null $validation
-     * @param bool        $strict
-     * @return mixed
-     * @throws \NETopes\Core\AppException
-     */
-    public function getProperty(?string $name,$default_value=NULL,?string $validation=NULL,bool $strict=FALSE) {
-        return $this->GetPropertyValue($name,$strict,$default_value,$validation);
-    }//END public function getProperty
-
-    /**
      * BaseEntity dynamic getter method
      *
      * @param string|null $name The name of the property
@@ -108,7 +69,28 @@ abstract class BaseEntity implements IEntity {
             return validate_param($this->$key,$default_value,$validation);
         }
         return $default_value;
-    }//END protected function GetPropertyValue
+    }//END protected function convertPropertyName
+
+    /**
+     * @param string|null $name
+     * @param bool|null   $special
+     * @return string|null
+     */
+    protected function convertPropertyName(?string $name,?bool &$special=NULL): ?string {
+        if(is_null($name)) {
+            return NULL;
+        }
+        $mainKey=ltrim($name,'_');
+        $keyPrefixCount=strlen($name) - strlen($mainKey);
+        $key=convert_to_camel_case(rtrim($mainKey,'_'),TRUE);
+        if($keyPrefixCount>0) {
+            $key=str_repeat('_',$keyPrefixCount).$key;
+            $special=TRUE;
+        } else {
+            $special=FALSE;
+        }//if(count($keyComponents))
+        return $key;
+    }//END public function getProperty
 
     /**
      * Check if property exists
@@ -131,7 +113,7 @@ abstract class BaseEntity implements IEntity {
             return isset($value);
         }//if($notNull)
         return (method_exists($this,'get'.ucfirst($key)) || property_exists($this,$key));
-    }//END public function hasProperty
+    }//END protected function GetPropertyValue
 
     /**
      * @param string $key
@@ -140,20 +122,7 @@ abstract class BaseEntity implements IEntity {
      */
     public function set(string $key,$value): void {
         $this->SetPropertyValue($key,$value,FALSE);
-    }//END public function set
-
-    /**
-     * Set property value by name
-     *
-     * @param string $name The name of the property
-     * @param mixed  $value
-     * @param bool   $strict
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    public function setProperty(string $name,$value,bool $strict=FALSE): void {
-        $this->SetPropertyValue($name,$value,$strict);
-    }//END public function setProperty
+    }//END public function hasProperty
 
     /**
      * VirtualEntity dynamic setter method
@@ -177,7 +146,20 @@ abstract class BaseEntity implements IEntity {
             return;
         }//if(method_exists($this,$setter))
         throw new AppException('Undefined property ['.$name.']!',E_ERROR,1);
-    }//END protected function SetPropertyValue
+    }//END public function set
+
+    /**
+     * Set property value by name
+     *
+     * @param string $name The name of the property
+     * @param mixed  $value
+     * @param bool   $strict
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    public function setProperty(string $name,$value,bool $strict=FALSE): void {
+        $this->SetPropertyValue($name,$value,$strict);
+    }//END public function setProperty
 
     /**
      * Get data array
@@ -204,6 +186,20 @@ abstract class BaseEntity implements IEntity {
             }
         }
         return $result;
+    }//END protected function SetPropertyValue
+
+    /**
+     * Get property value by name
+     *
+     * @param string|null $name
+     * @param null        $default_value
+     * @param string|null $validation
+     * @param bool        $strict
+     * @return mixed
+     * @throws \NETopes\Core\AppException
+     */
+    public function getProperty(?string $name,$default_value=NULL,?string $validation=NULL,bool $strict=FALSE) {
+        return $this->GetPropertyValue($name,$strict,$default_value,$validation);
     }//END public function toArray
 
     /**

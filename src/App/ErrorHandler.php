@@ -3,13 +3,12 @@
  * Errors handler initialization file
  * Contains ErrorHandler class and its initialization
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.4.1.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 use NETopes\Core\App\IErrorHandler;
 use NETopes\Core\AppException;
 use NETopes\Core\Logging\FileLoggerAdapter;

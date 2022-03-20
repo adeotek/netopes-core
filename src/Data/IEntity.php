@@ -2,19 +2,16 @@
 /**
  * IEntity interface file
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
  * @version    3.1.9.2
- * @filesource
  */
+
 namespace NETopes\Core\Data;
 
 /**
- * Interface IEntity
- *
- * @package NETopes\Core\Data
+ * IEntity interface
  */
 interface IEntity {
     /**

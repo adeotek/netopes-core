@@ -2,13 +2,12 @@
 /**
  * NETopes application main class file.
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 use ErrorHandler;
 use Exception;
@@ -21,9 +20,7 @@ use NETopes\Core\Logging\LogEvent;
 use NETopes\Core\Logging\Logger;
 
 /**
- * Class App
- *
- * @package  NETopes\Core
+ * App class
  */
 abstract class App implements IApp {
     /**
@@ -896,7 +893,6 @@ HTML;
         }
         UserSession::LoadAppSettings($notFromDb,$params,static::$_appAccessKey);
         static::$theme=static::GetTheme();
-        AppHelpers::InitializeKCFinder();
         static::$appOptionsLoaded=TRUE;
     }//END public static function LoadAppSettings
 

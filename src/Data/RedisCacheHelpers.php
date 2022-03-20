@@ -3,13 +3,12 @@
  * Data source Redis cache trait file
  * This contains an methods for Redis data cache operations.
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use Exception;
 use NApp;
@@ -20,9 +19,7 @@ use Redis;
 use RedisException;
 
 /**
- * Class TDataSourceRedisCache
- *
- * @package NETopes\Core\Data
+ * RedisCacheHelpers class
  */
 class RedisCacheHelpers {
     /**
@@ -32,48 +29,7 @@ class RedisCacheHelpers {
     /**
      * @var string
      */
-    public static $fallbackDir='dataadapters';
-
-    /**
-     * @param string $connectionName
-     * @return null|\Redis
-     */
-    public static function GetRedisInstance(string $connectionName) {
-        $redis=NULL;
-        if(!strlen($connectionName) || !class_exists('\Redis',FALSE)) {
-            return $redis;
-        }
-        global $$connectionName;
-        $redisConnection=$$connectionName;
-        $rdb_server=get_array_value($redisConnection,'db_server','','is_string');
-        $rdb_port=get_array_value($redisConnection,'db_port',0,'is_integer');
-        if(strlen($rdb_server) && $rdb_port>0) {
-            $rdb_index=get_array_value($redisConnection,'db_index',1,'is_integer');
-            $rdb_timeout=get_array_value($redisConnection,'timeout',2,'is_integer');
-            $rdb_password=get_array_value($redisConnection,'db_password','','is_string');
-            try {
-                $redis=new Redis();
-                if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
-                    throw new AppException('Unable to connect to Redis server!');
-                }
-                if(strlen($rdb_password)) {
-                    $redis->auth($rdb_password);
-                }
-                if(!$redis->select($rdb_index)) {
-                    throw new AppException('Unable to select Redis database[1]!');
-                }
-            } catch(RedisException $re) {
-                NApp::Elog($re);
-            } catch(AppException $xe) {
-                NApp::Elog($xe);
-                $redis=NULL;
-            } catch(Exception $e) {
-                NApp::Elog($e);
-                $redis=NULL;
-            }//END try
-        }//if(strlen($rdb_server) && $rdb_port>0)
-        return $redis;
-    }//END public static function GetRedisInstance
+    public static $fallbackDir='repositories';
 
     /**
      * Set data call cache
@@ -130,6 +86,47 @@ class RedisCacheHelpers {
             }//END try
         }//if(!$handled && static::$useFilesFallback)
         return (isset($result) && $result!==FALSE && $result!='' ? $result : FALSE);
+    }//END public static function GetRedisInstance
+
+    /**
+     * @param string $connectionName
+     * @return null|\Redis
+     */
+    public static function GetRedisInstance(string $connectionName) {
+        $redis=NULL;
+        if(!strlen($connectionName) || !class_exists('\Redis',FALSE)) {
+            return $redis;
+        }
+        global $$connectionName;
+        $redisConnection=$$connectionName;
+        $rdb_server=get_array_value($redisConnection,'db_server','','is_string');
+        $rdb_port=get_array_value($redisConnection,'db_port',0,'is_integer');
+        if(strlen($rdb_server) && $rdb_port>0) {
+            $rdb_index=get_array_value($redisConnection,'db_index',1,'is_integer');
+            $rdb_timeout=get_array_value($redisConnection,'timeout',2,'is_integer');
+            $rdb_password=get_array_value($redisConnection,'db_password','','is_string');
+            try {
+                $redis=new Redis();
+                if(!$redis->connect($rdb_server,$rdb_port,$rdb_timeout)) {
+                    throw new AppException('Unable to connect to Redis server!');
+                }
+                if(strlen($rdb_password)) {
+                    $redis->auth($rdb_password);
+                }
+                if(!$redis->select($rdb_index)) {
+                    throw new AppException('Unable to select Redis database[1]!');
+                }
+            } catch(RedisException $re) {
+                NApp::Elog($re);
+            } catch(AppException $xe) {
+                NApp::Elog($xe);
+                $redis=NULL;
+            } catch(Exception $e) {
+                NApp::Elog($e);
+                $redis=NULL;
+            }//END try
+        }//if(strlen($rdb_server) && $rdb_port>0)
+        return $redis;
     }//public static function GetCacheData
 
     /**

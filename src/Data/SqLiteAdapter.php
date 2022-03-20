@@ -3,19 +3,14 @@
  * SQLite database implementation class file
  * This file contains the implementing class for SQLite database.
  *
- * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
 
 /**
- * SqLiteDatabase Is implementing the SQLite database
- * This class contains all methods for interacting with SQLite database.
- *
- * @package  Hinter\NETopes\Database
+ * SqLiteAdapter class
  */
 class SqLiteAdapter extends SqlDataAdapter {
     /**
@@ -32,21 +27,6 @@ class SqLiteAdapter extends SqlDataAdapter {
     }//END public function SqLiteSetGlobalVariables
 
     /**
-     * Class initialization abstract method
-     * (called automatically on class constructor)
-     *
-     * @param array $connection Database connection
-     * @return void
-     */
-    protected function Init($connection) {
-        try {
-            $this->connection=new SQLite3(NApp::$appPath.$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
-        } catch(Exception $e) {
-            throw new AException("SQLITE failed to open file: ".$connection['db_path'].$connection['db_name'].' ('.$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
-        }//END try
-    }//END protected function Init
-
-    /**
      * Begins a sqlite transaction
      *
      * @param string $name      Transaction name
@@ -56,7 +36,7 @@ class SqLiteAdapter extends SqlDataAdapter {
      */
     public function SqLiteBeginTran($name,$log=TRUE,$overwrite=TRUE) {
         return NULL;
-    }//END public function SqLiteBeginTran
+    }//END protected function Init
 
     /**
      * Rolls back a sqlite transaction
@@ -66,7 +46,7 @@ class SqLiteAdapter extends SqlDataAdapter {
      */
     public function SqLiteRollbackTran($name,$log=TRUE) {
         return FALSE;
-    }//END public function SqLiteRollbackTran
+    }//END public function SqLiteBeginTran
 
     /**
      * Commits a sqlite transaction
@@ -76,6 +56,47 @@ class SqLiteAdapter extends SqlDataAdapter {
      */
     public function SqLiteCommitTran($name,$log=TRUE,$preserve=FALSE) {
         return FALSE;
+    }//END public function SqLiteRollbackTran
+
+    /**
+     * Executes a query against the database
+     *
+     * @param string $query      The query string
+     * @param array  $params     An array of parameters
+     *                           to be passed to the query/stored procedure
+     * @param array  $out_params An array of output params
+     * @param string $tran_name  Name of transaction in which the query will run
+     * @param string $type       Request type: select, count, execute (default 'select')
+     * @param int    $firstrow   Integer to limit number of returned rows
+     *                           (if used with 'last_row' reprezents the offset of the returned rows)
+     * @param int    $lastrow    Integer to limit number of returned rows
+     *                           (to be used only with 'first_row')
+     * @param array  $sort       An array of fields to compose ORDER BY clause
+     * @return array|bool Returns database request result
+     */
+    public function SqLiteExecuteQuery($query,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=TRUE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+        $time=microtime(TRUE);
+        $this->SqLitePrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
+        $final_result=NULL;
+        try {
+            if($type=='execute') {
+                $result=$this->connection->exec($query);
+            } else {
+                $result=$this->connection->query($query);
+            }//if($type=='execute')
+            if(is_object($result)) {
+                while($data=$result->fetchArray(SQLITE3_ASSOC)) {
+                    $final_result[]=$data;
+                }
+                $result->finalize();
+            } else {
+                $final_result=$result;
+            }//if(is_object($result))
+        } catch(Exception $e) {
+            throw new AException("SQLITE execute query failed: ".$e->getMessage()." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',$e->getCode());
+        }//END try
+        $this->DbDebug($query,'Query',$time);
+        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
     }//END public function SqLiteCommitTran
 
     /**
@@ -171,44 +192,23 @@ class SqLiteAdapter extends SqlDataAdapter {
     }//public function SqLitePrepareQuery
 
     /**
-     * Executes a query against the database
+     * Escapes SQLite special charcaters from a string
      *
-     * @param string $query      The query string
-     * @param array  $params     An array of parameters
-     *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
-     * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
-     *                           (if used with 'last_row' reprezents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
-     *                           (to be used only with 'first_row')
-     * @param array  $sort       An array of fields to compose ORDER BY clause
-     * @return array|bool Returns database request result
+     * @param string|array $param String to be escaped or
+     *                            an array of strings
+     * @return string|array Returns the escaped string or array
      */
-    public function SqLiteExecuteQuery($query,$params=[],$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=TRUE,$results_keys_case=NULL,$custom_tran_params=NULL) {
-        $time=microtime(TRUE);
-        $this->SqLitePrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
-        $final_result=NULL;
-        try {
-            if($type=='execute') {
-                $result=$this->connection->exec($query);
-            } else {
-                $result=$this->connection->query($query);
-            }//if($type=='execute')
-            if(is_object($result)) {
-                while($data=$result->fetchArray(SQLITE3_ASSOC)) {
-                    $final_result[]=$data;
-                }
-                $result->finalize();
-            } else {
-                $final_result=$result;
-            }//if(is_object($result))
-        } catch(Exception $e) {
-            throw new AException("SQLITE execute query failed: ".$e->getMessage()." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',$e->getCode());
-        }//END try
-        $this->DbDebug($query,'Query',$time);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+    public function SqLiteEscapeString($param) {
+        $result=NULL;
+        if(is_array($param)) {
+            $result=[];
+            foreach($param as $k=>$v) {
+                $result[$k]=$this->connection->escapeString($v);
+            }
+        } else {
+            $result=$this->connection->escapeString($param);
+        }
+        return $result;
     }//END public function SqLiteExecuteQuery
 
     /**
@@ -228,23 +228,17 @@ class SqLiteAdapter extends SqlDataAdapter {
     }//END public function SqLiteExecuteMethod
 
     /**
-     * Escapes SQLite special charcaters from a string
+     * Class initialization abstract method
+     * (called automatically on class constructor)
      *
-     * @param string|array $param String to be escaped or
-     *                            an array of strings
-     * @return string|array Returns the escaped string or array
+     * @param array $connection Database connection
+     * @return void
      */
-    public function SqLiteEscapeString($param) {
-        $result=NULL;
-        if(is_array($param)) {
-            $result=[];
-            foreach($param as $k=>$v) {
-                $result[$k]=$this->connection->escapeString($v);
-            }
-        } else {
-            $result=$this->connection->escapeString($param);
-        }
-        return $result;
+    protected function Init($connection) {
+        try {
+            $this->connection=new SQLite3(NApp::$appPath.$connection['db_path'].$connection['db_name'],SQLITE3_OPEN_READWRITE);
+        } catch(Exception $e) {
+            throw new AException("SQLITE failed to open file: ".$connection['db_path'].$connection['db_name'].' ('.$e->getMessage().")",E_USER_ERROR,1,__FILE__,__LINE__,'sqlite',0);
+        }//END try
     }//END public function SqLiteEscapeString
 }//END class SqLiteAdapter extends Database
-?>

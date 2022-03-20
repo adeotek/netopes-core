@@ -1,24 +1,22 @@
 <?php
 /**
- * Base Doctrine data source file
+ * Global Doctrine repository class
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\ORMException;
 use NETopes\Core\AppException;
+use NETopes\Core\Data\DataSource;
 
 /**
- * Base Base Doctrine data adapter class
- *
- * @package  NETopes\Core\Data
+ * GlobalRepository class
  */
-class DataSource extends \NETopes\Core\Data\DataSource {
+class GlobalRepository extends DataSource {
 
     /**
      * @param $name
@@ -196,6 +194,18 @@ class DataSource extends \NETopes\Core\Data\DataSource {
      * @return array
      * @throws \NETopes\Core\AppException
      */
+    public function SetNewItem($params=[],$extra_params=[]) {
+        return $this->SetItem($params,$extra_params);
+    }//END public function SetItem
+
+    /**
+     * Sets new project
+     *
+     * @param array $params
+     * @param array $extra_params
+     * @return array
+     * @throws \NETopes\Core\AppException
+     */
     public function SetItem($params=[],$extra_params=[]) {
         if(!is_object($params)) {
             throw new AppException('Invalid entity instance!');
@@ -210,18 +220,6 @@ class DataSource extends \NETopes\Core\Data\DataSource {
             throw new AppException($e->getMessage(),$e->getCode(),1,$e->getFile(),$e->getLine());
         }//END try
         return $params;
-    }//END public function SetItem
-
-    /**
-     * Sets new project
-     *
-     * @param array $params
-     * @param array $extra_params
-     * @return array
-     * @throws \NETopes\Core\AppException
-     */
-    public function SetNewItem($params=[],$extra_params=[]) {
-        return $this->SetItem($params,$extra_params);
     }//END public function GetNewItem
 
     /**

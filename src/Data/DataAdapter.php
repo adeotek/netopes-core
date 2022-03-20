@@ -1,31 +1,31 @@
 <?php
 /**
- * DbAdapter base class file
+ * DataAdapter base class
  * All specific database adapters classes extends this base class.
  *
- * @package    NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use NApp;
 use NETopes\Core\AppException;
 use NETopes\Core\AppSession;
 
 /**
- * DbAdapter is the base abstract class for all database adapters
- * All database adapters must extend this class.
- *
- * @package  NETopes\Database
+ * DataAdapter class
  */
 abstract class DataAdapter {
     /**
      * @var    array Databases instances array
      */
     protected static $_dbAdapterInstances=[];
+    /**
+     * @var    int Flag for setting the result keys case
+     */
+    public $resultsKeysCase=CASE_LOWER;
     /**
      * @var    resource Database connection object
      */
@@ -46,19 +46,6 @@ abstract class DataAdapter {
      * @var    bool description
      */
     protected $usePdo=FALSE;
-    /**
-     * @var    int Flag for setting the result keys case
-     */
-    public $resultsKeysCase=CASE_LOWER;
-
-    /**
-     * Class initialization abstract method
-     * (called automatically on class constructor)
-     *
-     * @param array $connection Database connection array
-     * @return void
-     */
-    abstract protected function Init($connection);
 
     /**
      * Database class constructor
@@ -76,12 +63,21 @@ abstract class DataAdapter {
         $this->dbType=$connection['db_type'];
         $this->resultsKeysCase=get_array_value($connection,'resultsKeysCase',$this->resultsKeysCase,'is_integer');
         $this->Init($connection);
-    }//END protected function __construct
+    }
+
+    /**
+     * Class initialization abstract method
+     * (called automatically on class constructor)
+     *
+     * @param array $connection Database connection array
+     * @return void
+     */
+    abstract protected function Init($connection);//END protected function __construct
 
     /**
      * Gets the singleton instance for database class
      *
-     * @param string $type       Database type (Firebird/MySql/SqLite/SqlSrv/MongoDb/Oracle)
+     * @param string $type       Database type (Firebird/MySql/SqLite/SqlSrv/MongoDb/PostgreSql)
      * @param array  $connection Database connection array
      * @param bool   $existingOnly
      * @return object Returns the singleton database instance

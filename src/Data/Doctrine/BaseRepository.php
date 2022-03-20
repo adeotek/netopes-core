@@ -1,12 +1,19 @@
 <?php
+/**
+ * Doctrine base repository class
+ *
+ * @author     George Benjamin-Schonberger
+ * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
+ * @license    LICENSE.md
+ * @version    4.0.0.0
+ */
+
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\ORM\EntityRepository;
 use NETopes\Core\AppException;
 
 /**
- * Class BaseRepository
- *
- * @package NETopes\Core\Data\Doctrine
+ * BaseRepository class
  */
 class BaseRepository extends EntityRepository {
     use RepositoryStandardTrait;

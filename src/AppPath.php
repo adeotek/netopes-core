@@ -1,21 +1,17 @@
 <?php
 /**
- * NETopes application path class file
- * The NETopes path class contains helper methods for application paths.
+ * NETopes application path class file containing helper methods for application paths
  *
- * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core;
 /**
  * NETopes path class
  * The NETopes path class contains helper methods for application paths.
- *
- * @package  NETopes\Core
  */
 class AppPath {
     /**

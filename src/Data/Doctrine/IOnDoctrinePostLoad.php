@@ -3,18 +3,16 @@
  * Doctrine entities lifecycle post-load event interface
  * Implement for catching entities post-load event interface
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data\Doctrine;
+
 /**
- * Interface IOnDoctrinePostLoad
- *
- * @package NETopes\Core\Data\Doctrine
+ * IOnDoctrinePostLoad interface
  */
 interface IOnDoctrinePostLoad {
     /**

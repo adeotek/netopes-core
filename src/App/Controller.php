@@ -1,14 +1,13 @@
 <?php
 /**
- * Module class file
+ * Base Controller class
  *
- * @package    NETopes\Core\App
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 use GibberishAES;
 use NApp;
@@ -21,10 +20,8 @@ use ReflectionMethod;
 use Translate;
 
 /**
- * Class Module
- * All applications modules extend this base class
+ * Controller class
  *
- * @package  NETopes\Core\App
  * @method static ViewDRights(?string $uid=NULL): ?bool
  * @method static ListDRights(?string $uid=NULL): ?bool
  * @method static SearchDRights(?string $uid=NULL): ?bool
@@ -37,7 +34,7 @@ use Translate;
  * @method static ExportDRights(?string $uid=NULL): ?bool
  * @method static ImportDRights(?string $uid=NULL): ?bool
  */
-class Module {
+class Controller {
     /**
      * Deny view right
      */
@@ -86,7 +83,7 @@ class Module {
      * @var    array Modules instances array
      * @access private
      */
-    private static $ModuleInstances=[];
+    private static $ControllerInstances=[];
     /**
      * @var    array Module instance debug data
      */

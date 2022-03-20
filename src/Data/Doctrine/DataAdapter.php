@@ -3,13 +3,12 @@
  * DataAdapter database adapter class file
  * This file contains the adapter class for Doctrine ORM.
  *
- * @package    NETopes\Core\Data\Doctrine
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data\Doctrine;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
@@ -26,10 +25,7 @@ use NETopes\Core\AppException;
 use NETopes\Core\Data\RedisCacheHelpers;
 
 /**
- * Class DataAdapter
- * This class contains all methods for interacting with Doctrine ORM.
- *
- * @package  NETopes\Core\Data\Doctrine
+ * DataAdapter class
  */
 class DataAdapter extends \NETopes\Core\Data\DataAdapter {
     /**
@@ -40,6 +36,18 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
      * @var object
      */
     public $platform;
+
+    /**
+     * Class initialization abstract method
+     * (called automatically on class constructor)
+     *
+     * @param array $connection Database connection array
+     * @return void
+     * @throws \NETopes\Core\AppException
+     */
+    protected function Init($connection) {
+        $this->em=self::GetEntityManager(NApp::$appPath,$connection,$this->platform);
+    }//END public static function GetEntityManager
 
     /**
      * Doctrine bootstrap
@@ -139,17 +147,5 @@ class DataAdapter extends \NETopes\Core\Data\DataAdapter {
         } catch(Exception $e3) {
             throw new AppException($e3->getMessage(),$e3->getCode(),1);
         }//END try
-    }//END public static function GetEntityManager
-
-    /**
-     * Class initialization abstract method
-     * (called automatically on class constructor)
-     *
-     * @param array $connection Database connection array
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    protected function Init($connection) {
-        $this->em=self::GetEntityManager(NApp::$appPath,$connection,$this->platform);
     }//END protected function Init
 }//END class DataAdapter extends \NETopes\Core\Data\DataAdapter

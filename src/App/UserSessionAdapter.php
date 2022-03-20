@@ -2,13 +2,12 @@
 /**
  * NETopes application user session class file
  *
- * @package    NETopes\Core
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\App;
 use DateInterval;
 use DateTime;
@@ -16,12 +15,11 @@ use GibberishAES;
 use NApp;
 use NETopes\Core\AppConfig;
 use NETopes\Core\Data\DataProvider;
+use NETopes\Core\Data\RepositoriesProvider;
 use Translate;
 
 /**
- * Class UserSession
- *
- * @package  NETopes\Core\App
+ * UserSessionAdapter class
  */
 class UserSessionAdapter implements IUserSessionAdapter {
     /**
@@ -93,17 +91,18 @@ class UserSessionAdapter implements IUserSessionAdapter {
             NApp::SetPageParam('language_code',strtolower($langCode));
             NApp::Url()->SetParam('language',$langCode);
         } else {
-            $appdata=DataProvider::Get('System\System','GetAppSettings',[
-                'for_domain'=>NApp::Url()->GetAppDomain(),
-                'for_namespace'=>NApp::$currentNamespace,
-                'for_lang_code'=>$langCode,
-                'for_user_hash'=>$user_hash,
-                'login_namespace'=>(strlen(NApp::$loginNamespace) ? NApp::$loginNamespace : NULL),
-                'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : NULL),
-                'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : NULL),
-                'validity'=>UserSession::GetLoginTimeout(),
-                'keep_alive'=>(NApp::$keepAlive ? 1 : 0),
-                'auto_login'=>$auto_login,
+            if(RepositoriesProvider::Exists())
+                $appdata=RepositoriesProvider::Get('System\System','GetAppSettings',[
+                    'for_domain'=>NApp::Url()->GetAppDomain(),
+                    'for_namespace'=>NApp::$currentNamespace,
+                    'for_lang_code'=>$langCode,
+                    'for_user_hash'=>$user_hash,
+                    'login_namespace'=>(strlen(NApp::$loginNamespace) ? NApp::$loginNamespace : NULL),
+                    'section_id'=>((is_numeric($idsection) && $idsection>0) ? $idsection : NULL),
+                    'zone_id'=>((is_numeric($idzone) && $idzone>0) ? $idzone : NULL),
+                    'validity'=>UserSession::GetLoginTimeout(),
+                    'keep_alive'=>(NApp::$keepAlive ? 1 : 0),
+                    'auto_login'=>$auto_login,
                 'for_user_ip'=>(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1'),
             ],['mode'=>'native']);
             if(!is_object($appdata)) {

@@ -3,23 +3,19 @@
  * MySql database implementation class file
  * This file contains the implementing class for MySql SQL database.
  *
- * @package    Hinter\NETopes\Database
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2004 - 2015 Hinter Software
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use Exception;
 use mysqli;
 use NETopes\Core\AppException;
 
 /**
- * MySqlDatabase Is implementing the MySql database
- * This class contains all methods for interacting with MySql database.
- *
- * @package  Hinter\NETopes\Database
+ * MySqlAdapter class
  */
 class MySqlAdapter extends SqlDataAdapter {
     /**
@@ -36,30 +32,6 @@ class MySqlAdapter extends SqlDataAdapter {
     }//END public function MySqlSetGlobalVariables
 
     /**
-     * Class initialization abstract method
-     * (called automatically on class constructor)
-     *
-     * @param array $connection Database connection
-     * @return void
-     * @throws \NETopes\Core\AppException
-     */
-    protected function Init($connection) {
-        $db_port=(array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
-        try {
-            //\NETopes\Core\Logging\Logger::StartTimeTrack('mysqli_connect');
-            if(!($this->connection=new mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbName))) {
-                throw new Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR);
-            }
-            // NApp::Dlog(\NETopes\Core\Logging\Logger::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
-            if(!$this->connection->set_charset("utf8")) {
-                throw new Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR);
-            }
-        } catch(Exception $e) {
-            throw new AppException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
-        }//END try
-    }//END protected function Init
-
-    /**
      * Begins a mysql transaction
      *
      * @param string $name      Transaction name
@@ -69,7 +41,7 @@ class MySqlAdapter extends SqlDataAdapter {
      */
     public function MySqlBeginTran($name,$log=TRUE,$overwrite=TRUE) {
         return NULL;
-    }//END public function MySqlBeginTran
+    }//END protected function Init
 
     /**
      * Rolls back a mysql transaction
@@ -79,7 +51,7 @@ class MySqlAdapter extends SqlDataAdapter {
      */
     public function MySqlRollbackTran($name,$log=TRUE) {
         return FALSE;
-    }//END public function MySqlRollbackTran
+    }//END public function MySqlBeginTran
 
     /**
      * Commits a mysql transaction
@@ -89,6 +61,77 @@ class MySqlAdapter extends SqlDataAdapter {
      */
     public function MySqlCommitTran($name,$log=TRUE,$preserve=FALSE) {
         return FALSE;
+    }//END public function MySqlRollbackTran
+
+    /**
+     * Executes a query against the database
+     *
+     * @param string $query      The query string
+     * @param array  $params     An array of parameters
+     *                           to be passed to the query/stored procedure
+     * @param array  $out_params An array of output params
+     * @param string $tran_name  Name of transaction in which the query will run
+     * @param string $type       Request type: select, count, execute (default 'select')
+     * @param int    $firstrow   Integer to limit number of returned rows
+     *                           (if used with 'last_row' reprezents the offset of the returned rows)
+     * @param int    $lastrow    Integer to limit number of returned rows
+     *                           (to be used only with 'first_row')
+     * @param array  $sort       An array of fields to compose ORDER BY clause
+     * @param null   $filters
+     * @param bool   $log
+     * @param null   $results_keys_case
+     * @param null   $custom_tran_params
+     * @return array|bool Returns database request result
+     * @throws \NETopes\Core\AppException
+     */
+    public function MySqlExecuteQuery($query,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$results_keys_case=NULL,$custom_tran_params=NULL) {
+        $time=microtime(TRUE);
+        $this->MySqlPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
+        /*
+        if(strlen($tran_name)>0) {
+            if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
+                $transaction = $tran_name;
+            }else{
+                throw new FbDbException("FAILED QUERY: NULL database transaction in statement: ".$query);
+            }//if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name]))
+        } else {
+            $transaction = 'DefaultTransaction';
+            if(!array_key_exists($transaction,$this->transactions) || !isset($this->transactions[$transaction]) || !is_resource($this->transactions[$transaction])) {
+                $this->BeginTran($transaction);
+            }//if(!array_key_exists($transaction,$this->transactions) || !isset($this->transactions[$transaction]) || !is_resource($this->transactions[$transaction]))
+        }//if(strlen($tran_name)>0)
+        */
+        $final_result=NULL;
+        if($this->connection->connect_errno) {
+            throw new AppException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+        }//if($this->connection->connect_errno)
+        $result=$this->connection->query($query);
+        if($this->connection->error || $result===FALSE) {
+            //$this->RollbackTran($tran_name);
+            throw new AppException("FAILED QUERY: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
+        }//if(mysqli_error($this->connection) || $result===FALSE)
+        if(is_object($result)) {
+            if(method_exists('mysqli_result','fetch_all')) {
+                $final_result=$result->fetch_all(MYSQLI_ASSOC);
+            } else {
+                while($data=$result->fetch_array(MYSQLI_ASSOC)) {
+                    $final_result[]=$data;
+                }//END while
+            }//if(method_exists('mysqli_result','fetch_all'))
+            $result->close();
+        } else {
+            $final_result=$result;
+        }//if(is_object($result))
+        if($this->connection->more_results()) {
+            $this->connection->next_result();
+        }
+        /*
+        if(strlen($tran_name)==0) {
+            $this->CommitTran($transaction);
+        }//if(strlen($tran_name)==0)
+        */
+        $this->DbDebug($query,'Query',$time);
+        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
     }//END public function MySqlCommitTran
 
     /**
@@ -194,120 +237,24 @@ class MySqlAdapter extends SqlDataAdapter {
     }//public function MySqlPrepareQuery
 
     /**
-     * Executes a query against the database
+     * Escapes MySql special charcaters from a string
      *
-     * @param string $query      The query string
-     * @param array  $params     An array of parameters
-     *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $tran_name  Name of transaction in which the query will run
-     * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
-     *                           (if used with 'last_row' reprezents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
-     *                           (to be used only with 'first_row')
-     * @param array  $sort       An array of fields to compose ORDER BY clause
-     * @param null   $filters
-     * @param bool   $log
-     * @param null   $results_keys_case
-     * @param null   $custom_tran_params
-     * @return array|bool Returns database request result
-     * @throws \NETopes\Core\AppException
+     * @param string|array $param String to be escaped or
+     *                            an array of strings
+     * @return string|array Returns the escaped string or array
      */
-    public function MySqlExecuteQuery($query,$params=[],&$out_params=[],$tran_name=NULL,$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,$log=FALSE,$results_keys_case=NULL,$custom_tran_params=NULL) {
-        $time=microtime(TRUE);
-        $this->MySqlPrepareQuery($query,$params,$out_params,$type,$firstrow,$lastrow,$sort,$filters);
-        /*
-        if(strlen($tran_name)>0) {
-            if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name])) {
-                $transaction = $tran_name;
-            }else{
-                throw new FbDbException("FAILED QUERY: NULL database transaction in statement: ".$query);
-            }//if(array_key_exists($tran_name,$this->transactions) && isset($this->transactions[$tran_name]))
+    public function MySqlEscapeString($param) {
+        $result=NULL;
+        if(is_array($param)) {
+            $result=[];
+            foreach($param as $k=>$v) {
+                $result[$k]=$this->connection->escape_string($v);
+            }
         } else {
-            $transaction = 'DefaultTransaction';
-            if(!array_key_exists($transaction,$this->transactions) || !isset($this->transactions[$transaction]) || !is_resource($this->transactions[$transaction])) {
-                $this->BeginTran($transaction);
-            }//if(!array_key_exists($transaction,$this->transactions) || !isset($this->transactions[$transaction]) || !is_resource($this->transactions[$transaction]))
-        }//if(strlen($tran_name)>0)
-        */
-        $final_result=NULL;
-        if($this->connection->connect_errno) {
-            throw new AppException("MySQL connection failed: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." at statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
-        }//if($this->connection->connect_errno)
-        $result=$this->connection->query($query);
-        if($this->connection->error || $result===FALSE) {
-            //$this->RollbackTran($tran_name);
-            throw new AppException("FAILED QUERY: #ErrorCode:".$this->connection->connect_errno."# ".$this->connection->connect_error." in statement: $query",E_USER_ERROR,1,__FILE__,__LINE__,'mysql',$this->connection->connect_errno);
-        }//if(mysqli_error($this->connection) || $result===FALSE)
-        if(is_object($result)) {
-            if(method_exists('mysqli_result','fetch_all')) {
-                $final_result=$result->fetch_all(MYSQLI_ASSOC);
-            } else {
-                while($data=$result->fetch_array(MYSQLI_ASSOC)) {
-                    $final_result[]=$data;
-                }//END while
-            }//if(method_exists('mysqli_result','fetch_all'))
-            $result->close();
-        } else {
-            $final_result=$result;
-        }//if(is_object($result))
-        if($this->connection->more_results()) {
-            $this->connection->next_result();
+            $result=$this->connection->escape_string($param);
         }
-        /*
-        if(strlen($tran_name)==0) {
-            $this->CommitTran($transaction);
-        }//if(strlen($tran_name)==0)
-        */
-        $this->DbDebug($query,'Query',$time);
-        return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+        return $result;
     }//END public function MySqlExecuteQuery
-
-    /**
-     * Prepares the command string to be executed
-     *
-     * @param string $procedure  The name of the stored procedure
-     * @param array  $params     An array of parameters
-     *                           to be passed to the query/stored procedure
-     * @param array  $out_params An array of output params
-     * @param string $type       Request type: select, count, execute (default 'select')
-     * @param int    $firstrow   Integer to limit number of returned rows
-     *                           (if used with 'last_row' reprezents the offset of the returned rows)
-     * @param int    $lastrow    Integer to limit number of returned rows
-     *                           (to be used only with 'first_row')
-     * @param array  $sort       An array of fields to compose ORDER BY clause
-     * @param array  $filters    An array of condition to be applyed in WHERE clause
-     * @param null   $raw_query
-     * @param null   $bind_params
-     * @param null   $transaction
-     * @return string Returns processed command string
-     */
-    protected function MySqlPrepareProcedureStatement($procedure,$params=[],&$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
-        if(is_array($params)) {
-            if(count($params)>0) {
-                $parameters_in='';
-                foreach($this->MysqlEscapeString($params) as $p) {
-                    $parameters_in.=(strlen($parameters_in)>0 ? ',' : '').(strtolower($p)=='null' ? 'NULL' : "'$p'");
-                }//END foreach
-            } else {
-                $parameters_in='';
-            }//if(count($params)>0)
-        } else {
-            $parameters_in=$params;
-        }//if(is_array($params))
-        if(is_array($out_params)) {
-            if(empty($out_params)) {
-                $parameters_out='';
-            } else {
-                $parameters_out=implode(',',$out_params);
-            }//if(empty($params))
-        } else {
-            $parameters_out=$out_params;
-        }//if(is_array($params))
-        $query='CALL '.$procedure.'('.$parameters_in.(strlen($parameters_out)>0 ? ','.$parameters_out : '').')';
-        return $query;
-    }//END protected function MySqlPrepareProcedureStatement
 
     /**
      * Executes a stored procedure against the database
@@ -428,6 +375,51 @@ class MySqlAdapter extends SqlDataAdapter {
         */
         $this->DbDebug($query,'Query',$time);
         return change_array_keys_case($final_result,TRUE,(isset($results_keys_case) ? $results_keys_case : $this->resultsKeysCase));
+    }//END protected function MySqlPrepareProcedureStatement
+
+    /**
+     * Prepares the command string to be executed
+     *
+     * @param string $procedure  The name of the stored procedure
+     * @param array  $params     An array of parameters
+     *                           to be passed to the query/stored procedure
+     * @param array  $out_params An array of output params
+     * @param string $type       Request type: select, count, execute (default 'select')
+     * @param int    $firstrow   Integer to limit number of returned rows
+     *                           (if used with 'last_row' reprezents the offset of the returned rows)
+     * @param int    $lastrow    Integer to limit number of returned rows
+     *                           (to be used only with 'first_row')
+     * @param array  $sort       An array of fields to compose ORDER BY clause
+     * @param array  $filters    An array of condition to be applyed in WHERE clause
+     * @param null   $raw_query
+     * @param null   $bind_params
+     * @param null   $transaction
+     * @return string Returns processed command string
+     */
+    protected function MySqlPrepareProcedureStatement($procedure,$params=[],&$out_params=[],$type='',$firstrow=NULL,$lastrow=NULL,$sort=NULL,$filters=NULL,&$raw_query=NULL,&$bind_params=NULL,$transaction=NULL) {
+        if(is_array($params)) {
+            if(count($params)>0) {
+                $parameters_in='';
+                foreach($this->MysqlEscapeString($params) as $p) {
+                    $parameters_in.=(strlen($parameters_in)>0 ? ',' : '').(strtolower($p)=='null' ? 'NULL' : "'$p'");
+                }//END foreach
+            } else {
+                $parameters_in='';
+            }//if(count($params)>0)
+        } else {
+            $parameters_in=$params;
+        }//if(is_array($params))
+        if(is_array($out_params)) {
+            if(empty($out_params)) {
+                $parameters_out='';
+            } else {
+                $parameters_out=implode(',',$out_params);
+            }//if(empty($params))
+        } else {
+            $parameters_out=$out_params;
+        }//if(is_array($params))
+        $query='CALL '.$procedure.'('.$parameters_in.(strlen($parameters_out)>0 ? ','.$parameters_out : '').')';
+        return $query;
     }//END public function MySqlExecuteProcedure
 
     /**
@@ -448,22 +440,26 @@ class MySqlAdapter extends SqlDataAdapter {
     }//END public function MySqlExecuteMethod
 
     /**
-     * Escapes MySql special charcaters from a string
+     * Class initialization abstract method
+     * (called automatically on class constructor)
      *
-     * @param string|array $param String to be escaped or
-     *                            an array of strings
-     * @return string|array Returns the escaped string or array
+     * @param array $connection Database connection
+     * @return void
+     * @throws \NETopes\Core\AppException
      */
-    public function MySqlEscapeString($param) {
-        $result=NULL;
-        if(is_array($param)) {
-            $result=[];
-            foreach($param as $k=>$v) {
-                $result[$k]=$this->connection->escape_string($v);
+    protected function Init($connection) {
+        $db_port=(array_key_exists('db_port',$connection) && $connection['db_port']) ? ':'.$connection['db_port'] : '';
+        try {
+            //\NETopes\Core\Logging\Logger::StartTimeTrack('mysqli_connect');
+            if(!($this->connection=new mysqli($connection['db_server'].$db_port,$connection['db_user'],(array_key_exists('db_password',$connection) ? $connection['db_password'] : ''),$this->dbName))) {
+                throw new Exception('Error connecting to mysql server: '.mysqli_error(),E_USER_ERROR);
             }
-        } else {
-            $result=$this->connection->escape_string($param);
-        }
-        return $result;
+            // NApp::Dlog(\NETopes\Core\Logging\Logger::ShowTimeTrack('mysqli_connect'),'mysqli_connect');
+            if(!$this->connection->set_charset("utf8")) {
+                throw new Exception('Error setting default mysql charset: '.mysqli_error(),E_USER_ERROR);
+            }
+        } catch(Exception $e) {
+            throw new AppException($e->getMessage(),E_USER_ERROR,1,__FILE__,__LINE__,'mysql',0);
+        }//END try
     }//END public function MySqlEscapeString
 }//END class MySqlAdapter extends SqlDataAdapter

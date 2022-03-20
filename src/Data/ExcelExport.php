@@ -1,15 +1,14 @@
 <?php
 /**
- * Excel export class file
+ * Excel export class
  * Wrapper for exporting data to excel
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use DateTime;
 use ErrorHandler;
@@ -28,14 +27,15 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
- * Excel export class
- * Wrapper for exporting data to excel
- *
- * @package  NETopes\Core\Data
+ * ExcelExport class
  */
 class ExcelExport {
     use TDateTimeHelpers;
 
+    /**
+     * @var    bool Flag indicating if the data is pre-processed
+     */
+    public $pre_processed_data=FALSE;
     /**
      * @var    array PHP Spreadsheet accepted file types
      */
@@ -121,10 +121,6 @@ class ExcelExport {
      * @var    array An array containing extra params or extra data
      */
     protected $extra_params=NULL;
-    /**
-     * @var    bool Flag indicating if the data is pre-processed
-     */
-    public $pre_processed_data=FALSE;
 
     /**
      * Class constructor function
@@ -305,6 +301,193 @@ class ExcelExport {
     }//END public function __construct
 
     /**
+     * Sets formats to be used in current instance
+     *
+     * @param array $formats Custom formats array
+     * @return void
+     */
+    protected function SetFormats(array $formats=[]): void {
+        $this->formats=array_merge($this->default_formats,$formats);
+    }//END protected function SetCellValue
+
+    /**
+     * Apply style array to a range of cells
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet Target sheet instance
+     * @param string                                        $range Target cells range in excel format
+     * @param string|array                                  $style Style array to be applied
+     * @return bool Returns TRUE on success or FALSE otherwise
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    protected function ApplyStyleArray(Worksheet &$sheet,string $range,$style) {
+        if(!is_object($sheet) || !$range || !$style) {
+            return FALSE;
+        }
+        if(is_array($style)) {
+            $style_arr=$style;
+        } elseif(isset($this->formats[$style])) {
+            $style_arr=$this->formats[$style];
+        } else {
+            return FALSE;
+        }//if(is_array($style))
+        $fstyle=[];
+        $nformat='';
+        $fill='';
+        foreach($style_arr as $key=>$val) {
+            switch($key) {
+                case 'font':
+                    $fstyle['font']['name']=$val;
+                    break;
+                case 'bold':
+                    $fstyle['font']['bold']=$val;
+                    break;
+                case 'italic':
+                    $fstyle['font']['italic']=$val;
+                    break;
+                case 'strike':
+                    $fstyle['font']['strike']=$val;
+                    break;
+                case 'color':
+                    $fstyle['font']['color']=['rgb'=>$val];
+                    break;
+                case 'border_color':
+                    $fstyle['border']['top']['color']=['rgb'=>$val];
+                    $fstyle['border']['bottom']['color']=['rgb'=>$val];
+                    break;
+                case 'border_style':
+                    $fstyle['border']['top']['borderStyle']=$this->GetBorderStyle($val);
+                    $fstyle['border']['bottom']['borderStyle']=$style['border']['top']['borderStyle'];
+                    break;
+                case 'align_h':
+                    $fstyle['alignment']['horizontal']=$this->GetAlignmentStyle($val);
+                    break;
+                case 'align_v':
+                    $fstyle['alignment']['vertical']=$this->GetAlignmentStyle($val);
+                    break;
+                case 'align_rotation':
+                    $fstyle['alignment']['rotation']=$val;
+                    break;
+                case 'align_wrap':
+                    $fstyle['alignment']['wrap']=$val;
+                    break;
+                case 'background_color':
+                    $fill=$val;
+                    break;
+                case 'number':
+                case 'datetime':
+                    $nformat=$val;
+                default:
+                    $fstyle[$key]=$val;
+                    break;
+            }//END switch
+        }//END foreach
+        if($fstyle) {
+            $sheet->getStyle($range)->applyFromArray($fstyle);
+        }
+        if($nformat) {
+            $sheet->getStyle($range)->getNumberFormat()->setFormatCode($nformat);
+        }
+        if($fill) {
+            $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($fill);
+        }
+        return TRUE;
+    }//END protected function SetFormats
+
+    /**
+     * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
+     *
+     * @param string $type Border style name
+     * @return int Returns border style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
+     */
+    protected function GetBorderStyle(string $type) {
+        switch($type) {
+            case 'dashdot':
+                return Border::BORDER_DASHDOT;
+            case 'dashdotdot':
+                return Border::BORDER_DASHDOTDOT;
+            case 'dashed':
+                return Border::BORDER_DASHED;
+            case 'dotted':
+                return Border::BORDER_DOTTED;
+            case 'double':
+                return Border::BORDER_DOUBLE;
+            case 'hair':
+                return Border::BORDER_HAIR;
+            case 'medium':
+                return Border::BORDER_MEDIUM;
+            case 'mediumdashdot':
+                return Border::BORDER_MEDIUMDASHDOT;
+            case 'mediumdashdotdot':
+                return Border::BORDER_MEDIUMDASHDOTDOT;
+            case 'mediumdasher':
+                return Border::BORDER_MEDIUMDASHED;
+            case 'bordernone':
+                return Border::BORDER_NONE;
+            case 'slantdashdot':
+                return Border::BORDER_SLANTDASHDOT;
+            case 'borderthick':
+                return Border::BORDER_THICK;
+            case 'borderthin':
+                return Border::BORDER_THIN;
+            default:
+                return Border::BORDER_NONE;
+        }//switch($type)
+    }//END protected function IndexToColumn
+
+    /**
+     * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
+     *
+     * @param string $type Alignment style name
+     * @return int Returns alignment style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
+     */
+    protected function GetAlignmentStyle(string $type) {
+        switch($type) {
+            case 'h_center':
+                return Alignment::HORIZONTAL_CENTER;
+            case 'h_venter_continuous':
+                return Alignment::HORIZONTAL_CENTER_CONTINUOUS;
+            case 'h_general':
+                return Alignment::HORIZONTAL_GENERAL;
+            case 'h_justify':
+                return Alignment::HORIZONTAL_JUSTIFY;
+            case 'h_left':
+                return Alignment::HORIZONTAL_LEFT;
+            case 'h_right':
+                return Alignment::HORIZONTAL_RIGHT;
+            case 'v_bottom':
+                return Alignment::VERTICAL_BOTTOM;
+            case 'v_center':
+                return Alignment::VERTICAL_CENTER;
+            case 'v_justify':
+                return Alignment::VERTICAL_JUSTIFY;
+            case 'v_top':
+                return Alignment::VERTICAL_TOP;
+            default:
+                return Alignment::HORIZONTAL_GENERAL;
+        }//switch($type)
+    }//END protected function GetDataType
+
+    /**
+     * Get column name in excel format (literal)
+     *
+     * @param int $index Index of a column
+     * @return string Returns column name in excel format
+     */
+    protected function IndexToColumn(int $index): string {
+        if($index<=26) {
+            return chr($index + 64);
+        }
+        $div=intval($index / 26);
+        $mod=$index % 26;
+        if($mod==0) {
+            $div--;
+            $mod=26;
+        }//if($mod==0)
+        $result=chr($div + 64).chr($mod + 64);
+        return $result;
+    }//END protected function GetBorderStyle
+
+    /**
      * Set table cell value
      *
      * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
@@ -395,37 +578,7 @@ class ExcelExport {
             }//if($data_type=='string')
             $sheet->getCell($ccol.$row)->setValueExplicit($col_value,$this->GetDataType($data_type));
         }//if(array_key_exists('format_formula_func',$column) && $column['format_formula_func'])
-    }//END protected function SetCellValue
-
-    /**
-     * Sets formats to be used in current instance
-     *
-     * @param array $formats Custom formats array
-     * @return void
-     */
-    protected function SetFormats(array $formats=[]): void {
-        $this->formats=array_merge($this->default_formats,$formats);
-    }//END protected function SetFormats
-
-    /**
-     * Get column name in excel format (literal)
-     *
-     * @param int $index Index of a column
-     * @return string Returns column name in excel format
-     */
-    protected function IndexToColumn(int $index): string {
-        if($index<=26) {
-            return chr($index + 64);
-        }
-        $div=intval($index / 26);
-        $mod=$index % 26;
-        if($mod==0) {
-            $div--;
-            $mod=26;
-        }//if($mod==0)
-        $result=chr($div + 64).chr($mod + 64);
-        return $result;
-    }//END protected function IndexToColumn
+    }//END protected function GetAlignmentStyle
 
     /**
      * Convert data type to \PhpOffice\PhpSpreadsheet\Spreadsheet format
@@ -445,163 +598,6 @@ class ExcelExport {
             default:
                 return DataType::TYPE_STRING;
         }//switch($type)
-    }//END protected function GetDataType
-
-    /**
-     * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
-     *
-     * @param string $type Border style name
-     * @return int Returns border style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
-     */
-    protected function GetBorderStyle(string $type) {
-        switch($type) {
-            case 'dashdot':
-                return Border::BORDER_DASHDOT;
-            case 'dashdotdot':
-                return Border::BORDER_DASHDOTDOT;
-            case 'dashed':
-                return Border::BORDER_DASHED;
-            case 'dotted':
-                return Border::BORDER_DOTTED;
-            case 'double':
-                return Border::BORDER_DOUBLE;
-            case 'hair':
-                return Border::BORDER_HAIR;
-            case 'medium':
-                return Border::BORDER_MEDIUM;
-            case 'mediumdashdot':
-                return Border::BORDER_MEDIUMDASHDOT;
-            case 'mediumdashdotdot':
-                return Border::BORDER_MEDIUMDASHDOTDOT;
-            case 'mediumdasher':
-                return Border::BORDER_MEDIUMDASHED;
-            case 'bordernone':
-                return Border::BORDER_NONE;
-            case 'slantdashdot':
-                return Border::BORDER_SLANTDASHDOT;
-            case 'borderthick':
-                return Border::BORDER_THICK;
-            case 'borderthin':
-                return Border::BORDER_THIN;
-            default:
-                return Border::BORDER_NONE;
-        }//switch($type)
-    }//END protected function GetBorderStyle
-
-    /**
-     * Convert border style string to \PhpOffice\PhpSpreadsheet\Spreadsheet format
-     *
-     * @param string $type Alignment style name
-     * @return int Returns alignment style in \PhpOffice\PhpSpreadsheet\Spreadsheet format
-     */
-    protected function GetAlignmentStyle(string $type) {
-        switch($type) {
-            case 'h_center':
-                return Alignment::HORIZONTAL_CENTER;
-            case 'h_venter_continuous':
-                return Alignment::HORIZONTAL_CENTER_CONTINUOUS;
-            case 'h_general':
-                return Alignment::HORIZONTAL_GENERAL;
-            case 'h_justify':
-                return Alignment::HORIZONTAL_JUSTIFY;
-            case 'h_left':
-                return Alignment::HORIZONTAL_LEFT;
-            case 'h_right':
-                return Alignment::HORIZONTAL_RIGHT;
-            case 'v_bottom':
-                return Alignment::VERTICAL_BOTTOM;
-            case 'v_center':
-                return Alignment::VERTICAL_CENTER;
-            case 'v_justify':
-                return Alignment::VERTICAL_JUSTIFY;
-            case 'v_top':
-                return Alignment::VERTICAL_TOP;
-            default:
-                return Alignment::HORIZONTAL_GENERAL;
-        }//switch($type)
-    }//END protected function GetAlignmentStyle
-
-    /**
-     * Apply style array to a range of cells
-     *
-     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet Target sheet instance
-     * @param string                                        $range Target cells range in excel format
-     * @param string|array                                  $style Style array to be applied
-     * @return bool Returns TRUE on success or FALSE otherwise
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     */
-    protected function ApplyStyleArray(Worksheet &$sheet,string $range,$style) {
-        if(!is_object($sheet) || !$range || !$style) {
-            return FALSE;
-        }
-        if(is_array($style)) {
-            $style_arr=$style;
-        } elseif(isset($this->formats[$style])) {
-            $style_arr=$this->formats[$style];
-        } else {
-            return FALSE;
-        }//if(is_array($style))
-        $fstyle=[];
-        $nformat='';
-        $fill='';
-        foreach($style_arr as $key=>$val) {
-            switch($key) {
-                case 'font':
-                    $fstyle['font']['name']=$val;
-                    break;
-                case 'bold':
-                    $fstyle['font']['bold']=$val;
-                    break;
-                case 'italic':
-                    $fstyle['font']['italic']=$val;
-                    break;
-                case 'strike':
-                    $fstyle['font']['strike']=$val;
-                    break;
-                case 'color':
-                    $fstyle['font']['color']=['rgb'=>$val];
-                    break;
-                case 'border_color':
-                    $fstyle['border']['top']['color']=['rgb'=>$val];
-                    $fstyle['border']['bottom']['color']=['rgb'=>$val];
-                    break;
-                case 'border_style':
-                    $fstyle['border']['top']['borderStyle']=$this->GetBorderStyle($val);
-                    $fstyle['border']['bottom']['borderStyle']=$style['border']['top']['borderStyle'];
-                    break;
-                case 'align_h':
-                    $fstyle['alignment']['horizontal']=$this->GetAlignmentStyle($val);
-                    break;
-                case 'align_v':
-                    $fstyle['alignment']['vertical']=$this->GetAlignmentStyle($val);
-                    break;
-                case 'align_rotation':
-                    $fstyle['alignment']['rotation']=$val;
-                    break;
-                case 'align_wrap':
-                    $fstyle['alignment']['wrap']=$val;
-                    break;
-                case 'background_color':
-                    $fill=$val;
-                    break;
-                case 'number':
-                case 'datetime':
-                    $nformat=$val;
-                default:
-                    $fstyle[$key]=$val;
-                    break;
-            }//END switch
-        }//END foreach
-        if($fstyle) {
-            $sheet->getStyle($range)->applyFromArray($fstyle);
-        }
-        if($nformat) {
-            $sheet->getStyle($range)->getNumberFormat()->setFormatCode($nformat);
-        }
-        if($fill) {
-            $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($fill);
-        }
-        return TRUE;
     }//protected function ApplyStyleArray
 
     /**

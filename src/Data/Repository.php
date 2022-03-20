@@ -1,25 +1,22 @@
 <?php
 /**
- * Data source base class file
- * This contains an class which every data source extends.
+ * Base Repository class
+ * This contains an class which every repository extends.
  *
- * @package    @package NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use NApp;
 use NETopes\Core\AppSession;
 
 /**
- * Class DataSource
- *
- * @package NETopes\Core\Data
+ * Repository class
  */
-class DataSource {
+class Repository {
     const SP_COUNT_EXPLICIT=0;
     const SP_COUNT_IN_PROC_WITH_OUTPUT=1;
     const SP_COUNT_IN_PROC_RESULTS=2;
@@ -29,7 +26,7 @@ class DataSource {
      * @var    array A static array containing all data adapters instances
      * @access private
      */
-    private static $_dsInstances=[];
+    private static $_repositoriesInstances=[];
     /**
      * @var    string Data adapter type
      */
@@ -332,4 +329,4 @@ class DataSource {
         }//if($cache && NApp::CacheDbCall())
         return $result;
     }//END public function GetQueryData
-}//END class DataSource
+}//END class Repository

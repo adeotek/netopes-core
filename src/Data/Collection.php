@@ -4,13 +4,12 @@
  * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
  * to be used for data manipulation (principally for data fetched from databases)
  *
- * @package    NETopes\Core\Data
  * @author     George Benjamin-Schonberger
  * @copyright  Copyright (c) 2013 - 2019 AdeoTEK Software SRL
  * @license    LICENSE.md
- * @version    3.1.0.0
- * @filesource
+ * @version    4.0.0.0
  */
+
 namespace NETopes\Core\Data;
 use ArrayIterator;
 use Closure;
@@ -36,11 +35,7 @@ use function uasort;
 use function uksort;
 
 /**
- * Class Collection
- * Wrapper for standard array (implements Traversable, Countable, JsonSerializable, IteratorAggregate, ArrayAccess)
- * to be used for data manipulation (principally for data fetched from databases)
- *
- * @package  NETopes\Core\Data
+ * Collection class
  */
 class Collection implements ICollection {
     /**
@@ -48,7 +43,7 @@ class Collection implements ICollection {
      *
      * @var array
      */
-    protected $elements;
+    protected array $elements=[];
 
     /**
      * Initializes a new Collection.
@@ -57,18 +52,6 @@ class Collection implements ICollection {
      */
     public function __construct(?array $elements=[]) {
         $this->elements=$elements ?? [];
-    }
-
-    /**
-     * Creates a new instance from the specified elements.
-     * This method is provided for derived classes to specify how a new
-     * instance should be created when constructor semantics have changed.
-     *
-     * @param array $elements Elements.
-     * @return static
-     */
-    protected function createFrom(array $elements) {
-        return new static($elements);
     }
 
     /**
@@ -127,18 +110,6 @@ class Collection implements ICollection {
     /**
      * {@inheritDoc}
      */
-    public function remove($key) {
-        if(!isset($this->elements[$key]) && !array_key_exists($key,$this->elements)) {
-            return NULL;
-        }
-        $removed=$this->elements[$key];
-        unset($this->elements[$key]);
-        return $removed;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function removeElement($element) {
         $key=array_search($element,$this->elements,TRUE);
         if($key===FALSE) {
@@ -157,11 +128,25 @@ class Collection implements ICollection {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function containsKey($key) {
+        return isset($this->elements[$key]) || array_key_exists($key,$this->elements);
+    }
+
+    /**
      * Required by interface ArrayAccess.
      * {@inheritDoc}
      */
     public function offsetGet($offset) {
         return $this->get($offset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function get($key) {
+        return $this->elements[$key] ?? NULL;
     }
 
     /**
@@ -177,6 +162,25 @@ class Collection implements ICollection {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function add($element,bool $first=FALSE): bool {
+        if($first) {
+            array_unshift($this->elements,$element);
+        } else {
+            $this->elements[]=$element;
+        }//if($first)
+        return TRUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function set($key,$value) {
+        $this->elements[$key]=$value;
+    }
+
+    /**
      * Required by interface ArrayAccess.
      * {@inheritDoc}
      */
@@ -187,8 +191,13 @@ class Collection implements ICollection {
     /**
      * {@inheritDoc}
      */
-    public function containsKey($key) {
-        return isset($this->elements[$key]) || array_key_exists($key,$this->elements);
+    public function remove($key) {
+        if(!isset($this->elements[$key]) && !array_key_exists($key,$this->elements)) {
+            return NULL;
+        }
+        $removed=$this->elements[$key];
+        unset($this->elements[$key]);
+        return $removed;
     }
 
     /**
@@ -220,13 +229,6 @@ class Collection implements ICollection {
     /**
      * {@inheritDoc}
      */
-    public function get($key) {
-        return $this->elements[$key] ?? NULL;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getKeys() {
         return array_keys($this->elements);
     }
@@ -243,25 +245,6 @@ class Collection implements ICollection {
      */
     public function count() {
         return count($this->elements);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function set($key,$value) {
-        $this->elements[$key]=$value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function add($element,bool $first=FALSE): bool {
-        if($first) {
-            array_unshift($this->elements,$element);
-        } else {
-            $this->elements[]=$element;
-        }//if($first)
-        return TRUE;
     }
 
     /**
@@ -285,6 +268,18 @@ class Collection implements ICollection {
      */
     public function map(Closure $func) {
         return $this->createFrom(array_map($func,$this->elements));
+    }
+
+    /**
+     * Creates a new instance from the specified elements.
+     * This method is provided for derived classes to specify how a new
+     * instance should be created when constructor semantics have changed.
+     *
+     * @param array $elements Elements.
+     * @return static
+     */
+    protected function createFrom(array $elements) {
+        return new static($elements);
     }
 
     /**
